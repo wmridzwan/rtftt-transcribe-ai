@@ -6,31 +6,72 @@
     <body class="min-h-screen bg-white dark:bg-zinc-800">
         <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.header>
-                <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
+                <div class="flex items-center gap-2">
+                    <div class="flex size-8 items-center justify-center rounded-lg bg-indigo-600">
+                        <span class="text-sm font-bold text-white">RT</span>
+                    </div>
+                    <div>
+                        <div class="text-sm font-semibold text-zinc-900 dark:text-white">RTFTT</div>
+                        <div class="text-xs text-zinc-500 dark:text-zinc-400">Transcribe AI</div>
+                    </div>
+                </div>
                 <flux:sidebar.collapse class="lg:hidden" />
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
+                <flux:sidebar.group :heading="__('Overview')" class="grid">
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+
+                <flux:sidebar.group :heading="__('Transcriptions')" class="grid">
+                    <flux:sidebar.item icon="document-text" :href="route('transcriptions.index')" :current="request()->routeIs('transcriptions.*') && !request()->routeIs('transcriptions.create')" wire:navigate>
+                        {{ __('All Transcriptions') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="arrow-up-tray" :href="route('transcriptions.create')" :current="request()->routeIs('transcriptions.create')" wire:navigate>
+                        {{ __('Upload Recording') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group :heading="__('Files')" class="grid">
+                    <flux:sidebar.item icon="folder" :href="route('media.index')" :current="request()->routeIs('media.*')" wire:navigate>
+                        {{ __('Media Library') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+                @if (auth()->user()->isAdmin())
+                    <flux:sidebar.group :heading="__('System')" class="grid">
+                        <flux:sidebar.item icon="cog-6-tooth" :href="route('jobs.index')" :current="request()->routeIs('jobs.*')" wire:navigate>
+                            {{ __('Processing Jobs') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endif
             </flux:sidebar.nav>
 
             <flux:spacer />
 
             <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
+                <flux:sidebar.group :heading="__('Account')" class="grid">
+                    <flux:sidebar.item icon="cog" :href="route('profile.edit')" :current="Str::startsWith(request()->url(), url('settings'))" wire:navigate>
+                        {{ __('Settings') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
             </flux:sidebar.nav>
 
-            <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
+            <div class="border-t border-zinc-200 px-3 py-3 dark:border-zinc-700">
+                <div class="flex items-center gap-3">
+                    <flux:avatar :name="auth()->user()->name" :initials="auth()->user()->initials()" size="sm" />
+                    <div class="flex-1 overflow-hidden">
+                        <div class="truncate text-sm font-medium text-zinc-900 dark:text-white">{{ auth()->user()->name }}</div>
+                        <div class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ auth()->user()->role->value }}</div>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <flux:button variant="subtle" size="sm" as="button" type="submit" icon="arrow-right-start-on-rectangle" />
+                    </form>
+                </div>
+            </div>
         </flux:sidebar>
 
         <!-- Mobile User Menu -->
@@ -79,7 +120,6 @@
                             type="submit"
                             icon="arrow-right-start-on-rectangle"
                             class="w-full cursor-pointer"
-                            data-test="logout-button"
                         >
                             {{ __('Log out') }}
                         </flux:menu.item>

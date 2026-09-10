@@ -153,3 +153,69 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - After the feature tests pass, ask the user to run the complete suite with `php artisan test --compact`.
 
 </laravel-boost-guidelines>
+
+<rtftt-project-rules>
+
+# RTFTT Transcribe AI
+
+## Product
+
+Application:
+RTFTT Transcribe AI
+
+Purpose:
+Audio/video transcription management platform.
+
+## Current Phase
+
+Phase 1:
+Application Foundation + Full Clickable Prototype.
+
+## Development Workflow
+
+PLAN → BUILD → TEST → USER REVIEW → REFINE → COMMIT → NEXT MODULE
+
+## Scope Discipline
+
+Agents must not implement functionality outside the currently authorized phase.
+Do not build: real file uploads, FFmpeg processing, faster-whisper transcription,
+production queue infrastructure, AI features, billing, or public registration.
+
+## Framework Discipline
+
+Preserve: Laravel, Livewire, Blade, Flux UI, Tailwind, Fortify, Pest.
+Do not replace installed frameworks without explicit approval.
+Do not introduce: React, Vue, Svelte, Inertia, or alternative frameworks.
+
+## Naming Discipline
+
+Use:
+- MediaFile (not File)
+- ProcessingJob (not Job)
+
+This avoids ambiguity with PHP File concepts, Laravel filesystem concepts,
+and Laravel queue Job classes.
+
+## Quality Expectations
+
+Prefer:
+- Laravel conventions
+- Typed code where appropriate
+- Enums instead of magic strings
+- Eloquent relationships
+- Authorization via policies/gates
+- Reusable UI components
+- Readable code
+- Tests
+- Realistic demo data
+- Simple architecture
+
+Avoid unnecessary abstraction, premature infrastructure, and premature repositories.
+
+## Testing
+
+- Use Pest for all tests
+- Create tests with `php artisan make:test --pest {name}`
+- Test critical behavior: auth, authorization, ownership, relationships, pages
+- Run `vendor/bin/pint --dirty --format agent` after modifying PHP files
+</rtftt-project-rules>
