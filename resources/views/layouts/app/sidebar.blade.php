@@ -130,6 +130,12 @@
 
         {{ $slot }}
 
+        @if (session('success'))
+            <div class="fixed right-6 top-6 z-50 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white shadow-lg" role="status">
+                {{ session('success') }}
+            </div>
+        @endif
+
         @persist('toast')
             <flux:toast.group>
                 <flux:toast />

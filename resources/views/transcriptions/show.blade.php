@@ -5,7 +5,7 @@
             && in_array($transcription->mediaFile->status->value, ['uploaded', 'ready']);
     @endphp
 
-    <div class="flex h-full w-full flex-1 flex-col gap-6" x-data="{ activeTab: 'transcript', showRenameModal: false }">
+    <div class="flex h-full w-full flex-1 flex-col gap-6" x-data="{ activeTab: 'transcript', showRenameModal: {{ request()->boolean('rename') ? 'true' : 'false' }} }">
         <div class="flex items-center gap-4">
             <flux:button href="{{ route('transcriptions.index') }}" icon="arrow-left" variant="subtle" size="sm" wire:navigate>All Transcriptions</flux:button>
             <x-page-header :title="$transcription->title" :description="'Transcription details and transcript'" />

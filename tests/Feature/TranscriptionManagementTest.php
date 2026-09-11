@@ -25,6 +25,29 @@ test('user can rename their own transcription', function () {
     ]);
 });
 
+test('transcription list rename action opens the rename modal', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $transcription = Transcription::factory()->create(['user_id' => $user->id]);
+
+    $this->get(route('transcriptions.index'))
+        ->assertOk()
+        ->assertSee(route('transcriptions.show', ['transcription' => $transcription, 'rename' => 1]), false);
+
+    $this->get(route('transcriptions.show', ['transcription' => $transcription, 'rename' => 1]))
+        ->assertOk()
+        ->assertSee('showRenameModal: true', false);
+});
+
+test('controller success feedback is visible in the application shell', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $this->withSession(['success' => 'Transcription renamed successfully.'])
+        ->get(route('transcriptions.index'))
+        ->assertSee('Transcription renamed successfully.');
+});
+
 test('user cannot rename another users transcription', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();

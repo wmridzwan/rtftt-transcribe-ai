@@ -16,11 +16,11 @@ Status: IN PROGRESS
 
 Latest full test suite:
 
-- 130 passed
+- 134 passed
 - 1 skipped
-- 322 assertions
+- 333 assertions
 
-Run during TASK-002A implementation and independently re-run by Claude Code; recorded in tasks/TASK-002A-livewire-deletion-race-window.md and reviews/TASK-002A-review.md. Supersedes the previous 129-passed/1-skipped/318-assertion baseline.
+Run during TASK-003 implementation and independently re-run by Claude Code; recorded in tasks/TASK-003-complete-prototype-action-wiring.md and reviews/TASK-003-review.md. Supersedes the previous 130-passed/1-skipped/322-assertion baseline.
 
 Skipped test:
 
@@ -58,7 +58,15 @@ None.
 
 ## Ready Tasks
 
-None.
+TASK-003A - Expand Query-Parameter Modal Coverage (READY).
+
+Task: tasks/TASK-003A-expand-query-parameter-modal-coverage.md
+
+Implementation Owner: UNASSIGNED
+
+Reviewer: UNASSIGNED
+
+Follow-up for the LOW finding in reviews/TASK-003-review.md. Not started; no application code or tests changed.
 
 ## Completed Tasks
 
@@ -104,6 +112,16 @@ Independently VERIFIED by Claude Code in reviews/TASK-002A-review.md.
 
 Closes Finding 1 from reviews/TASK-002-review.md: Livewire's destroy() now checks `$this->mediaFile->transcriptions()->exists()` (a fresh query) instead of the relation collection cached at mount time. A new regression test creates a transcription after mount and before deletion and confirms cascade confirmation is now correctly required; independently traced and confirmed this test would have failed against the pre-fix code. Independently re-verified: focused suite 29 passed/93 assertions; full suite 130 passed/1 pre-existing skip/0 failures; Pint passed. One LOW, non-blocking documentation finding is preserved: the task's static-analysis checkbox overstated the PHPStan state; PHPStan shows only the same two pre-existing, unrelated issues documented in the Phase 1 baseline. Closed as DONE after confirming the independent VERIFIED review; the review artifact is preserved.
 
+TASK-003 - Complete Prototype Action Wiring (DONE).
+
+Task: tasks/TASK-003-complete-prototype-action-wiring.md
+
+Implementation Owner: Codex
+
+Independently VERIFIED by Claude Code in reviews/TASK-003-review.md.
+
+Confirmed the previously dead media-list menu actions (Rename/Move/Delete dispatched a non-existent `openModal` event) and the dead transcription-list Rename link (`#rename` fragment with no listener) are now wired to their existing modal states via query parameters (`media.show?action=...`, `transcriptions.show?rename=1`) consumed by `Show::mount()` and the existing Alpine state respectively. Added a session-flash success banner to `sidebar.blade.php`, confirmed as the real live application shell (`layouts/app.blade.php` wraps every authenticated page in it), surfacing plain-controller redirect feedback that Livewire's toast system cannot catch. Independently re-verified: focused suite 41 passed/123 assertions; full suite 134 passed/1 pre-existing skip/0 failures; Pint passed; no new PHPStan findings. One LOW, non-blocking finding is preserved: the Livewire query-param test only directly covers the `rename` branch, not `move`/`delete` (structurally identical, low risk). Closed as DONE after confirming the independent VERIFIED review; the review artifact is preserved.
+
 ## Blocked Tasks
 
 None.
@@ -118,7 +136,7 @@ Targeted PHPStan still reports three pre-existing typing issues in unchanged dec
 
 ## Next Action
 
-No active task. TASK-003 and Phase 2 remain unauthorized.
+No active task. TASK-003A is READY and unstarted. TASK-004 and Phase 2 remain unauthorized.
 
 ## Phase Authorization
 

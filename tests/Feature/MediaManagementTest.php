@@ -26,6 +26,34 @@ test('user can rename their own media file', function () {
     ]);
 });
 
+test('media list actions link to the selected media action states', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $mediaFile = MediaFile::factory()->create(['user_id' => $user->id]);
+
+    $response = $this->get(route('media.index'));
+
+    $response->assertOk()
+        ->assertSee(route('media.show', ['mediaFile' => $mediaFile, 'action' => 'rename']), false)
+        ->assertSee(route('media.show', ['mediaFile' => $mediaFile, 'action' => 'move']), false)
+        ->assertSee(route('media.show', ['mediaFile' => $mediaFile, 'action' => 'delete']), false);
+});
+
+test('media action query opens the corresponding Livewire modal', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $mediaFile = MediaFile::factory()->create(['user_id' => $user->id]);
+
+    Livewire::test(Show::class, [
+        'mediaFile' => $mediaFile,
+    ])
+        ->assertSet('showRenameModal', false);
+
+    Livewire::withQueryParams(['action' => 'rename'])
+        ->test(Show::class, ['mediaFile' => $mediaFile])
+        ->assertSet('showRenameModal', true);
+});
+
 test('user cannot rename another users media file', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();

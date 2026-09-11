@@ -106,7 +106,7 @@
                                                 </flux:menu.item>
                                             </flux:menu.submenu>
                                             <flux:menu.separator />
-                                            <flux:menu.item icon="pencil-square" :href="route('transcriptions.show', $transcription) . '#rename'" wire:navigate keep-open>
+                                            <flux:menu.item icon="pencil-square" :href="route('transcriptions.show', ['transcription' => $transcription, 'rename' => 1])" wire:navigate keep-open>
                                                 Rename
                                             </flux:menu.item>
                                             <flux:menu.separator />

@@ -45,6 +45,18 @@ class Show extends Component
             ->toArray();
 
         $this->renameName = $this->mediaFile->display_name;
+
+        switch (request()->query('action')) {
+            case 'rename':
+                $this->openRenameModal();
+                break;
+            case 'move':
+                $this->openMoveModal();
+                break;
+            case 'delete':
+                $this->openDeleteModal();
+                break;
+        }
     }
 
     public function openRenameModal(): void

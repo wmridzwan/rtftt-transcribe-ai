@@ -88,10 +88,10 @@
                                             <flux:menu.item icon="eye" tag="a" href="{{ route('media.show', $mediaFile) }}" wire:navigate>View</flux:menu.item>
                                             <flux:menu.item icon="arrow-down-tray" tag="a" href="{{ route('media.download', $mediaFile) }}">Download</flux:menu.item>
                                             <flux:separator />
-                                            <flux:menu.item icon="pencil" wire:click="$dispatch('openModal', { component: 'media.rename-modal', arguments: { mediaFileId: {{ $mediaFile->id }} } })">Rename</flux:menu.item>
-                                            <flux:menu.item icon="folder-arrow-down" wire:click="$dispatch('openModal', { component: 'media.move-modal', arguments: { mediaFileId: {{ $mediaFile->id }} } })">Move to Folder</flux:menu.item>
+                                            <flux:menu.item icon="pencil" :href="route('media.show', ['mediaFile' => $mediaFile, 'action' => 'rename'])" wire:navigate>Rename</flux:menu.item>
+                                            <flux:menu.item icon="folder-arrow-down" :href="route('media.show', ['mediaFile' => $mediaFile, 'action' => 'move'])" wire:navigate>Move to Folder</flux:menu.item>
                                             <flux:separator />
-                                            <flux:menu.item icon="trash" wire:click="$dispatch('openModal', { component: 'media.delete-modal', arguments: { mediaFileId: {{ $mediaFile->id }} } })">Delete</flux:menu.item>
+                                            <flux:menu.item icon="trash" :href="route('media.show', ['mediaFile' => $mediaFile, 'action' => 'delete'])" wire:navigate>Delete</flux:menu.item>
                                         </flux:menu>
                                     </flux:dropdown>
                                 </td>
