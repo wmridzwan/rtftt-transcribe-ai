@@ -5,6 +5,7 @@ namespace App\Livewire\Media;
 use App\Models\Folder;
 use App\Models\MediaFile;
 use Flux\Flux;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -20,6 +21,8 @@ class Show extends Component
     public bool $showMoveModal = false;
 
     public bool $showDeleteModal = false;
+
+    public bool $confirmCascade = false;
 
     public string $renameName = '';
 
@@ -74,11 +77,11 @@ class Show extends Component
 
     public function moveToFolder(): void
     {
-        $this->validate([
-            'moveFolderId' => 'nullable|integer|exists:folders,id',
-        ]);
-
         $this->authorize('update', $this->mediaFile);
+
+        $this->validate([
+            'moveFolderId' => ['nullable', 'integer', Rule::exists('folders', 'id')->where('user_id', $this->mediaFile->user_id)],
+        ]);
 
         $this->mediaFile->update(['folder_id' => $this->moveFolderId]);
         $this->mediaFile->load('folder');
@@ -91,6 +94,7 @@ class Show extends Component
 
     public function openDeleteModal(): void
     {
+        $this->confirmCascade = false;
         $this->showDeleteModal = true;
     }
 
@@ -98,13 +102,21 @@ class Show extends Component
     {
         $this->authorize('delete', $this->mediaFile);
 
+        $hasTranscriptions = $this->mediaFile->transcriptions->isNotEmpty();
+
+        $this->validate([
+            'confirmCascade' => $hasTranscriptions
+                ? ['accepted']
+                : ['nullable', 'boolean'],
+        ]);
+
         if ($this->mediaFile->storage_path && \Storage::exists($this->mediaFile->storage_path)) {
             \Storage::delete($this->mediaFile->storage_path);
         }
 
         $this->mediaFile->delete();
 
-        $this->showDeleteModal = false;
+        $this->reset('confirmCascade', 'showDeleteModal');
 
         $this->redirect(route('media.index'));
     }

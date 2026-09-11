@@ -6,6 +6,7 @@ use App\Models\MediaFile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class MediaActionController extends Controller
 {
@@ -22,14 +23,17 @@ class MediaActionController extends Controller
         return redirect()->back()->with('success', 'Media file renamed successfully.');
     }
 
-    public function destroy(MediaFile $mediaFile): RedirectResponse
+    public function destroy(Request $request, MediaFile $mediaFile): RedirectResponse
     {
         $this->authorize('delete', $mediaFile);
 
-        if ($mediaFile->transcriptions()->exists()) {
-            return redirect()->back()
-                ->with('error', 'Cannot delete media file with associated transcriptions.');
-        }
+        $hasTranscriptions = $mediaFile->transcriptions()->exists();
+
+        $request->validate([
+            'confirm_cascade' => $hasTranscriptions
+                ? ['accepted']
+                : ['nullable', 'boolean'],
+        ]);
 
         if ($mediaFile->storage_path && Storage::exists($mediaFile->storage_path)) {
             Storage::delete($mediaFile->storage_path);
@@ -57,7 +61,7 @@ class MediaActionController extends Controller
         $this->authorize('update', $mediaFile);
 
         $validated = $request->validate([
-            'folder_id' => 'nullable|integer|exists:folders,id',
+            'folder_id' => ['nullable', 'integer', Rule::exists('folders', 'id')->where('user_id', $mediaFile->user_id)],
         ]);
 
         $mediaFile->update(['folder_id' => $validated['folder_id']]);

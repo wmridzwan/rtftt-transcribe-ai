@@ -134,6 +134,7 @@
                         This media file has {{ $mediaFile->transcriptions->count() }} {{ Str::plural('transcription', $mediaFile->transcriptions->count()) }}.
                         Deleting it will also delete all associated transcriptions. This action cannot be undone.
                     </p>
+                    <flux:checkbox wire:model="confirmCascade" class="mt-4" label="I understand that associated transcriptions will also be deleted." />
                 </div>
             @else
                 <flux:text class="mt-2">Are you sure you want to delete this media file? This action cannot be undone.</flux:text>

@@ -94,7 +94,7 @@ class MediaFile extends Model
 
     public function getDisplayNameAttribute(): string
     {
-        return $this->display_name ?? $this->original_filename;
+        return $this->attributes['display_name'] ?? $this->attributes['original_filename'];
     }
 
     public function getFormattedFileSizeAttribute(): string

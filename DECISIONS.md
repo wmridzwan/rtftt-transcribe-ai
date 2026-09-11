@@ -206,3 +206,55 @@ Human approval remains required for:
 
 \- production release
 
+
+
+---
+
+
+
+## ADR-005 — Cascade Media Deletion Requires Explicit Confirmation
+
+
+
+Date: 2026-09-11
+
+Status: ACCEPTED
+
+
+
+Decision:
+
+
+
+Media may be deleted even when it has associated transcriptions. Deletion must
+
+require an explicit cascade confirmation that clearly informs the user that all
+
+related transcriptions will also be deleted.
+
+
+
+Reason:
+
+
+
+This decision resolves the conflicting media deletion behavior identified in
+
+the Phase 1 audit. The application must use one consistent deletion contract:
+
+the user deliberately confirms the destructive cascade before media and its
+
+associated transcriptions are removed.
+
+
+
+Reference:
+
+
+
+Phase 1 completion audit
+
+app/Http/Controllers/MediaActionController.php
+
+app/Livewire/Media/Show.php
+
