@@ -12,6 +12,9 @@
             description="Create a folder to organize your media files."
             icon="folder"
         />
+        <div class="flex justify-center -mt-8">
+            <flux:button wire:click="$set('showCreateModal', true)" icon="plus" variant="primary">Create Folder</flux:button>
+        </div>
     @else
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @foreach ($folders as $folder)

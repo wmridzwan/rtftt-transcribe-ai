@@ -39,6 +39,17 @@ test('media list actions link to the selected media action states', function () 
         ->assertSee(route('media.show', ['mediaFile' => $mediaFile, 'action' => 'delete']), false);
 });
 
+test('media download is unavailable when the physical file is missing', function () {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $mediaFile = MediaFile::factory()->create(['user_id' => $user->id]);
+
+    $this->get(route('media.show', $mediaFile))
+        ->assertOk()
+        ->assertDontSee(route('media.download', $mediaFile), false);
+});
+
 test('media action query opens the corresponding Livewire modal', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

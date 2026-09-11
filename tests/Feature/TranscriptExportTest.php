@@ -183,3 +183,20 @@ test('export returns 403 for unauthenticated users', function () {
     $this->get(route('transcriptions.export.vtt', $transcription))->assertRedirect('/login');
     $this->get(route('transcriptions.export.docx', $transcription))->assertRedirect('/login');
 });
+
+test('export controls depend on completed status and use normal links', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $completed = Transcription::factory()->completed()->create(['user_id' => $user->id]);
+    $response = $this->get(route('transcriptions.show', $completed));
+    $exportUrl = route('transcriptions.export.txt', $completed);
+    $position = strpos($response->getContent(), $exportUrl);
+
+    expect($position)->toBeInt()
+        ->and(substr($response->getContent(), max(0, $position - 80), 160))->not->toContain('wire:navigate');
+
+    $queued = Transcription::factory()->queued()->create(['user_id' => $user->id]);
+    $this->get(route('transcriptions.show', $queued))
+        ->assertSee('disabled', false);
+});

@@ -38,6 +38,9 @@
                     <flux:sidebar.item icon="folder" :href="route('media.index')" :current="request()->routeIs('media.*')" wire:navigate>
                         {{ __('Media Library') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="folder-open" :href="route('folders.index')" :current="request()->routeIs('folders.*')" wire:navigate>
+                        {{ __('Folders') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
 
                 @if (auth()->user()->isAdmin())
@@ -53,7 +56,7 @@
 
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Account')" class="grid">
-                    <flux:sidebar.item icon="cog" :href="route('profile.edit')" :current="Str::startsWith(request()->url(), url('settings'))" wire:navigate>
+                    <flux:sidebar.item icon="cog" :href="route('settings.index')" :current="request()->routeIs('settings.index')" wire:navigate>
                         {{ __('Settings') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
@@ -106,7 +109,7 @@
                     <flux:menu.separator />
 
                     <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
+                        <flux:menu.item :href="route('settings.index')" icon="cog" wire:navigate>
                             {{ __('Settings') }}
                         </flux:menu.item>
                     </flux:menu.radio.group>

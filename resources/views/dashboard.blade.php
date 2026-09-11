@@ -18,7 +18,9 @@
             <div class="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
                 <div class="flex items-center justify-between mb-3">
                     <flux:heading size="sm">Processing Queue</flux:heading>
-                    <flux:button variant="subtle" size="sm" :href="route('jobs.index')" wire:navigate>View Jobs</flux:button>
+                    @if (auth()->user()->isAdmin())
+                        <flux:button variant="subtle" size="sm" :href="route('jobs.index')" wire:navigate>View Jobs</flux:button>
+                    @endif
                 </div>
                 <div class="grid gap-4 sm:grid-cols-3">
                     <div class="flex items-center gap-3">

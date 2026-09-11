@@ -19,7 +19,6 @@ class MediaController extends Controller
         if (! $isAdmin) {
             $query->where('user_id', $user->id);
         }
-
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('original_filename', 'like', "%{$search}%")
@@ -44,16 +43,5 @@ class MediaController extends Controller
         $folders = Folder::where('user_id', $user->id)->withCount('mediaFiles')->latest()->get();
 
         return view('media.index', compact('mediaFiles', 'folders'));
-    }
-
-    public function show(MediaFile $mediaFile): View
-    {
-        $this->authorize('view', $mediaFile);
-
-        $mediaFile->load(['transcriptions', 'folder']);
-
-        $folders = Folder::where('user_id', $mediaFile->user_id)->withCount('mediaFiles')->latest()->get();
-
-        return view('media.show', compact('mediaFile', 'folders'));
     }
 }

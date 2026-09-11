@@ -86,7 +86,11 @@
                                         <flux:button icon="ellipsis-horizontal" variant="subtle" size="sm" />
                                         <flux:menu>
                                             <flux:menu.item icon="eye" tag="a" href="{{ route('media.show', $mediaFile) }}" wire:navigate>View</flux:menu.item>
-                                            <flux:menu.item icon="arrow-down-tray" tag="a" href="{{ route('media.download', $mediaFile) }}">Download</flux:menu.item>
+                                            @if ($mediaFile->storage_path && Storage::exists($mediaFile->storage_path))
+                                                <flux:menu.item icon="arrow-down-tray" tag="a" href="{{ route('media.download', $mediaFile) }}">Download</flux:menu.item>
+                                            @else
+                                                <flux:menu.item icon="arrow-down-tray" disabled>Download</flux:menu.item>
+                                            @endif
                                             <flux:separator />
                                             <flux:menu.item icon="pencil" :href="route('media.show', ['mediaFile' => $mediaFile, 'action' => 'rename'])" wire:navigate>Rename</flux:menu.item>
                                             <flux:menu.item icon="folder-arrow-down" :href="route('media.show', ['mediaFile' => $mediaFile, 'action' => 'move'])" wire:navigate>Move to Folder</flux:menu.item>

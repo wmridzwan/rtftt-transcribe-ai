@@ -55,9 +55,7 @@
                     <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
                         @foreach ($transcriptions as $transcription)
                             @php
-                                $hasFile = $transcription->mediaFile
-                                    && $transcription->mediaFile->storage_path
-                                    && in_array($transcription->mediaFile->status->value, ['uploaded', 'ready']);
+                                $canExport = $transcription->status === \App\Enums\TranscriptionStatus::Completed;
                             @endphp
                             <tr class="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
                                 <td class="whitespace-nowrap px-4 py-3">
@@ -91,17 +89,17 @@
                                             <flux:menu.item icon="eye" :href="route('transcriptions.show', $transcription)" wire:navigate>
                                                 View
                                             </flux:menu.item>
-                                            <flux:menu.submenu heading="Export" :disabled="!$hasFile">
-                                                <flux:menu.item icon="document-text" :href="route('transcriptions.export.txt', $transcription)" :disabled="!$hasFile" wire:navigate>
+                                            <flux:menu.submenu heading="Export" :disabled="!$canExport">
+                                                <flux:menu.item icon="document-text" :href="route('transcriptions.export.txt', $transcription)" :disabled="!$canExport">
                                                     TXT
                                                 </flux:menu.item>
-                                                <flux:menu.item icon="document-text" :href="route('transcriptions.export.srt', $transcription)" :disabled="!$hasFile" wire:navigate>
+                                                <flux:menu.item icon="document-text" :href="route('transcriptions.export.srt', $transcription)" :disabled="!$canExport">
                                                     SRT
                                                 </flux:menu.item>
-                                                <flux:menu.item icon="play" :href="route('transcriptions.export.vtt', $transcription)" :disabled="!$hasFile" wire:navigate>
+                                                <flux:menu.item icon="play" :href="route('transcriptions.export.vtt', $transcription)" :disabled="!$canExport">
                                                     VTT
                                                 </flux:menu.item>
-                                                <flux:menu.item icon="document-text" :href="route('transcriptions.export.docx', $transcription)" :disabled="!$hasFile" wire:navigate>
+                                                <flux:menu.item icon="document-text" :href="route('transcriptions.export.docx', $transcription)" :disabled="!$canExport">
                                                     DOCX
                                                 </flux:menu.item>
                                             </flux:menu.submenu>

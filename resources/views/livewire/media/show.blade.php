@@ -1,3 +1,7 @@
+@php
+    $hasPhysicalFile = $mediaFile->storage_path && Storage::exists($mediaFile->storage_path);
+@endphp
+
 <div class="flex h-full w-full flex-1 flex-col gap-6">
     <div class="flex items-center gap-4">
         <flux:button href="{{ route('media.index') }}" icon="arrow-left" variant="subtle" size="sm" wire:navigate />
@@ -5,7 +9,11 @@
             <x-page-header :title="$mediaFile->display_name" :description="'Media file details'" />
         </div>
         <div class="flex items-center gap-2">
-            <flux:button tag="a" href="{{ route('media.download', $mediaFile) }}" icon="arrow-down-tray" variant="subtle" size="sm">Download</flux:button>
+            @if ($hasPhysicalFile)
+                <flux:button tag="a" href="{{ route('media.download', $mediaFile) }}" icon="arrow-down-tray" variant="subtle" size="sm">Download</flux:button>
+            @else
+                <flux:button icon="arrow-down-tray" variant="subtle" size="sm" disabled>Download</flux:button>
+            @endif
             <flux:button wire:click="openRenameModal" icon="pencil" variant="subtle" size="sm">Rename</flux:button>
             <flux:button wire:click="openMoveModal" icon="folder-arrow-down" variant="subtle" size="sm">Move to Folder</flux:button>
             <flux:button wire:click="openDeleteModal" icon="trash" variant="danger" size="sm">Delete</flux:button>

@@ -41,6 +41,25 @@ test('media index renders', function () {
     $response->assertSee('Media Library');
 });
 
+test('application navigation exposes folders and canonical settings', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $this->get(route('dashboard'))
+        ->assertSee(route('folders.index'), false)
+        ->assertSee(route('settings.index'), false);
+});
+
+test('empty folders state provides a create folder action', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $this->get(route('folders.index'))
+        ->assertOk()
+        ->assertSee('Create Folder')
+        ->assertSee('wire:click="$set(\'showCreateModal\', true)"', false);
+});
+
 test('settings renders', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
@@ -119,6 +138,28 @@ test('regular user cannot access processing jobs', function () {
 
     $response = $this->get(route('jobs.index'));
     $response->assertForbidden();
+});
+
+test('normal users see processing summaries without admin job links', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $transcription = Transcription::factory()->create(['user_id' => $user->id]);
+    $job = ProcessingJob::factory()->create(['transcription_id' => $transcription->id]);
+
+    $this->get(route('transcriptions.show', $transcription))
+        ->assertOk()
+        ->assertSee('Processing')
+        ->assertDontSee(route('jobs.show', $job), false);
+});
+
+test('admins retain processing job links', function () {
+    $admin = User::factory()->admin()->create();
+    $this->actingAs($admin);
+    $transcription = Transcription::factory()->create(['user_id' => $admin->id]);
+    $job = ProcessingJob::factory()->create(['transcription_id' => $transcription->id]);
+
+    $this->get(route('transcriptions.show', $transcription))
+        ->assertSee(route('jobs.show', $job), false);
 });
 
 test('upload recording page has correct button text', function () {

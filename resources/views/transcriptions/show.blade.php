@@ -1,8 +1,6 @@
 <x-layouts::app :title="$transcription->title">
     @php
-        $hasFile = $transcription->mediaFile
-            && $transcription->mediaFile->storage_path
-            && in_array($transcription->mediaFile->status->value, ['uploaded', 'ready']);
+        $canExport = $transcription->status === \App\Enums\TranscriptionStatus::Completed;
     @endphp
 
     <div class="flex h-full w-full flex-1 flex-col gap-6" x-data="{ activeTab: 'transcript', showRenameModal: {{ request()->boolean('rename') ? 'true' : 'false' }} }">
@@ -12,20 +10,20 @@
 
             <div class="ml-auto flex items-center gap-2">
                 <flux:dropdown position="bottom" align="end">
-                    <flux:button icon="arrow-down-tray" icon:trailing="chevron-down" variant="primary" size="sm" :disabled="!$hasFile">
+                    <flux:button icon="arrow-down-tray" icon:trailing="chevron-down" variant="primary" size="sm" :disabled="!$canExport">
                         Export
                     </flux:button>
                     <flux:menu>
-                        <flux:menu.item icon="document-text" :href="route('transcriptions.export.txt', $transcription)" :disabled="!$hasFile" wire:navigate>
+                        <flux:menu.item icon="document-text" :href="route('transcriptions.export.txt', $transcription)" :disabled="!$canExport">
                             Export as TXT
                         </flux:menu.item>
-                        <flux:menu.item icon="document-text" :href="route('transcriptions.export.srt', $transcription)" :disabled="!$hasFile" wire:navigate>
+                        <flux:menu.item icon="document-text" :href="route('transcriptions.export.srt', $transcription)" :disabled="!$canExport">
                             Export as SRT
                         </flux:menu.item>
-                        <flux:menu.item icon="play" :href="route('transcriptions.export.vtt', $transcription)" :disabled="!$hasFile" wire:navigate>
+                        <flux:menu.item icon="play" :href="route('transcriptions.export.vtt', $transcription)" :disabled="!$canExport">
                             Export as VTT
                         </flux:menu.item>
-                        <flux:menu.item icon="document-text" :href="route('transcriptions.export.docx', $transcription)" :disabled="!$hasFile" wire:navigate>
+                        <flux:menu.item icon="document-text" :href="route('transcriptions.export.docx', $transcription)" :disabled="!$canExport">
                             Export as DOCX
                         </flux:menu.item>
                     </flux:menu>
@@ -134,7 +132,11 @@
                             <flux:heading size="sm" class="mb-3 mt-6">Processing Jobs</flux:heading>
                             <div class="space-y-3">
                                 @foreach ($transcription->processingJobs as $job)
-                                    <a href="{{ route('jobs.show', $job) }}" class="block rounded-lg border border-zinc-200 p-3 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-700/50" wire:navigate>
+                                    @if (auth()->user()->isAdmin())
+                                        <a href="{{ route('jobs.show', $job) }}" class="block rounded-lg border border-zinc-200 p-3 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-700/50">
+                                    @else
+                                        <div class="block rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                                    @endif
                                         <div class="flex items-center justify-between">
                                             <span class="font-mono text-xs text-zinc-600 dark:text-zinc-400">{{ Str::limit($job->job_uuid, 8) }}</span>
                                             <x-status-badge :value="$job->status->value" />
@@ -148,7 +150,11 @@
                                                 <div class="h-full rounded-full bg-indigo-600" style="width: {{ $job->progress_percentage }}%"></div>
                                             </div>
                                         @endif
-                                    </a>
+                                    @if (auth()->user()->isAdmin())
+                                        </a>
+                                    @else
+                                        </div>
+                                    @endif
                                 @endforeach
                             </div>
                         @endif

@@ -16,11 +16,11 @@ Status: IN PROGRESS
 
 Latest full test suite:
 
-- 134 passed
+- 140 passed
 - 1 skipped
-- 333 assertions
+- 347 assertions
 
-Run during TASK-003 implementation and independently re-run by Claude Code; recorded in tasks/TASK-003-complete-prototype-action-wiring.md and reviews/TASK-003-review.md. Supersedes the previous 130-passed/1-skipped/322-assertion baseline.
+Run during TASK-004 implementation; recorded in tasks/TASK-004-complete-navigation-and-action-availability.md. Supersedes the previous 134-passed/1-skipped/333-assertion baseline. Independent review is VERIFIED in reviews/TASK-004-review.md. Frontend production build also passed with `npm.cmd run build`.
 
 Skipped test:
 
@@ -67,6 +67,26 @@ Implementation Owner: UNASSIGNED
 Reviewer: UNASSIGNED
 
 Follow-up for the LOW finding in reviews/TASK-003-review.md. Not started; no application code or tests changed.
+
+TASK-004A - Restore Settings Active State (READY).
+
+Task: tasks/TASK-004A-restore-settings-active-state.md
+
+Implementation Owner: UNASSIGNED
+
+Reviewer: UNASSIGNED
+
+Follow-up for the MEDIUM finding in reviews/TASK-004-review.md. Not started; no application code changed.
+
+TASK-004B - Restore Internal Livewire Navigation (READY).
+
+Task: tasks/TASK-004B-restore-internal-livewire-navigation.md
+
+Implementation Owner: UNASSIGNED
+
+Reviewer: UNASSIGNED
+
+Follow-up for the LOW finding in reviews/TASK-004-review.md. Not started; no application code changed.
 
 ## Completed Tasks
 
@@ -122,9 +142,23 @@ Independently VERIFIED by Claude Code in reviews/TASK-003-review.md.
 
 Confirmed the previously dead media-list menu actions (Rename/Move/Delete dispatched a non-existent `openModal` event) and the dead transcription-list Rename link (`#rename` fragment with no listener) are now wired to their existing modal states via query parameters (`media.show?action=...`, `transcriptions.show?rename=1`) consumed by `Show::mount()` and the existing Alpine state respectively. Added a session-flash success banner to `sidebar.blade.php`, confirmed as the real live application shell (`layouts/app.blade.php` wraps every authenticated page in it), surfacing plain-controller redirect feedback that Livewire's toast system cannot catch. Independently re-verified: focused suite 41 passed/123 assertions; full suite 134 passed/1 pre-existing skip/0 failures; Pint passed; no new PHPStan findings. One LOW, non-blocking finding is preserved: the Livewire query-param test only directly covers the `rename` branch, not `move`/`delete` (structurally identical, low risk). Closed as DONE after confirming the independent VERIFIED review; the review artifact is preserved.
 
+TASK-004 - Complete Navigation and Action Availability (DONE).
+
+Task: tasks/TASK-004-complete-navigation-and-action-availability.md
+
+Implementation Owner: Codex
+
+Independently VERIFIED by Claude Code in reviews/TASK-004-review.md.
+
+Role-aware processing-job links now hide dead-end admin-only links from non-admins (confirmed `jobs.*` routes are admin-gated, pre-existing). Export controls now gate on `TranscriptionStatus::Completed`, matching the controller's own pre-existing authorization rule exactly (the old `$hasFile`-based check was verified to be checking the wrong signal entirely, since exports never touch the physical file). `wire:navigate` removed from export links so real file downloads work. Media Download hidden/disabled when `Storage::exists()` is false — verified this is not theoretical: the seeder never writes real files for any seeded MediaFile, so every Download button in current demo data was a guaranteed 404 before this fix. Folders added to sidebar navigation with a Create Folder path in the empty state (reusing the existing modal, no new modal system). Settings navigation now reaches `/settings`; Profile/Security/Appearance reachability confirmed via the settings overview and the existing in-page settings sub-nav. Dead views/controllers (`FolderController::index`, `MediaController::show`, `folders/index.blade.php`, `media/show.blade.php`, `layouts/app/header.blade.php`) removed — independently proven safe via unchanged routes/web.php and a full-tree reference grep. Independently re-verified: focused suite 69 passed/208 assertions; full suite 140 passed/1 pre-existing skip/0 failures; Pint passed; PHPStan 0 errors on both changed controllers. One MEDIUM, non-blocking finding: the sidebar Settings item's "current" highlighting no longer covers Profile/Security/Appearance subpages (reachability unaffected). Two LOW, non-blocking findings: an undisclosed file change (`desktop-user-menu.blade.php`) and two `wire:navigate` removals outside the stated file-response scope. Closed as DONE after confirming the independent VERIFIED review; follow-up findings are tracked in READY TASK-004A and TASK-004B.
+
 ## Blocked Tasks
 
 None.
+
+## Governance Setup
+
+Orchestration governance is DONE after independent Claude Code verification recorded in [reviews/ORCHESTRATION-GOVERNANCE-review.md](reviews/ORCHESTRATION-GOVERNANCE-review.md). The policy, decision queue schema, shared agent guidance, and current-state reconciliation are complete. Two LOW documentation findings are preserved in the review: legacy formatting cleanup is optional, and `.claude/settings.local.json` remains untracked machine-local configuration that may be added to `.gitignore` if repository policy permits.
 
 ## Decisions Required
 
@@ -134,9 +168,11 @@ None.
 
 Targeted PHPStan still reports three pre-existing typing issues in unchanged declarations: MediaActionController::download() return type, Show::$folders iterable value type, and Show::render() return type. Confirmed still present and unrelated to TASK-001 in reviews/TASK-001-review.md. This does not establish full Phase 1 completion; other completion-audit findings remain outside TASK-001.
 
+TASK-004 follow-ups: TASK-004A (MEDIUM) restores Settings active highlighting on subpages; TASK-004B (LOW) restores Livewire navigation on two ordinary internal links. Both are READY and unstarted, originating from reviews/TASK-004-review.md Findings 1 and 3.
+
 ## Next Action
 
-No active task. TASK-003A is READY and unstarted. TASK-004 and Phase 2 remain unauthorized.
+TASK-003A, TASK-004A, and TASK-004B remain READY and unstarted. TASK-004 is DONE after independent verification. TASK-005 and Phase 2 remain unauthorized.
 
 ## Phase Authorization
 

@@ -397,3 +397,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - After the feature tests pass, ask the user to run the complete suite with `php artisan test --compact`.
 
 </laravel-boost-guidelines>
+
+## Orchestration Governance
+
+The shared orchestration policy is [`.ai/guidelines/orchestration-policy.md`](.ai/guidelines/orchestration-policy.md). [DECISION_QUEUE.md](DECISION_QUEUE.md) is the durable location for unresolved Human Product Owner decisions. A blocked task does not block unrelated runnable work; READY tasks with satisfied dependencies continue, and only affected tasks become BLOCKED. Product, UX, architecture, security, destructive-operation, production, phase-completion, and phase-authorization decisions belong to the Human Product Owner. Phase authorization remains a Human Product Owner gate.

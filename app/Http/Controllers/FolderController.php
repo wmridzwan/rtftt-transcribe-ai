@@ -9,18 +9,6 @@ use Illuminate\View\View;
 
 class FolderController extends Controller
 {
-    public function index(Request $request): View
-    {
-        $user = $request->user();
-
-        $folders = Folder::where('user_id', $user->id)
-            ->withCount('mediaFiles')
-            ->latest()
-            ->get();
-
-        return view('folders.index', compact('folders'));
-    }
-
     public function show(Folder $folder): View
     {
         $this->authorize('view', $folder);
