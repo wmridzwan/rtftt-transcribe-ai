@@ -26,6 +26,7 @@ Complete Phase 1 navigation and role-aware action availability using the approve
 - DECISIONS.md
 - PROJECT_CONTEXT.md
 - resources/views/layouts/app/sidebar.blade.php
+- resources/views/components/desktop-user-menu.blade.php
 - resources/views/dashboard.blade.php
 - resources/views/livewire/media/show.blade.php
 - resources/views/transcriptions/show.blade.php
@@ -82,6 +83,7 @@ Implemented the approved role-aware processing links, completed-status export co
 
 - app/Http/Controllers/FolderController.php
 - app/Http/Controllers/MediaController.php
+- resources/views/components/desktop-user-menu.blade.php
 - resources/views/dashboard.blade.php
 - resources/views/jobs/show.blade.php
 - resources/views/layouts/app/sidebar.blade.php

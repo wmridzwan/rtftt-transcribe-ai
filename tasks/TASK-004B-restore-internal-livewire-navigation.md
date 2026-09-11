@@ -2,12 +2,12 @@
 
 ## Status
 
-READY
+DONE
 
 ## Ownership
 
-Implementation Owner: UNASSIGNED
-Reviewer: UNASSIGNED
+Implementation Owner: Codex
+Reviewer: Claude Code
 
 ## Authorized Phase
 
@@ -45,19 +45,19 @@ Future ideas are not authorization.
 
 ## Acceptance Criteria
 
-- [ ] The job detail transcription link uses Livewire navigation.
-- [ ] The admin transcription detail job link uses Livewire navigation.
-- [ ] File/export response links remain normal browser links without Livewire navigation.
-- [ ] Relevant tests pass.
-- [ ] No unrelated behavior changes.
+- [x] The job detail transcription link uses Livewire navigation.
+- [x] The admin transcription detail job link uses Livewire navigation.
+- [x] File/export response links remain normal browser links without Livewire navigation.
+- [x] Relevant tests pass.
+- [x] No unrelated behavior changes.
 
 ## Implementation Notes
 
-READY follow-up for the LOW finding in reviews/TASK-004-review.md. Not started.
+Restored wire:navigate on the job detail transcription link and the admin-only transcription detail job link. Added DOM-scoped rendered-link assertions. Existing export tests protect normal browser downloads.
 
 ### Files Changed
 
-- None yet.
+- resources/views/jobs/show.blade.php; resources/views/transcriptions/show.blade.php; tests/Feature/PageRenderTest.php
 
 ### Important Decisions
 
@@ -65,18 +65,18 @@ READY follow-up for the LOW finding in reviews/TASK-004-review.md. Not started.
 
 ### Known Limitations
 
-- None yet.
+Full PHPStan reports 59 existing errors in unchanged application/configuration paths. Initial run exhausted 128 MB; rerun with --memory-limit=512M completed. No application PHP classes, analyzed configuration, dependencies or routes were changed by these tasks. Static analysis is not globally clean; this is a Phase 1 completion concern, not a claimed pass.
 
 ## Verification
 
-PENDING
+Focused verification: PageRenderTest, MediaManagementTest, TranscriptExportTest — 69 passed / 214 assertions. Pint --dirty --format agent passed. Independent Claude Code review: VERIFIED. No application PHP classes changed; full PHPStan: 59 errors in unchanged paths; see Known Limitations.
 
 ## Review
 
-Review File: None yet. Expected: reviews/TASK-004B-review.md
+Review File: reviews/TASK-004B-review.md (original combined Claude review: reviews/PHASE1-FOLLOWUPS-review.md)
 
-Review Status: PENDING
+Review Status: VERIFIED by independent Claude Code review on 2026-09-11. No findings. Source inspection only; test execution performed by Codex.
 
 ## Completion
 
-Not started. TASK-005 and Phase 2 remain unauthorized.
+REVIEW -> VERIFIED by independent Claude Code -> DONE by Codex orchestration under the user's explicit instruction to close VERIFIED work. No findings from this review. Full suite: 149 passed / 1 pre-existing skip / 374 assertions; focused suite: 69 passed / 214 assertions; Pint passed. Full PHPStan remains non-green (59 errors in unchanged paths), tracked in TASK-P1-STATIC-001. No claim of Phase 1 acceptance, Phase 2 authorization, production deployment or commit.

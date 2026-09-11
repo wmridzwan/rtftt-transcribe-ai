@@ -4,6 +4,7 @@ namespace App\Livewire\Folders;
 
 use App\Models\Folder;
 use Flux\Flux;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -28,7 +29,7 @@ class Index extends Component
 
     public int $deleteMediaCount = 0;
 
-    public function render()
+    public function render(): View
     {
         $folders = Folder::where('user_id', auth()->id())
             ->withCount('mediaFiles')

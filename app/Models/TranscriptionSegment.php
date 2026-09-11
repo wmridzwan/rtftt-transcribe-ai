@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TranscriptionSegmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +20,7 @@ use Illuminate\Support\Carbon;
  */
 class TranscriptionSegment extends Model
 {
+    /** @use HasFactory<TranscriptionSegmentFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -38,6 +40,7 @@ class TranscriptionSegment extends Model
         ];
     }
 
+    /** @return BelongsTo<Transcription, $this> */
     public function transcription(): BelongsTo
     {
         return $this->belongsTo(Transcription::class);

@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MediaActionController extends Controller
 {
@@ -45,7 +46,7 @@ class MediaActionController extends Controller
             ->with('success', 'Media file deleted successfully.');
     }
 
-    public function download(MediaFile $mediaFile)
+    public function download(MediaFile $mediaFile): StreamedResponse
     {
         $this->authorize('view', $mediaFile);
 

@@ -258,3 +258,46 @@ app/Http/Controllers/MediaActionController.php
 
 app/Livewire/Media/Show.php
 
+---
+
+## ADR-006 — Phase 1 Demo Transcription Title Required
+
+Date: 2026-09-11
+
+Status: ACCEPTED
+
+Decision:
+
+The Phase 1 demo transcription form requires an explicit title. The UI must describe Title as required and must not promise a filename fallback, because Phase 1 does not accept a physical upload. Existing server-side required validation remains authoritative.
+
+Reason:
+
+The previous form copy described Title as optional and promised a filename fallback while the server rejected blank titles. This aligns the user-facing contract with the implemented demo-only behavior without expanding scope into real uploads.
+
+Reference:
+
+DECISION-P1-001; tasks/TASK-P1-CREATE-001.md; resources/views/transcriptions/create.blade.php; app/Http/Controllers/DemoTranscriptionController.php
+
+---
+
+## ADR-007 — Phase 1 Human Acceptance
+
+Date: 2026-09-11
+
+Status: ACCEPTED
+
+Decision:
+
+The Human Product Owner accepts Phase 1 — Application Foundation + Full Clickable Prototype — as complete for the current authorized scope.
+
+Reason:
+
+The completed Phase 1 implementation, verification suite, static analysis, frontend build, governance records and independent reviews satisfy the current scope.
+
+Impact:
+
+Phase 1 is closed for acceptance. This decision does not authorize Phase 2 or any later phase. Explicit authorization is required before new-phase implementation begins.
+
+Reference:
+
+CURRENT_STATE.md; plan.md; reviews/PHASE1-FOLLOWUPS-review.md; reviews/TASK-P1-STATIC-001-review.md; reviews/TASK-P1-STATIC-002-review.md; reviews/TASK-P1-STATIC-003-review.md; reviews/TASK-P1-STATIC-004-review.md; reviews/TASK-004C-review.md; reviews/TASK-P1-CREATE-001-review.md

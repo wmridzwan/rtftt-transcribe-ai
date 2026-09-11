@@ -113,11 +113,31 @@ class TranscriptionExportController extends Controller
 
         $filename = Str::slug($transcription->title).'.docx';
 
-        $tempPath = storage_path('app/'.$filename);
-        $writer = IOFactory::createWriter($phpWord, 'Word2007');
-        $writer->save($tempPath);
-        $content = file_get_contents($tempPath);
-        unlink($tempPath);
+        $exportDirectory = sys_get_temp_dir();
+
+        if (! is_dir($exportDirectory) || ! is_writable($exportDirectory)) {
+            throw new \RuntimeException('The transcript export directory is unavailable.');
+        }
+
+        $tempPath = tempnam($exportDirectory, 'transcript-');
+
+        if ($tempPath === false) {
+            throw new \RuntimeException('Unable to allocate a transcript export file.');
+        }
+
+        try {
+            $writer = IOFactory::createWriter($phpWord, 'Word2007');
+            $writer->save($tempPath);
+            $content = file_get_contents($tempPath);
+
+            if ($content === false) {
+                throw new \RuntimeException('Unable to read the transcript export file.');
+            }
+        } finally {
+            if (is_file($tempPath)) {
+                unlink($tempPath);
+            }
+        }
 
         return response($content, 200, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

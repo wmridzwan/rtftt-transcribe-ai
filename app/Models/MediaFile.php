@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaStatus;
 use App\Enums\MediaType;
+use Database\Factories\MediaFileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,6 +34,7 @@ use Illuminate\Support\Str;
  */
 class MediaFile extends Model
 {
+    /** @use HasFactory<MediaFileFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -77,16 +79,19 @@ class MediaFile extends Model
         });
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<Folder, $this> */
     public function folder(): BelongsTo
     {
         return $this->belongsTo(Folder::class);
     }
 
+    /** @return HasMany<Transcription, $this> */
     public function transcriptions(): HasMany
     {
         return $this->hasMany(Transcription::class);

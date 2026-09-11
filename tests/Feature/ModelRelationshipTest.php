@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\UserRole;
 use App\Models\MediaFile;
 use App\Models\ProcessingJob;
 use App\Models\Transcription;
@@ -84,4 +85,19 @@ test('running processing job has started_at but no completed_at', function () {
 
     $this->assertNotNull($job->started_at);
     $this->assertNull($job->completed_at);
+});
+
+test('transcription derived values use its related media and owner role remains an enum', function () {
+    $admin = User::factory()->admin()->create();
+    $media = MediaFile::factory()->create(['user_id' => $admin->id, 'duration_seconds' => 120]);
+    $transcription = Transcription::factory()->create([
+        'user_id' => $admin->id,
+        'media_file_id' => $media->id,
+        'processing_seconds' => 30,
+    ]);
+
+    expect($transcription->fresh()->formatted_duration)->toBe('02:00')
+        ->and($transcription->fresh()->real_time_factor)->toBe(0.25)
+        ->and($admin->fresh()->role)->toBe(UserRole::Admin)
+        ->and($admin->fresh()->isAdmin())->toBeTrue();
 });

@@ -69,6 +69,33 @@ test('settings renders', function () {
     $response->assertSee('Settings');
 });
 
+test('settings navigation remains active across settings pages', function (string $routeName) {
+    $user = User::factory()->create();
+    $this->actingAs($user)->withSession(['auth.password_confirmed_at' => time()]);
+
+    $response = $this->get(route($routeName));
+
+    $response->assertOk();
+    $document = new DOMDocument;
+    @$document->loadHTML($response->getContent());
+    $links = (new DOMXPath($document))->query('//a[@data-flux-sidebar-item and @href="'.route('settings.index').'"]');
+    expect($links)->toHaveCount(1);
+    expect($links->item(0)->hasAttribute('data-current'))->toBeTrue();
+})->with(['settings.index', 'profile.edit', 'security.edit', 'appearance.edit']);
+
+test('settings navigation is inactive outside settings', function () {
+    $this->actingAs(User::factory()->create());
+
+    $response = $this->get(route('dashboard'));
+
+    $response->assertOk();
+    $document = new DOMDocument;
+    @$document->loadHTML($response->getContent());
+    $links = (new DOMXPath($document))->query('//a[@data-flux-sidebar-item and @href="'.route('settings.index').'"]');
+    expect($links)->toHaveCount(1);
+    expect($links->item(0)->hasAttribute('data-current'))->toBeFalse();
+});
+
 test('admin jobs index renders', function () {
     $admin = User::factory()->admin()->create();
     $this->actingAs($admin);
@@ -179,4 +206,36 @@ test('upload recording page shows demo mode notice', function () {
     $response = $this->get(route('transcriptions.create'));
     $response->assertOk();
     $response->assertSee('Demo mode');
+});
+
+test('internal processing and transcription links use Livewire navigation', function () {
+    $admin = User::factory()->admin()->create();
+    $this->actingAs($admin);
+    $transcription = Transcription::factory()->create(['user_id' => $admin->id]);
+    $job = ProcessingJob::factory()->create(['transcription_id' => $transcription->id]);
+
+    $response = $this->get(route('jobs.show', $job));
+
+    $response->assertOk();
+    $document = new DOMDocument;
+    @$document->loadHTML($response->getContent());
+    $links = (new DOMXPath($document))->query('//a[@href="'.route('transcriptions.show', $transcription).'"]');
+    expect($links)->toHaveCount(1);
+    expect($links->item(0)->hasAttribute('wire:navigate'))->toBeTrue();
+});
+
+test('admin transcription job link uses Livewire navigation', function () {
+    $admin = User::factory()->admin()->create();
+    $this->actingAs($admin);
+    $transcription = Transcription::factory()->create(['user_id' => $admin->id]);
+    $job = ProcessingJob::factory()->create(['transcription_id' => $transcription->id]);
+
+    $response = $this->get(route('transcriptions.show', $transcription));
+
+    $response->assertOk();
+    $document = new DOMDocument;
+    @$document->loadHTML($response->getContent());
+    $links = (new DOMXPath($document))->query('//a[@href="'.route('jobs.show', $job).'"]');
+    expect($links)->toHaveCount(1);
+    expect($links->item(0)->hasAttribute('wire:navigate'))->toBeTrue();
 });

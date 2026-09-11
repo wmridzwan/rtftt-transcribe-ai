@@ -5,6 +5,7 @@ namespace App\Livewire\Media;
 use App\Models\Folder;
 use App\Models\MediaFile;
 use Flux\Flux;
+use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -14,6 +15,7 @@ class Show extends Component
 {
     public ?MediaFile $mediaFile = null;
 
+    /** @var array<int, array{id: int, name: string, media_files_count: int}> */
     public array $folders = [];
 
     public bool $showRenameModal = false;
@@ -28,7 +30,7 @@ class Show extends Component
 
     public ?int $moveFolderId = null;
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.media.show');
     }
@@ -42,7 +44,11 @@ class Show extends Component
             ->withCount('mediaFiles')
             ->latest()
             ->get()
-            ->toArray();
+            ->map(fn (Folder $folder): array => [
+                'id' => $folder->id,
+                'name' => $folder->name,
+                'media_files_count' => $folder->media_files_count,
+            ])->all();
 
         $this->renameName = $this->mediaFile->display_name;
 

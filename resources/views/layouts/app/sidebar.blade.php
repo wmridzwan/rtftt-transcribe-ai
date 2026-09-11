@@ -56,7 +56,7 @@
 
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Account')" class="grid">
-                    <flux:sidebar.item icon="cog" :href="route('settings.index')" :current="request()->routeIs('settings.index')" wire:navigate>
+                    <flux:sidebar.item icon="cog" :href="route('settings.index')" :current="request()->routeIs('settings.index', 'profile.edit', 'security.edit', 'appearance.edit')" wire:navigate>
                         {{ __('Settings') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>

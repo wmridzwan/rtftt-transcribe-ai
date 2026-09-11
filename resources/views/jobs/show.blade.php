@@ -13,7 +13,7 @@
                     <div class="flex items-center justify-between py-2">
                         <flux:text class="text-sm text-zinc-500 dark:text-zinc-400">Transcription</flux:text>
                         @if ($job->transcription)
-                            <a href="{{ route('transcriptions.show', $job->transcription) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">{{ $job->transcription->title }}</a>
+                            <a href="{{ route('transcriptions.show', $job->transcription) }}" wire:navigate class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">{{ $job->transcription->title }}</a>
                         @else
                             <flux:text class="text-sm font-medium text-zinc-900 dark:text-white">—</flux:text>
                         @endif

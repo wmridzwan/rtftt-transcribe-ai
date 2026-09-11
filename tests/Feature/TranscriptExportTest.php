@@ -2,6 +2,8 @@
 
 use App\Models\Transcription;
 use App\Models\User;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 test('txt export returns correct format', function () {
     $user = User::factory()->create();
@@ -199,4 +201,51 @@ test('export controls depend on completed status and use normal links', function
     $queued = Transcription::factory()->queued()->create(['user_id' => $user->id]);
     $this->get(route('transcriptions.show', $queued))
         ->assertSee('disabled', false);
+});
+
+test('docx exports preserve same-title files and clean temporary output', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $transcription = Transcription::factory()->completed()->create([
+        'user_id' => $user->id,
+        'title' => 'Shared Title',
+        'full_text' => 'Private export contents.',
+    ]);
+    $originalStorage = storage_path();
+    $testStorage = sys_get_temp_dir().'/rtftt-export-'.Str::uuid();
+    File::ensureDirectoryExists($testStorage.'/app');
+    $this->app->useStoragePath($testStorage);
+    file_put_contents($testStorage.'/app/shared-title.docx', 'Unrelated existing file');
+
+    try {
+        $response = $this->get(route('transcriptions.export.docx', $transcription));
+
+        $response->assertOk()->assertDownload('shared-title.docx');
+        expect(file_get_contents($testStorage.'/app/shared-title.docx'))->toBe('Unrelated existing file');
+        expect(glob($testStorage.'/app/transcript-*'))->toBe([]);
+        file_put_contents($testStorage.'/result.docx', $response->getContent());
+        $zip = new ZipArchive;
+        expect($zip->open($testStorage.'/result.docx'))->toBeTrue();
+        try {
+            expect($zip->getFromName('word/document.xml'))->toContain('Private export contents.');
+        } finally {
+            $zip->close();
+        }
+    } finally {
+        $this->app->useStoragePath($originalStorage);
+        File::deleteDirectory($testStorage);
+    }
+});
+
+test('docx export uses an isolated temporary file outside application storage', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $transcription = Transcription::factory()->completed()->create([
+        'user_id' => $user->id,
+        'title' => 'Shared Title',
+    ]);
+    $response = $this->get(route('transcriptions.export.docx', $transcription));
+
+    $response->assertOk()->assertDownload('shared-title.docx');
+    expect(glob(storage_path('app/transcript-*')))->toBe([]);
 });

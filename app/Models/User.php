@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 /**
  * @property int $id
  * @property string $name
- * @property string $role
+ * @property UserRole $role
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string $password
@@ -57,16 +57,19 @@ class User extends Authenticatable
         return $this->role === UserRole::Admin;
     }
 
+    /** @return HasMany<Folder, $this> */
     public function folders(): HasMany
     {
         return $this->hasMany(Folder::class);
     }
 
+    /** @return HasMany<MediaFile, $this> */
     public function mediaFiles(): HasMany
     {
         return $this->hasMany(MediaFile::class);
     }
 
+    /** @return HasMany<Transcription, $this> */
     public function transcriptions(): HasMany
     {
         return $this->hasMany(Transcription::class);

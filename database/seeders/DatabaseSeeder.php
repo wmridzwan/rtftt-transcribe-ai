@@ -149,6 +149,12 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
+        $this->persistAdminMedia($admin, $mediaFiles);
+    }
+
+    /** @param list<array{title: string, original_filename: string, media_type: MediaType, extension: string, mime_type: string, file_size_bytes: int, duration_seconds: int, status: MediaStatus, language: string|null, transcription_status: TranscriptionStatus, processing_seconds: int|null, folder_id?: int|null, segments: list<array{start: int, end: int, text: string}>}> $mediaFiles */
+    private function persistAdminMedia(User $admin, array $mediaFiles): void
+    {
         foreach ($mediaFiles as $index => $data) {
             $segments = $data['segments'];
             $title = $data['title'];
@@ -193,6 +199,13 @@ class DatabaseSeeder extends Seeder
                 'display_name' => $title,
             ]);
 
+            $transcriptionStartedAt = in_array($status, [TranscriptionStatus::Transcribing, TranscriptionStatus::Completed, TranscriptionStatus::Failed])
+                ? Carbon::instance(fake()->dateTimeBetween('-30 days', '-1 day'))
+                : null;
+            $transcriptionCompletedAt = in_array($status, [TranscriptionStatus::Completed, TranscriptionStatus::Failed])
+                ? Carbon::instance(fake()->dateTimeBetween($transcriptionStartedAt ?? '-30 days', 'now'))
+                : null;
+
             $transcription = Transcription::create([
                 'user_id' => $admin->id,
                 'media_file_id' => $mediaFile->id,
@@ -204,12 +217,8 @@ class DatabaseSeeder extends Seeder
                 'full_text' => $status === TranscriptionStatus::Completed
                     ? collect($segments)->pluck('text')->implode(' ')
                     : null,
-                'started_at' => in_array($status, [TranscriptionStatus::Transcribing, TranscriptionStatus::Completed, TranscriptionStatus::Failed])
-                    ? fake()->dateTimeBetween('-30 days', 'now')
-                    : null,
-                'completed_at' => in_array($status, [TranscriptionStatus::Completed, TranscriptionStatus::Failed])
-                    ? fake()->dateTimeBetween('-30 days', 'now')
-                    : null,
+                'started_at' => $transcriptionStartedAt,
+                'completed_at' => $transcriptionCompletedAt,
                 'processing_seconds' => $processingSeconds,
                 'error_message' => $status === TranscriptionStatus::Failed
                     ? 'Audio format not supported for processing'
@@ -236,6 +245,13 @@ class DatabaseSeeder extends Seeder
                     default => ProcessingStatus::Queued,
                 };
 
+                $jobStartedAt = in_array($jobStatus, [ProcessingStatus::Running, ProcessingStatus::Completed, ProcessingStatus::Failed])
+                    ? Carbon::instance(fake()->dateTimeBetween('-30 days', '-1 day'))
+                    : null;
+                $jobCompletedAt = in_array($jobStatus, [ProcessingStatus::Completed, ProcessingStatus::Failed])
+                    ? Carbon::instance(fake()->dateTimeBetween($jobStartedAt ?? '-30 days', 'now'))
+                    : null;
+
                 ProcessingJob::create([
                     'transcription_id' => $transcription->id,
                     'job_uuid' => (string) Str::uuid(),
@@ -243,12 +259,8 @@ class DatabaseSeeder extends Seeder
                     'stage' => ProcessingStage::Transcribe,
                     'status' => $jobStatus,
                     'progress_percentage' => $jobStatus === ProcessingStatus::Completed ? 100 : ($jobStatus === ProcessingStatus::Running ? fake()->numberBetween(20, 80) : 0),
-                    'started_at' => in_array($jobStatus, [ProcessingStatus::Running, ProcessingStatus::Completed, ProcessingStatus::Failed])
-                        ? $jobStartedAt = fake()->dateTimeBetween('-30 days', '-1 day')
-                        : null,
-                    'completed_at' => in_array($jobStatus, [ProcessingStatus::Completed, ProcessingStatus::Failed])
-                        ? $jobCompletedAt = fake()->dateTimeBetween($jobStartedAt ?? '-30 days', 'now')
-                        : null,
+                    'started_at' => $jobStartedAt,
+                    'completed_at' => $jobCompletedAt,
                     'processing_seconds' => in_array($jobStatus, [ProcessingStatus::Completed, ProcessingStatus::Failed])
                         ? fake()->numberBetween(5, 600)
                         : null,
@@ -256,14 +268,14 @@ class DatabaseSeeder extends Seeder
                         ? 'GPU memory allocation failed'
                         : null,
                     'logs' => [
-                        'Job started at '.($jobStartedAt instanceof Carbon ? $jobStartedAt->toDateTimeString() : now()->toDateTimeString()),
+                        $jobStartedAt === null ? 'Job queued; not started.' : 'Job started at '.$jobStartedAt->toDateTimeString(),
                         'Processing audio stream...',
                         'Transcription model loaded: faster-whisper-medium',
                         $jobStatus === ProcessingStatus::Completed
                             ? 'Job completed successfully.'
                             : 'Job status: '.$jobStatus->value,
                         in_array($jobStatus, [ProcessingStatus::Completed, ProcessingStatus::Failed])
-                            ? 'Finished at '.($jobCompletedAt instanceof Carbon ? $jobCompletedAt->toDateTimeString() : now()->toDateTimeString())
+                            ? 'Finished at '.$jobCompletedAt?->toDateTimeString()
                             : null,
                     ],
                 ]);
@@ -348,6 +360,12 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
+        $this->persistUserMedia($user, $mediaFiles);
+    }
+
+    /** @param list<array{title: string, original_filename: string, media_type: MediaType, extension: string, mime_type: string, file_size_bytes: int, duration_seconds: int, status: MediaStatus, language: string|null, transcription_status: TranscriptionStatus, processing_seconds: int|null, folder_id?: int|null, segments: list<array{start: int, end: int, text: string}>}> $mediaFiles */
+    private function persistUserMedia(User $user, array $mediaFiles): void
+    {
         foreach ($mediaFiles as $data) {
             $segments = $data['segments'];
             $title = $data['title'];
@@ -387,6 +405,13 @@ class DatabaseSeeder extends Seeder
                 'display_name' => $title,
             ]);
 
+            $transcriptionStartedAt = in_array($status, [TranscriptionStatus::Transcribing, TranscriptionStatus::Completed, TranscriptionStatus::Failed])
+                ? Carbon::instance(fake()->dateTimeBetween('-30 days', '-1 day'))
+                : null;
+            $transcriptionCompletedAt = in_array($status, [TranscriptionStatus::Completed, TranscriptionStatus::Failed])
+                ? Carbon::instance(fake()->dateTimeBetween($transcriptionStartedAt ?? '-30 days', 'now'))
+                : null;
+
             $transcription = Transcription::create([
                 'user_id' => $user->id,
                 'media_file_id' => $mediaFile->id,
@@ -398,12 +423,8 @@ class DatabaseSeeder extends Seeder
                 'full_text' => $status === TranscriptionStatus::Completed
                     ? collect($segments)->pluck('text')->implode(' ')
                     : null,
-                'started_at' => in_array($status, [TranscriptionStatus::Transcribing, TranscriptionStatus::Completed, TranscriptionStatus::Failed])
-                    ? fake()->dateTimeBetween('-30 days', 'now')
-                    : null,
-                'completed_at' => in_array($status, [TranscriptionStatus::Completed, TranscriptionStatus::Failed])
-                    ? fake()->dateTimeBetween('-30 days', 'now')
-                    : null,
+                'started_at' => $transcriptionStartedAt,
+                'completed_at' => $transcriptionCompletedAt,
                 'processing_seconds' => $processingSeconds,
                 'error_message' => $status === TranscriptionStatus::Failed
                     ? 'Processing interrupted'
@@ -430,6 +451,13 @@ class DatabaseSeeder extends Seeder
                     default => ProcessingStatus::Queued,
                 };
 
+                $jobStartedAt = in_array($jobStatus, [ProcessingStatus::Running, ProcessingStatus::Completed, ProcessingStatus::Failed])
+                    ? Carbon::instance(fake()->dateTimeBetween('-30 days', '-1 day'))
+                    : null;
+                $jobCompletedAt = in_array($jobStatus, [ProcessingStatus::Completed, ProcessingStatus::Failed])
+                    ? Carbon::instance(fake()->dateTimeBetween($jobStartedAt ?? '-30 days', 'now'))
+                    : null;
+
                 ProcessingJob::create([
                     'transcription_id' => $transcription->id,
                     'job_uuid' => (string) Str::uuid(),
@@ -437,12 +465,8 @@ class DatabaseSeeder extends Seeder
                     'stage' => ProcessingStage::Transcribe,
                     'status' => $jobStatus,
                     'progress_percentage' => $jobStatus === ProcessingStatus::Completed ? 100 : ($jobStatus === ProcessingStatus::Running ? fake()->numberBetween(20, 80) : 0),
-                    'started_at' => in_array($jobStatus, [ProcessingStatus::Running, ProcessingStatus::Completed, ProcessingStatus::Failed])
-                        ? $jobStartedAt = fake()->dateTimeBetween('-30 days', '-1 day')
-                        : null,
-                    'completed_at' => in_array($jobStatus, [ProcessingStatus::Completed, ProcessingStatus::Failed])
-                        ? $jobCompletedAt = fake()->dateTimeBetween($jobStartedAt ?? '-30 days', 'now')
-                        : null,
+                    'started_at' => $jobStartedAt,
+                    'completed_at' => $jobCompletedAt,
                     'processing_seconds' => in_array($jobStatus, [ProcessingStatus::Completed, ProcessingStatus::Failed])
                         ? fake()->numberBetween(5, 300)
                         : null,
@@ -450,14 +474,14 @@ class DatabaseSeeder extends Seeder
                         ? 'Processing timeout exceeded'
                         : null,
                     'logs' => [
-                        'Job started at '.($jobStartedAt instanceof Carbon ? $jobStartedAt->toDateTimeString() : now()->toDateTimeString()),
+                        $jobStartedAt === null ? 'Job queued; not started.' : 'Job started at '.$jobStartedAt->toDateTimeString(),
                         'Loading audio file...',
                         'Transcription in progress...',
                         $jobStatus === ProcessingStatus::Completed
                             ? 'Done.'
                             : 'Status: '.$jobStatus->value,
                         in_array($jobStatus, [ProcessingStatus::Completed, ProcessingStatus::Failed])
-                            ? 'Finished at '.($jobCompletedAt instanceof Carbon ? $jobCompletedAt->toDateTimeString() : now()->toDateTimeString())
+                            ? 'Finished at '.$jobCompletedAt?->toDateTimeString()
                             : null,
                     ],
                 ]);

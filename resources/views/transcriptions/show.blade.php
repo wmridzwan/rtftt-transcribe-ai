@@ -133,7 +133,7 @@
                             <div class="space-y-3">
                                 @foreach ($transcription->processingJobs as $job)
                                     @if (auth()->user()->isAdmin())
-                                        <a href="{{ route('jobs.show', $job) }}" class="block rounded-lg border border-zinc-200 p-3 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-700/50">
+                                        <a href="{{ route('jobs.show', $job) }}" wire:navigate class="block rounded-lg border border-zinc-200 p-3 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-700/50">
                                     @else
                                         <div class="block rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
                                     @endif

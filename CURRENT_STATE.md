@@ -10,17 +10,17 @@ setup/ai-development-os
 
 Phase 1 — Application Foundation + Full Clickable Prototype
 
-Status: IN PROGRESS
+Status: ACCEPTED (Human Product Owner, 2026-09-11)
 
 ## Baseline Verification
 
-Latest full test suite:
+Latest full test suite (2026-09-11, Codex execution after all current Phase 1 follow-ups):
 
-- 140 passed
+- 157 passed
 - 1 skipped
-- 347 assertions
+- 436 assertions
 
-Run during TASK-004 implementation; recorded in tasks/TASK-004-complete-navigation-and-action-availability.md. Supersedes the previous 134-passed/1-skipped/333-assertion baseline. Independent review is VERIFIED in reviews/TASK-004-review.md. Frontend production build also passed with `npm.cmd run build`.
+Focused suite: 94 passed / 308 assertions, plus final DOCX export 11 passed / 59 assertions. Pint passed. Full PHPStan: 0 errors. Independent Claude Code source review VERIFIED all current follow-ups; reviewer did not independently rerun commands. Frontend build passed.
 
 Skipped test:
 
@@ -50,43 +50,25 @@ Phase 1 foundation currently includes:
 
 ## Active Task
 
-None.
+No active implementation.
 
 ## Tasks In Review
 
-None.
+None. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after independent Claude verification.
 
 ## Ready Tasks
 
-TASK-003A - Expand Query-Parameter Modal Coverage (READY).
+None. Current explicit user authorization covers ongoing runnable Phase 1 follow-ups until a genuine human decision/acceptance gate.
 
-Task: tasks/TASK-003A-expand-query-parameter-modal-coverage.md
+## Latest Completed Follow-Ups
 
-Implementation Owner: UNASSIGNED
+- TASK-004A — Restore Settings Active State: DONE.
+- TASK-004B — Restore Internal Livewire Navigation: DONE.
+- TASK-003A — Expand Query-Parameter Modal Coverage: DONE.
 
-Reviewer: UNASSIGNED
+Implementation owner: Codex. Independently VERIFIED by Claude Code in reviews/PHASE1-FOLLOWUPS-review.md; individual review indexes are under reviews/. Closed by Codex orchestration under the user's explicit close-VERIFIED-work authorization. No findings in the new independent review.
 
-Follow-up for the LOW finding in reviews/TASK-003-review.md. Not started; no application code or tests changed.
-
-TASK-004A - Restore Settings Active State (READY).
-
-Task: tasks/TASK-004A-restore-settings-active-state.md
-
-Implementation Owner: UNASSIGNED
-
-Reviewer: UNASSIGNED
-
-Follow-up for the MEDIUM finding in reviews/TASK-004-review.md. Not started; no application code changed.
-
-TASK-004B - Restore Internal Livewire Navigation (READY).
-
-Task: tasks/TASK-004B-restore-internal-livewire-navigation.md
-
-Implementation Owner: UNASSIGNED
-
-Reviewer: UNASSIGNED
-
-Follow-up for the LOW finding in reviews/TASK-004-review.md. Not started; no application code changed.
+PHP 8.4 is available at C:/Users/Admin/.config/herd/bin/php84/php.exe. The user explicitly authorized required repository source/tests/governance sharing with Claude Code/Anthropic on 2026-09-11. No production deployment, destructive operation or commit performed.
 
 ## Completed Tasks
 
@@ -162,20 +144,22 @@ Orchestration governance is DONE after independent Claude Code verification reco
 
 ## Decisions Required
 
-None.
+DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE.
 
 ## Known Issues
 
-Targeted PHPStan still reports three pre-existing typing issues in unchanged declarations: MediaActionController::download() return type, Show::$folders iterable value type, and Show::render() return type. Confirmed still present and unrelated to TASK-001 in reviews/TASK-001-review.md. This does not establish full Phase 1 completion; other completion-audit findings remain outside TASK-001.
-
-TASK-004 follow-ups: TASK-004A (MEDIUM) restores Settings active highlighting on subpages; TASK-004B (LOW) restores Livewire navigation on two ordinary internal links. Both are READY and unstarted, originating from reviews/TASK-004-review.md Findings 1 and 3.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. All current follow-up reviews are complete. No unresolved Product Owner decision remains.
 
 ## Next Action
 
-TASK-003A, TASK-004A, and TASK-004B remain READY and unstarted. TASK-004 is DONE after independent verification. TASK-005 and Phase 2 remain unauthorized.
+Wait for explicit Phase 2 authorization. No further autonomous implementation is authorized. Phase 2 remains unauthorized.
 
 ## Phase Authorization
 
 Phase 2 and later phases remain NOT AUTHORIZED.
 
 See plan.md.
+
+## Review status
+
+Independent Claude review verified TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001. All current follow-ups are DONE. DECISION-P1-001 is resolved by ADR-006.

@@ -515,3 +515,40 @@ test('rename validates display_name is required', function () {
 
     $response->assertSessionHasErrors('display_name');
 });
+
+test('media move action query opens only the move modal', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $mediaFile = MediaFile::factory()->create(['user_id' => $user->id]);
+
+    Livewire::withQueryParams(['action' => 'move'])
+        ->test(Show::class, ['mediaFile' => $mediaFile])
+        ->assertSet('showMoveModal', true)
+        ->assertSet('showRenameModal', false)
+        ->assertSet('showDeleteModal', false);
+});
+
+test('media delete action query opens only the delete modal', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $mediaFile = MediaFile::factory()->create(['user_id' => $user->id]);
+
+    Livewire::withQueryParams(['action' => 'delete'])
+        ->test(Show::class, ['mediaFile' => $mediaFile])
+        ->assertSet('showDeleteModal', true)
+        ->assertSet('showRenameModal', false)
+        ->assertSet('showMoveModal', false);
+});
+
+test('owner downloads existing media through the streamed response', function () {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $media = MediaFile::factory()->create(['user_id' => $user->id, 'display_name' => 'Recording.mp3']);
+    Storage::put($media->storage_path, 'demo audio bytes');
+
+    $response = $this->get(route('media.download', $media));
+
+    $response->assertOk()->assertDownload('Recording.mp3');
+    expect($response->streamedContent())->toBe('demo audio bytes');
+});

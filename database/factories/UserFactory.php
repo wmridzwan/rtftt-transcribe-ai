@@ -41,5 +41,8 @@ class UserFactory extends Factory
         ]);
     }
 
-    public function withTwoFactor(): static {}
+    public function withTwoFactor(): never
+    {
+        throw new \LogicException('Two-factor authentication is not supported by the Phase 1 schema.');
+    }
 }

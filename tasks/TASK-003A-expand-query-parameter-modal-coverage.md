@@ -2,12 +2,12 @@
 
 ## Status
 
-READY
+DONE
 
 ## Ownership
 
-Implementation Owner: UNASSIGNED
-Reviewer: UNASSIGNED
+Implementation Owner: Codex
+Reviewer: Claude Code
 
 ## Authorized Phase
 
@@ -51,20 +51,20 @@ Future ideas are not authorization.
 
 ## Acceptance Criteria
 
-- [ ] A direct Livewire query-parameter test asserts `action=move` opens the move modal.
-- [ ] A direct Livewire query-parameter test asserts `action=delete` opens the delete modal.
-- [ ] Current behavior remains unchanged.
-- [ ] Relevant tests pass.
-- [ ] No application implementation changes are needed unless a test exposes a real defect.
-- [ ] No unrelated behavior changes.
+- [x] A direct Livewire query-parameter test asserts `action=move` opens the move modal.
+- [x] A direct Livewire query-parameter test asserts `action=delete` opens the delete modal.
+- [x] Current behavior remains unchanged.
+- [x] Relevant tests pass.
+- [x] No application implementation changes are needed unless a test exposes a real defect.
+- [x] No unrelated behavior changes.
 
 ## Implementation Notes
 
-This task is READY and has not been started. It originates from the LOW, non-blocking test-coverage finding in reviews/TASK-003-review.md.
+Added direct Livewire move/delete query-parameter tests, asserting only the requested modal opens. No application implementation changes.
 
 ### Files Changed
 
-- None yet.
+- tests/Feature/MediaManagementTest.php
 
 ### Important Decisions
 
@@ -72,22 +72,18 @@ This task is READY and has not been started. It originates from the LOW, non-blo
 
 ### Known Limitations
 
-- None yet.
+Full PHPStan reports 59 existing errors in unchanged application/configuration paths. Initial run exhausted 128 MB; rerun with --memory-limit=512M completed. No application PHP classes, analyzed configuration, dependencies or routes were changed by these tasks. Static analysis is not globally clean; this is a Phase 1 completion concern, not a claimed pass.
 
 ## Verification
 
-PENDING
+Focused verification: PageRenderTest, MediaManagementTest, TranscriptExportTest — 69 passed / 214 assertions. Pint --dirty --format agent passed. Independent Claude Code review: VERIFIED. No application PHP classes changed; full PHPStan: 59 errors in unchanged paths; see Known Limitations.
 
 ## Review
 
-Review File: None yet. Expected: reviews/TASK-003A-review.md
+Review File: reviews/TASK-003A-review.md (original combined Claude review: reviews/PHASE1-FOLLOWUPS-review.md)
 
-Review Status: PENDING
+Review Status: VERIFIED by independent Claude Code review on 2026-09-11. No findings. Source inspection only; test execution performed by Codex.
 
 ## Completion
 
-Not started. TASK-004 and Phase 2 remain unauthorized.
-
-Required flow: READY → IN_PROGRESS → REVIEW → VERIFIED → DONE
-
-The implementation owner must not mark their own work VERIFIED.
+REVIEW -> VERIFIED by independent Claude Code -> DONE by Codex orchestration under the user's explicit instruction to close VERIFIED work. No findings from this review. Full suite: 149 passed / 1 pre-existing skip / 374 assertions; focused suite: 69 passed / 214 assertions; Pint passed. Full PHPStan remains non-green (59 errors in unchanged paths), tracked in TASK-P1-STATIC-001. No claim of Phase 1 acceptance, Phase 2 authorization, production deployment or commit.

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TranscriptionStatus;
+use Database\Factories\TranscriptionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +29,7 @@ use Illuminate\Support\Carbon;
  */
 class Transcription extends Model
 {
+    /** @use HasFactory<TranscriptionFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -55,21 +57,25 @@ class Transcription extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<MediaFile, $this> */
     public function mediaFile(): BelongsTo
     {
         return $this->belongsTo(MediaFile::class);
     }
 
+    /** @return HasMany<TranscriptionSegment, $this> */
     public function segments(): HasMany
     {
         return $this->hasMany(TranscriptionSegment::class)->orderBy('segment_index');
     }
 
+    /** @return HasMany<ProcessingJob, $this> */
     public function processingJobs(): HasMany
     {
         return $this->hasMany(ProcessingJob::class);

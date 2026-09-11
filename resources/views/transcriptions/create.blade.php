@@ -25,7 +25,7 @@
 
                 <div class="space-y-4">
                     <div>
-                        <flux:label for="title">Title <span class="text-zinc-400">(optional)</span></flux:label>
+                        <flux:label for="title">Title <span class="text-zinc-400">(required)</span></flux:label>
                         <flux:input
                             type="text"
                             id="title"
@@ -33,7 +33,7 @@
                             placeholder="e.g., Weekly Management Meeting"
                             :value="old('title')"
                         />
-                        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">If left blank, the filename will be used.</p>
+                        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Enter a title for this demo transcription.</p>
                         @error('title')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

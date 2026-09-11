@@ -22,6 +22,17 @@ test('demo transcription creation works', function () {
     ]);
 });
 
+test('demo transcription form describes title as required', function () {
+    $this->actingAs(User::factory()->create());
+
+    $this->get(route('transcriptions.create'))
+        ->assertOk()
+        ->assertSee('Title')
+        ->assertSee('(required)')
+        ->assertSee('Enter a title for this demo transcription.')
+        ->assertDontSee('If left blank, the filename will be used.');
+});
+
 test('created records belong to authenticated user', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

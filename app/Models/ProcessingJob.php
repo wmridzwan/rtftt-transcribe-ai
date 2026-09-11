@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ProcessingStage;
 use App\Enums\ProcessingStatus;
+use Database\Factories\ProcessingJobFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,12 +23,13 @@ use Illuminate\Support\Str;
  * @property Carbon|null $completed_at
  * @property int|null $processing_seconds
  * @property string|null $error_message
- * @property array|null $logs
+ * @property list<string|null>|null $logs
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
 class ProcessingJob extends Model
 {
+    /** @use HasFactory<ProcessingJobFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -66,6 +68,7 @@ class ProcessingJob extends Model
         });
     }
 
+    /** @return BelongsTo<Transcription, $this> */
     public function transcription(): BelongsTo
     {
         return $this->belongsTo(Transcription::class);

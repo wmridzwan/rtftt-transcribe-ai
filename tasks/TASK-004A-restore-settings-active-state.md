@@ -2,12 +2,12 @@
 
 ## Status
 
-READY
+DONE
 
 ## Ownership
 
-Implementation Owner: UNASSIGNED
-Reviewer: UNASSIGNED
+Implementation Owner: Codex
+Reviewer: Claude Code
 
 ## Authorized Phase
 
@@ -44,19 +44,20 @@ Future ideas are not authorization.
 
 ## Acceptance Criteria
 
-- [ ] Settings is active on `/settings`.
-- [ ] Settings is active on Profile, Security, and Appearance pages.
-- [ ] Existing settings routes remain reachable.
-- [ ] Relevant tests pass.
-- [ ] No unrelated behavior changes.
+- [x] Settings is active on `/settings`.
+- [x] Settings is active on Profile, Security, and Appearance pages.
+- [x] Existing settings routes remain reachable.
+- [x] Relevant tests pass.
+- [x] No unrelated behavior changes.
 
 ## Implementation Notes
 
-READY follow-up for the MEDIUM finding in reviews/TASK-004-review.md. Not started.
+Implemented the smallest route-aware active-state fix for the MEDIUM finding in reviews/TASK-004-review.md. The Settings item now considers the canonical overview plus Profile, Security, and Appearance route names.
 
 ### Files Changed
 
-- None yet.
+- `resources/views/layouts/app/sidebar.blade.php`
+- `tests/Feature/PageRenderTest.php`
 
 ### Important Decisions
 
@@ -64,18 +65,18 @@ READY follow-up for the MEDIUM finding in reviews/TASK-004-review.md. Not starte
 
 ### Known Limitations
 
-- None yet.
+Full PHPStan reports 59 existing errors in unchanged application/configuration paths. Initial run exhausted 128 MB; rerun with --memory-limit=512M completed. No application PHP classes, analyzed configuration, dependencies or routes were changed by these tasks. Static analysis is not globally clean; this is a Phase 1 completion concern, not a claimed pass.
 
 ## Verification
 
-PENDING
+PHP 8.4 found at C:/Users/Admin/.config/herd/bin/php84/php.exe. Focused PageRenderTest: 24 passed / 51 assertions. Pint --dirty --format agent passed. Initial assertion incorrectly expected data-current="true"; replaced with DOM-scoped boolean-attribute checks on all four settings routes, plus an inactive dashboard case. Full PHPStan: 59 errors in unchanged paths; see Known Limitations.
 
 ## Review
 
-Review File: None yet. Expected: reviews/TASK-004A-review.md
+Review File: reviews/TASK-004A-review.md (original combined Claude review: reviews/PHASE1-FOLLOWUPS-review.md)
 
-Review Status: PENDING
+Review Status: VERIFIED by independent Claude Code review on 2026-09-11. No findings. Source inspection only; test execution performed by Codex.
 
 ## Completion
 
-Not started. TASK-005 and Phase 2 remain unauthorized.
+REVIEW -> VERIFIED by independent Claude Code -> DONE by Codex orchestration under the user's explicit instruction to close VERIFIED work. No findings from this review. Full suite: 149 passed / 1 pre-existing skip / 374 assertions; focused suite: 69 passed / 214 assertions; Pint passed. Full PHPStan remains non-green (59 errors in unchanged paths), tracked in TASK-P1-STATIC-001. No claim of Phase 1 acceptance, Phase 2 authorization, production deployment or commit.

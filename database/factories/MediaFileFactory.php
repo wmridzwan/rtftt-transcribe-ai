@@ -23,7 +23,7 @@ class MediaFileFactory extends Factory
             ? fake()->randomElement(['mp3', 'm4a', 'wav'])
             : fake()->randomElement(['mp4', 'mov']);
 
-        $filename = fake()->words(2, true).'.'.$extension;
+        $filename = fake()->word().' '.fake()->word().'.'.$extension;
 
         return [
             'user_id' => User::factory(),
