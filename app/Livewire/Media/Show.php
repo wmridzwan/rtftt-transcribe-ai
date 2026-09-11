@@ -102,7 +102,7 @@ class Show extends Component
     {
         $this->authorize('delete', $this->mediaFile);
 
-        $hasTranscriptions = $this->mediaFile->transcriptions->isNotEmpty();
+        $hasTranscriptions = $this->mediaFile->transcriptions()->exists();
 
         $this->validate([
             'confirmCascade' => $hasTranscriptions

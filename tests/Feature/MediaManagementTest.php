@@ -170,6 +170,24 @@ test('owner can delete media with transcriptions through Livewire after explicit
     $this->assertDatabaseMissing('transcriptions', ['id' => $transcription->id]);
 });
 
+test('Livewire deletion rechecks transcriptions created after mount', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $mediaFile = MediaFile::factory()->create(['user_id' => $user->id]);
+    $component = Livewire::test(Show::class, ['mediaFile' => $mediaFile])
+        ->call('openDeleteModal');
+
+    Transcription::factory()->create([
+        'user_id' => $user->id,
+        'media_file_id' => $mediaFile->id,
+    ]);
+
+    $component->call('destroy')->assertHasErrors(['confirmCascade']);
+
+    expect($mediaFile->fresh())->not->toBeNull();
+});
+
 test('media deletion modal clearly warns about cascading transcriptions', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

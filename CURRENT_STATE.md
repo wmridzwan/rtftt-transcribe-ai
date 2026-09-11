@@ -16,11 +16,11 @@ Status: IN PROGRESS
 
 Latest full test suite:
 
-- 129 passed
+- 130 passed
 - 1 skipped
-- 318 assertions
+- 322 assertions
 
-Independently run by Claude Code for TASK-001 and rerun during TASK-002; recorded in reviews/TASK-001-review.md and tasks/TASK-002-align-media-lifecycle-and-display-names.md. Supersedes the previous 128-passed/1-skipped/316-assertion baseline.
+Run during TASK-002A implementation and independently re-run by Claude Code; recorded in tasks/TASK-002A-livewire-deletion-race-window.md and reviews/TASK-002A-review.md. Supersedes the previous 129-passed/1-skipped/318-assertion baseline.
 
 Skipped test:
 
@@ -58,15 +58,7 @@ None.
 
 ## Ready Tasks
 
-TASK-002A - Refresh Livewire Deletion State Before Cascade Confirmation (READY).
-
-Task: tasks/TASK-002A-livewire-deletion-race-window.md
-
-Implementation Owner: UNASSIGNED
-
-Reviewer: Claude Code
-
-Follow-up for the MEDIUM finding in reviews/TASK-002-review.md. Not started; no implementation owner assigned.
+None.
 
 ## Completed Tasks
 
@@ -100,7 +92,17 @@ Implementation Owner: Codex
 
 Independently VERIFIED by Claude Code in reviews/TASK-002-review.md.
 
-Media display-name accessor now correctly returns the persisted value (independently forensically confirmed the old accessor silently always fell back to original_filename even when a custom name was persisted — a real, previously-undetected, app-wide bug now fixed). Controller and active Livewire deletion paths both require explicit `accepted` cascade confirmation when transcriptions exist, satisfying ADR-005; the DB-level cascade chain (MediaFile -> Transcription -> TranscriptionSegment/ProcessingJob) was confirmed intact via migration inspection. Independently re-verified: focused suite 28 passed/89 assertions; full suite 129 passed/1 pre-existing skip/0 failures; Pint passed. One MEDIUM, non-blocking finding is preserved: Livewire's destroy() can check a stale transcriptions relation loaded at mount time rather than re-querying, unlike the controller — see Known Limitations in the task file and reviews/TASK-002-review.md. Closed as DONE after confirming the independent VERIFIED review; follow-up is tracked in READY task TASK-002A.
+Media display-name accessor now correctly returns the persisted value (independently forensically confirmed the old accessor silently always fell back to original_filename even when a custom name was persisted — a real, previously-undetected, app-wide bug now fixed). Controller and active Livewire deletion paths both require explicit `accepted` cascade confirmation when transcriptions exist, satisfying ADR-005; the DB-level cascade chain (MediaFile -> Transcription -> TranscriptionSegment/ProcessingJob) was confirmed intact via migration inspection. Independently re-verified: focused suite 28 passed/89 assertions; full suite 129 passed/1 pre-existing skip/0 failures; Pint passed. One MEDIUM, non-blocking finding was preserved and resolved by TASK-002A: Livewire's destroy() now re-queries instead of checking a stale relation. Closed as DONE after confirming the independent VERIFIED review; follow-up TASK-002A is also DONE.
+
+TASK-002A - Refresh Livewire Deletion State Before Cascade Confirmation (DONE).
+
+Task: tasks/TASK-002A-livewire-deletion-race-window.md
+
+Implementation Owner: Codex
+
+Independently VERIFIED by Claude Code in reviews/TASK-002A-review.md.
+
+Closes Finding 1 from reviews/TASK-002-review.md: Livewire's destroy() now checks `$this->mediaFile->transcriptions()->exists()` (a fresh query) instead of the relation collection cached at mount time. A new regression test creates a transcription after mount and before deletion and confirms cascade confirmation is now correctly required; independently traced and confirmed this test would have failed against the pre-fix code. Independently re-verified: focused suite 29 passed/93 assertions; full suite 130 passed/1 pre-existing skip/0 failures; Pint passed. One LOW, non-blocking documentation finding is preserved: the task's static-analysis checkbox overstated the PHPStan state; PHPStan shows only the same two pre-existing, unrelated issues documented in the Phase 1 baseline. Closed as DONE after confirming the independent VERIFIED review; the review artifact is preserved.
 
 ## Blocked Tasks
 
@@ -114,11 +116,9 @@ None.
 
 Targeted PHPStan still reports three pre-existing typing issues in unchanged declarations: MediaActionController::download() return type, Show::$folders iterable value type, and Show::render() return type. Confirmed still present and unrelated to TASK-001 in reviews/TASK-001-review.md. This does not establish full Phase 1 completion; other completion-audit findings remain outside TASK-001.
 
-TASK-002 fast-follow (MEDIUM severity): Livewire media deletion can check a stale transcriptions relation loaded at mount time instead of re-querying, so a transcription created after page load but before delete confirmation would skip the ADR-005 cascade-confirmation requirement. Preserved from reviews/TASK-002-review.md Finding 1 and tracked in READY task TASK-002A; not started.
-
 ## Next Action
 
-TASK-002 is DONE after independent verification. TASK-002A is READY, unassigned, and not started for the preserved MEDIUM finding. TASK-003 and Phase 2 remain unauthorized.
+No active task. TASK-003 and Phase 2 remain unauthorized.
 
 ## Phase Authorization
 
