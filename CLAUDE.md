@@ -7,7 +7,7 @@
 
 This repository may be worked on by multiple AI coding agents including
 
-Codex, Claude Code, and OpenCode.
+Claude Code and OpenCode.
 
 The repository is the shared source of truth between agents.
 
@@ -19,37 +19,59 @@ state provides the answer.
 
 Interpret project information in this order:
 
-1\. User's current explicit instruction
+1\. The current explicit user instruction or Human Product Owner decision.
 
-2\. plan.md
+2\. `AGENTS.md` and the canonical State-to-Action Contract in
+   `.ai/guidelines/orchestration-policy.md` for agent authority and lifecycle
+   behavior.
 
-3\. CURRENT\_STATE.md
+3\. Accepted ADRs in `DECISIONS.md` for durable product, architecture,
+   security, and workflow decisions. An ADR does not authorize execution by
+   itself.
 
-4\. Relevant task specification under tasks/
+4\. `plan.md` for authorized roadmap and phase scope.
 
-5\. architecture.md
+5\. `CURRENT_STATE.md` for current operational state, gates, and status.
 
-6\. DECISIONS.md
+6\. The relevant task file for task-level scope and acceptance criteria.
 
-7\. PROJECT\_CONTEXT.md
+7\. `architecture.md` for repository architecture within accepted decisions
+   and the authorized plan.
 
-8\. Framework and package guidelines
+8\. Source, schema, tests, configuration, CI, and Git history as evidence of
+   what exists. Evidence does not create authorization by itself.
 
-Future ideas in PROJECT\_CONTEXT.md are not implementation authorization.
+9\. `PROJECT_CONTEXT.md` and other future-looking material for context only.
 
-\## Default Agent Roles
+10\. Framework and package guidelines.
 
-\- Codex: primary implementation agent and engineering orchestrator
+Future ideas and proposed external governance documents are not
+implementation authorization until they are reconciled into repository-native
+artifacts and explicitly approved.
 
-\- Claude Code: independent reviewer, debugger, and forensic investigator
+\## Canonical Agent Architecture
 
-\- OpenCode: interactive local engineer and experimentation agent
+The repository follows a two-agent operating model — **OpenCode** (Builder) and **Claude Code** (Reviewer) — with the **Human Product Owner** as the decision-maker and task closer. One implementation task must have only one active implementation owner.
 
-\- Human Product Owner: product decisions, major architecture approval,
+### OpenCode — Builder
 
-&#x20; UX acceptance, destructive actions, and production release approval
+OpenCode is the implementation agent. OpenCode implements the assigned task, creates/updates tests, runs verification (tests, lint, typecheck), and moves the task to REVIEW. OpenCode must not mark its own work VERIFIED, close its own tasks as DONE, expand product scope, make Human Product Owner decisions, or begin unrelated tasks automatically.
+
+### Claude Code — Independent Reviewer
+
+Claude Code is the independent reviewer. Claude reviews implementation correctness, verifies acceptance criteria, inspects architecture and security boundaries, assesses regressions and edge cases, and produces durable review artifacts. Claude returns VERIFIED or CHANGES_REQUESTED. Claude must not modify implementation code during review, become the implementation owner, review its own implementation, or make product decisions.
+
+### Ridzwan / Human Product Owner — Decider
+
+The Human Product Owner owns decisions involving product scope, materially different UX behavior, major architecture, security-sensitive decisions, destructive operations, production deployment, milestone acceptance, phase completion, and phase authorization. The Human Product Owner closes VERIFIED tasks as DONE and decides BLOCKED tasks. Agents may provide evidence and recommendations. Agents must not silently make these decisions. Unresolved decisions belong in DECISION_QUEUE.md. Resolved durable decisions belong in DECISIONS.md.
+
+### Repo — Remember
+
+The repository is the shared durable memory and source of truth. Routine agent-to-agent communication must happen through repository artifacts rather than requiring manual relay between agents. Chat history is not the canonical project state when repository state exists.
 
 A role may be changed explicitly for a specific task.
+
+The canonical State-to-Action Contract (who acts on each task lifecycle state) is defined once in `.ai/guidelines/orchestration-policy.md`; this file cross-references it rather than duplicating the table.
 
 \## Task Ownership
 
@@ -143,7 +165,15 @@ Review:
 
 \- test adequacy
 
-Write durable review results under reviews/.
+Write durable review results under reviews.
+
+Formal independent review is based on independent reconstruction of evidence,
+not vendor or model identity alone. A fresh review context or session that did
+not implement the artifact is preferred. Review artifacts must distinguish CI
+evidence, implementer-reported results, and commands reproduced by the
+reviewer. Do not claim reviewer reproduction when the command was not run.
+Read-only tests and static analysis may be executed when the environment
+permits it.
 
 Finding severity:
 
@@ -400,4 +430,11 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Orchestration Governance
 
-The shared orchestration policy is [`.ai/guidelines/orchestration-policy.md`](.ai/guidelines/orchestration-policy.md). [DECISION_QUEUE.md](DECISION_QUEUE.md) is the durable location for unresolved Human Product Owner decisions. A blocked task does not block unrelated runnable work; READY tasks with satisfied dependencies continue, and only affected tasks become BLOCKED. Product, UX, architecture, security, destructive-operation, production, phase-completion, and phase-authorization decisions belong to the Human Product Owner. Phase authorization remains a Human Product Owner gate.
+The shared orchestration policy is [`.ai/guidelines/orchestration-policy.md`](.ai/guidelines/orchestration-policy.md). The full State-to-Action Orchestration Contract lives there. Key rules:
+
+- **REVIEW is Claude Code's responsibility.** A task in REVIEW must be routed to Claude Code for independent review.
+- **CHANGES_REQUESTED preserves ownership.** OpenCode fixes its own CHANGES_REQUESTED items; there is only one implementation agent.
+- **VERIFIED does not mean DONE.** After Claude Code returns VERIFIED, the Human Product Owner must close the task as DONE.
+- **BLOCKED is scoped.** Unrelated authorized runnable work continues.
+
+[DECISION_QUEUE.md](DECISION_QUEUE.md) is the durable location for unresolved Human Product Owner decisions. A blocked task does not block unrelated runnable work; READY tasks with satisfied dependencies continue, and only affected tasks become BLOCKED. Product, UX, architecture, security, destructive-operation, production, phase-completion, and phase-authorization decisions belong to the Human Product Owner. Phase authorization remains a Human Product Owner gate.

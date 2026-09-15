@@ -1,10 +1,17 @@
-# RTFTT Transcribe AI
+# Voxora / RTFTT Transcribe AI
 
 Audio/video transcription management platform.
 
+Voxora is the long-term product and brand. RTFTT is the current
+engineering/repository identity; the repository is not renamed by this
+documentation change.
+
 ## Current Phase
 
-Phase 1 — Application Foundation + Full Clickable Prototype
+Phase 2 checkpoint — P2-001/P2-002 and completed follow-up contracts.
+
+Phase 1 — Application Foundation + Full Clickable Prototype — is accepted.
+P2-003 and later remain unauthorized pending a separate continuation decision.
 
 ## Technology Stack
 
@@ -22,6 +29,23 @@ Phase 1 — Application Foundation + Full Clickable Prototype
 - Node.js 18+
 - Composer
 - Laravel Herd (recommended)
+
+### FFprobe / FFmpeg for media metadata probing
+
+The bounded P2-005 metadata probe requires the `ffprobe` executable from an
+FFmpeg installation. It is used only to extract technical metadata such as
+duration, codecs, sample rate, and channel count from an already persisted
+private media file; it does not enable transcription or other Phase 3
+processing.
+
+By default the application runs `ffprobe` from `PATH`. Set
+`RTFTT_FFPROBE_PATH` in the environment when the executable is installed at a
+non-standard location. Verify availability with `ffprobe -version` (or the
+configured path) and with `php artisan test --compact
+tests/Feature/MediaMetadataProbeServiceTest.php`. The real fixture test is
+explicitly skipped with a reason when FFprobe is unavailable; the application
+probe service safely leaves metadata null and logs the failure rather than
+failing or deleting the uploaded media.
 
 ## Installation
 

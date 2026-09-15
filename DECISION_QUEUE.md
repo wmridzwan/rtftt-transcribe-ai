@@ -55,10 +55,112 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 ## Open Decisions
 
+None.
+
+## DECIDED — DECISION-P2-CONCURRENCY-001
+
+Decision ID: DECISION-P2-CONCURRENCY-001
+
+Status: DECIDED
+Type: Architecture
+Originating Tasks: P2-004A, P2-004A1
+Raised By: Codex orchestration after independent remediation-cycle-2 review
+Priority: HIGH
+
+Question:
+
+Which approved concurrency contract should govern cleanup versus ingestion for
+the repository's actual SQLite deployment: an explicitly SQLite-designed
+mechanism, a redesigned SQLite claim protocol, a production engine change, or
+continued deferral until cleanup is operationally required?
+
+Options:
+
+1. Retain SQLite and explicitly design around SQLite-supported transaction and
+   locking semantics.
+2. Retain SQLite but redesign the cleanup/claim protocol so correctness does
+   not depend on unsupported row-level `FOR UPDATE` locking.
+3. Change the production database/concurrency contract to an engine providing
+   the locking semantics assumed by the current design.
+4. Defer cleanup/claim execution until an operational need exists.
+
+Recommendation:
+
+Approve deferral for the current gate; if cleanup becomes necessary, prefer a
+SQLite-specific claim protocol with genuine independent-connection/process
+verification. This is an engineering recommendation only.
+
+Impact:
+
+P2-004A and P2-004A1 remain BLOCKED. No autonomous fourth repair cycle may
+start. The exact invariant, contention outcome, transaction semantics, and
+verification gate are documented in
+`reviews/P2-004A-P2-004A1-sqlite-concurrency-decision-package.md`.
+
+Blocks:
+
+- P2-004A.
+- P2-004A1.
+- P2-007 and Phase 3 remain separately unauthorized while the Phase 2 gate is
+  unresolved.
+
+Does Not Block:
+
+- P2-003 and P2-005 closure as DONE.
+- Historical completed tasks and their preserved review evidence.
+
+Resolution:
+
+The Human Product Owner approved Option D on 2026-09-13. Automated
+abandoned-staging cleanup is deferred out of the current Phase 2 completion
+scope. P2-004A and P2-004A1 remain BLOCKED because the canonical lifecycle has
+no DEFERRED state; they are not VERIFIED or DONE. The current SQLite
+`lockForUpdate()` implementation is not accepted as a row-lock guarantee.
+Existing P2-002B/P2-003 synchronous compensation, retry, ownership, and
+same-attempt idempotency contracts remain authoritative. Option B is the
+preferred future resolution class, but it is not authorized now. Durable
+record: ADR-013 in `DECISIONS.md`.
+
+## DECIDED — DECISION-P2-PHASE2-ACCEPTANCE-001
+
+Decision ID: DECISION-P2-PHASE2-ACCEPTANCE-001
+Status: DECIDED
+Type: Phase Completion
+Originating Scope: Current bounded Phase 2 scope
+Raised By: Human Product Owner
+Priority: HIGH
+
+Resolution:
+
+The Human Product Owner accepted the current bounded Phase 2 scope on
+2026-09-13. Phase 2 is recorded as ACCEPTED under ADR-014. P2-003 and P2-005
+remain DONE. P2-004A and P2-004A1 remain BLOCKED and deferred from the current
+gate; they are not VERIFIED or DONE. Automated abandoned-staging cleanup
+remains unauthorized.
+
+This acceptance does not create or promote P2-007, make it eligible, or
+authorize it. Phase 3 remains not eligible and not authorized. Durable record:
+ADR-014 in `DECISIONS.md`.
+
+## DECIDED — DECISION-P2-REMEDIATION-001
+
+The Human Product Owner resolved the authorization question on 2026-09-13 by
+explicitly authorizing remediation of P2-004A, P2-004A1, P2-005, and the affected
+P2-003 service surface. The earlier missing authorization record remains a
+governance/audit-trail failure and the independent finding is preserved. The
+minimum FFprobe/FFmpeg dependency is approved for P2-005 in Phase 2 only; no
+transcription, worker, queue, P2-007, or Phase 3 work is authorized.
+
+Durable resolution: ADR-012 in `DECISIONS.md`. Affected tasks remain REVIEW /
+AWAITING INDEPENDENT RE-REVIEW and cannot be marked VERIFIED or DONE by the
+implementation owner.
+
+## Decision History
+
 ### DECISION-P1-001 — Prototype creation title contract
 
 Decision ID: DECISION-P1-001
-Status: OPEN
+Status: DECIDED
 Type: Product
 Originating Task: TASK-P1-CREATE-001
 Raised By: Codex orchestration
@@ -95,6 +197,3 @@ Does Not Block:
 Resolution:
 
 Human Product Owner decided on 2026-09-11: Title remains REQUIRED. UI copy was aligned to existing server validation; no filename fallback or upload behavior was added. Durable record: ADR-006 in DECISIONS.md. Phase 2 remains unauthorized.
-## Decision History
-
-DECISION-P1-001 — DECIDED; see ADR-006 in DECISIONS.md.

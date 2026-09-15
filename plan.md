@@ -2,10 +2,14 @@
 
 ## Current Authorized Phase
 
-Phase 1 — Application Foundation + Full Clickable Prototype
+Phase 2 — Accepted bounded Phase 2 scope
 
 Status:
-ACCEPTED by Human Product Owner on 2026-09-11
+Product Owner acceptance recorded in ADR-014 on 2026-09-13. The independent
+cycle-2 re-review is reconciled: P2-003 and P2-005 are DONE; P2-004A and
+P2-004A1 remain BLOCKED and are deferred out of the current Phase 2 completion
+scope under ADR-013. Phase 2 is ACCEPTED. P2-007 and Phase 3 remain not
+eligible and unauthorized.
 
 ## Phase 1 Breakdown
 
@@ -100,5 +104,44 @@ ACCEPTED by Human Product Owner on 2026-09-11
 - Billing / subscriptions
 - Public API
 
-NEXT AUTHORIZED PHASE: NONE
-Phase 1 is accepted. Await explicit user authorization before beginning Phase 2.
+The ADR-012 continuation authorizes only remediation of the named P2-003,
+P2-004A, P2-004A1, and P2-005 surfaces. No P2-007, transcription, processing,
+or broader Phase 3 behavior is authorized.
+
+## Roadmap Reconciliation
+
+The repository engineering phase numbers above are canonical and must not be
+renumbered by an external product roadmap:
+
+1. Application Foundation + Full Clickable Prototype
+2. Real File Upload & Media Library
+3. FFmpeg / FFprobe Media Processing
+4. Independent faster-whisper Worker
+5. Laravel ↔ Transcription Worker Integration
+6. Advanced Transcript UX
+7. Production Hardening
+
+Voxora is the long-term product and brand; RTFTT remains the current
+engineering/repository identity. Product evolution beyond Phase 7 may include
+transcript workspace evolution, file/workspace management, richer export,
+translation, search/discovery, advanced AI, realtime, collaboration, SaaS, and
+organizational knowledge capabilities. These are unnumbered future roadmap
+stages unless separately approved and mapped to repository phases. They do not
+authorize implementation or redefine the established Phase 3–7 identifiers.
+
+Phase 2 remains bounded by ADR-008, ADR-009, and ADR-012. P2-005 alone may use
+the minimum FFprobe/FFmpeg dependency for metadata probing; it does not
+introduce queues, Redis, Horizon, faster-whisper, or transcription generation.
+
+The canonical P2-003 contract is recorded at
+`tasks/P2-003-implement-real-upload-ingestion-workflow.md`; its current status
+is DONE after the cycle-2 independent VERIFIED regression re-review.
+P2-005 is DONE after the cycle-2 independent VERIFIED re-review. P2-004A and
+P2-004A1 are BLOCKED and deferred from the current Phase 2 gate under ADR-013;
+future cleanup requires separate authorization and genuine independent-
+concurrency verification.
+
+The P2-006 failure/retry planning candidate is closed as already covered by
+the accepted P2-002B contract and the independently VERIFIED P2-003 workflow.
+No P2-006 implementation was required. P2-007 and Phase 3 remain unauthorized;
+this closure does not mark Phase 2 complete.

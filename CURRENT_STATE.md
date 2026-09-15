@@ -1,6 +1,6 @@
 # RTFTT Transcribe AI — Current State
 
-Last Updated: 2026-09-11
+Last Updated: 2026-09-15
 
 ## Current Branch
 
@@ -8,19 +8,25 @@ setup/ai-development-os
 
 ## Current Authorized Phase
 
-Phase 1 — Application Foundation + Full Clickable Prototype
+Phase 2 — Authorized remediation of P2-003/P2-004A/P2-004A1/P2-005 findings
 
-Status: ACCEPTED (Human Product Owner, 2026-09-11)
+Status: Phase 2 ACCEPTED by the Human Product Owner on 2026-09-13 under
+ADR-014. P2-003 and P2-005 are DONE. P2-004A and P2-004A1 remain BLOCKED and
+are deferred out of the current Phase 2 completion scope under ADR-013; they
+are not VERIFIED or DONE. P2-007 and Phase 3 remain not eligible and not
+authorized. Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
 
-Latest full test suite (2026-09-11, Codex execution after all current Phase 1 follow-ups):
+Latest full test suite (2026-09-13, after remediation cycle 2):
 
-- 157 passed
+- 216 passed
 - 1 skipped
-- 436 assertions
+- 649 assertions
 
-Focused suite: 94 passed / 308 assertions, plus final DOCX export 11 passed / 59 assertions. Pint passed. Full PHPStan: 0 errors. Independent Claude Code source review VERIFIED all current follow-ups; reviewer did not independently rerun commands. Frontend build passed.
+Remediation focused suite: 47 passed / 177 assertions. FFprobe was available,
+so the real WAV probe test executed successfully. Pint passed. Full PHPStan: 0
+errors. Frontend build passed. `git diff --check` passed.
 
 Skipped test:
 
@@ -48,17 +54,54 @@ Phase 1 foundation currently includes:
 - transcript export
 - prototype transcription workflow
 
+## Phase 2 Checkpoint Contracts
+
+P2-001 and P2-002 are implemented and DONE after independent verification. The centralized contract is in `config/media.php`; the exact accepted media matrix supports MP3, WAV, M4A, AAC, FLAC, OGG, MP4, MOV, and WEBM with mapped server-inspected MIME values. The application limit is exactly 500 MiB (524,288,000 bytes) per file, uploads are single-file, duration is not enforced, duplicates are allowed, and successful upload is intended to open Media Detail without initiating transcription.
+
+The ingestion contract is temporary staging → server validation → metadata derivation → opaque private storage promotion → MediaFile persistence. A nullable, non-unique SHA-256 checksum is available for integrity and future duplicate detection; the server-generated representation is exactly 64 lowercase hexadecimal characters and client-supplied values are not accepted. Temporary artifacts older than 24 hours are eligible for cleanup; the cleanup implementation is deferred to a later task. P2-002A now centralizes media storage access on the configured disk and rejects a public disk boundary at application boot and before media storage access.
+
+P2-003's earlier regression re-review remains preserved as historical VERIFIED
+evidence. The cycle-2 independent re-review verified the changed claim-upsert
+surface, and P2-003 is now DONE. P2-005 is DONE after its independent VERIFIED
+verdict in the cycle-2 re-review. P2-004A and P2-004A1 are BLOCKED after the third consecutive
+CHANGES_REQUESTED cycle because the SQLite concurrency safety contract is not
+explicitly defined, repository-controlled, or proven with genuine independent
+connections/processes. P2-007 and the broader Phase 3 scope remain stopped at
+their authorization gates.
+
+## Phase 2 Infrastructure Readiness
+
+The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_size=8M`, `max_file_uploads=20`, `max_execution_time=0`, `max_input_time=-1`, and `memory_limit=128M`. The first two limits are below the approved 500 MiB (524,288,000-byte) per-file application limit. Before P2-003, the effective PHP/web-server/Livewire receiving path must be configured for at least the 500 MiB application boundary with overhead. No host configuration was changed by this checkpoint.
+
 ## Active Task
 
-No active implementation.
+P2-004A and P2-004A1 are BLOCKED and deferred out of the current Phase 2
+completion scope under ADR-013. P2-003 and P2-005 are DONE. Phase 2 is
+ACCEPTED under ADR-014. Future cleanup requires separate authorization and
+genuine independent-concurrency verification.
+P2-001A, P2-002A,
+P2-002B, and P2-002C completed the authorized follow-up batch and were closed
+as DONE after independent verification.
 
 ## Tasks In Review
 
-None. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after independent Claude verification.
+P2-001A, P2-002A, P2-002B, and P2-002C are DONE after independent verification recorded in `reviews/P2-001A-P2-002A-P2-002B-P2-002C-independent-review.md` and `reviews/P2-002A-independent-re-review.md`. P2-001 and P2-002 remain DONE. P2-003 and P2-005 are DONE after the cycle-2 independent VERIFIED verdicts. P2-004A and P2-004A1 are BLOCKED after escalation at the three-cycle threshold.
+
+TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after independent Claude verification.
 
 ## Ready Tasks
 
-None. Current explicit user authorization covers ongoing runnable Phase 1 follow-ups until a genuine human decision/acceptance gate.
+No affected Phase 2 task is READY. P2-004A and P2-004A1 are BLOCKED and
+deferred from the current gate. P2-007 is NOT ELIGIBLE and NOT AUTHORIZED; no
+Phase 3 task is eligible or authorized.
+
+## P2-003 Active Task
+
+P2-003 is DONE. The canonical contract is recorded at
+`tasks/P2-003-implement-real-upload-ingestion-workflow.md`. The independent
+third-pass review returned VERIFIED for the earlier revision on 2026-09-13.
+The cycle-2 regression re-review returned VERIFIED and Work closed the task as
+DONE. No Phase 3 or later work is authorized.
 
 ## Latest Completed Follow-Ups
 
@@ -134,32 +177,125 @@ Independently VERIFIED by Claude Code in reviews/TASK-004-review.md.
 
 Role-aware processing-job links now hide dead-end admin-only links from non-admins (confirmed `jobs.*` routes are admin-gated, pre-existing). Export controls now gate on `TranscriptionStatus::Completed`, matching the controller's own pre-existing authorization rule exactly (the old `$hasFile`-based check was verified to be checking the wrong signal entirely, since exports never touch the physical file). `wire:navigate` removed from export links so real file downloads work. Media Download hidden/disabled when `Storage::exists()` is false — verified this is not theoretical: the seeder never writes real files for any seeded MediaFile, so every Download button in current demo data was a guaranteed 404 before this fix. Folders added to sidebar navigation with a Create Folder path in the empty state (reusing the existing modal, no new modal system). Settings navigation now reaches `/settings`; Profile/Security/Appearance reachability confirmed via the settings overview and the existing in-page settings sub-nav. Dead views/controllers (`FolderController::index`, `MediaController::show`, `folders/index.blade.php`, `media/show.blade.php`, `layouts/app/header.blade.php`) removed — independently proven safe via unchanged routes/web.php and a full-tree reference grep. Independently re-verified: focused suite 69 passed/208 assertions; full suite 140 passed/1 pre-existing skip/0 failures; Pint passed; PHPStan 0 errors on both changed controllers. One MEDIUM, non-blocking finding: the sidebar Settings item's "current" highlighting no longer covers Profile/Security/Appearance subpages (reachability unaffected). Two LOW, non-blocking findings: an undisclosed file change (`desktop-user-menu.blade.php`) and two `wire:navigate` removals outside the stated file-response scope. Closed as DONE after confirming the independent VERIFIED review; follow-up findings are tracked in READY TASK-004A and TASK-004B.
 
+P2-003 - Implement Real Upload & Ingestion Workflow (DONE).
+
+Task: tasks/P2-003-implement-real-upload-ingestion-workflow.md
+
+Implementation Owner: Codex
+
+Independently VERIFIED by Claude Code in reviews/P2-003-independent-review.md (third pass, 2026-09-13).
+
+Implements the first real end-to-end single-file media upload and ingestion workflow: Upload UI → web receiving path → temporary staging → server validation → metadata derivation without media probing → private opaque storage promotion → MediaFile persistence → Media Detail. Uses a normal Laravel multipart endpoint with Blade/browser progress (not Livewire raw-file transport). Enforces the exact 500 MiB (524,288,000 bytes) per-file boundary. Implements P2-002B upload-attempt identity, retry, ambiguity, and compensation behavior. Independently re-verified: focused suite 16 passed/94 assertions; full suite 185 passed/12 skipped/566 assertions; Pint passed; PHPStan 0 errors; frontend build passed. Underwent two CHANGES_REQUESTED remediation cycles for test-coverage gaps (persistence-failure compensation and ambiguous duplicate-key retry tests rebuilt to exercise service-level branches); both resolved and verified on third pass. Closed as DONE after confirming the independent VERIFIED review. No Phase 3 or later work was introduced.
+
+P2-006 - Failure / Retry Handling (CLOSED AS ALREADY COVERED).
+
+Task: `tasks/P2-006-failure-retry-handling.md`
+
+No implementation was required. P2-002B defines the failure/retry contract,
+and P2-003 independently verifies same-attempt idempotency, cross-user
+isolation, promotion and persistence compensation, ambiguous retry recovery,
+staging cleanup, and the absence of processing/transcription side effects.
+The remaining out-of-band staging cleanup/lease work remains blocked under
+P2-004A/P2-004A1, and P2-005 is DONE after independent verification. P2-007
+and Phase 3 remain unauthorized.
+
 ## Blocked Tasks
 
-None.
+- P2-004A — BLOCKED: SQLite cleanup/ingestion concurrency contract unresolved;
+  third consecutive CHANGES_REQUESTED cycle.
+- P2-004A1 — BLOCKED: SQLite cleanup/ingestion concurrency contract unresolved;
+  third consecutive CHANGES_REQUESTED cycle.
 
 ## Governance Setup
 
-Orchestration governance is DONE after independent Claude Code verification recorded in [reviews/ORCHESTRATION-GOVERNANCE-review.md](reviews/ORCHESTRATION-GOVERNANCE-review.md). The policy, decision queue schema, shared agent guidance, and current-state reconciliation are complete. Two LOW documentation findings are preserved in the review: legacy formatting cleanup is optional, and `.claude/settings.local.json` remains untracked machine-local configuration that may be added to `.gitignore` if repository policy permits.
+The canonical agent operating model is the two-agent model (OpenCode as
+Builder, Claude Code as Independent Reviewer, Human Product Owner as
+Decider) defined in `AGENTS.md`, `.ai/guidelines/orchestration-policy.md`,
+and `.ai/guidelines/ai-development-os.md`, accepted under **ADR-015**
+(DECISIONS.md). ADR-015 supersedes ADR-010's five-role model (Work, OpenCode,
+Claude Code, Codex, Human Product Owner) in full; the dedicated Work
+orchestration layer and the Codex investigate/secondary-implementation role
+are removed. ADR-010 in turn superseded the agent-role/orchestration portion
+of ADR-004, whose repository-handoff principles remain preserved and
+authoritative through ADR-015.
+
+The orchestration policy is at `.ai/guidelines/orchestration-policy.md`; its
+original independent verification is recorded in
+`reviews/ORCHESTRATION-GOVERNANCE-review.md`, and the ADR-010 reconciliation
+is independently VERIFIED in
+`reviews/GOVERNANCE-RECONCILIATION-ADR010-review.md`. The LOW traceability
+finding from that reconciliation is resolved by retaining both review
+pointers here. Historical Phase 1 and Phase 2 task records correctly
+reference execution under the previous ADR-010 model (Codex as an
+implementation owner for several tasks, alongside OpenCode); those records
+are preserved as historical truth and are not retroactively changed by
+ADR-015.
+
+## Governance Reconciliation
+
+ADR-011 records the approved RTFTT / Voxora governance reconciliation. Voxora
+is the long-term product and brand; RTFTT remains the current
+engineering/repository identity. The repository-native authority model remains
+controlling, with `AGENTS.md` as the operational entry point and
+`.ai/guidelines/orchestration-policy.md` as the one canonical State-to-Action
+Contract. The external governance suite is strategic/planning input until its
+individual artifacts are explicitly reconciled and published; it does not
+authorize implementation by itself.
+
+Established Phase 1–7 numbering is preserved. Phase 3 remains FFmpeg/FFprobe
+media processing, Phase 4 remains the independent faster-whisper worker, and
+Phase 5 remains Laravel ↔ worker integration. Worker transport and operational
+contract details, provider expansion, future ownership/multi-tenancy, media
+parsing trust boundaries, and production/privacy requirements remain future
+gates. No application, schema, test, route, configuration, or Phase 2 scope
+change is authorized by this reconciliation.
+
+## Governance Reconciliation Closure
+
+Status: VERIFIED / DONE
+
+The independent governance reconciliation review returned VERIFIED on
+2026-09-13. Closure is limited to the documentation and governance records
+listed in `reviews/GOVERNANCE-RECONCILIATION-ADR011-review.md`. It does not
+authorize P2-003, Phase 3, product implementation, schema changes, runtime
+changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE.
+DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED.
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. All current follow-up reviews are complete. No unresolved Product Owner decision remains.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. No P2-007 or Phase 3 task is authorized.
+
+## Future Gates
+
+The following are not current blockers, but must be decided before their
+respective future gates: media parsing/FFmpeg trust boundary; worker transport,
+job/result schemas, storage, timeout, retry, heartbeat/cancellation,
+idempotency, failure classification, and capacity; actor-versus-owner and
+multi-tenancy semantics; and first-production-use deployment, rollback,
+backup/restore, monitoring, failed-job visibility, retention/deletion,
+derived-artifact deletion, log/privacy, and legal/privacy validation.
 
 ## Next Action
 
-Wait for explicit Phase 2 authorization. No further autonomous implementation is authorized. Phase 2 remains unauthorized.
+Phase 2 acceptance has been recorded under ADR-014. P2-004A and P2-004A1
+remain BLOCKED and deferred from the current gate under ADR-013. P2-007 is not
+eligible or authorized. P2-006 remains closure-only.
+Do not begin P2-007 or any later Phase 2 task or Phase 3 without separate
+Human Product Owner authorization.
 
 ## Phase Authorization
 
-Phase 2 and later phases remain NOT AUTHORIZED.
+The Human Product Owner accepted the bounded Phase 2 scope in ADR-014 on
+2026-09-13. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are
+BLOCKED and deferred from the current gate under ADR-013. P2-007 is not
+eligible or authorized. Later Phase 2 work and all processing/transcription
+phases remain unauthorized.
 
 See plan.md.
 
 ## Review status
 
-Independent Claude review verified TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001. All current follow-ups are DONE. DECISION-P1-001 is resolved by ADR-006.
+Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is not eligible or authorized. P2-006 remains closure-only.
