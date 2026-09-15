@@ -55,7 +55,74 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 ## Open Decisions
 
-None.
+### DECISION-P2-CONCURRENCY-002 — Adopt the Option B claim CAS protocol for P2-004A/P2-004A1
+
+Decision ID: DECISION-P2-CONCURRENCY-002
+
+Status: OPEN
+
+Type: Architecture
+
+Originating Tasks: P2-004A, P2-004A1
+
+Raised By: Claude Code, at the Human Product Owner's request for a concrete
+solution to the blocked concurrency contract
+
+Priority: MEDIUM (P2-004A/P2-004A1 remain BLOCKED and Phase 2 is already
+ACCEPTED under ADR-014; this does not block other runnable work)
+
+Question:
+
+Should the repository adopt the concrete SQLite-safe compare-and-set claim
+protocol in `reviews/P2-004A-P2-004A1-option-b-protocol-proposal.md` as the
+selected Option B mechanism, and authorize a new, narrowly-scoped
+implementation task for it?
+
+Options:
+
+1. Approve the proposed CAS protocol (add `held_by`/`cleanup_claimed_at` to
+   `staging_claims`; replace `lockForUpdate()` in `CleanupStaging` and the
+   claim upsert in `MediaIngestionService` with single guarded
+   `UPDATE`/`INSERT ... OR IGNORE` statements; move file deletion outside the
+   transaction) and authorize a new implementation task scoped to exactly
+   that.
+2. Request changes to the proposed protocol before approving.
+3. Keep Option D (defer) in force indefinitely; do not schedule this work.
+4. Select a different resolution class from the original decision package
+   (A or C) instead of B.
+
+Recommendation:
+
+Option 1. The proposal keeps the existing engine (SQLite) and schema shape,
+requires only an additive migration, and replaces the exact mechanism the
+independent review identified as unproven (`lockForUpdate()`) with a
+single-statement CAS pattern that is atomic on SQLite without relying on row
+locks. It also directly specifies the genuine-independent-process test
+approach the verification gate requires, which was the missing piece in the
+prior three CHANGES_REQUESTED cycles.
+
+Impact:
+
+Approving this unblocks a path to close P2-004A/P2-004A1, but does not by
+itself mark them VERIFIED — the future implementation task must still pass
+the verification gate in
+`reviews/P2-004A-P2-004A1-sqlite-concurrency-decision-package.md` and
+independent review. This does not reopen or change the already-DONE
+P2-002B/P2-003 contracts; the proposal preserves their behavior.
+
+Blocks:
+
+- Authorization of a new P2-004A/P2-004A1 implementation task (nothing may
+  be implemented against this design until it is approved).
+
+Does Not Block:
+
+- P2-007 or any other Phase 2 runnable work.
+- Phase 3 authorization, which is a separate, unrelated gate.
+
+Resolution:
+
+PENDING.
 
 ## DECIDED — DECISION-P2-CONCURRENCY-001
 
