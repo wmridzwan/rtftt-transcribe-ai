@@ -1,6 +1,9 @@
 <x-layouts::app :title="__('Media Library')">
     <div class="flex h-full w-full flex-1 flex-col gap-6">
-        <x-page-header title="Media Library" description="Browse your uploaded audio and video files" />
+        <div class="flex items-start justify-between gap-4">
+            <x-page-header title="Media Library" description="Browse your uploaded audio and video files" />
+            <flux:button :href="route('media.upload')" wire:navigate icon="arrow-up-tray">Upload Media</flux:button>
+        </div>
 
         <form method="GET" action="{{ route('media.index') }}" class="flex flex-wrap items-end gap-3">
             <div class="flex-1 min-w-[200px]">
@@ -31,7 +34,7 @@
                 description="Upload a recording to add files to your media library."
                 icon="folder"
                 :action-text="'Upload Recording'"
-                :action-href="route('transcriptions.create')"
+                :action-href="route('media.upload')"
             />
         @else
             <div class="overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
@@ -86,7 +89,7 @@
                                         <flux:button icon="ellipsis-horizontal" variant="subtle" size="sm" />
                                         <flux:menu>
                                             <flux:menu.item icon="eye" tag="a" href="{{ route('media.show', $mediaFile) }}" wire:navigate>View</flux:menu.item>
-                                            @if ($mediaFile->storage_path && Storage::exists($mediaFile->storage_path))
+                                            @if ($mediaFile->hasPhysicalFile())
                                                 <flux:menu.item icon="arrow-down-tray" tag="a" href="{{ route('media.download', $mediaFile) }}">Download</flux:menu.item>
                                             @else
                                                 <flux:menu.item icon="arrow-down-tray" disabled>Download</flux:menu.item>

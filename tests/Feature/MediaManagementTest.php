@@ -545,10 +545,38 @@ test('owner downloads existing media through the streamed response', function ()
     $user = User::factory()->create();
     $this->actingAs($user);
     $media = MediaFile::factory()->create(['user_id' => $user->id, 'display_name' => 'Recording.mp3']);
-    Storage::put($media->storage_path, 'demo audio bytes');
+    Storage::disk(config('media.storage_disk'))->put($media->storage_path, 'demo audio bytes');
 
     $response = $this->get(route('media.download', $media));
 
     $response->assertOk()->assertDownload('Recording.mp3');
     expect($response->streamedContent())->toBe('demo audio bytes');
+});
+
+test('media existence download and deletion use the configured media disk', function () {
+    config(['filesystems.default' => 'public']);
+    Storage::fake('local');
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $media = MediaFile::factory()->create([
+        'user_id' => $user->id,
+        'storage_path' => 'media/private-boundary.mp3',
+    ]);
+    Storage::disk('local')->put($media->storage_path, 'private media bytes');
+
+    $this->get(route('media.show', $media))
+        ->assertOk()
+        ->assertSee(route('media.download', $media), false);
+
+    $downloadResponse = $this->get(route('media.download', $media));
+
+    $downloadResponse->assertOk();
+    expect($downloadResponse->streamedContent())->toBe('private media bytes');
+
+    $this->delete(route('media.destroy', $media))
+        ->assertRedirect(route('media.index'));
+
+    Storage::disk('local')->assertMissing($media->storage_path);
 });

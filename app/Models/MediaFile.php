@@ -9,16 +9,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
+use LogicException;
 
 /**
  * @property int $id
  * @property int $user_id
+ * @property string|null $upload_attempt_id
  * @property string $uuid
  * @property string $original_filename
  * @property string $storage_filename
  * @property string $storage_path
+ * @property string|null $checksum_sha256
  * @property MediaType $media_type
  * @property string $mime_type
  * @property string $extension
@@ -77,6 +83,72 @@ class MediaFile extends Model
                 $mediaFile->uuid = (string) Str::uuid();
             }
         });
+    }
+
+    public static function storage(): FilesystemAdapter
+    {
+        self::assertPrivateStorageDisk();
+
+        return Storage::disk((string) config('media.storage_disk'));
+    }
+
+    public static function assertPrivateStorageDisk(): void
+    {
+        $diskName = config('media.storage_disk');
+        $diskConfig = is_string($diskName)
+            ? config("filesystems.disks.{$diskName}")
+            : null;
+        $publicDiskConfig = config('filesystems.disks.public');
+
+        if (! is_string($diskName) || $diskName === '' || ! is_array($diskConfig)) {
+            throw new LogicException('The configured media storage disk must exist and be private.');
+        }
+
+        $usesPublicVisibility = ($diskConfig['visibility'] ?? null) === 'public';
+        $usesPublicRoot = is_array($publicDiskConfig)
+            && isset($diskConfig['root'], $publicDiskConfig['root'])
+            && $diskConfig['root'] === $publicDiskConfig['root'];
+
+        if ($usesPublicVisibility || $usesPublicRoot) {
+            throw new LogicException('The configured media storage disk must be private.');
+        }
+    }
+
+    /**
+     * Assign the server-owned idempotency identity for a real upload attempt.
+     *
+     * @throws InvalidArgumentException
+     */
+    public function assignUploadAttemptId(string $attemptId): static
+    {
+        if (! Str::isUuid($attemptId)) {
+            throw new InvalidArgumentException('The upload attempt identifier must be a UUID.');
+        }
+
+        $this->attributes['upload_attempt_id'] = $attemptId;
+
+        return $this;
+    }
+
+    public function hasPhysicalFile(): bool
+    {
+        return ! empty($this->storage_path) && self::storage()->exists($this->storage_path);
+    }
+
+    /**
+     * Assign a checksum computed by the server from the accepted media bytes.
+     *
+     * @throws InvalidArgumentException
+     */
+    public function assignGeneratedChecksumSha256(string $checksum): static
+    {
+        if (preg_match('/\A[0-9a-f]{64}\z/D', $checksum) !== 1) {
+            throw new InvalidArgumentException('The server-generated checksum must be exactly 64 lowercase hexadecimal characters.');
+        }
+
+        $this->attributes['checksum_sha256'] = $checksum;
+
+        return $this;
     }
 
     /** @return BelongsTo<User, $this> */

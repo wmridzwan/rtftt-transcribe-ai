@@ -128,8 +128,10 @@ class Show extends Component
                 : ['nullable', 'boolean'],
         ]);
 
-        if ($this->mediaFile->storage_path && \Storage::exists($this->mediaFile->storage_path)) {
-            \Storage::delete($this->mediaFile->storage_path);
+        $storage = MediaFile::storage();
+
+        if ($this->mediaFile->storage_path && $storage->exists($this->mediaFile->storage_path)) {
+            $storage->delete($this->mediaFile->storage_path);
         }
 
         $this->mediaFile->delete();

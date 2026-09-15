@@ -5,6 +5,7 @@ use App\Http\Controllers\DemoTranscriptionController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\MediaActionController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\MediaUploadController;
 use App\Http\Controllers\ProcessingJobController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TranscriptionActionController;
@@ -33,6 +34,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/transcriptions/{transcription}/export/docx', [TranscriptionExportController::class, 'exportDocx'])->name('transcriptions.export.docx');
 
     Route::get('/media', [MediaController::class, 'index'])->name('media.index');
+    Route::get('/media/upload', [MediaUploadController::class, 'create'])->name('media.upload');
+    Route::post('/media/upload', [MediaUploadController::class, 'store'])->name('media.upload.store');
     Route::get('/media/{mediaFile}', MediaShow::class)->name('media.show');
     Route::patch('/media/{mediaFile}/rename', [MediaActionController::class, 'rename'])->name('media.rename');
     Route::delete('/media/{mediaFile}', [MediaActionController::class, 'destroy'])->name('media.destroy');

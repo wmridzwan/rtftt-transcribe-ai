@@ -29,7 +29,7 @@
                     <flux:sidebar.item icon="document-text" :href="route('transcriptions.index')" :current="request()->routeIs('transcriptions.*') && !request()->routeIs('transcriptions.create')" wire:navigate>
                         {{ __('All Transcriptions') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="arrow-up-tray" :href="route('transcriptions.create')" :current="request()->routeIs('transcriptions.create')" wire:navigate>
+                    <flux:sidebar.item icon="arrow-up-tray" :href="route('media.upload')" :current="request()->routeIs('media.upload')" wire:navigate>
                         {{ __('Upload Recording') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>

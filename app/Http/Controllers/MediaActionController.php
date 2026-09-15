@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\MediaFile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -36,8 +35,10 @@ class MediaActionController extends Controller
                 : ['nullable', 'boolean'],
         ]);
 
-        if ($mediaFile->storage_path && Storage::exists($mediaFile->storage_path)) {
-            Storage::delete($mediaFile->storage_path);
+        $storage = MediaFile::storage();
+
+        if ($mediaFile->storage_path && $storage->exists($mediaFile->storage_path)) {
+            $storage->delete($mediaFile->storage_path);
         }
 
         $mediaFile->delete();
@@ -49,12 +50,13 @@ class MediaActionController extends Controller
     public function download(MediaFile $mediaFile): StreamedResponse
     {
         $this->authorize('view', $mediaFile);
+        $storage = MediaFile::storage();
 
-        if (! $mediaFile->storage_path || ! Storage::exists($mediaFile->storage_path)) {
+        if (! $mediaFile->storage_path || ! $storage->exists($mediaFile->storage_path)) {
             abort(404, 'Physical file not found.');
         }
 
-        return Storage::download($mediaFile->storage_path, $mediaFile->display_name ?? $mediaFile->original_filename);
+        return $storage->download($mediaFile->storage_path, $mediaFile->display_name ?? $mediaFile->original_filename);
     }
 
     public function moveToFolder(Request $request, MediaFile $mediaFile): RedirectResponse

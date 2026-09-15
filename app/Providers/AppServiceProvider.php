@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\MediaFile;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        MediaFile::assertPrivateStorageDisk();
         $this->configureDefaults();
     }
 

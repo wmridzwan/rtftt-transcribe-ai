@@ -2,7 +2,7 @@
     <div class="flex h-full w-full flex-1 flex-col gap-6">
         <div class="flex items-center justify-between">
             <x-page-header title="Transcriptions" description="Manage your audio and video transcriptions" />
-            <flux:button :href="route('transcriptions.create')" wire:navigate icon="arrow-up-tray">
+            <flux:button :href="route('media.upload')" wire:navigate icon="arrow-up-tray">
                 Upload Recording
             </flux:button>
         </div>
@@ -36,7 +36,7 @@
                 description="Upload a recording to create your first transcription."
                 icon="document-text"
                 :action-text="'Upload Recording'"
-                :action-href="route('transcriptions.create')"
+                :action-href="route('media.upload')"
             />
         @else
             <div class="overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">

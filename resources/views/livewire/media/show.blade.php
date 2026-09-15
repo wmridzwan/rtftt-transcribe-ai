@@ -1,5 +1,5 @@
 @php
-    $hasPhysicalFile = $mediaFile->storage_path && Storage::exists($mediaFile->storage_path);
+    $hasPhysicalFile = $mediaFile->hasPhysicalFile();
 @endphp
 
 <div class="flex h-full w-full flex-1 flex-col gap-6">
