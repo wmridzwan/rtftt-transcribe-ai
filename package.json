@@ -4,7 +4,10 @@
     "type": "module",
     "scripts": {
         "build": "vp build",
-        "dev": "vp dev"
+        "dev": "vp dev",
+        "orchestrate": "node scripts/orchestrate.mjs",
+        "orchestrate:once": "node scripts/orchestrate.mjs --once",
+        "orchestrate:live": "node scripts/orchestrate.mjs --live"
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.1.11",

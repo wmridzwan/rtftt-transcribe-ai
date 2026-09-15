@@ -24,3 +24,5 @@ yarn-error.log
 /.zed
 
 test-output.txt
+
+/storage/orchestration

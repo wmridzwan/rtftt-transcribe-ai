@@ -1,0 +1,14 @@
+{
+    "$schema": "./orchestrate.config.schema.json",
+    "maxChangeRequestedCycles": 3,
+    "autoAssignReadyTasks": false,
+    "claude": {
+        "command": "claude",
+        "permissionMode": "acceptEdits",
+        "extraArgs": []
+    },
+    "opencode": {
+        "command": "opencode",
+        "extraArgs": ["--auto"]
+    }
+}
