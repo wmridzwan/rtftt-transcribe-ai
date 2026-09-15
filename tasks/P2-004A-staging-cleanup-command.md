@@ -5,7 +5,9 @@
 BLOCKED
 
 P2-004A is BLOCKED and deferred out of the current Phase 2 completion scope
-under ADR-013. The staging cleanup
+under ADR-013. A follow-up implementation task, authorized under ADR-016, is
+READY at `tasks/P2-004A2-staging-claim-cas-protocol.md`. This record remains
+historical and unchanged otherwise. The staging cleanup
 command `media:cleanup-staging` is implemented with `--dry-run` support, a
 transactional row-level deletion lease, and final claim/media rechecks.
 

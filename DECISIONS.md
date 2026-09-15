@@ -723,3 +723,61 @@ Reference:
 `AGENTS.md`; `.ai/guidelines/orchestration-policy.md`;
 `.ai/guidelines/ai-development-os.md`; `CLAUDE.md`; `CURRENT_STATE.md`;
 ADR-010; ADR-004.
+
+## ADR-016 — Approve Option B Claim CAS Protocol for P2-004A/P2-004A1
+
+Date: 2026-09-15
+
+Status: ACCEPTED
+
+Amends: ADR-013 (Defer Automated Abandoned-Staging Cleanup). Option D
+remains in force until the implementation authorized here is independently
+VERIFIED; this ADR authorizes work toward Option B, it does not itself mark
+P2-004A/P2-004A1 VERIFIED or DONE, and it does not lift the Option D
+deferral until that verification succeeds.
+
+Decision:
+
+The Human Product Owner approves the concrete claim protocol recorded in
+`reviews/P2-004A-P2-004A1-option-b-protocol-proposal.md` as the selected
+Option B mechanism from `reviews/P2-004A-P2-004A1-sqlite-concurrency-decision-package.md`.
+
+The protocol replaces `lockForUpdate()` (a no-op on SQLite) with
+single-statement, guarded `UPDATE`/`INSERT ... OR IGNORE` transitions on a
+new `held_by`/`cleanup_claimed_at` pair of columns on `staging_claims`,
+moves staging file deletion outside the decision transaction, and requires
+proof of the race using genuine independent processes (not a single-process
+simulation).
+
+This resolves DECISION-P2-CONCURRENCY-002 (Option 1) in DECISION_QUEUE.md.
+
+A new, narrowly-scoped implementation task (P2-004A2) is authorized,
+recorded in `tasks/P2-004A2-staging-claim-cas-protocol.md`. Its scope is
+limited to exactly: the new migration, `MediaIngestionService`,
+`CleanupStaging`, and the new race tests described in the proposal. No
+other P2-004A2-adjacent scope, P2-004B+, P2-005+, or Phase 3 work is
+authorized by this ADR.
+
+Reason:
+
+The prior three CHANGES_REQUESTED cycles on P2-004A/P2-004A1 failed because
+the task asked for a proven concurrency guarantee without specifying the
+exact mechanism, leaving the implementation owner to invent one. This ADR
+removes that ambiguity by approving a specific, already-designed mechanism
+before implementation begins, and by requiring the specific test approach
+(genuine independent processes) that the prior cycles lacked.
+
+Phase consequence:
+
+P2-004A and P2-004A1 remain BLOCKED as historical records; this ADR does
+not reopen or retroactively change them. P2-004A2 is READY. Its closure
+(VERIFIED, then Human Product Owner closure to DONE) is required before
+Option D may be considered lifted. This ADR does not authorize P2-007,
+Phase 3, or any later phase.
+
+Reference:
+
+`reviews/P2-004A-P2-004A1-option-b-protocol-proposal.md`;
+`reviews/P2-004A-P2-004A1-sqlite-concurrency-decision-package.md`;
+`tasks/P2-004A2-staging-claim-cas-protocol.md`; ADR-013; DECISION_QUEUE.md
+(DECISION-P2-CONCURRENCY-002).

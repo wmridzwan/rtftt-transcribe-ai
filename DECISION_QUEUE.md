@@ -55,11 +55,15 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 ## Open Decisions
 
+None.
+
+## DECIDED — DECISION-P2-CONCURRENCY-002
+
 ### DECISION-P2-CONCURRENCY-002 — Adopt the Option B claim CAS protocol for P2-004A/P2-004A1
 
 Decision ID: DECISION-P2-CONCURRENCY-002
 
-Status: OPEN
+Status: DECIDED
 
 Type: Architecture
 
@@ -122,7 +126,11 @@ Does Not Block:
 
 Resolution:
 
-PENDING.
+The Human Product Owner approved Option 1 on 2026-09-15. A new implementation
+task, P2-004A2, is authorized and READY:
+`tasks/P2-004A2-staging-claim-cas-protocol.md`. Durable record: ADR-016 in
+`DECISIONS.md`. Option D (ADR-013) remains in force until P2-004A2 is
+independently VERIFIED and closed as DONE.
 
 ## DECIDED — DECISION-P2-CONCURRENCY-001
 

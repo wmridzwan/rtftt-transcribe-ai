@@ -5,7 +5,9 @@
 BLOCKED
 
 P2-004A1 is BLOCKED and deferred out of the current Phase 2 completion scope
-under ADR-013. The staging claim
+under ADR-013. A follow-up implementation task, authorized under ADR-016, is
+READY at `tasks/P2-004A2-staging-claim-cas-protocol.md`. This record remains
+historical and unchanged otherwise. The staging claim
 contract is implemented with a `staging_claims` table, `StagingClaim` model,
 and integration with `MediaIngestionService` to create and manage claims.
 

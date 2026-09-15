@@ -91,9 +91,14 @@ TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after 
 
 ## Ready Tasks
 
-No affected Phase 2 task is READY. P2-004A and P2-004A1 are BLOCKED and
-deferred from the current gate. P2-007 is NOT ELIGIBLE and NOT AUTHORIZED; no
-Phase 3 task is eligible or authorized.
+P2-004A2 (Staging Claim CAS Protocol) is READY under ADR-016, authorized as a
+narrowly-scoped follow-up to the BLOCKED P2-004A/P2-004A1 records; see
+`tasks/P2-004A2-staging-claim-cas-protocol.md`. Its closure does not by
+itself lift the Option D deferral (ADR-013) or mark P2-004A/P2-004A1
+VERIFIED/DONE. P2-007 (Phase Integration Verification) is drafted in
+BACKLOG at `tasks/P2-007-phase-integration-verification.md`, pending Human
+Product Owner promotion to READY; it is not yet an authorized runnable task.
+No Phase 3 task is eligible or authorized.
 
 ## P2-003 Active Task
 
@@ -262,7 +267,7 @@ changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED.
+DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED. DECISION-P2-CONCURRENCY-002 is DECIDED as Option 1 under ADR-016; P2-004A2 is READY. Option D remains in force until P2-004A2 is independently VERIFIED and closed as DONE.
 
 ## Known Issues
 
