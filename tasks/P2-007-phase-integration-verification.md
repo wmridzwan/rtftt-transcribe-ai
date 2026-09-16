@@ -8,7 +8,7 @@
 
 ## Status
 
-VERIFIED
+DONE
 
 ## Ownership
 
@@ -507,7 +507,7 @@ Note: `CleanupStagingCommandTest` passes 14/14 in isolation (confirmed twice by 
 
 ## Final Task State
 
-P2-007 is **VERIFIED** (independent review round 2 by Claude Code, VERIFIED verdict). All 15 acceptance criteria from Section 15 are satisfied. Three findings recorded: F-1 superseded (intermediate-state artifact), F-2 informational (P2-004A2 uncommitted state), F-3 non-blocking MEDIUM (test-coverage debt). Two additional review findings: F-R2-1 (uncommitted-state-as-canonical governance question, decided by Human Product Owner) and F-R2-2 (review artifact authorship process violation, noted). No blocking findings exist.
+P2-007 is **DONE** (closed by Human Product Owner after independent VERIFIED verdict, round 2). All 15 acceptance criteria from Section 15 are satisfied. Three findings recorded: F-1 superseded (intermediate-state artifact), F-2 informational (P2-004A2 uncommitted state), F-3 non-blocking MEDIUM (test-coverage debt). Two additional review findings: F-R2-1 (uncommitted-state-as-canonical governance question, decided by Human Product Owner) and F-R2-2 (review artifact authorship process violation, noted). No blocking findings exist. Durable baseline committed as `8e45c61`.
 
 ## Explicit Non-Actions
 
@@ -551,3 +551,8 @@ CHANGES_REQUESTED returns the task to IN_PROGRESS. OpenCode applies corrections 
 
 Promoted to READY by Human Product Owner on 2026-09-15. The implementation
 owner must not mark their own work VERIFIED.
+
+Closed as DONE by Human Product Owner on 2026-09-17 after independent
+VERIFIED verdict (round 2). Durable baseline committed as `8e45c61`.
+This closure does not authorize Phase 3, close P2-004A/P2-004A1, or
+lift Option D (ADR-013).

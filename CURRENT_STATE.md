@@ -13,7 +13,7 @@ Phase 2 — Authorized remediation of P2-003/P2-004A/P2-004A1/P2-005 findings
 Status: Phase 2 ACCEPTED by the Human Product Owner on 2026-09-13 under
 ADR-014. P2-003, P2-005, and P2-004A2 are DONE. P2-004A and P2-004A1 remain BLOCKED and
 are deferred out of the current Phase 2 completion scope under ADR-013; they
-are not VERIFIED or DONE. P2-007 is VERIFIED (promoted from BACKLOG by Human
+are not VERIFIED or DONE. P2-007 is DONE (closed 2026-09-17). Phase 3 remains not authorized.
 Product Owner on 2026-09-15). Phase 3 remains not authorized. Phase 1
 ACCEPTED (Human Product Owner, 2026-09-11).
 
@@ -110,7 +110,7 @@ clean (229/230 passed, 1 pre-existing skip, 0 failures). All acceptance
 criteria are satisfied; two non-blocking LOW notes remain (see review).
 This closure does not lift the Option D deferral (ADR-013) or mark
 P2-004A/P2-004A1 DONE — those remain Human Product Owner actions.
-P2-007 (Phase Integration Verification) is VERIFIED at
+P2-007 (Phase Integration Verification) is DONE at
 `tasks/P2-007-phase-integration-verification.md`, promoted by Human Product
 Owner on 2026-09-15. Implementation Owner: OpenCode, per AGENTS.md.
 Independent review round 1 returned CHANGES_REQUESTED; corrections applied
@@ -298,7 +298,7 @@ DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-007 is VERIFIED. Phase 3 remains unauthorized.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-007 is DONE. Phase 3 remains unauthorized.
 
 ## Future Gates
 
@@ -314,19 +314,19 @@ derived-artifact deletion, log/privacy, and legal/privacy validation.
 
 Phase 2 acceptance has been recorded under ADR-014. P2-004A and P2-004A1
 remain BLOCKED and deferred from the current gate under ADR-013. P2-004A2 is
-DONE. P2-007 is VERIFIED (promoted 2026-09-15). P2-006 remains closure-only.
+DONE. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only.
 Do not begin Phase 3 without separate Human Product Owner authorization.
 
 ## Phase Authorization
 
 The Human Product Owner accepted the bounded Phase 2 scope in ADR-014 on
 2026-09-13. P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are
-BLOCKED and deferred from the current gate under ADR-013. P2-007 is VERIFIED
-(promoted 2026-09-15). All processing/transcription
+BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE
+(closed 2026-09-17). All processing/transcription
 phases remain unauthorized.
 
 See plan.md.
 
 ## Review status
 
-Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is VERIFIED (promoted 2026-09-15). P2-006 remains closure-only.
+Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only.
