@@ -2,7 +2,7 @@
 
 ## Status
 
-READY
+DONE
 
 ## Ownership
 
@@ -127,54 +127,84 @@ acceptance criteria.
 
 ## Implementation Notes
 
-To be completed by the implementation owner.
-
 ### Files Changed
 
-- None yet.
+- `database/migrations/2026_09_15_112331_add_held_by_and_cleanup_claimed_at_to_staging_claims_table.php` — new migration adding `held_by` (string, default 'upload') and `cleanup_claimed_at` (nullable timestamp)
+- `app/Models/StagingClaim.php` — new fillable fields, casts, `heldByUpload()`, `heldByCleanup()`, `isCleanupTimedOut()` methods
+- `database/factories/StagingClaimFactory.php` — new `held_by`, `cleanup_claimed_at` defaults, `heldByUpload()`, `heldByCleanup()`, `expired()` states
+- `app/Actions/MediaIngestionService.php` — `stage()` uses `insertOrIgnore` for initial claim, guarded conditional UPDATE for retry renewal (with affected-row count check — retryable failure if 0), controlled retryable failure when `held_by = 'cleanup'`; `findActiveClaim()` filtered by `held_by = 'upload'`
+- `app/Console/Commands/CleanupStaging.php` — guarded conditional UPDATE claim transition, crash-recovery re-claim composes reclaim + delete as one atomic decision (not two independent guarded statements), file deletion outside DB transaction, FOREIGN KEY violation handled via try-catch, `FilesystemAdapter` type hint
+- `app/Console/Commands/StagingRaceWorker.php` — test harness command (testing env only) with filesystem rendezvous, explicit `readyFile` argument, renewal UPDATE affected-row count check (lost_race if 0)
+- `tests/Feature/StagingClaimCasProtocolTest.php` — 8 tests: 2 genuine OS-process race tests (Symfony Process + shared file-based SQLite DB + env var injection) + 6 unit tests for all claim scenarios
+- `tests/Feature/CleanupStagingCommandTest.php` — 14 tests covering all acceptance criteria; crash-recovery test proves final file deletion + claim removal
 
 ### Important Decisions
 
-- None yet.
+- Race tests use a shared file-based SQLite database (created per-test in `beforeEach`, cleaned up in `afterEach`) because in-memory SQLite databases are per-connection and child processes would each get their own empty DB
+- The `DB_DATABASE` env var is passed to child processes via `Process::setEnv()` so they connect to the shared file DB
+- The crash-recovery re-claim and deletion are one composed decision: when a stale `held_by='cleanup'` row is reclaimed, the code proceeds directly to re-verify + delete, skipping the Step 2 claim which cannot match `held_by='cleanup'`
+- The word "Reclaimed" always appears in the command summary line (e.g. "Reclaimed: 0 crash-recovery re-claims") even when count is zero — assertions check the per-directory message pattern or the summary count
 
 ### Known Limitations
 
-- None yet.
+- None remaining. All 230 tests pass (229 passed, 1 pre-existing skip). Both genuine OS-process race tests pass on Windows.
 
 ## Verification
 
-Implementation owner must record the commands executed and results.
+Commands executed:
 
-Example commands:
-
-php artisan test --compact --filter=StagingClaim
-
-php artisan test --compact --filter=CleanupStaging
-
+```
+vendor/bin/pest tests/Feature/CleanupStagingCommandTest.php
+vendor/bin/pest tests/Feature/StagingClaimCasProtocolTest.php
+vendor/bin/pest tests/Feature/IngestionCompensationContractTest.php
+vendor/bin/pest
 vendor/bin/pint --dirty --format agent
+composer types:check
+```
 
-Result:
+Results:
 
-PENDING
+- CleanupStagingCommandTest: 14/14 passed (32 assertions)
+- StagingClaimCasProtocolTest: 8/8 passed (26 assertions) — both genuine OS-process race tests pass
+- IngestionCompensationContractTest: 11/11 passed (36 assertions)
+- Full suite: 229/230 passed (688 assertions) — 1 pre-existing skip, 0 failures
+- Pint: passed
+- PHPStan: passed (0 errors)
 
 ## Review
 
 Review File:
 
-None yet.
+reviews/P2-004A2-independent-review.md
 
 Review Status:
 
-PENDING
+VERIFIED (round 2, 2026-09-15). All three round-1 findings independently
+confirmed resolved: BLOCKER-1 (crash-recovery reclaim now composed with the
+delete path — reproduced directly: a claim stuck in `held_by='cleanup'` for
+20 minutes was fully deleted after one `media:cleanup-staging` run),
+BLOCKER-2 (renewal `UPDATE`'s affected-row count now checked in both
+`MediaIngestionService` and the `StagingRaceWorker` test harness), and
+HIGH-1 (both genuine independent-OS-process race tests independently
+re-run three times, 8/8 passed each time, no flakiness — the round-1
+harness's in-memory-per-connection SQLite bug was fixed with a shared
+file-based database and injected `DB_DATABASE`/`DB_CONNECTION` env vars).
+Full regression suite, Pint, and PHPStan independently re-run clean
+(229/230 passed, 1 pre-existing skip, 0 failures). All acceptance criteria
+satisfied. See `reviews/P2-004A2-independent-review.md` for full findings,
+including two non-blocking LOW notes.
+
+Closed as DONE by Human Product Owner on 2026-09-15. This closure does not
+authorize closing P2-004A/P2-004A1 or lifting Option D (ADR-013) — those
+are separate Human Product Owner actions.
 
 ## Completion
-
-A task cannot move directly from IN_PROGRESS to DONE.
 
 Required flow:
 
 READY -> IN_PROGRESS -> REVIEW -> VERIFIED -> DONE
 
-The implementation owner must not mark their own work VERIFIED. VERIFIED
-does not authorize closing P2-004A/P2-004A1 or lifting Option D — that is a
-separate Human Product Owner action after this task is DONE.
+Closed as DONE by Human Product Owner on 2026-09-15 after independent
+VERIFIED verdict (round 2). This closure does not authorize closing
+P2-004A/P2-004A1 or lifting Option D — those are separate Human Product
+Owner actions.

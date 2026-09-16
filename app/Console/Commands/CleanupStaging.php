@@ -8,6 +8,7 @@ use App\Models\StagingClaim;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -16,6 +17,8 @@ use Illuminate\Support\Str;
 #[Description('Remove abandoned staging files older than the configured retention period')]
 class CleanupStaging extends Command
 {
+    private const CRASH_RECOVERY_TIMEOUT_MINUTES = 15;
+
     public function handle(): int
     {
         $dryRun = $this->option('dry-run');
@@ -41,6 +44,7 @@ class CleanupStaging extends Command
         $skipped = 0;
         $deferred = 0;
         $failed = 0;
+        $reclaimed = 0;
 
         foreach ($ownerDirs as $ownerDir) {
             $ownerId = basename($ownerDir);
@@ -65,13 +69,68 @@ class CleanupStaging extends Command
                     continue;
                 }
 
-                // Check if there is an active claim for this attempt
-                $claim = StagingClaim::where('user_id', (int) $ownerId)
+                // Crash-recovery: re-claim rows stuck in held_by='cleanup'
+                // beyond the timeout window. A successfully reclaimed row
+                // proceeds directly to re-verify + delete — the reclaim and
+                // deletion path are one composed decision, not two
+                // independent guarded statements.
+                $reclaimedCount = DB::table('staging_claims')
+                    ->where('user_id', (int) $ownerId)
                     ->where('upload_attempt_id', $attemptId)
+                    ->where('held_by', 'cleanup')
+                    ->where('cleanup_claimed_at', '<', Carbon::now()->subMinutes(self::CRASH_RECOVERY_TIMEOUT_MINUTES))
+                    ->update([
+                        'cleanup_claimed_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+
+                if ($reclaimedCount > 0) {
+                    $this->line("  <info>Reclaimed</info>: {$attemptDir} (crash-recovery re-claim after timeout)");
+                    $reclaimed++;
+
+                    // Re-verify that no MediaFile was committed for this attempt
+                    // before deleting (defensive, cheap, not atomic with claim).
+                    if (MediaFile::where('user_id', (int) $ownerId)
+                        ->where('upload_attempt_id', $attemptId)
+                        ->exists()) {
+                        // Release the claim since a MediaFile was committed.
+                        DB::table('staging_claims')
+                            ->where('user_id', (int) $ownerId)
+                            ->where('upload_attempt_id', $attemptId)
+                            ->where('held_by', 'cleanup')
+                            ->delete();
+
+                        $this->line("  <comment>Skipped</comment>: {$attemptDir} (committed MediaFile discovered during crash-recovery)");
+                        $skipped++;
+
+                        continue;
+                    }
+
+                    // Step 3: Delete files OUTSIDE any database transaction.
+                    $this->deleteAttemptFiles($disk, $attemptDir);
+
+                    // Clean up the claim row after successful deletion.
+                    DB::table('staging_claims')
+                        ->where('user_id', (int) $ownerId)
+                        ->where('upload_attempt_id', $attemptId)
+                        ->where('held_by', 'cleanup')
+                        ->delete();
+
+                    $this->line("  <info>Deleted</info>: {$attemptDir}");
+                    $deleted++;
+
+                    continue;
+                }
+
+                // Check if there is an active upload claim for this attempt
+                $activeClaim = StagingClaim::where('user_id', (int) $ownerId)
+                    ->where('upload_attempt_id', $attemptId)
+                    ->where('held_by', 'upload')
+                    ->where('expires_at', '>', now())
                     ->first();
 
-                if ($claim !== null && $claim->isActive()) {
-                    $this->line("  <comment>Deferred</comment>: {$attemptDir} (active claim, expires {$claim->expires_at->diffForHumans()})");
+                if ($activeClaim !== null) {
+                    $this->line("  <comment>Deferred</comment>: {$attemptDir} (active upload claim, expires {$activeClaim->expires_at->diffForHumans()})");
                     $deferred++;
 
                     continue;
@@ -122,66 +181,86 @@ class CleanupStaging extends Command
                 try {
                     event(new StagingCleanupCandidateObserved((int) $ownerId, $attemptId, $attemptDir));
 
-                    $deletedCandidate = DB::transaction(function () use ($disk, $ownerId, $attemptId, $attemptDir): bool {
-                        $claim = StagingClaim::query()
-                            ->where('user_id', (int) $ownerId)
-                            ->where('upload_attempt_id', $attemptId)
-                            ->lockForUpdate()
-                            ->first();
+                    // Step 2: Claim the attempt atomically via guarded conditional
+                    // UPDATE. No read-then-write. If this returns 0, the attempt
+                    // is either: not present, still active, or already claimed by
+                    // cleanup. In every case: do not delete. Defer.
+                    $claimed = DB::table('staging_claims')
+                        ->where('user_id', (int) $ownerId)
+                        ->where('upload_attempt_id', $attemptId)
+                        ->where('held_by', 'upload')
+                        ->where('expires_at', '<', now())
+                        ->update([
+                            'held_by' => 'cleanup',
+                            'cleanup_claimed_at' => now(),
+                            'updated_at' => now(),
+                        ]);
 
-                        if ($claim !== null && $claim->isActive()) {
-                            return false;
-                        }
-
-                        if (MediaFile::query()
-                            ->where('user_id', (int) $ownerId)
-                            ->where('upload_attempt_id', $attemptId)
-                            ->exists()) {
-                            return false;
-                        }
-
-                        if ($claim === null) {
-                            // A cleanup claim closes the no-row gap. An upload
-                            // claim upsert blocks on this row until deletion
-                            // commits, then writes only after the directory is
-                            // gone.
-                            $claim = StagingClaim::query()->create([
+                    if ($claimed === 0) {
+                        // No eligible claim found. Try insertOrIgnore for the
+                        // no-row gap case.
+                        try {
+                            $inserted = DB::table('staging_claims')->insertOrIgnore([
                                 'user_id' => (int) $ownerId,
                                 'upload_attempt_id' => $attemptId,
                                 'staging_path' => $attemptDir,
+                                'held_by' => 'cleanup',
+                                'cleanup_claimed_at' => now(),
                                 'claimed_at' => now(),
-                                'expires_at' => now()->addHours((int) config('media.temporary_retention_hours', 24)),
+                                'expires_at' => now()->addHours($retentionHours),
+                                'created_at' => now(),
+                                'updated_at' => now(),
                             ]);
-                        } else {
-                            $claim->update([
-                                'staging_path' => $attemptDir,
-                                'claimed_at' => now(),
-                                'expires_at' => now()->addHours((int) config('media.temporary_retention_hours', 24)),
-                            ]);
+                        } catch (\Throwable $e) {
+                            // Foreign key constraint violation (user_id doesn't
+                            // exist in users table). Defer this candidate.
+                            $this->line("  <comment>Deferred</comment>: {$attemptDir} (user not found or constraint violation)");
+                            $deferred++;
+
+                            continue;
                         }
 
-                        foreach ($disk->allFiles($attemptDir) as $file) {
-                            if (! $disk->delete($file)) {
-                                throw new \RuntimeException("Failed to delete file: {$file}");
-                            }
+                        if ($inserted === 0) {
+                            // Another process already claimed this row. Defer.
+                            $this->line("  <comment>Deferred</comment>: {$attemptDir} (claim contention or no eligible row)");
+                            $deferred++;
+
+                            continue;
                         }
 
-                        if (! $disk->deleteDirectory($attemptDir)) {
-                            throw new \RuntimeException("Failed to delete directory: {$attemptDir}");
-                        }
-
-                        $claim->delete();
-
-                        return true;
-                    });
-
-                    if ($deletedCandidate) {
-                        $this->line("  <info>Deleted</info>: {$attemptDir}");
-                        $deleted++;
-                    } else {
-                        $this->line("  <comment>Deferred</comment>: {$attemptDir} (claim or committed media observed before deletion)");
-                        $deferred++;
+                        // insertOrIgnore succeeded — we now own the cleanup claim.
                     }
+
+                    // Re-verify that no MediaFile was committed for this attempt
+                    // before deleting (defensive, cheap, not atomic with claim).
+                    if (MediaFile::where('user_id', (int) $ownerId)
+                        ->where('upload_attempt_id', $attemptId)
+                        ->exists()) {
+                        // Release the claim since a MediaFile was committed.
+                        DB::table('staging_claims')
+                            ->where('user_id', (int) $ownerId)
+                            ->where('upload_attempt_id', $attemptId)
+                            ->where('held_by', 'cleanup')
+                            ->delete();
+
+                        $this->line("  <comment>Skipped</comment>: {$attemptDir} (committed MediaFile discovered before deletion)");
+                        $skipped++;
+
+                        continue;
+                    }
+
+                    // Step 3: Delete files OUTSIDE any database transaction.
+                    $this->deleteAttemptFiles($disk, $attemptDir);
+
+                    // Clean up the claim row after successful deletion.
+                    DB::table('staging_claims')
+                        ->where('user_id', (int) $ownerId)
+                        ->where('upload_attempt_id', $attemptId)
+                        ->where('held_by', 'cleanup')
+                        ->delete();
+
+                    $this->line("  <info>Deleted</info>: {$attemptDir}");
+                    $deleted++;
                 } catch (\Throwable $e) {
                     $this->error("  Failed to delete {$attemptDir}: {$e->getMessage()}");
                     $failed++;
@@ -202,6 +281,7 @@ class CleanupStaging extends Command
         $this->line("  Deleted:    {$deleted} directories removed");
         $this->line("  Deferred:   {$deferred} active claims preserved");
         $this->line("  Skipped:    {$skipped} directories preserved");
+        $this->line("  Reclaimed:  {$reclaimed} crash-recovery re-claims");
         $this->line("  Failed:     {$failed} deletion failures");
         $this->newLine();
 
@@ -212,5 +292,18 @@ class CleanupStaging extends Command
         }
 
         return $failed > 0 ? self::FAILURE : self::SUCCESS;
+    }
+
+    private function deleteAttemptFiles(FilesystemAdapter $disk, string $attemptDir): void
+    {
+        foreach ($disk->allFiles($attemptDir) as $file) {
+            if (! $disk->delete($file)) {
+                throw new \RuntimeException("Failed to delete file: {$file}");
+            }
+        }
+
+        if (! $disk->deleteDirectory($attemptDir)) {
+            throw new \RuntimeException("Failed to delete directory: {$attemptDir}");
+        }
     }
 }

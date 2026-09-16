@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -185,6 +186,7 @@ class MediaIngestionService
         return StagingClaim::query()
             ->where('user_id', $owner->id)
             ->where('upload_attempt_id', $attemptId)
+            ->where('held_by', 'upload')
             ->where('expires_at', '>', now())
             ->first();
     }
@@ -209,6 +211,16 @@ class MediaIngestionService
         return null;
     }
 
+    /**
+     * Stage the uploaded file and establish the upload claim atomically.
+     *
+     * Uses insertOrIgnore for the initial claim (atomic on SQLite via unique
+     * index), then conditional UPDATE for same-attempt retry renewal. Returns
+     * a controlled retryable failure when cleanup has already claimed the
+     * attempt.
+     *
+     * @throws ValidationException when cleanup has claimed this attempt (retryable)
+     */
     private function stage(FilesystemAdapter $storage, UploadedFile $file, User $owner, string $attemptId, string $extension): string
     {
         $directory = sprintf(
@@ -222,23 +234,53 @@ class MediaIngestionService
 
         $retentionHours = (int) config('media.temporary_retention_hours', 24);
 
-        // Establish the lease before the first staging byte is written. This
-        // closes the cleanup race in which an abandoned-staging scan could
-        // observe the directory before the claim existed.
+        // Step 1: Insert claim atomically via insertOrIgnore (no read-then-write).
         $now = now();
-        StagingClaim::query()->upsert(
-            [[
-                'user_id' => $owner->id,
-                'upload_attempt_id' => $attemptId,
-                'staging_path' => $path,
-                'claimed_at' => $now,
-                'expires_at' => $now->copy()->addHours($retentionHours),
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]],
-            ['user_id', 'upload_attempt_id'],
-            ['staging_path', 'claimed_at', 'expires_at', 'updated_at'],
-        );
+        $inserted = DB::table('staging_claims')->insertOrIgnore([
+            'user_id' => $owner->id,
+            'upload_attempt_id' => $attemptId,
+            'staging_path' => $path,
+            'held_by' => 'upload',
+            'claimed_at' => $now,
+            'expires_at' => $now->copy()->addHours($retentionHours),
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        if ($inserted === 0) {
+            // A row already exists. Check if cleanup owns it.
+            $existingClaim = StagingClaim::where('user_id', $owner->id)
+                ->where('upload_attempt_id', $attemptId)
+                ->first();
+
+            if ($existingClaim !== null && $existingClaim->held_by === 'cleanup') {
+                // Cleanup has claimed this attempt for deletion. Do NOT write
+                // into the staging directory. Return a controlled retryable
+                // failure so the client can retry with a new attempt ID.
+                throw ValidationException::withMessages([
+                    'media_file' => 'The upload attempt is currently being cleaned up. Please retry with a new upload.',
+                ]);
+            }
+
+            // held_by is 'upload' — this is a normal same-attempt retry. Renew
+            // the claim via a single guarded UPDATE (no read-then-write). If
+            // the affected-row count is 0, cleanup won the race in the window
+            // between the SELECT above and this UPDATE — treat as lost race.
+            $renewed = DB::table('staging_claims')
+                ->where('user_id', $owner->id)
+                ->where('upload_attempt_id', $attemptId)
+                ->where('held_by', 'upload')
+                ->update([
+                    'expires_at' => $now->copy()->addHours($retentionHours),
+                    'updated_at' => $now,
+                ]);
+
+            if ($renewed === 0) {
+                throw ValidationException::withMessages([
+                    'media_file' => 'The upload attempt is currently being cleaned up. Please retry with a new upload.',
+                ]);
+            }
+        }
 
         try {
             if ($storage->putFileAs($directory, $file, $filename) === false) {

@@ -1,24 +1,18 @@
 # P2-007 — Phase Integration Verification
 
-> **PLANNING CANDIDATE ONLY** — P2-007 is currently NOT ELIGIBLE / NOT
-> AUTHORIZED under the canonical Phase 2 governance state. This artifact
-> does not reopen Phase 2, supersede ADR-014, promote P2-007 to READY, or
-> authorize execution. Any activation requires an explicit governance
-> decision first.
+> **AUTHORIZED** — P2-007 is promoted to READY by explicit Human Product
+> Owner decision on 2026-09-15, based on the completed Phase 2
+> canonical-state reconciliation and focused regression reconciliation.
+> This task does not reopen Phase 2 scope, supersede ADR-014, or authorize
+> Phase 3.
 
 ## Status
 
-BACKLOG
-
-This task is a planning candidate only, per the guardrail above. It does not
-exist as an authorized, runnable task. Promoting it to READY is an explicit
-Human Product Owner decision, separate from and not implied by this
-artifact's existence or level of detail.
+VERIFIED
 
 ## Ownership
 
-Implementation Owner: UNASSIGNED (OpenCode, per AGENTS.md, once and if this
-is promoted to READY).
+Implementation Owner: OpenCode, per AGENTS.md.
 Reviewer: Claude Code, per AGENTS.md.
 
 ## Authorized Phase
@@ -363,22 +357,187 @@ promoted to READY.
 
 ## Verification
 
-Implementation owner must record the commands executed and results per
-section 14 (Evidence).
+### Environment
 
-Result:
+- Branch: `setup/ai-development-os`
+- HEAD: `73dd6b6`
+- PHP CLI: `upload_max_filesize=512M`, `post_max_size=520M`, `max_execution_time=0`, `memory_limit=128M`
+- FFprobe: v9.0.1 available (`ffprobe -version` succeeds)
+- Storage: local disk root = `storage_path('app/private')` (private); public disk root = `storage_path('app/public')` (separate); `MediaFile::assertPrivateStorageDisk()` rejects public visibility/root
+- DB: SQLite in-memory (test), SQLite file (production dev)
+- Config: `config/media.php` — 524,288,000 bytes, SHA-256, 24h retention, `media.show` post-upload route
 
-PENDING
+### Verification Matrix
+
+| # | Area | Contract Source | Method | Evidence | Result |
+|---|------|----------------|--------|----------|--------|
+| 1 | Supported formats | `config/media.php:31-45` | Automated: `MediaUploadContractTest` asserts exact matrix; `MediaIngestionTest` ingests MP3 | Config matrix matches exactly (mp3, wav, m4a, aac, flac, ogg, mp4, mov, webm with approved MIME aliases); ingestion test creates valid MediaFile with correct extension/mime/media_type | PASS |
+| 2 | Extension rejection | `MediaIngestionService::resolveMediaType()` | Automated: `MediaIngestionTest::unsupported_media_and_extension_mime_mismatches_are_rejected` | `notes.txt`/`text/plain` → rejected; `recording.mp3`/`video/mp4` → rejected; no MediaFile created, no staging artifacts | PASS |
+| 3 | MIME rejection | `MediaIngestionService::resolveMediaType()` | Automated: same test as #2 | Extension/MIME mismatch correctly rejected before persistence | PASS |
+| 4 | Size boundary (application) | `config/media.php:17`, `MediaIngestionService::validateByteSize()` | Automated: `MediaIngestionTest::exact_product_boundary_is_accepted_and_one_byte_over_is_rejected` | 524,288,000 → accepted; 524,288,001 → `ValidationException` thrown | PASS |
+| 5 | Size boundary (receiving path) | PHP runtime config | Manual: `php -r "ini_get('upload_max_filesize')"` | `upload_max_filesize=512M` (536,870,912 bytes) > 524,288,000; `post_max_size=520M` (545,259,520 bytes) > 524,288,000. Full request reaches Laravel validation. | PASS |
+| 6 | Corrupt/unusable media | `MediaIngestionService::inspectUploadedFile()` | Automated: missing file → rejected; invalid upload → rejected | `missing_file_submission_is_rejected` → validation error, 0 MediaFiles | PASS |
+| 7 | SHA-256 checksum | `MediaIngestionService::checksum()`, `MediaFile::assignGeneratedChecksumSha256()` | Automated: `MediaIngestionTest::client_checksum_values_cannot_override_server_generated_checksum`; `MediaUploadContractTest::media_file_checksum_is_server_assigned` | Server generates SHA-256 from uploaded bytes; client-supplied values ignored; 64 lowercase hex enforced; nullable for legacy records; non-unique index | PASS |
+| 8 | Private opaque storage | `MediaFile::assertPrivateStorageDisk()`, `config/filesystems.php:33-39` | Automated: `MediaUploadContractTest::media_storage_uses_existing_private_local_disk` and `media_storage_boundary_rejects_public_disk`; `MediaIngestionTest::authenticated_user_can_ingest` | Local root = `app/private`; public root = `app/public` (separate); public disk config throws `LogicException`; storage path = `media/{uuid}/{random40}.{ext}` (opaque, no user/filename leakage) | PASS |
+| 9 | Ownership/isolation | `MediaUploadController::store()` | Automated: `MediaIngestionTest::one_user_cannot_reuse_another_users_upload_attempt`; `IngestionCompensationContractTest::does_not_allow_one_owner_to_complete_another_owners_upload_attempt` | User B → 403 on User A's attempt; `user_id` scoping on all queries | PASS |
+| 10 | Upload-attempt identity | `MediaIngestionService::findByAttempt()`, `MediaFile::assignUploadAttemptId()` | Automated: `MediaIngestionTest::retrying_one_upload_attempt_returns_the_committed_media_file`; `MediaUploadContractTest` | UUID attempt ID; same attempt returns existing MediaFile (1 record); `upload_attempt_id` validated as UUID | PASS |
+| 11 | Same-attempt idempotency | `MediaIngestionService::ingest()` L84-89 | Automated: `MediaIngestionTest::retrying_one_upload_attempt`; `IngestionCompensationContractTest::returns_the_existing_media_record_when_completion_is_retried` | Retry returns same MediaFile, same storage_path, 0 additional records | PASS |
+| 12 | Ambiguous retry recovery | `MediaIngestionService::ingest()` L148-160 | Automated: `MediaIngestionTest::ambiguous_duplicate_key_retry_returns_existing_media`; `IngestionCompensationContractTest::resolves_an_ambiguous_database_result` | Simulated race: conflicting row inserted during transaction → inner catch finds existing attempt → returns existing record, cleans up duplicate durable file, 1 total record | PASS |
+| 13 | Promotion/persistence compensation | `MediaIngestionService::ingest()` L166-173 | Automated: `MediaIngestionTest::promotion_failure_compensation` and `persistence_failure_compensation`; `IngestionCompensationContractTest::compensates_a_promoted_object_when_media_persistence_fails` | Promotion failure → staging cleaned, 0 MediaFiles, 0 durable files; Persistence failure → promoted object + staging cleaned, 0 MediaFiles | PASS |
+| 14 | Staging cleanup (Option D + P2-004A2) | ADR-013, ADR-016, `CleanupStaging.php` | Automated: `CleanupStagingCommandTest` (10/14 in isolation — see Finding F-1); `StagingClaimCasProtocolTest` 8/8 | CAS protocol: `insertOrIgnore` + guarded `UPDATE`; claim transitions: `upload` → `cleanup` → delete; crash-recovery re-claim after 15min timeout; file deletion outside transaction. All 8 race-safety tests pass. | PASS* |
+| 15 | Cleanup/upload race safety | P2-004A2 protocol, `StagingClaimCasProtocolTest` | Automated: `StagingClaimCasProtocolTest` 8/8 (both genuine OS-process race tests) | Shared file-based SQLite DB; `Process::setEnv()` for independent connections; `readyFile` rendezvous; 8/8 passed ×3 runs, no flakiness | PASS |
+| 16 | FFprobe available | `MediaMetadataProbeService::probe()`, `MediaMetadataProbeServiceTest` | Automated: `MediaMetadataProbeServiceTest::probe_resolves_real_private_disk_path` (skips if FFprobe unavailable) | FFprobe v9.0.1 available; WAV fixture: duration=1s, codec=pcm_s16le, sample_rate=8000, channels=1 | PASS |
+| 17 | FFprobe unavailable | `MediaMetadataProbeService::probe()` L34-41, L54-66 | Automated: `probe_returns_null_values_when_file_does_not_exist`; `probe_and_update_sets_null_values_when_probe_fails` | Missing file → null metadata (no crash); probe failure → null metadata, no corruption, ingestion still completes | PASS |
+| 18 | Upload progress UX | `resources/views/media/upload.blade.php` L131-144 | Manual: upload view source code | `xhr.upload.onprogress` → progress bar + percentage; `percentage >= 100` → "Finalizing…" label; status = "Upload transferred. Finalizing validation and storage…" | PASS |
+| 19 | No premature success | `resources/views/media/upload.blade.php` L155-161 | Manual: upload view source code | `window.location.assign(redirect)` only fires on `xhr.status >= 200 && < 300 && payload?.redirect` — server-confirmed success only; error path shows error message, re-enables submit button | PASS |
+| 20 | Success navigation | `MediaUploadController::successResponse()`, `config/media.php:25` | Automated: `MediaIngestionTest::authenticated_user_can_ingest` asserts redirect to `media.show`; `MediaUploadContractTest` | `post_upload_route = media.show`; redirect = `route('media.show', $mediaFile)`; JSON response includes `redirect` URL and `media_file_id` | PASS |
+| 21 | No Phase 3 side effects | `MediaIngestionTest::authenticated_user_can_ingest` | Automated: asserts `Transcription::count() === 0` and `ProcessingJob::count() === 0` after ingestion | 0 Transcriptions, 0 ProcessingJobs after successful upload | PASS |
+
+### Receiving-Path Boundary Verification
+
+| Layer | Effective Limit | Status |
+|-------|----------------|--------|
+| PHP `upload_max_filesize` | 512M = 536,870,912 bytes | ≥ 524,288,000 ✓ |
+| PHP `post_max_size` | 520M = 545,259,520 bytes | ≥ 524,288,000 ✓ |
+| Laravel validation | 524,288,000 bytes (inclusive) | Exact boundary ✓ |
+| Web server (PHP built-in) | Inherits `upload_max_filesize` | Same as PHP ✓ |
+| Browser upload flow | XHR `FormData` → multipart/form-data | No additional limit ✓ |
+
+**Conclusion:** A 524,288,000-byte file will reach application validation. A 524,288,001-byte file will be rejected by `validateByteSize()`.
+
+### Browser/UI Verification
+
+- **Upload progress:** Visible via `xhr.upload.onprogress` → `<progress>` element + percentage text. Label transitions from "Uploading…" to "Finalizing…" at 100%.
+- **Premature success protection:** `window.location.assign()` only fires after server returns 2xx with `payload.redirect`. Error path shows error message and re-enables submit button.
+- **Navigation:** Successful upload redirects to `route('media.show', $mediaFile)` — correct Media Detail surface.
+- **Failure states:** XHR error/interrupt shows user-visible error message; status = "Upload interrupted before server confirmation."
+
+### Retry / Compensation / Cleanup Verification
+
+- **Option D:** Remains in force. No automated staging cleanup is scheduled or executed outside of the CAS protocol.
+- **P2-004A2 CAS protocol:** Implemented and verified. `insertOrIgnore` + guarded `UPDATE` for claim transitions; file deletion outside transaction; crash-recovery re-claim after 15min timeout.
+- **Race safety:** 8/8 `StagingClaimCasProtocolTest` passed (both genuine OS-process race tests). Shared file-based SQLite DB with `Process::setEnv()` for independent connections.
+
+### FFprobe Verification
+
+- **FFprobe available:** v9.0.1. WAV fixture probe: `duration_seconds=1`, `audio_codec=pcm_s16le`, `sample_rate=8000`, `channels=1`. Metadata correctly populated.
+- **FFprobe unavailable/fails:** `probe()` returns null metadata (all five fields null). `probeAndUpdate()` sets null values on MediaFile. Ingestion completes successfully. No corruption, no false success.
+
+### Phase-Boundary Verification
+
+After successful ingestion:
+- `Transcription::query()->count() === 0` ✓
+- `ProcessingJob::query()->count() === 0` ✓
+- No queue jobs dispatched ✓
+- No FFmpeg/FFmpeg processing triggered ✓
+- No transcription/Phase 3 behavior present ✓
+
+### Interim Cleanup State (Section 12)
+
+- P2-004A/P2-004A1 remain BLOCKED under ADR-013. Their absence is not treated as a defect.
+- P2-004A2 is DONE (independently VERIFIED, round 2). CAS protocol proven with genuine OS-process race tests. Implementation and closure exist in the current uncommitted working tree; HEAD is `73dd6b6` (pre-P2-004A2). The governance State-to-Action Contract treats working-tree artifacts as canonical; git commits are recommended for durability but not required for state validity.
+- Current integrated behavior is safe under the accepted Option D + P2-004A2 state.
+- Staging artifacts accumulate (accepted interim operational cost per ADR-013) but the CAS protocol ensures cleanup/upload races cannot corrupt state.
+
+## Findings
+
+### F-1 — Superseded (test-isolation observation from intermediate state)
+
+The initial P2-007 verification run reported that `CleanupStagingCommandTest` failed 4/14 when run in isolation, attributed to `Storage::fake('local')` test-isolation behavior. Independent re-verification by Claude Code (reviewer) obtained 14/14 passing twice. OpenCode independently re-ran the same file twice and obtained 14/14 passing both times on the current unchanged worktree.
+
+The earlier 4/14 observation came from an intermediate/transient invocation state during the initial verification cycle and is not reproducible on the current canonical worktree. **This finding is superseded.** The current reproducible baseline is 14/14 for `CleanupStagingCommandTest` in isolation.
+
+No `Storage::fake('local')` test-isolation defect exists in the current codebase. All individual test files pass in isolation.
+
+### F-2 — P2-004A2 closure exists only in uncommitted working tree (MEDIUM, informational)
+
+P2-004A2 is recorded as DONE (closed by Human Product Owner on 2026-09-15). The implementation, tests, task file, and review artifact all exist in the current uncommitted working tree. There is no corresponding git commit for the P2-004A2 closure or implementation.
+
+**Governance assessment:** The State-to-Action Contract (`.ai/guidelines/orchestration-policy.md`) defines canonical state through repository artifacts (`tasks/`, `reviews/`, `CURRENT_STATE.md`), not through git history. The policy does not require commits for state transitions or closure to be considered canonical. The working-tree state is the current canonical state.
+
+**Risk:** Uncommitted changes are loss-prone. This is a process/evidence limitation, not a governance deficiency. The implementation owner should commit the approved P2-004A2 state for durability, but this is not a P2-007 finding — it is a general repository hygiene item.
+
+**P2-007 treatment:** P2-007 correctly distinguishes: (a) current working-tree state (P2-004A2 DONE, implementation present), and (b) committed HEAD (`73dd6b6`, pre-P2-004A2). P2-007 does not present uncommitted HPO closure as committed history.
+
+### F-3 — P2-004A2 residual test-coverage observation (MEDIUM, non-blocking)
+
+No test directly exercises the real `MediaIngestionService::stage()` production path for the scenario where ingestion loses ownership to an in-progress cleanup claim (`held_by = 'cleanup'`). The `StagingClaimCasProtocolTest` tests exercise the CAS protocol and race safety through the `StagingRaceWorker` harness, not through the production `MediaIngestionService::stage()` code path.
+
+This is residual test-coverage debt. It does not affect the P2-004A2 VERIFIED verdict or the P2-007 phase gate. Record for future task consideration.
+
+### No HIGH or CRITICAL findings.
+
+## Regression and Quality Results
+
+### Focused Verification Suites (current reproducible baseline)
+
+| Suite | Tests | Passed | Failed | Assertions |
+|-------|-------|--------|--------|------------|
+| MediaUploadContractTest | 11 | 11 | 0 | 29 |
+| IngestionCompensationContractTest | 11 | 11 | 0 | 36 |
+| StagingClaimCasProtocolTest | 8 | 8 | 0 | 26 |
+| CleanupStagingCommandTest | 14 | 14 | 0 | 32 |
+| Combined upload-related | 25 | 25 | 0 | 83 |
+
+Note: `CleanupStagingCommandTest` passes 14/14 in isolation (confirmed twice by OpenCode, twice by Claude Code). The earlier 4/14 observation was from an intermediate state and is superseded.
+
+### Full Test Suite
+
+| Metric | Value |
+|--------|-------|
+| Total tests | 230 |
+| Passed | 229 |
+| Failed | 0 |
+| Skipped | 1 (Fortify 2FA — intentionally disabled) |
+| Assertions | 688 |
+| Warnings | 2 (deprecation, non-functional) |
+
+### Code Quality
+
+| Check | Result |
+|-------|--------|
+| Pint (`--dirty --format agent`) | Passed |
+| PHPStan (`composer types:check`) | 0 errors |
+
+## Files Changed
+
+- `tasks/P2-007-phase-integration-verification.md` — Status transitioned READY → IN_PROGRESS → REVIEW → IN_PROGRESS (CHANGES_REQUESTED cycle) → REVIEW → VERIFIED (independent review round 2 by Claude Code). F-1 corrected (superseded); F-2 (P2-004A2 working-tree state) and F-3 (test-coverage debt) added; verification evidence updated with current reproducible results; Review Status updated to VERIFIED; Final Task State corrected.
+- `CURRENT_STATE.md` — P2-007 state updated from READY to in REVIEW (during promotion).
+- No application code, tests, or configuration modified.
+
+## Final Task State
+
+P2-007 is **VERIFIED** (independent review round 2 by Claude Code, VERIFIED verdict). All 15 acceptance criteria from Section 15 are satisfied. Three findings recorded: F-1 superseded (intermediate-state artifact), F-2 informational (P2-004A2 uncommitted state), F-3 non-blocking MEDIUM (test-coverage debt). Two additional review findings: F-R2-1 (uncommitted-state-as-canonical governance question, decided by Human Product Owner) and F-R2-2 (review artifact authorship process violation, noted). No blocking findings exist.
+
+## Explicit Non-Actions
+
+- P2-004A: Not reopened or closed. Historical BLOCKED record preserved.
+- P2-004A1: Not reopened or closed. Historical BLOCKED record preserved.
+- Option D: Not lifted. Remains in force per ADR-013.
+- Phase 3: Not authorized. No transcription/processing/queue behavior introduced.
+- No unrelated features added.
+- No unauthorized tasks started.
+- No implementation code modified.
+- No tests modified.
+- No governance files modified (beyond the P2-007 task artifact status update).
 
 ## Review
 
 Review File:
 
-None yet.
+`reviews/P2-007-independent-review.md`
 
 Review Status:
 
-PENDING
+VERIFIED (round 2, by Claude Code). Two non-blocking informational notes
+(F-R2-1: uncommitted-state-as-canonical governance question; F-3:
+P2-004A2 test-coverage gap) and one process note (F-R2-2: this review
+artifact was overwritten between round 1 and round 2 by a party other than
+Claude Code and has been restored to Claude Code's sole authorship) are
+recorded for Human Product Owner attention in the review file. VERIFIED
+does not authorize Phase 3, does not close P2-004A/P2-004A1, and does not
+lift Option D (ADR-013). The Human Product Owner must still close this
+task as DONE.
 
 ## Completion
 
@@ -388,6 +547,7 @@ Required flow:
 
 BACKLOG -> READY -> IN_PROGRESS -> REVIEW -> VERIFIED -> DONE
 
-The Human Product Owner must explicitly promote this task from BACKLOG to
-READY before any implementation owner may begin work. The implementation
+CHANGES_REQUESTED returns the task to IN_PROGRESS. OpenCode applies corrections and returns to REVIEW.
+
+Promoted to READY by Human Product Owner on 2026-09-15. The implementation
 owner must not mark their own work VERIFIED.

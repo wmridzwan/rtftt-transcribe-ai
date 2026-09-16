@@ -13,6 +13,8 @@ use Illuminate\Support\Carbon;
  * @property int $user_id
  * @property string $upload_attempt_id
  * @property string $staging_path
+ * @property string $held_by
+ * @property Carbon|null $cleanup_claimed_at
  * @property Carbon $claimed_at
  * @property Carbon $expires_at
  * @property Carbon $created_at
@@ -27,6 +29,8 @@ class StagingClaim extends Model
         'user_id',
         'upload_attempt_id',
         'staging_path',
+        'held_by',
+        'cleanup_claimed_at',
         'claimed_at',
         'expires_at',
     ];
@@ -34,6 +38,7 @@ class StagingClaim extends Model
     protected function casts(): array
     {
         return [
+            'cleanup_claimed_at' => 'datetime',
             'claimed_at' => 'datetime',
             'expires_at' => 'datetime',
         ];
@@ -53,5 +58,24 @@ class StagingClaim extends Model
     public function isActive(): bool
     {
         return ! $this->isExpired();
+    }
+
+    public function heldByUpload(): bool
+    {
+        return $this->held_by === 'upload';
+    }
+
+    public function heldByCleanup(): bool
+    {
+        return $this->held_by === 'cleanup';
+    }
+
+    public function isCleanupTimedOut(int $timeoutMinutes = 15): bool
+    {
+        if (! $this->heldByCleanup() || $this->cleanup_claimed_at === null) {
+            return false;
+        }
+
+        return $this->cleanup_claimed_at->addMinutes($timeoutMinutes)->isPast();
     }
 }

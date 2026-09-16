@@ -11,10 +11,11 @@ setup/ai-development-os
 Phase 2 — Authorized remediation of P2-003/P2-004A/P2-004A1/P2-005 findings
 
 Status: Phase 2 ACCEPTED by the Human Product Owner on 2026-09-13 under
-ADR-014. P2-003 and P2-005 are DONE. P2-004A and P2-004A1 remain BLOCKED and
+ADR-014. P2-003, P2-005, and P2-004A2 are DONE. P2-004A and P2-004A1 remain BLOCKED and
 are deferred out of the current Phase 2 completion scope under ADR-013; they
-are not VERIFIED or DONE. P2-007 and Phase 3 remain not eligible and not
-authorized. Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
+are not VERIFIED or DONE. P2-007 is VERIFIED (promoted from BACKLOG by Human
+Product Owner on 2026-09-15). Phase 3 remains not authorized. Phase 1
+ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
 
@@ -63,11 +64,12 @@ The ingestion contract is temporary staging → server validation → metadata d
 P2-003's earlier regression re-review remains preserved as historical VERIFIED
 evidence. The cycle-2 independent re-review verified the changed claim-upsert
 surface, and P2-003 is now DONE. P2-005 is DONE after its independent VERIFIED
-verdict in the cycle-2 re-review. P2-004A and P2-004A1 are BLOCKED after the third consecutive
-CHANGES_REQUESTED cycle because the SQLite concurrency safety contract is not
-explicitly defined, repository-controlled, or proven with genuine independent
-connections/processes. P2-007 and the broader Phase 3 scope remain stopped at
-their authorization gates.
+verdict in the cycle-2 re-review. P2-004A2 is DONE after independent
+VERIFIED verdict (round 2, 2026-09-15). P2-004A and P2-004A1 are BLOCKED
+after the third consecutive CHANGES_REQUESTED cycle because the SQLite
+concurrency safety contract is not explicitly defined, repository-controlled,
+or proven with genuine independent connections/processes. P2-007 is now
+in REVIEW; Phase 3 remains not authorized.
 
 ## Phase 2 Infrastructure Readiness
 
@@ -76,7 +78,7 @@ The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_si
 ## Active Task
 
 P2-004A and P2-004A1 are BLOCKED and deferred out of the current Phase 2
-completion scope under ADR-013. P2-003 and P2-005 are DONE. Phase 2 is
+completion scope under ADR-013. P2-003, P2-005, and P2-004A2 are DONE. Phase 2 is
 ACCEPTED under ADR-014. Future cleanup requires separate authorization and
 genuine independent-concurrency verification.
 P2-001A, P2-002A,
@@ -85,20 +87,34 @@ as DONE after independent verification.
 
 ## Tasks In Review
 
-P2-001A, P2-002A, P2-002B, and P2-002C are DONE after independent verification recorded in `reviews/P2-001A-P2-002A-P2-002B-P2-002C-independent-review.md` and `reviews/P2-002A-independent-re-review.md`. P2-001 and P2-002 remain DONE. P2-003 and P2-005 are DONE after the cycle-2 independent VERIFIED verdicts. P2-004A and P2-004A1 are BLOCKED after escalation at the three-cycle threshold.
+P2-001A, P2-002A, P2-002B, and P2-002C are DONE after independent verification recorded in `reviews/P2-001A-P2-002A-P2-002B-P2-002C-independent-review.md` and `reviews/P2-002A-independent-re-review.md`. P2-001 and P2-002 remain DONE. P2-003, P2-005, and P2-004A2 are DONE. P2-004A and P2-004A1 are BLOCKED after escalation at the three-cycle threshold.
 
 TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after independent Claude verification.
 
 ## Ready Tasks
 
-P2-004A2 (Staging Claim CAS Protocol) is READY under ADR-016, authorized as a
-narrowly-scoped follow-up to the BLOCKED P2-004A/P2-004A1 records; see
-`tasks/P2-004A2-staging-claim-cas-protocol.md`. Its closure does not by
-itself lift the Option D deferral (ADR-013) or mark P2-004A/P2-004A1
-VERIFIED/DONE. P2-007 (Phase Integration Verification) is drafted in
-BACKLOG at `tasks/P2-007-phase-integration-verification.md`, pending Human
-Product Owner promotion to READY; it is not yet an authorized runnable task.
-No Phase 3 task is eligible or authorized.
+P2-004A2 (Staging Claim CAS Protocol) is DONE. Closed by Human Product
+Owner on 2026-09-15 after independent VERIFIED verdict (round 2,
+`reviews/P2-004A2-independent-review.md`). OpenCode resolved both round-1
+BLOCKER findings and the HIGH finding: the `CleanupStaging` crash-recovery
+re-claim now composes directly into the delete path instead of dead-ending
+(reproduced directly: a claim stuck in `held_by='cleanup'` for 20 minutes
+was fully deleted after one run); `MediaIngestionService::stage()`'s
+same-attempt retry renewal now checks the guarded `UPDATE`'s affected-row
+count and returns the controlled retryable failure on a lost race instead
+of silently writing; and both genuine independent-OS-process race tests
+(previously timing out) now pass consistently (8/8, re-run three times, no
+flakiness) after fixing the test harness's shared-database wiring. Full
+regression suite, Pint, and PHPStan were independently re-run and are
+clean (229/230 passed, 1 pre-existing skip, 0 failures). All acceptance
+criteria are satisfied; two non-blocking LOW notes remain (see review).
+This closure does not lift the Option D deferral (ADR-013) or mark
+P2-004A/P2-004A1 DONE — those remain Human Product Owner actions.
+P2-007 (Phase Integration Verification) is VERIFIED at
+`tasks/P2-007-phase-integration-verification.md`, promoted by Human Product
+Owner on 2026-09-15. Implementation Owner: OpenCode, per AGENTS.md.
+Independent review round 1 returned CHANGES_REQUESTED; corrections applied
+and re-submitted. Phase 3 task is not eligible or authorized.
 
 ## P2-003 Active Task
 
@@ -106,7 +122,8 @@ P2-003 is DONE. The canonical contract is recorded at
 `tasks/P2-003-implement-real-upload-ingestion-workflow.md`. The independent
 third-pass review returned VERIFIED for the earlier revision on 2026-09-13.
 The cycle-2 regression re-review returned VERIFIED and Work closed the task as
-DONE. No Phase 3 or later work is authorized.
+DONE. P2-004A2 is also DONE after independent VERIFIED verdict (round 2,
+2026-09-15). No Phase 3 or later work is authorized.
 
 ## Latest Completed Follow-Ups
 
@@ -192,6 +209,16 @@ Independently VERIFIED by Claude Code in reviews/P2-003-independent-review.md (t
 
 Implements the first real end-to-end single-file media upload and ingestion workflow: Upload UI → web receiving path → temporary staging → server validation → metadata derivation without media probing → private opaque storage promotion → MediaFile persistence → Media Detail. Uses a normal Laravel multipart endpoint with Blade/browser progress (not Livewire raw-file transport). Enforces the exact 500 MiB (524,288,000 bytes) per-file boundary. Implements P2-002B upload-attempt identity, retry, ambiguity, and compensation behavior. Independently re-verified: focused suite 16 passed/94 assertions; full suite 185 passed/12 skipped/566 assertions; Pint passed; PHPStan 0 errors; frontend build passed. Underwent two CHANGES_REQUESTED remediation cycles for test-coverage gaps (persistence-failure compensation and ambiguous duplicate-key retry tests rebuilt to exercise service-level branches); both resolved and verified on third pass. Closed as DONE after confirming the independent VERIFIED review. No Phase 3 or later work was introduced.
 
+P2-004A2 — Staging Claim CAS Protocol (DONE).
+
+Task: tasks/P2-004A2-staging-claim-cas-protocol.md
+
+Implementation Owner: OpenCode
+
+Independently VERIFIED by Claude Code in reviews/P2-004A2-independent-review.md (round 2, 2026-09-15). Closed as DONE by Human Product Owner on 2026-09-15.
+
+Replaces the unproven `lockForUpdate()`-based claim protocol with a SQLite-safe compare-and-set protocol using guarded `UPDATE`/`INSERT ... OR IGNORE` statements. Implements crash-recovery re-claim (15-minute timeout window), controlled retryable failure when ingestion loses the race to cleanup, and file deletion outside any database transaction. Proves race safety with genuine independent OS processes using Symfony Process + shared file-based SQLite DB + filesystem rendezvous. Independently re-verified: CleanupStagingCommandTest 14/14 passed, StagingClaimCasProtocolTest 8/8 passed (both genuine OS-process race tests pass), IngestionCompensationContractTest 11/11 passed; full suite 229/230 passed (1 pre-existing skip, 0 failures); Pint passed; PHPStan 0 errors. This closure does not lift Option D (ADR-013) or mark P2-004A/P2-004A1 DONE. No Phase 3 or later work was introduced.
+
 P2-006 - Failure / Retry Handling (CLOSED AS ALREADY COVERED).
 
 Task: `tasks/P2-006-failure-retry-handling.md`
@@ -202,7 +229,7 @@ isolation, promotion and persistence compensation, ambiguous retry recovery,
 staging cleanup, and the absence of processing/transcription side effects.
 The remaining out-of-band staging cleanup/lease work remains blocked under
 P2-004A/P2-004A1, and P2-005 is DONE after independent verification. P2-007
-and Phase 3 remain unauthorized.
+is READY. Phase 3 remains unauthorized.
 
 ## Blocked Tasks
 
@@ -267,11 +294,11 @@ changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED. DECISION-P2-CONCURRENCY-002 is DECIDED as Option 1 under ADR-016; P2-004A2 is READY. Option D remains in force until P2-004A2 is independently VERIFIED and closed as DONE.
+DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED. DECISION-P2-CONCURRENCY-002 is DECIDED as Option 1 under ADR-016; P2-004A2 is DONE. Option D remains in force until the Human Product Owner decides to lift it.
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. No P2-007 or Phase 3 task is authorized.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-007 is VERIFIED. Phase 3 remains unauthorized.
 
 ## Future Gates
 
@@ -286,21 +313,20 @@ derived-artifact deletion, log/privacy, and legal/privacy validation.
 ## Next Action
 
 Phase 2 acceptance has been recorded under ADR-014. P2-004A and P2-004A1
-remain BLOCKED and deferred from the current gate under ADR-013. P2-007 is not
-eligible or authorized. P2-006 remains closure-only.
-Do not begin P2-007 or any later Phase 2 task or Phase 3 without separate
-Human Product Owner authorization.
+remain BLOCKED and deferred from the current gate under ADR-013. P2-004A2 is
+DONE. P2-007 is VERIFIED (promoted 2026-09-15). P2-006 remains closure-only.
+Do not begin Phase 3 without separate Human Product Owner authorization.
 
 ## Phase Authorization
 
 The Human Product Owner accepted the bounded Phase 2 scope in ADR-014 on
-2026-09-13. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are
-BLOCKED and deferred from the current gate under ADR-013. P2-007 is not
-eligible or authorized. Later Phase 2 work and all processing/transcription
+2026-09-13. P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are
+BLOCKED and deferred from the current gate under ADR-013. P2-007 is VERIFIED
+(promoted 2026-09-15). All processing/transcription
 phases remain unauthorized.
 
 See plan.md.
 
 ## Review status
 
-Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is not eligible or authorized. P2-006 remains closure-only.
+Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is VERIFIED (promoted 2026-09-15). P2-006 remains closure-only.
