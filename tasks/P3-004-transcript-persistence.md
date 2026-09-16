@@ -24,7 +24,7 @@ Persist canonical transcript-level output safely from the normalized worker resu
 ## Context
 
 - ADR-017 (Phase 3 boundary amendment)
-- `Phase 3 — Real Transcription Engine Technical Specification` (approved)
+- `PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md` (canonical specification)
 - Existing `Transcription` model (status, full_text, detected_language, model, timestamps)
 
 ## Scope

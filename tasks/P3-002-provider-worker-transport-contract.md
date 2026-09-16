@@ -24,7 +24,7 @@ Establish the application boundary between Laravel and the transcription executi
 ## Context
 
 - ADR-017 (Phase 3 boundary amendment)
-- `Phase 3 — Real Transcription Engine Technical Specification` (approved)
+- `PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md` (canonical specification)
 - P3-001 (Transcription Domain Contract)
 
 ## Scope

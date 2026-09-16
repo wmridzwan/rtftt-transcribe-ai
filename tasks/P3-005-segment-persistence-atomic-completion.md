@@ -24,7 +24,7 @@ Persist normalized segment data and establish the canonical atomic completion bo
 ## Context
 
 - ADR-017 (Phase 3 boundary amendment)
-- `Phase 3 — Real Transcription Engine Technical Specification` (approved)
+- `PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md` (canonical specification)
 - Existing `TranscriptionSegment` model (transcription_id, segment_index, start_seconds, end_seconds, text)
 - P3-004 (Transcript Persistence)
 

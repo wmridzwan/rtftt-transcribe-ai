@@ -24,7 +24,7 @@ Establish the provider-neutral transcription domain contract for the Laravel app
 ## Context
 
 - ADR-017 (Phase 3 boundary amendment)
-- `Phase 3 — Real Transcription Engine Technical Specification` (approved)
+- `PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md` (canonical specification)
 - `architecture.md`
 - `DECISIONS.md` (ADR-002, ADR-013, ADR-017)
 - Existing models: `Transcription`, `TranscriptionSegment`, `ProcessingJob`

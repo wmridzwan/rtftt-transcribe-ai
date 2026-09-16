@@ -913,7 +913,6 @@ it records the planning baseline for governance reconciliation.
 
 Reference:
 
-`PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md`;
-`Phase 3 — Real Transcription Engine Technical Specification`;
-`plan-phase3-media-processing.md`; ADR-002; ADR-013; ADR-014; ADR-016;
+`PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md` (canonical durable specification);
+ADR-002; ADR-013; ADR-014; ADR-016;
 `RTFTT-MASTER-ROADMAP.md`; `architecture.md`; `CURRENT_STATE.md`; `plan.md`.

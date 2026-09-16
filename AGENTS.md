@@ -82,8 +82,9 @@ Phase 3 boundary (ADR-017):
 - real end-to-end integration verification
 
 **Do NOT implement**:
-- Phase 3 code (requires separate HPO Batch 1 authorization)
-- Queue infrastructure (Redis, workers) until Phase 3 Batch 1 authorized
+- Phase 3 code unless the batch containing that task has been explicitly authorized by the HPO
+- Batch 1 authorization covers only: P3-001, P3-002, Turbo vs Large-v3 Benchmark Gate, P3-003
+- Redis queue orchestration is P3-006 / Batch 2 and is NOT authorized by Batch 1
 - AI features, billing, public registration
 
 **Preserve these frameworks**: Laravel, Livewire, Blade, Flux UI, Tailwind, Fortify, Pest

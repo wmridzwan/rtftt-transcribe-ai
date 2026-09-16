@@ -15,7 +15,7 @@ remains not authorized. Batch 1 remains not authorized.
 ## Canonical Reference
 
 - ADR-017: Phase 3 boundary amendment (Real Transcription Engine)
-- Approved specification: `Phase 3 — Real Transcription Engine Technical Specification`
+- Canonical specification: `PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md`
 - Task artifacts: `tasks/P3-001-transcription-domain-contract.md` through `tasks/P3-008-real-phase-integration-verification.md`
 
 ## Batch Model
@@ -55,6 +55,8 @@ VERIFIED or DONE.
 - OD-08: Prepared audio retention (configurable, default ephemeral)
 - OD-09: Worker authentication (private network + bearer token)
 - OD-10: Review cadence (batch-level review)
+- OD-11: Accuracy policy (no mandatory WER SLA)
+- OD-12: Configuration boundary (centralized, secrets from env)
 
 ## Phase 2 Preservation
 

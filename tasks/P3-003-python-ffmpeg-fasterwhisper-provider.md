@@ -30,7 +30,7 @@ Implement the first real transcription provider: internal Python HTTP service wi
 ## Context
 
 - ADR-017 (Phase 3 boundary amendment)
-- `Phase 3 — Real Transcription Engine Technical Specification` (approved)
+- `PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md` (canonical specification)
 - P3-001, P3-002 domain and transport contracts
 - Benchmark gate evidence (turbo vs large-v3)
 

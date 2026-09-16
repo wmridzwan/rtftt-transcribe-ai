@@ -24,7 +24,7 @@ Verify the real end-to-end Phase 3 pipeline with actual media, real faster-whisp
 ## Context
 
 - ADR-017 (Phase 3 boundary amendment)
-- `Phase 3 — Real Transcription Engine Technical Specification` (approved)
+- `PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md` (canonical specification)
 - P3-001 through P3-007 (all prior batches)
 
 ## Scope
