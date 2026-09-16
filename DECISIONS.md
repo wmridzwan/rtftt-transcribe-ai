@@ -781,3 +781,137 @@ Reference:
 `reviews/P2-004A-P2-004A1-sqlite-concurrency-decision-package.md`;
 `tasks/P2-004A2-staging-claim-cas-protocol.md`; ADR-013; DECISION_QUEUE.md
 (DECISION-P2-CONCURRENCY-002).
+
+## ADR-017 — Phase 3 Boundary Amendment: Real Transcription Engine
+
+Date: 2026-09-17
+
+Status: ACCEPTED
+
+Supersedes: The earlier Phase 3/4/5 decomposition as recorded in
+`RTFTT-MASTER-ROADMAP.md`, `plan.md`, and `architecture.md` where they
+conflict with this ADR. Historical references to the old boundary are
+preserved with supersession annotations.
+
+Decision:
+
+Phase 3 is redefined as the complete Real Transcription Engine, encompassing
+the full path from media ingestion through self-hosted transcription to
+persisted transcript and segment results. The earlier decomposition that
+treated Phase 3 as FFmpeg/FFprobe-only, Phase 4 as faster-whisper worker,
+and Phase 5 as Laravel-worker integration is superseded.
+
+### Phase 3 scope
+
+Phase 3 delivers:
+
+- provider-neutral transcription domain contract;
+- internal authenticated Python worker (faster-whisper + FFmpeg);
+- private/internal HTTP transport;
+- Redis-backed asynchronous queue processing;
+- transcript persistence;
+- segment persistence with per-segment language;
+- multilingual/code-switching support (BM, English, Chinese, Tamil);
+- retry, recovery, and failure hardening;
+- real end-to-end integration verification.
+
+### Canonical provider
+
+Self-hosted faster-whisper. No hosted OpenAI/Deepgram ASR is canonical.
+
+### Segment language granularity
+
+One dominant/best-supported language per segment (OD-01). Word/span-level
+language tagging is outside Phase 3.
+
+### Language identifiers
+
+BCP 47-compatible. Required vocabulary: `ms`, `en`, `zh`, `ta`, `und`.
+
+### Model selection
+
+Preferred: `turbo`. Mandatory benchmark gate: turbo vs large-v3 before
+P3-003 finalization (OD-02).
+
+### Worker transport
+
+Private/internal HTTP (OD-03). Laravel ↔ Python boundary.
+
+### Queue backend
+
+Redis without Horizon initially (OD-06).
+
+### Media access
+
+Shared private filesystem with server-generated opaque references (OD-07).
+Laravel must not load the full 500 MiB media object through PHP memory.
+
+### Prepared audio retention
+
+Configurable. Default: ephemeral. Supported: durable_until_terminal (OD-08).
+
+### Worker authentication
+
+Private/internal network + shared-secret bearer token from env/config (OD-09).
+
+### Accuracy policy
+
+No mandatory WER threshold. BM/Tamil may differ from English/Chinese.
+
+### Batch execution model
+
+Up to three sequential implementation tasks per OpenCode batch, followed by
+one independent Claude review. IMPLEMENTED ≠ VERIFIED. OpenCode may not
+self-assign VERIFIED or DONE.
+
+### Existing lifecycle reuse
+
+Phase 3 reuses existing enums:
+
+TranscriptionStatus: draft, queued, preparing, transcribing, completed,
+failed, cancelled.
+
+ProcessingStatus: queued, running, completed, failed, cancelled.
+
+ProcessingStage: upload, probe, extract_audio, transcribe, finalize.
+
+Phase 3 must not introduce parallel lifecycle vocabularies.
+
+### Phase 2 interaction
+
+Phase 3 consumes durable private MediaFile objects. It does not depend on
+Phase 2 staging cleanup. Option D (ADR-013) remains in force. P2-004A and
+P2-004A1 remain BLOCKED.
+
+### Configuration boundary
+
+Phase 3 configuration centralized in a transcription-oriented config
+surface. Secrets from environment. No committed secrets.
+
+### Observability
+
+Cross-cutting acceptance criteria owned by the implementing task. Minimum
+correlation: request_id, transcription_id, processing_job_id, media_file_id,
+stage, attempt_number, model, device, duration_ms, failure_code.
+
+Reason:
+
+The earlier Phase 3/4/5 decomposition assumed a sequential build-out that
+separated FFmpeg processing, worker implementation, and queue integration
+into distinct phases. The HPO determined that a single integrated Phase 3
+delivering the complete transcription engine is more appropriate for the
+current project stage. This ADR formally amends the phase boundary and
+records the approved owner decisions OD-01 through OD-10.
+
+Phase consequence:
+
+Phases 4 and 5 as previously defined are absorbed into Phase 3. Future
+roadmap phases (6, 7) and their boundaries remain to be reconciled after
+Phase 3 is approved. This ADR does not authorize Phase 3 implementation;
+it records the planning baseline for governance reconciliation.
+
+Reference:
+
+`Phase 3 — Real Transcription Engine Technical Specification`;
+`plan-phase3-media-processing.md`; ADR-002; ADR-013; ADR-014; ADR-016;
+`RTFTT-MASTER-ROADMAP.md`; `architecture.md`; `CURRENT_STATE.md`; `plan.md`.

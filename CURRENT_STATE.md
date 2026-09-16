@@ -10,13 +10,17 @@ setup/ai-development-os
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
+Phase 3 — PLANNING RECONCILED / IMPLEMENTATION NOT AUTHORIZED
+
 Status: Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product
 Owner on 2026-09-17. The Phase 2 goal — reliable media upload and storage
 lifecycle — is accepted as satisfied under the canonical Phase 2 scope.
 P2-003, P2-005, P2-004A2, and P2-007 are DONE. P2-004A and P2-004A1
 remain BLOCKED and are deferred out of the current Phase 2 completion
 scope under ADR-013; they are not VERIFIED or DONE. Option D under
-ADR-013 remains in force. Phase 3 remains not authorized.
+ADR-013 remains in force. Phase 3 planning reconciled under ADR-017
+(Real Transcription Engine); Phase 3 implementation remains not
+authorized — separate HPO decision required for Batch 1.
 Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
@@ -275,13 +279,14 @@ Contract. The external governance suite is strategic/planning input until its
 individual artifacts are explicitly reconciled and published; it does not
 authorize implementation by itself.
 
-Established Phase 1–7 numbering is preserved. Phase 3 remains FFmpeg/FFprobe
-media processing, Phase 4 remains the independent faster-whisper worker, and
-Phase 5 remains Laravel ↔ worker integration. Worker transport and operational
-contract details, provider expansion, future ownership/multi-tenancy, media
-parsing trust boundaries, and production/privacy requirements remain future
-gates. No application, schema, test, route, configuration, or Phase 2 scope
-change is authorized by this reconciliation.
+Phase 3 boundary amended by ADR-017 (2026-09-17): Phase 3 is the complete
+Real Transcription Engine (transcription domain, provider, internal Python
+worker, FFmpeg, faster-whisper, Redis queue, transcript/segment persistence,
+multilingual support, retry/recovery, integration verification). The earlier
+Phase 3/4/5 decomposition is superseded. Future roadmap phases (6, 7) and
+their boundaries remain to be reconciled after Phase 3 approval. No
+application, schema, test, route, configuration, or Phase 2 scope change is
+authorized by this reconciliation.
 
 ## Governance Reconciliation Closure
 
@@ -295,21 +300,20 @@ changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED. DECISION-P2-CONCURRENCY-002 is DECIDED as Option 1 under ADR-016; P2-004A2 is DONE. Option D remains in force until the Human Product Owner decides to lift it. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17).
+DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED. DECISION-P2-CONCURRENCY-002 is DECIDED as Option 1 under ADR-016; P2-004A2 is DONE. Option D remains in force until the Human Product Owner decides to lift it. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). Phase 3 planning reconciled under ADR-017; implementation not authorized.
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 remains unauthorized.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 planning reconciled under ADR-017; implementation not authorized.
 
 ## Future Gates
 
 The following are not current blockers, but must be decided before their
-respective future gates: media parsing/FFmpeg trust boundary; worker transport,
-job/result schemas, storage, timeout, retry, heartbeat/cancellation,
-idempotency, failure classification, and capacity; actor-versus-owner and
-multi-tenancy semantics; and first-production-use deployment, rollback,
-backup/restore, monitoring, failed-job visibility, retention/deletion,
-derived-artifact deletion, log/privacy, and legal/privacy validation.
+respective future gates: Turbo vs Large-v3 benchmark gate (before P3-003
+finalization); actor-versus-owner and multi-tenancy semantics; and
+first-production-use deployment, rollback, backup/restore, monitoring,
+failed-job visibility, retention/deletion, derived-artifact deletion,
+log/privacy, and legal/privacy validation.
 
 ## Phase 2 Deferred Debt Register
 
@@ -359,20 +363,26 @@ Future browser/E2E verification should cover:
 
 ## Next Action
 
-Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). P2-004A and
-P2-004A1 remain BLOCKED and deferred under ADR-013. Option D remains in
-force. Phase 3 remains not authorized. Do not begin Phase 3 without
-separate Human Product Owner authorization.
+Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). Phase 3
+planning reconciled under ADR-017 (2026-09-17) with canonical task
+artifacts P3-001 through P3-008 in `tasks/`. Phase 3 implementation
+remains not authorized — separate HPO decision required for Batch 1
+(P3-001, P3-002, benchmark gate, P3-003). P2-004A and P2-004A1 remain
+BLOCKED and deferred under ADR-013. Option D remains in force.
 
 ## Phase Authorization
 
 Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product Owner
 on 2026-09-17. P2-003, P2-005, P2-004A2, and P2-007 are DONE. P2-004A and
 P2-004A1 are BLOCKED and deferred under ADR-013. Option D remains in force.
-All processing/transcription phases remain unauthorized.
+
+Phase 3 planning reconciled under ADR-017 (2026-09-17). Canonical task
+artifacts: P3-001 through P3-008 in `tasks/`. Phase 3 implementation
+remains not authorized. Separate HPO decision required before Batch 1 is
+promoted to READY. No P3 task is READY.
 
 See plan.md.
 
 ## Review status
 
-Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only.
+Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only. Phase 3 planning reconciled under ADR-017; no P3 tasks have been reviewed.

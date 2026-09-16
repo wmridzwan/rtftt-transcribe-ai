@@ -4,12 +4,16 @@
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
+Phase 3 — PLANNING RECONCILED / IMPLEMENTATION NOT AUTHORIZED
+
 Status:
 Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product Owner
 on 2026-09-17. P2-003, P2-005, P2-004A2, and P2-007 are DONE. P2-004A and
 P2-004A1 remain BLOCKED and are deferred out of the current Phase 2 completion
 scope under ADR-013. Option D under ADR-013 remains in force. Phase 3
-remains unauthorized.
+planning reconciled under ADR-017 (Real Transcription Engine). Phase 3
+implementation remains not authorized — separate HPO decision required for
+Batch 1.
 
 ## Phase 1 Breakdown
 
@@ -62,62 +66,45 @@ remains unauthorized.
 - Migration verification
 - Frontend build verification
 
-## Future Phases (NOT Authorized)
+## Future Phases
 
 ### Phase 2 — Real File Upload & Media Library
-- Binary file uploads
-- Large file upload handling
-- Multipart uploads
-- Chunked uploads
-- Storage optimization
+COMPLETE_WITH_DEFERRED_DEBT (closed 2026-09-17)
 
-### Phase 3 — FFmpeg / FFprobe Media Processing
-- Audio extraction
-- Video probing
-- Media conversion
-- Waveform generation
+### Phase 3 — Real Transcription Engine (ADR-017)
+PLANNING RECONCILED / IMPLEMENTATION NOT AUTHORIZED
 
-### Phase 4 — Independent faster-whisper Worker
-- Python transcription worker
-- faster-whisper integration
-- GPU support / CUDA
-- Model downloading
-- Language detection
+Phase 3 encompasses the complete real transcription pipeline:
+transcription domain, provider abstraction, internal Python worker,
+FFmpeg preparation, self-hosted faster-whisper, Redis queue, transcript
+and segment persistence, multilingual/code-switching support, retry/
+recovery, and real end-to-end integration verification.
 
-### Phase 5 — Laravel ↔ Transcription Worker Integration
-- Queue infrastructure
-- Redis / Horizon
-- Worker orchestration
-- Result callbacks
+The earlier Phase 3/4/5 decomposition (FFmpeg-only, faster-whisper
+worker, Laravel-worker integration) is superseded by ADR-017.
 
-### Phase 6 — Advanced Transcript UX
-- Translation
-- Summarization
-- Speaker diarization
-- AI analysis
-- Chat with transcript
+Canonical tasks: P3-001 through P3-008 in `tasks/`.
 
-### Phase 7 — Production Hardening
-- Production PostgreSQL migration
-- S3 / Cloudflare R2 / MinIO
-- Production deployment
-- Billing / subscriptions
-- Public API
+Batch model:
+- Batch 1: P3-001 → P3-002 → Benchmark Gate → P3-003
+- Batch 2: P3-004 → P3-005 → P3-006
+- Batch 3: P3-007 → P3-008
 
-The ADR-012 continuation authorizes only remediation of the named P2-003,
-P2-004A, P2-004A1, and P2-005 surfaces. No P2-007, transcription, processing,
-or broader Phase 3 behavior is authorized.
+### Phase 4+ — Future (not yet reconciled)
+Phases 4–7 boundaries remain to be reconciled after Phase 3 approval.
+The earlier Phase 4/5/6/7 decomposition is historical and will be
+reconciled separately.
 
 ## Roadmap Reconciliation
 
-The repository engineering phase numbers above are canonical and must not be
+The repository engineering phase numbers are canonical and must not be
 renumbered by an external product roadmap:
 
-1. Application Foundation + Full Clickable Prototype
-2. Real File Upload & Media Library
-3. FFmpeg / FFprobe Media Processing
-4. Independent faster-whisper Worker
-5. Laravel ↔ Transcription Worker Integration
+1. Application Foundation + Full Clickable Prototype — ACCEPTED
+2. Real File Upload & Media Library — COMPLETE_WITH_DEFERRED_DEBT
+3. Real Transcription Engine (ADR-017) — PLANNING RECONCILED
+4. Future (to be reconciled after Phase 3)
+5. Future (to be reconciled after Phase 3)
 6. Advanced Transcript UX
 7. Production Hardening
 
@@ -127,7 +114,7 @@ transcript workspace evolution, file/workspace management, richer export,
 translation, search/discovery, advanced AI, realtime, collaboration, SaaS, and
 organizational knowledge capabilities. These are unnumbered future roadmap
 stages unless separately approved and mapped to repository phases. They do not
-authorize implementation or redefine the established Phase 3–7 identifiers.
+authorize implementation or redefine established phase identifiers.
 
 Phase 2 remains bounded by ADR-008, ADR-009, and ADR-012. P2-005 alone may use
 the minimum FFprobe/FFmpeg dependency for metadata probing; it does not
@@ -143,5 +130,6 @@ concurrency verification.
 
 The P2-006 failure/retry planning candidate is closed as already covered by
 the accepted P2-002B contract and the independently VERIFIED P2-003 workflow.
-No P2-006 implementation was required. P2-007 is DONE; Phase 3 remains unauthorized.
+No P2-006 implementation was required. P2-007 is DONE. Phase 3 planning
+reconciled under ADR-017; Phase 3 implementation remains not authorized.
 Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT.

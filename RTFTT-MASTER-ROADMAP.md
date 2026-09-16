@@ -24,11 +24,19 @@ future product roadmap:
 |---|---|---|
 | 1 | Application Foundation + Full Clickable Prototype | Accepted |
 | 2 | Real File Upload & Media Library | COMPLETE_WITH_DEFERRED_DEBT (closed 2026-09-17) |
-| 3 | FFmpeg / FFprobe Media Processing | Future; not authorized |
-| 4 | Independent faster-whisper Worker | Future; not authorized |
-| 5 | Laravel ↔ Transcription Worker Integration | Future; not authorized |
+| 3 | Real Transcription Engine (ADR-017) | PLANNING RECONCILED; implementation not authorized |
+| 4 | Future (to be reconciled after Phase 3) | Not yet reconciled |
+| 5 | Future (to be reconciled after Phase 3) | Not yet reconciled |
 | 6 | Advanced Transcript UX | Future; not authorized |
 | 7 | Production Hardening | Future; not authorized |
+
+Phase 3 boundary amended by ADR-017 (2026-09-17): Phase 3 is the complete
+Real Transcription Engine encompassing transcription domain, provider
+abstraction, internal Python worker, FFmpeg preparation, self-hosted
+faster-whisper, Redis queue, transcript/segment persistence, multilingual/
+code-switching support, retry/recovery, and real end-to-end integration
+verification. The earlier Phase 3/4/5 decomposition (FFmpeg-only, faster-
+whisper worker, Laravel-worker integration) is superseded by ADR-017.
 
 `plan.md` is the execution roadmap and `CURRENT_STATE.md` is the operational
 status record. Completion of one phase never authorizes the next phase.
@@ -41,14 +49,17 @@ generation, or future SaaS schema. The accepted application upload boundary is
 one file with an exact 500 MiB (`524,288,000`-byte) limit, the accepted media
 matrix, no duration limit, duplicate uploads allowed, and private storage.
 
-Phase 3 is the media-processing phase. Before its execution gate, the media
-parsing and FFmpeg trust boundary must be decided.
+Phase 3 (ADR-017) is the complete Real Transcription Engine. Before Batch 1
+may be promoted to READY, separate Human Product Owner authorization is
+required. The Turbo vs Large-v3 benchmark gate must be completed before
+P3-003 is finalized.
+
+Phases 4 and 5 as previously defined are absorbed into Phase 3 by ADR-017.
+Their future boundaries will be reconciled separately after Phase 3 approval.
 
 ADR-002 establishes the high-level direction for an independently deployable
-transcription worker in Phase 4. Before Phase 4/5 execution, separate approved
-decisions are required for transport, job schema, result schema, storage
-access, timeout, retry semantics, heartbeat/cancellation where required,
-idempotency boundary, failure classification, and capacity/concurrency.
+transcription worker. The worker operational contract is now defined within
+Phase 3 scope by ADR-017.
 
 The transcription-engine boundary remains thin and replaceable. A
 multi-provider registry, routing, fallback engine, complex capability
@@ -58,7 +69,7 @@ evidence from a second-provider requirement.
 ## Future Product Stages
 
 The following are intentionally unnumbered future roadmap candidates. They do
-not steal or redefine the canonical Phase 3–7 identifiers:
+not steal or redefine the canonical phase identifiers:
 
 - transcript workspace evolution;
 - file and workspace management;
@@ -82,4 +93,4 @@ Before first production use, the repository must have approved decisions and
 evidence for deployment procedure, migration safety, rollback, backup and
 restore verification, monitoring and failed-job visibility, retention and
 deletion, derived-artifact deletion, log/privacy behavior, and required
-legal/privacy validation. These are future gates, not Phase 2 scope.
+legal/privacy validation. These are future gates, not Phase 2 or Phase 3 scope.

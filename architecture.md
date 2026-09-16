@@ -44,51 +44,46 @@ Browser
    ↓
 Laravel Application
    ↓
-Queue (Redis / Horizon)
+Transcription Domain (provider-neutral)
    ↓
-Independent Transcription Worker
+Redis Queue
    ↓
-faster-whisper (CPU + INT8 → GPU + CUDA + FP16)
+Laravel Queue Worker
    ↓
-Database / Result Callback
-```
-
-### Future Deployment Target
-
-```
-Laravel App VPS
-      ↓
-Redis / Queue
-      ↓
-CPU or GPU Worker(s)
+TranscriptionProvider (internal HTTP adapter)
+   ↓
+authenticated internal HTTP
+   ↓
+Python Transcription Service
+   ↓
+shared private filesystem
+   ↓
+FFmpeg (media preparation)
+   ↓
+faster-whisper (self-hosted inference)
+   ↓
+normalized result (JSON)
+   ↓
+Laravel persistence boundary
+   ↓
+Transcription + TranscriptionSegment
 ```
 
 ### Key Principles
 
-- The transcription worker must eventually be independently deployable
-- Never perform heavy transcription synchronously inside an HTTP request
-- Laravel should not care which compute backend processes the transcription
-- Future worker metrics: audio_duration_seconds, processing_seconds, model, worker, device, RTF
+- The transcription worker is independently deployable and communicates via internal HTTP.
+- Laravel must not load the full 500 MiB media object into PHP memory.
+- The transcription domain is provider-neutral; faster-whisper is an implementation detail behind the provider boundary.
+- Redis is the queue backend; Horizon is not required initially.
+- Original media is never modified; prepared audio is private and ephemeral by default.
+- Phase 3 reuses existing lifecycle enums and does not introduce parallel vocabularies.
 
-### Reconciled phase and worker boundaries
+### Phase Boundary (ADR-017)
 
-The repository phase numbering is canonical: Phase 3 is FFmpeg / FFprobe
-media processing, Phase 4 is the independent faster-whisper worker, and Phase
-5 is Laravel ↔ transcription-worker integration. This architecture section
-does not authorize any of those phases.
-
-ADR-002 establishes the high-level independent-worker direction. It does not
-mean that the worker operational contract has already been decided. Before the
-relevant Phase 4/5 execution gate, a separate approved decision is required
-for transport, job schema, result schema, storage access, timeout, retry
-semantics, heartbeat/cancellation where required, idempotency boundary, and
-failure classification. Those contracts are deliberately not designed here.
-
-The transcription-engine boundary is a thin replaceable architectural
-principle. A multi-provider registry, provider routing, fallback engine,
-complex capability registry, and broad normalized provider-error taxonomy are
-future capabilities only; they require evidence from an actual second-provider
-requirement before becoming current scope.
+Phase 3 is the complete Real Transcription Engine as defined in ADR-017.
+The earlier decomposition (Phase 3 = FFmpeg/FFprobe, Phase 4 = faster-whisper
+worker, Phase 5 = Laravel-worker integration) is superseded. Historical
+references to the old boundary are preserved with supersession annotations.
 
 ### Future ownership and production gates
 
@@ -98,14 +93,11 @@ admin-on-behalf-of, collaboration, team ownership, or commercial
 multi-tenancy. Those semantics require an explicit architecture/product gate
 before implementation; no future-SaaS schema is introduced by this document.
 
-Before Phase 3 media parsing, the media parsing and FFmpeg trust boundary must
-be decided. Before worker/integration execution, the worker operational
-contract and capacity/concurrency considerations must be decided. Before first
-production use, the repository must define deployment, migration safety,
-rollback, backup and restore verification, monitoring and failed-job
+Before first production use, the repository must define deployment, migration
+safety, rollback, backup and restore verification, monitoring and failed-job
 visibility, retention and deletion, derived-artifact deletion, log/privacy
 behavior, and required legal/privacy validation. These are future gates, not
-Phase 2 work.
+Phase 2 or Phase 3 scope.
 
 ## Phase 2 Ingestion Contract
 
