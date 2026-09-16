@@ -23,7 +23,7 @@ future product roadmap:
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Application Foundation + Full Clickable Prototype | Accepted |
-| 2 | Real File Upload & Media Library | Accepted; cleanup deferred under ADR-013 |
+| 2 | Real File Upload & Media Library | COMPLETE_WITH_DEFERRED_DEBT (closed 2026-09-17) |
 | 3 | FFmpeg / FFprobe Media Processing | Future; not authorized |
 | 4 | Independent faster-whisper Worker | Future; not authorized |
 | 5 | Laravel ↔ Transcription Worker Integration | Future; not authorized |

@@ -1,6 +1,6 @@
 # RTFTT Transcribe AI — Current State
 
-Last Updated: 2026-09-15
+Last Updated: 2026-09-17
 
 ## Current Branch
 
@@ -8,26 +8,27 @@ setup/ai-development-os
 
 ## Current Authorized Phase
 
-Phase 2 — Authorized remediation of P2-003/P2-004A/P2-004A1/P2-005 findings
+Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
-Status: Phase 2 ACCEPTED by the Human Product Owner on 2026-09-13 under
-ADR-014. P2-003, P2-005, and P2-004A2 are DONE. P2-004A and P2-004A1 remain BLOCKED and
-are deferred out of the current Phase 2 completion scope under ADR-013; they
-are not VERIFIED or DONE. P2-007 is DONE (closed 2026-09-17). Phase 3 remains not authorized.
-Product Owner on 2026-09-15). Phase 3 remains not authorized. Phase 1
-ACCEPTED (Human Product Owner, 2026-09-11).
+Status: Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product
+Owner on 2026-09-17. The Phase 2 goal — reliable media upload and storage
+lifecycle — is accepted as satisfied under the canonical Phase 2 scope.
+P2-003, P2-005, P2-004A2, and P2-007 are DONE. P2-004A and P2-004A1
+remain BLOCKED and are deferred out of the current Phase 2 completion
+scope under ADR-013; they are not VERIFIED or DONE. Option D under
+ADR-013 remains in force. Phase 3 remains not authorized.
+Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
 
-Latest full test suite (2026-09-13, after remediation cycle 2):
+Latest full test suite (2026-09-17, Phase 2 closure):
 
-- 216 passed
+- 229 passed
 - 1 skipped
-- 649 assertions
+- 688 assertions
 
-Remediation focused suite: 47 passed / 177 assertions. FFprobe was available,
-so the real WAV probe test executed successfully. Pint passed. Full PHPStan: 0
-errors. Frontend build passed. `git diff --check` passed.
+Focused upload-related suite: 25 passed / 83 assertions. FFprobe was available.
+Pint passed. Full PHPStan: 0 errors. Frontend build passed.
 
 Skipped test:
 
@@ -68,8 +69,8 @@ verdict in the cycle-2 re-review. P2-004A2 is DONE after independent
 VERIFIED verdict (round 2, 2026-09-15). P2-004A and P2-004A1 are BLOCKED
 after the third consecutive CHANGES_REQUESTED cycle because the SQLite
 concurrency safety contract is not explicitly defined, repository-controlled,
-or proven with genuine independent connections/processes. P2-007 is now
-in REVIEW; Phase 3 remains not authorized.
+or proven with genuine independent connections/processes. P2-007 is
+DONE (closed 2026-09-17). Phase 3 remains not authorized.
 
 ## Phase 2 Infrastructure Readiness
 
@@ -229,7 +230,7 @@ isolation, promotion and persistence compensation, ambiguous retry recovery,
 staging cleanup, and the absence of processing/transcription side effects.
 The remaining out-of-band staging cleanup/lease work remains blocked under
 P2-004A/P2-004A1, and P2-005 is DONE after independent verification. P2-007
-is READY. Phase 3 remains unauthorized.
+is DONE (closed 2026-09-17). Phase 3 remains unauthorized.
 
 ## Blocked Tasks
 
@@ -294,11 +295,11 @@ changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED. DECISION-P2-CONCURRENCY-002 is DECIDED as Option 1 under ADR-016; P2-004A2 is DONE. Option D remains in force until the Human Product Owner decides to lift it.
+DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED. DECISION-P2-CONCURRENCY-002 is DECIDED as Option 1 under ADR-016; P2-004A2 is DONE. Option D remains in force until the Human Product Owner decides to lift it. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17).
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-007 is DONE. Phase 3 remains unauthorized.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 remains unauthorized.
 
 ## Future Gates
 
@@ -310,20 +311,65 @@ multi-tenancy semantics; and first-production-use deployment, rollback,
 backup/restore, monitoring, failed-job visibility, retention/deletion,
 derived-artifact deletion, log/privacy, and legal/privacy validation.
 
+## Phase 2 Deferred Debt Register
+
+### Historical / cleanup debt
+
+- P2-004A / P2-004A1 historical BLOCKED state under ADR-013.
+- Automated abandoned-staging cleanup remains deferred while Option D stays in force.
+
+### P2-004A2 test-coverage debt
+
+- No direct test currently exercises the real `MediaIngestionService::stage()` production path for the cleanup-claim-loss scenario.
+- Existing CAS/race behavior remains independently VERIFIED; this is regression-coverage debt, not a current correctness failure.
+
+### P2-004A2 LOW observations
+
+- Crash-recovery delete path does not increment `Eligible` counter or fire `StagingCleanupCandidateObserved` (cosmetic/observability inconsistency).
+- `file deletion happens outside database transaction` test name overstates the property it directly asserts.
+
+### DEFERRED DEPLOYMENT REQUIREMENT
+
+The application contract proves 524,288,000 bytes accepted and 524,288,001 bytes rejected. However, the final Phase 2 evidence does not contain an independently retained artifact proving an actual 500 MiB multipart upload through the intended production/deployment HTTP stack.
+
+Before production deployment, the deployed environment must verify/configure:
+- effective web PHP SAPI upload limit
+- effective `post_max_size`
+- web-server/proxy request-body limit
+- multipart overhead
+- request timeout
+- temporary storage capacity
+- durable storage capacity
+- actual request arrival at Laravel validation
+
+### DEFERRED UX VERIFICATION
+
+The upload progress and client-side success flow were verified through implementation/source inspection and server-side contract tests, but not through retained browser-runtime evidence.
+
+Future browser/E2E verification should cover:
+- visible upload progress
+- no premature success presentation
+- upload failure presentation
+- successful Media Detail navigation
+
+### Documentation drift
+
+- CURRENT_STATE.md baseline test counts updated to current values (229/230, 688 assertions).
+- Stale P2-007 "in REVIEW" references corrected to DONE.
+
 ## Next Action
 
-Phase 2 acceptance has been recorded under ADR-014. P2-004A and P2-004A1
-remain BLOCKED and deferred from the current gate under ADR-013. P2-004A2 is
-DONE. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only.
-Do not begin Phase 3 without separate Human Product Owner authorization.
+Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). P2-004A and
+P2-004A1 remain BLOCKED and deferred under ADR-013. Option D remains in
+force. Phase 3 remains not authorized. Do not begin Phase 3 without
+separate Human Product Owner authorization.
 
 ## Phase Authorization
 
-The Human Product Owner accepted the bounded Phase 2 scope in ADR-014 on
-2026-09-13. P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are
-BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE
-(closed 2026-09-17). All processing/transcription
-phases remain unauthorized.
+Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product Owner
+on 2026-09-17. P2-003, P2-005, P2-004A2, and P2-007 are DONE. P2-004A and
+P2-004A1 are BLOCKED and deferred under ADR-013. Option D remains in force.
+All processing/transcription phases remain unauthorized.
 
 See plan.md.
 
