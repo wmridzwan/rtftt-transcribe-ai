@@ -55,7 +55,60 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 ## Open Decisions
 
-None.
+### DECISION-P3-BATCH1-001 — Authorize Phase 3 Batch 1
+
+Decision ID: DECISION-P3-BATCH1-001
+
+Status: OPEN
+
+Type: Phase Authorization
+
+Originating Scope: Phase 3 — Real Transcription Engine (ADR-017)
+
+Raised By: Phase 3 planning reconciliation
+
+Priority: HIGH
+
+Question:
+
+Should Phase 3 Batch 1 be authorized for implementation?
+
+Options:
+
+1. Authorize Batch 1: P3-001 (Transcription Domain Contract),
+   P3-002 (Provider + Worker Transport Contract),
+   Turbo vs Large-v3 Benchmark Gate,
+   P3-003 (Python / FFmpeg / faster-whisper Provider).
+   Promote P3-001/P3-002/P3-003 to READY.
+2. Authorize a subset of Batch 1 (e.g., P3-001 only).
+3. Do not authorize Batch 1 yet; remain in planning state.
+
+Recommendation:
+
+Option 1. Phase 3 planning is reconciled under ADR-017. All
+prerequisites are satisfied. Batch 1 tasks are defined and ready
+for promotion.
+
+Impact:
+
+Authorizing Batch 1 allows Phase 3 implementation to begin.
+P3-001/P3-002/P3-003 become READY. OpenCode executes sequentially.
+Claude performs batch review at batch handoff. No task becomes
+independently VERIFIED merely because OpenCode completed implementation.
+
+Blocks:
+
+- Phase 3 implementation cannot begin until Batch 1 is authorized.
+
+Does Not Block:
+
+- Batch 2/3 remain separately unauthorized.
+- Phase 2 remains COMPLETE_WITH_DEFERRED_DEBT.
+- Option D remains in force.
+
+Resolution:
+
+PENDING HPO DECISION. NOT YET AUTHORIZED.
 
 ## DECIDED — DECISION-P2-CONCURRENCY-002
 

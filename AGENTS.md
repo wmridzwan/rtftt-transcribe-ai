@@ -63,13 +63,27 @@ php artisan make:model --help     # Check model options
 
 ## Scope Boundaries
 
-**Current Phase**: Phase 2 checkpoint (P2-003, P2-005 DONE; P2-004A, P2-004A1 BLOCKED)
+**Current Phase**: Phase 2 COMPLETE_WITH_DEFERRED_DEBT (closed 2026-09-17)
+
+**Phase 3**: Real Transcription Engine (ADR-017). Planning reconciled.
+Phase 3 implementation NOT AUTHORIZED. Batch 1 NOT AUTHORIZED.
+No P3 task is READY.
+
+Phase 3 boundary (ADR-017):
+- provider-neutral Laravel transcription domain
+- Redis queue (without Horizon initially)
+- authenticated internal Python worker (private/internal HTTP)
+- shared private filesystem with opaque media references
+- FFmpeg media preparation
+- self-hosted faster-whisper inference
+- transcript and segment persistence
+- multilingual/code-switching (BM, English, Chinese, Tamil)
+- retry, recovery, failure hardening
+- real end-to-end integration verification
 
 **Do NOT implement**:
-- Real file uploads beyond current contract
-- FFmpeg/FFprobe processing (Phase 3)
-- faster-whisper transcription (Phase 4)
-- Queue worker infrastructure
+- Phase 3 code (requires separate HPO Batch 1 authorization)
+- Queue infrastructure (Redis, workers) until Phase 3 Batch 1 authorized
 - AI features, billing, public registration
 
 **Preserve these frameworks**: Laravel, Livewire, Blade, Flux UI, Tailwind, Fortify, Pest

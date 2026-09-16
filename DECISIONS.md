@@ -901,7 +901,8 @@ separated FFmpeg processing, worker implementation, and queue integration
 into distinct phases. The HPO determined that a single integrated Phase 3
 delivering the complete transcription engine is more appropriate for the
 current project stage. This ADR formally amends the phase boundary and
-records the approved owner decisions OD-01 through OD-10.
+records the approved owner decisions OD-01 through OD-12 (see canonical
+specification for full definitions).
 
 Phase consequence:
 
@@ -912,6 +913,7 @@ it records the planning baseline for governance reconciliation.
 
 Reference:
 
+`PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md`;
 `Phase 3 — Real Transcription Engine Technical Specification`;
 `plan-phase3-media-processing.md`; ADR-002; ADR-013; ADR-014; ADR-016;
 `RTFTT-MASTER-ROADMAP.md`; `architecture.md`; `CURRENT_STATE.md`; `plan.md`.

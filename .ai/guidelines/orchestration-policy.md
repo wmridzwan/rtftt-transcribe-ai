@@ -86,6 +86,121 @@ Phase completion stops at `AWAITING HUMAN ACCEPTANCE`. Completing one phase neve
 
 Task status belongs in `tasks/`, independent review results belong in `reviews/`, current operational state belongs in [CURRENT_STATE.md](../../CURRENT_STATE.md), durable decisions belong in [DECISIONS.md](../../DECISIONS.md), and unresolved decisions belong in [DECISION_QUEUE.md](../../DECISION_QUEUE.md).
 
+## Phase 3 Batch-Execution Exception (ADR-017)
+
+Phase 3 uses a batch-level review model that is a Phase-specific exception
+to the normal per-task review cadence. This exception does not apply to
+any other phase unless separately authorized.
+
+### Batch authorization
+
+One explicit HPO Batch authorization may authorize the set of tasks
+belonging to that batch. Phase 3 planning acceptance does not itself
+authorize any batch.
+
+For Batch 1:
+
+```
+P3-001
+P3-002
+Turbo vs Large-v3 Benchmark Gate
+P3-003
+```
+
+HPO must explicitly authorize Batch 1 before any Batch 1 task is promoted
+to READY.
+
+### READY transition
+
+When HPO explicitly authorizes a batch, all implementation tasks in that
+batch may be promoted to READY at authorization time. Dependency ordering
+still controls when implementation may begin.
+
+```
+HPO authorizes Batch 1
+  ↓
+P3-001 / P3-002 / P3-003 become READY
+  ↓
+P3-001 may begin (no predecessor dependency)
+P3-002 begins after P3-001 is implementation-complete
+Benchmark gate runs after P3-002 is implementation-complete
+P3-003 begins after benchmark gate is recorded
+```
+
+### Sequential implementation inside batch
+
+Within an authorized batch, OpenCode may proceed sequentially without
+Claude reviewing every task individually, provided:
+
+- the previous task is internally implementation-complete;
+- relevant tests pass;
+- no known blocking dependency defect exists;
+- the next task is inside the already HPO-authorized batch;
+- the next task's dependency contract permits an
+  implementation-complete predecessor rather than an independently
+  VERIFIED predecessor.
+
+A task may remain officially `IN_PROGRESS` while the next task in the
+batch begins implementation. This is a Phase 3 exception to normal
+per-task review cadence, not a new global workflow.
+
+```
+P3-001 implementation-complete (may remain IN_PROGRESS)
+  ↓
+P3-002 begins implementation
+  ↓
+P3-002 implementation-complete (may remain IN_PROGRESS)
+  ↓
+Benchmark gate evidence recorded
+  ↓
+P3-003 begins implementation
+```
+
+### Review handoff
+
+At the end of the batch, all implementation tasks in the batch move
+to `REVIEW`:
+
+```
+P3-001 → REVIEW
+P3-002 → REVIEW
+P3-003 → REVIEW
+  ↓
+Claude performs one independent batch review
+```
+
+Claude records task-specific findings and one overall batch verdict.
+
+### VERIFIED
+
+The independent reviewer determines whether each task satisfies its
+contract while also returning one overall batch verdict.
+
+If the batch verdict is `CHANGES_REQUESTED`, the batch does not progress
+even if some individual tasks have no findings.
+
+If the batch verdict is `VERIFIED`, the reviewed tasks may enter the
+repository-supported `VERIFIED` state.
+
+OpenCode must never self-assign `VERIFIED`.
+
+### DONE
+
+`VERIFIED` → `DONE` remains subject to the existing HPO/governance
+closure rule. Claude's `VERIFIED` does not automatically equal `DONE`.
+
+### Blocking defect inside a batch
+
+If an earlier task develops a known defect that invalidates the next
+task's dependency contract:
+
+```
+STOP progression
+```
+
+even though no independent review is scheduled yet. Surface the
+blocker to HPO. Do not continue to the next task in the batch.
+
 ## Migration from Previous Model
 
 This policy supersedes the previous multi-agent model (Work, OpenCode, Claude Code, Codex). Historical task records and review artifacts from the previous model are preserved as historical truth. The agent-role definitions and orchestration portions of prior ADRs (including ADR-004 and ADR-010) are superseded by this policy; their repository-handoff principles remain authoritative.
