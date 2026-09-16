@@ -2,7 +2,7 @@
 
 ## Status
 
-READY
+IN_PROGRESS
 
 ## Ownership
 
@@ -98,3 +98,47 @@ Review Status: PENDING
 Required flow: BACKLOG → READY → IN_PROGRESS → REVIEW → VERIFIED → DONE
 
 Implementation owner must not mark their own work VERIFIED.
+
+## Implementation Notes
+
+### PHP Files
+
+- `app/Providers/TranscriptionServiceProvider.php` — container binding
+- `app/Transcription/HttpTranscriptionProvider.php` — HTTP provider adapter
+
+### Python Files
+
+- `worker/__init__.py` — package init
+- `worker/main.py` — FastAPI application with /transcribe and /health endpoints
+- `worker/config.py` — environment-backed configuration
+- `worker/auth.py` — bearer token authentication middleware
+- `worker/media.py` — shared filesystem media access (rejects traversal)
+- `worker/ffmpeg.py` — FFmpeg audio preparation (16kHz, mono, PCM 16-bit)
+- `worker/transcription.py` — faster-whisper inference with lazy model loading
+- `worker/requirements.txt` — Python dependencies
+
+### Configuration
+
+- `config/transcription.php` — worker URL, token, timeout, retention, shared root
+- Environment variables: RTFTT_TRANSCRIPTION_WORKER_URL, RTFTT_TRANSCRIPTION_WORKER_TOKEN, RTFTT_WHISPER_MODEL, RTFTT_WHISPER_DEVICE, RTFTT_WHISPER_COMPUTE_TYPE, RTFTT_SHARED_MEDIA_ROOT, RTFTT_PREPARED_AUDIO_RETENTION
+
+### Worker Behavior
+
+- Bearer token authentication (env-backed)
+- Shared-filesystem media resolution (rejects absolute paths, traversal)
+- FFmpeg preparation: 16kHz, mono, PCM 16-bit WAV
+- faster-whisper inference (model configurable, default: turbo)
+- Segment-level language normalization (not copied from transcript)
+- No-speech: speech_detected=false, text="", language=und, segments=[]
+- Prepared audio cleanup (ephemeral default)
+- Structured logging (request_id, transcription_id, attempt_id, processing_seconds)
+- No bearer tokens, secrets, or unsafe paths in logs
+
+### Security
+
+- Original media unchanged
+- Traversal rejected
+- Bearer auth enforced
+- Temp artifacts private
+- Cleanup verified (ephemeral retention)
+- Secrets not leaked
