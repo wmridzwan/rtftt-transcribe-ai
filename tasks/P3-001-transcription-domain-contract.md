@@ -2,11 +2,11 @@
 
 ## Status
 
-BACKLOG
+READY
 
 ## Ownership
 
-Implementation Owner: UNASSIGNED
+Implementation Owner: OpenCode (per AGENTS.md agent model)
 Reviewer: UNASSIGNED
 
 ## Authorized Phase

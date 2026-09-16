@@ -10,17 +10,12 @@ setup/ai-development-os
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
-Phase 3 — PLANNING RECONCILED / IMPLEMENTATION NOT AUTHORIZED
+Phase 3 Batch 1 — AUTHORIZED (P3-001, P3-002, P3-003)
 
 Status: Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product
-Owner on 2026-09-17. The Phase 2 goal — reliable media upload and storage
-lifecycle — is accepted as satisfied under the canonical Phase 2 scope.
-P2-003, P2-005, P2-004A2, and P2-007 are DONE. P2-004A and P2-004A1
-remain BLOCKED and are deferred out of the current Phase 2 completion
-scope under ADR-013; they are not VERIFIED or DONE. Option D under
-ADR-013 remains in force. Phase 3 planning reconciled under ADR-017
-(Real Transcription Engine); Phase 3 implementation remains not
-authorized — separate HPO decision required for Batch 1.
+Owner on 2026-09-17. Phase 3 Batch 1 authorized by HPO on 2026-09-17
+(DECISION-P3-BATCH1-001). P3-001, P3-002, P3-003 promoted to READY.
+Batch 2/3 remain unauthorized. Option D remains in force.
 Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
@@ -82,10 +77,11 @@ The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_si
 
 ## Active Task
 
-P2-004A and P2-004A1 are BLOCKED and deferred out of the current Phase 2
-completion scope under ADR-013. P2-003, P2-005, and P2-004A2 are DONE. Phase 2 is
-ACCEPTED under ADR-014. Future cleanup requires separate authorization and
-genuine independent-concurrency verification.
+Phase 3 Batch 1 is authorized and READY: P3-001 (Transcription Domain
+Contract), P3-002 (Provider + Worker Transport Contract), P3-003 (Real
+Internal Provider). Execution is sequential: P3-001 → P3-002 → Benchmark
+Gate → P3-003. P2-004A and P2-004A1 remain BLOCKED and deferred under
+ADR-013.
 P2-001A, P2-002A,
 P2-002B, and P2-002C completed the authorized follow-up batch and were closed
 as DONE after independent verification.
@@ -98,28 +94,13 @@ TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after 
 
 ## Ready Tasks
 
-P2-004A2 (Staging Claim CAS Protocol) is DONE. Closed by Human Product
-Owner on 2026-09-15 after independent VERIFIED verdict (round 2,
-`reviews/P2-004A2-independent-review.md`). OpenCode resolved both round-1
-BLOCKER findings and the HIGH finding: the `CleanupStaging` crash-recovery
-re-claim now composes directly into the delete path instead of dead-ending
-(reproduced directly: a claim stuck in `held_by='cleanup'` for 20 minutes
-was fully deleted after one run); `MediaIngestionService::stage()`'s
-same-attempt retry renewal now checks the guarded `UPDATE`'s affected-row
-count and returns the controlled retryable failure on a lost race instead
-of silently writing; and both genuine independent-OS-process race tests
-(previously timing out) now pass consistently (8/8, re-run three times, no
-flakiness) after fixing the test harness's shared-database wiring. Full
-regression suite, Pint, and PHPStan were independently re-run and are
-clean (229/230 passed, 1 pre-existing skip, 0 failures). All acceptance
-criteria are satisfied; two non-blocking LOW notes remain (see review).
-This closure does not lift the Option D deferral (ADR-013) or mark
-P2-004A/P2-004A1 DONE — those remain Human Product Owner actions.
-P2-007 (Phase Integration Verification) is DONE at
-`tasks/P2-007-phase-integration-verification.md`, promoted by Human Product
-Owner on 2026-09-15. Implementation Owner: OpenCode, per AGENTS.md.
-Independent review round 1 returned CHANGES_REQUESTED; corrections applied
-and re-submitted. Phase 3 task is not eligible or authorized.
+Phase 3 Batch 1 is READY:
+- P3-001 (Transcription Domain Contract) — READY, execution starts here
+- P3-002 (Provider + Worker Transport Contract) — READY, after P3-001
+- P3-003 (Real Internal Provider) — READY, after benchmark gate
+
+P3-004 through P3-008 remain BACKLOG (Batch 2/3, not authorized).
+Option D remains in force.
 
 ## P2-003 Active Task
 
@@ -300,7 +281,11 @@ changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P1-001 resolved as Title REQUIRED; see ADR-006 in DECISIONS.md. TASK-P1-CREATE-001 is DONE. DECISION-P2-CONCURRENCY-001 is DECIDED as Option D under ADR-013. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED under ADR-014; Phase 2 is ACCEPTED. DECISION-P2-CONCURRENCY-002 is DECIDED as Option 1 under ADR-016; P2-004A2 is DONE. Option D remains in force until the Human Product Owner decides to lift it. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). Phase 3 planning reconciled under ADR-017; implementation not authorized.
+DECISION-P3-BATCH1-001 resolved HPO-AUTHORIZED (2026-09-17). Phase 3
+Batch 1 authorized. P3-001/P3-002/P3-003 promoted to READY. DECISION-P1-001
+resolved as Title REQUIRED. DECISION-P2-CONCURRENCY-001 is DECIDED as Option
+D. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED. DECISION-P2-CONCURRENCY-002
+is DECIDED. Option D remains in force. P2-004A/P2-004A1 remain BLOCKED.
 
 ## Known Issues
 
@@ -363,26 +348,21 @@ Future browser/E2E verification should cover:
 
 ## Next Action
 
-Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). Phase 3
-planning reconciled under ADR-017 (2026-09-17) with canonical task
-artifacts P3-001 through P3-008 in `tasks/`. Phase 3 implementation
-remains not authorized — separate HPO decision required for Batch 1
-(P3-001, P3-002, benchmark gate, P3-003). P2-004A and P2-004A1 remain
-BLOCKED and deferred under ADR-013. Option D remains in force.
+Phase 3 Batch 1 authorized by HPO (2026-09-17). P3-001 (Transcription
+Domain Contract) is the current execution task. Sequential order:
+P3-001 → P3-002 → Benchmark Gate → P3-003. No Claude review between
+batch tasks. P3-004–P3-008 remain BACKLOG (not authorized).
 
 ## Phase Authorization
 
-Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product Owner
-on 2026-09-17. P2-003, P2-005, P2-004A2, and P2-007 are DONE. P2-004A and
-P2-004A1 are BLOCKED and deferred under ADR-013. Option D remains in force.
+Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). P2-003,
+P2-005, P2-004A2, P2-007 are DONE. P2-004A/P2-004A1 are BLOCKED under
+ADR-013. Option D remains in force.
 
-Phase 3 planning reconciled under ADR-017 (2026-09-17). Canonical task
-artifacts: P3-001 through P3-008 in `tasks/`. Phase 3 implementation
-remains not authorized. Separate HPO decision required before Batch 1 is
-promoted to READY. No P3 task is READY.
-
-See plan.md.
+Phase 3 Batch 1 authorized by HPO (2026-09-17, DECISION-P3-BATCH1-001).
+P3-001, P3-002, P3-003 are READY. P3-004–P3-008 are BACKLOG (not
+authorized). See plan.md.
 
 ## Review status
 
-Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only. Phase 3 planning reconciled under ADR-017; no P3 tasks have been reviewed.
+Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only. Phase 3 Batch 1 authorized by HPO (2026-09-17). P3-001/P3-002/P3-003 are READY and under sequential implementation.

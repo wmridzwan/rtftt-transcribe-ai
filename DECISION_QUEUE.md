@@ -108,7 +108,8 @@ Does Not Block:
 
 Resolution:
 
-PENDING HPO DECISION. NOT YET AUTHORIZED.
+HPO-AUTHORIZED on 2026-09-17. Batch 1 authorized for execution.
+P3-001, P3-002, P3-003 promoted to READY. Batch 2/3 remain unauthorized.
 
 ## DECIDED — DECISION-P2-CONCURRENCY-002
 
