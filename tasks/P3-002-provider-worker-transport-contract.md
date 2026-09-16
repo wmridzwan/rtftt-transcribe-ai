@@ -2,12 +2,12 @@
 
 ## Status
 
-IN_PROGRESS
+REVIEW
 
 ## Ownership
 
 Implementation Owner: OpenCode (per AGENTS.md agent model)
-Reviewer: UNASSIGNED
+Reviewer: UNASSIGNED (pending batch review)
 
 ## Authorized Phase
 
@@ -67,10 +67,41 @@ Define:
 11. No real worker execution yet.
 12. All tests pass; Pint clean; PHPStan 0 errors.
 
-## Review
+## Implementation Notes
 
-Review File: None yet.
-Review Status: PENDING
+### Files Created
+
+- `app/Transcription/WorkerRequest.php` — request DTO with server-generated UUID
+- `app/Transcription/WorkerResponse.php` — response DTO
+- `app/Transcription/WorkerSegmentData.php` — segment DTO
+- `app/Transcription/WorkerErrorResponse.php` — error envelope
+- `app/Transcription/WorkerContract.php` — version constants
+- `app/Transcription/WorkerResponseValidator.php` — malformed response rejection
+- `app/Transcription/HttpTranscriptionProvider.php` — HTTP provider implementation
+- `app/Providers/TranscriptionServiceProvider.php` — container binding
+- `config/transcription.php` — worker URL, token, timeout, retention, shared root
+
+### Tests Created
+
+- `tests/Unit/Transcription/WorkerTransportTest.php` — 8 tests
+
+### Quality Results
+
+- 39 unit tests passed, 125 assertions
+- Pint clean
+- PHPStan 0 errors
+
+### Contracts Implemented
+
+- Provider-neutral interface (TranscriptionProvider)
+- Container-resolvable (TranscriptionServiceProvider)
+- Consumer-mockable (interface-based)
+- Media by reference (TranscriptionMedia)
+- HTTP hidden behind provider boundary
+- Worker contract versioned (WorkerContract::VERSION)
+- Bearer authentication configured (config/transcription.php)
+- Invalid response rejected (WorkerResponseValidator)
+- Failure taxonomy foundation (TranscriptionFailure + WorkerErrorResponse)
 
 ## Completion
 

@@ -2,12 +2,12 @@
 
 ## Status
 
-IN_PROGRESS
+REVIEW
 
 ## Ownership
 
 Implementation Owner: OpenCode (per AGENTS.md agent model)
-Reviewer: UNASSIGNED
+Reviewer: UNASSIGNED (pending batch review)
 
 ## Authorized Phase
 
