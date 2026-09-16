@@ -2,7 +2,7 @@
 
 ## Status
 
-READY
+IN_PROGRESS
 
 ## Ownership
 
@@ -91,7 +91,31 @@ Define and reconcile:
 
 ## Implementation Notes
 
-TBD by implementation owner.
+### Files Created
+
+- `app/Transcription/LanguageIdentifier.php` — BCP 47 enum (ms, en, zh, ta, und)
+- `app/Transcription/TranscriptSegmentData.php` — immutable segment DTO
+- `app/Transcription/NormalizedTranscript.php` — immutable result DTO
+- `app/Transcription/TranscriptionOptions.php` — nullable requested language
+- `app/Transcription/TranscriptionMedia.php` — opaque storage-backed reference
+- `app/Transcription/TranscriptionFailure.php` — failure taxonomy enum
+- `app/Transcription/TranscriptionException.php` — provider-neutral exception
+- `app/Transcription/TranscriptionProvider.php` — provider-neutral interface
+
+### Tests Created
+
+- `tests/Unit/Transcription/LanguageIdentifierTest.php` — 4 tests
+- `tests/Unit/Transcription/TranscriptSegmentDataTest.php` — 6 tests
+- `tests/Unit/Transcription/NormalizedTranscriptTest.php` — 6 tests
+- `tests/Unit/Transcription/TranscriptionOptionsTest.php` — 3 tests
+- `tests/Unit/Transcription/TranscriptionMediaTest.php` — 7 tests
+- `tests/Unit/Transcription/TranscriptionExceptionTest.php` — 5 tests
+
+### Quality Results
+
+- 31 unit tests passed, 90 assertions
+- Pint clean (fixed minor formatting)
+- PHPStan 0 errors
 
 ## Review
 
