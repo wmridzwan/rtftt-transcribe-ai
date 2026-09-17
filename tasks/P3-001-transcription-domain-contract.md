@@ -101,10 +101,15 @@ Define and reconcile:
 - `app/Transcription/TranscriptSegmentData.php` — immutable segment DTO
 - `app/Transcription/NormalizedTranscript.php` — immutable result DTO
 - `app/Transcription/TranscriptionOptions.php` — nullable requested language
-- `app/Transcription/TranscriptionMedia.php` — opaque storage-backed reference
-- `app/Transcription/TranscriptionFailure.php` — failure taxonomy enum
+- `app/Transcription/TranscriptionMedia.php` — opaque storage reference
+- `app/Transcription/TranscriptionFailure.php` — 12-category failure taxonomy
 - `app/Transcription/TranscriptionException.php` — provider-neutral exception
 - `app/Transcription/TranscriptionProvider.php` — provider-neutral interface
+- `app/Transcription/TranscriptionInvocation.php` — invocation context (M1)
+- `app/Transcription/TranscriptionLifecycle.php` — lifecycle transitions (M2)
+- `app/Transcription/TranscriptionIdentity.php` — logical identity (M2)
+- `app/Transcription/ProcessingAttemptIdentity.php` — attempt identity (M1/M2)
+- `app/Transcription/TranscriptionOwnership.php` — ownership invariants (M2)
 
 ### Tests Created
 
@@ -112,14 +117,22 @@ Define and reconcile:
 - `tests/Unit/Transcription/TranscriptSegmentDataTest.php` — 6 tests
 - `tests/Unit/Transcription/NormalizedTranscriptTest.php` — 6 tests
 - `tests/Unit/Transcription/TranscriptionOptionsTest.php` — 3 tests
-- `tests/Unit/Transcription/TranscriptionMediaTest.php` — 7 tests
+- `tests/Unit/Transcription/TranscriptionMediaTest.php` — 8 tests (L1: Windows paths)
 - `tests/Unit/Transcription/TranscriptionExceptionTest.php` — 5 tests
+- `tests/Unit/Transcription/DomainContractTest.php` — 15 tests (M2)
 
 ### Quality Results
 
-- 31 unit tests passed, 90 assertions
-- Pint clean (fixed minor formatting)
+- 54 unit tests passed, 164 assertions
+- Pint clean
 - PHPStan 0 errors
+
+### Correction Cycle 1 Changes
+
+- M1: Added TranscriptionInvocation context with real IDs
+- M2: Added TranscriptionLifecycle, TranscriptionIdentity,
+  ProcessingAttemptIdentity, TranscriptionOwnership with tests
+- L1: Added Windows drive-letter path rejection to TranscriptionMedia
 
 ## Review
 

@@ -91,13 +91,13 @@ Define:
 
 ### Quality Results
 
-- 39 unit tests passed, 125 assertions
+- 54 unit tests + 5 feature tests passed, 174 assertions
 - Pint clean
 - PHPStan 0 errors
 
 ### Contracts Implemented
 
-- Provider-neutral interface (TranscriptionProvider)
+- Provider-neutral interface (TranscriptionProvider) — updated to accept TranscriptionInvocation
 - Container-resolvable (TranscriptionServiceProvider)
 - Consumer-mockable (interface-based)
 - Media by reference (TranscriptionMedia)
@@ -107,19 +107,24 @@ Define:
 - Invalid response rejected (WorkerResponseValidator)
 - Failure taxonomy foundation (TranscriptionFailure + WorkerErrorResponse)
 
+### Correction Cycle 1 Changes
+
+- H1: Config now uses canonical RTFTT_TRANSCRIPTION_WORKER_TOKEN env var
+- M1: TranscriptionProvider::transcribe() now accepts TranscriptionInvocation
+- HttpTranscriptionProvider uses real IDs from invocation context
+- L2: Timeout now reads from config('transcription.timeout_seconds')
+- Added 5 HttpTranscriptionProvider feature tests (M3)
+
 ## Review
 
 Review File: reviews/PHASE3-BATCH1-independent-review.md
-Review Status: CHANGES_REQUESTED (batch cycle 1)
+Review Status: IN_PROGRESS (correction cycle 1)
 
-Unresolved finding for this task: AC7 (bearer authentication configuration)
-does not currently hold end-to-end — H1 in the review found that
-`config/transcription.php` and `worker/config.py` use mismatched
-environment variable names for the same secret, so the "configured
-authentication" this task defines does not agree with the P3-003 worker's
-expectation. M1/M3 also apply to code introduced by this task
-(`HttpTranscriptionProvider`, `WorkerRequest`). See the review for full
-detail and required changes.
+Findings resolved:
+- H1: Bearer token env var unified (RTFTT_TRANSCRIPTION_WORKER_TOKEN)
+- M1: TranscriptionInvocation context with real IDs
+- M3: HttpTranscriptionProvider feature tests added
+- L2: Timeout reads from config
 
 ## Completion
 

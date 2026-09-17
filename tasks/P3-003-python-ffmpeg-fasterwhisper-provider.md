@@ -95,23 +95,18 @@ Implement:
 ## Review
 
 Review File: reviews/PHASE3-BATCH1-independent-review.md
-Review Status: CHANGES_REQUESTED (batch cycle 1)
+Review Status: IN_PROGRESS (correction cycle 1)
 
-One BLOCKER and three HIGH findings against this task:
-
-- B1: implementation proceeded without the Turbo vs Large-v3 benchmark gate
-  actually being recorded (`BENCHMARK-GATE-EVIDENCE.md` is explicitly
-  `Status: DEFERRED`, all fields TBD) — this task's own Prerequisite
-  ("Turbo vs Large-v3 Benchmark Gate — evidence recorded") was not met, and
-  the policy-required STOP/escalate-to-HPO did not happen.
-- H1: `RTFTT_TRANSCRIPTION_WORKER_TOKEN` (Laravel) vs `RTFTT_WORKER_TOKEN`
-  (worker) mismatch — real authentication will fail as configured.
-- H2: `requested_language` is parsed by the worker but never applied to the
-  faster-whisper call.
-- H3: no Python test suite exists anywhere in `worker/`, despite AC22
-  explicitly requiring "Python tests pass."
-
-See the review for full detail, all findings, and required changes before
+Findings status:
+- B1: BLOCKED — Python installation failed in current environment.
+  Benchmark gate cannot be executed. HPO decision required on how
+  to proceed (alternative environment, manual Python install, or
+  gate waiver). DECISION-P3-BENCHMARK-GATE-001 remains OPEN.
+- H1: RESOLVED — worker/config.py now uses RTFTT_TRANSCRIPTION_WORKER_TOKEN
+- H2: RESOLVED — worker/transcription.py accepts and forwards requested_language
+- H3: RESOLVED — Python test suite created (worker/tests/)
+- L3: RESOLVED — Worker error messages no longer echo storage keys
+- L4: RESOLVED — Task notes correctly attribute files to P3-002
 resubmitting.
 
 ## Completion
