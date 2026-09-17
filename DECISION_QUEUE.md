@@ -129,6 +129,41 @@ environment, execute benchmark against representative multilingual media,
 and record real evidence in BENCHMARK-GATE-EVIDENCE.md. Decision remains
 OPEN until actual benchmark evidence satisfies the gate.
 
+Update (independent review, cycle 2, 2026-09-17): OpenCode attempted Python
+installation via winget; it timed out repeatedly. `BENCHMARK-GATE-EVIDENCE.md`
+still shows `Status: BLOCKED`, correctly disclosed rather than bypassed (see
+`reviews/PHASE3-BATCH1-cycle2-independent-review.md`, finding B1). This
+decision needs renewed HPO input: either authorize/attempt an alternative
+Python installation method (e.g., the official python.org installer instead
+of winget/the Store alias), or exercise Option 2 (explicitly waive/defer the
+gate) if environment setup is to be treated as materially blocked. Further
+unattended OpenCode retries of the same failing installation method are not
+expected to succeed.
+
+Update (2026-09-17, Python retry): Python 3.13.14 is now genuinely installed
+on this Windows machine (the earlier winget failure was caused by an
+installer verification prompt that went unnoticed, per HPO). This cycle
+independently verified: `python`/`py` resolve to a real interpreter (not the
+Store alias stub), `ffmpeg`/`ffprobe` 9.0.1 are available, a venv was created
+under `worker/.venv`, `faster-whisper` 1.2.1 / `ctranslate2` 4.8.2 install and
+import cleanly, `worker/tests` (25 tests, after fixing H4 and two real bugs
+surfaced by actually running the suite) pass, and the real `turbo` model
+loads and runs inference end-to-end on this machine (CPU-only; no CUDA
+device — Intel UHD integrated graphics only). **The Python-installation
+blocker is now resolved.**
+
+However, the benchmark itself remains blocked on a different, narrower
+problem: no representative multilingual benchmark media (Bahasa Melayu,
+English, Chinese, Tamil, code-switching) exists anywhere in this repository
+or in a `benchmark-media/` directory, and none should be fabricated/
+synthesized as a substitute per the retry instructions. This decision now
+needs one of: (a) the HPO supplies representative sample media (or a path to
+existing samples) so the real benchmark in `scripts/benchmark/benchmark_gate.py`
+can run against them, or (b) the HPO exercises Option 2 (explicitly waive/
+defer the gate and accept `turbo` as the interim default) if suitable sample
+media cannot reasonably be provided. See `BENCHMARK-GATE-EVIDENCE.md` for the
+now-verified environment section.
+
 ### DECISION-P3-BATCH1-001 — Authorize Phase 3 Batch 1
 
 Decision ID: DECISION-P3-BATCH1-001

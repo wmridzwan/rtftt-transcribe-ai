@@ -11,7 +11,8 @@ setup/ai-development-os
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
 Phase 3 Batch 1 — AUTHORIZED, currently in remediation after
-CHANGES_REQUESTED cycle 1 (independent review:
+CHANGES_REQUESTED cycle 2 (independent review:
+`reviews/PHASE3-BATCH1-cycle2-independent-review.md`; cycle 1:
 `reviews/PHASE3-BATCH1-independent-review.md`)
 
 Batch 2 = NOT AUTHORIZED
@@ -20,10 +21,16 @@ Batch 3 = NOT AUTHORIZED
 Status: Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product
 Owner on 2026-09-17. Phase 3 Batch 1 authorized by HPO on 2026-09-17
 (DECISION-P3-BATCH1-001). Batch 1 independent review returned
-CHANGES_REQUESTED (cycle 1). Correction cycle in progress. Benchmark gate
-decided: HPO chose Option 1 — run real benchmark (DECISION-P3-BENCHMARK-GATE-001).
-Batch 2/3 remain unauthorized. Option D remains in force.
-Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
+CHANGES_REQUESTED cycle 1, then cycle 2 (2026-09-17,
+`reviews/PHASE3-BATCH1-cycle2-independent-review.md`). Cycle 2 confirmed
+H1/H2/M1/M2/M3/L2/L3/L4 resolved but found one new HIGH (H4: the new Python
+worker test suite's conftest.py import-path setup is likely broken and has
+never been executed by either party) and the BLOCKER (B1: benchmark gate)
+remains open. Benchmark gate decided: HPO chose Option 1 — run real
+benchmark (DECISION-P3-BENCHMARK-GATE-001), but Python installation keeps
+failing in this environment and this now needs fresh HPO input rather than
+a third autonomous cycle. Batch 2/3 remain unauthorized. Option D remains
+in force. Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
 
@@ -87,15 +94,22 @@ The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_si
 Phase 3 Batch 1 implementation (P3-001, P3-002, P3-003) completed
 implementation and moved to REVIEW on 2026-09-17. Independent batch review
 by Claude Code returned CHANGES_REQUESTED (cycle 1) on 2026-09-17:
-`reviews/PHASE3-BATCH1-independent-review.md`. All three tasks are now
-CHANGES_REQUESTED and returned to OpenCode. One BLOCKER (P3-003 proceeded
-without the Turbo vs Large-v3 benchmark gate actually being recorded —
-`BENCHMARK-GATE-EVIDENCE.md` remains Status: DEFERRED with all fields TBD)
-and three HIGH findings (worker bearer-token env-var name mismatch;
-requested-language hint silently discarded by the worker; zero automated
-Python test coverage against an explicit AC) block VERIFIED. See the review
-for the full findings list and required changes. P2-004A and P2-004A1
-remain BLOCKED and deferred under ADR-013.
+`reviews/PHASE3-BATCH1-independent-review.md`. OpenCode's correction cycle
+1 resubmission was independently re-reviewed (cycle 2, 2026-09-17):
+`reviews/PHASE3-BATCH1-cycle2-independent-review.md`. Cycle 2 verdict is
+again CHANGES_REQUESTED: H1, H2, M1, M2, M3, L2, L3, and L4 are
+independently confirmed resolved, but the B1 BLOCKER (benchmark gate not
+recorded; `BENCHMARK-GATE-EVIDENCE.md` still Status: BLOCKED, Python
+installation failed) remains open, and a new HIGH (H4) was found: the
+Python worker test suite added to address cycle 1's H3 has a conftest.py
+sys.path bug that likely breaks its own imports under the documented
+invocation, and the suite has never actually been executed by either
+OpenCode or this review (Python is not installed in this environment). All
+three tasks remain CHANGES_REQUESTED. B1 should now go back to the Human
+Product Owner rather than a third autonomous OpenCode cycle, since it is an
+environment/decision gate, not a code defect. See the cycle 2 review for
+the full findings list and required changes. P2-004A and P2-004A1 remain
+BLOCKED and deferred under ADR-013.
 P2-001A, P2-002A,
 P2-002B, and P2-002C completed the authorized follow-up batch and were closed
 as DONE after independent verification.
@@ -109,10 +123,10 @@ TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after 
 ## Ready Tasks
 
 Phase 3 Batch 1 tasks are CHANGES_REQUESTED (see Active Task above and
-`reviews/PHASE3-BATCH1-independent-review.md`), not READY:
-- P3-001 (Transcription Domain Contract) — CHANGES_REQUESTED
-- P3-002 (Provider + Worker Transport Contract) — CHANGES_REQUESTED
-- P3-003 (Real Internal Provider) — CHANGES_REQUESTED
+`reviews/PHASE3-BATCH1-cycle2-independent-review.md`), not READY:
+- P3-001 (Transcription Domain Contract) — CHANGES_REQUESTED (cycle 2)
+- P3-002 (Provider + Worker Transport Contract) — CHANGES_REQUESTED (cycle 2)
+- P3-003 (Real Internal Provider) — CHANGES_REQUESTED (cycle 2; B1 BLOCKER + H4)
 
 P3-004 through P3-008 remain BACKLOG (Batch 2/3, not authorized).
 Option D remains in force.
@@ -365,13 +379,31 @@ Future browser/E2E verification should cover:
 
 ## Next Action
 
-Phase 3 Batch 1 review returned CHANGES_REQUESTED (cycle 1, 2026-09-17).
-OpenCode must address the required changes in
-`reviews/PHASE3-BATCH1-independent-review.md` for P3-001/P3-002/P3-003 and
-return the batch to REVIEW. The benchmark-gate BLOCKER (B1) additionally
-needs a Human Product Owner decision before P3-003 rework resumes on model
-selection — see `DECISION_QUEUE.md`. P3-004–P3-008 remain BACKLOG (not
-authorized).
+Phase 3 Batch 1 review returned CHANGES_REQUESTED for a second consecutive
+cycle (cycle 2, 2026-09-17,
+`reviews/PHASE3-BATCH1-cycle2-independent-review.md`). Python is now
+installed and verified working on this Windows machine (the earlier winget
+failure was caused by an installer verification prompt that went
+unnoticed). This session (2026-09-17, Python retry) fixed H4
+(`worker/tests/conftest.py` import-root computation) and L5 (Windows
+forward-slash drive-letter path rejection in `TranscriptionMedia.php`),
+actually executed the Python worker suite for the first time (25 passed,
+0 failed — up from 22 after fixing two real bugs the run surfaced: an
+`os.path.isabs()` Windows/POSIX-path gap and an undeclared `torch`
+dependency in `get_model()`'s CUDA auto-detection), and verified
+faster-whisper/ctranslate2 load and run real inference end-to-end on this
+machine (CPU-only, no CUDA device). PHP regression: 290 passed/1 skipped/
+866 assertions, Pint clean, PHPStan 0 errors. The B1 BLOCKER remains open,
+but is now narrower: no representative multilingual benchmark media (BM/
+English/Chinese/Tamil/code-switching) exists in the repository to run the
+actual turbo-vs-large-v3 comparison against — see
+`BENCHMARK-GATE-EVIDENCE.md` and `DECISION_QUEUE.md`. Per the retry
+instructions this is a STOP-and-report condition; no samples were
+fabricated. HPO must either supply representative sample media or exercise
+Option 2 (waive/defer the gate) before the batch can return to REVIEW for a
+cycle-3 independent review. P3-001/P3-002/P3-003 remain CHANGES_REQUESTED
+(not returned to REVIEW, since the benchmark still has no valid outcome).
+P3-004–P3-008 remain BACKLOG (not authorized).
 
 ## Phase Authorization
 
@@ -380,11 +412,15 @@ P2-005, P2-004A2, P2-007 are DONE. P2-004A/P2-004A1 are BLOCKED under
 ADR-013. Option D remains in force.
 
 Phase 3 Batch 1 authorized by HPO (2026-09-17, DECISION-P3-BATCH1-001).
-Batch 1 independent review returned CHANGES_REQUESTED (cycle 1, 2026-09-17).
-Correction cycle in progress. DECISION-P3-BENCHMARK-GATE-001: HPO chose
-Option 1 (run real benchmark), gate not waived. P3-004–P3-008 are BACKLOG
-(not authorized). See plan.md.
+Batch 1 independent review returned CHANGES_REQUESTED cycle 1, then cycle 2
+(2026-09-17, `reviews/PHASE3-BATCH1-cycle2-independent-review.md`).
+Correction cycle in progress; H4/L5 resolved and Python environment
+verified this session (2026-09-17). DECISION-P3-BENCHMARK-GATE-001: HPO
+chose Option 1 (run real benchmark), gate not waived, still OPEN — the
+Python-installation blocker is resolved, but representative multilingual
+benchmark media is still needed before the gate can be satisfied.
+P3-004–P3-008 are BACKLOG (not authorized). See plan.md.
 
 ## Review status
 
-Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only. Phase 3 Batch 1 authorized by HPO (2026-09-17). P3-001/P3-002/P3-003 in correction cycle after CHANGES_REQUESTED (cycle 1, `reviews/PHASE3-BATCH1-independent-review.md`). DECISION-P3-BENCHMARK-GATE-001: HPO chose Option 1 (run real benchmark), gate not waived.
+Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only. Phase 3 Batch 1 authorized by HPO (2026-09-17). P3-001/P3-002/P3-003 in correction cycle after CHANGES_REQUESTED cycle 1 (`reviews/PHASE3-BATCH1-independent-review.md`) and cycle 2 (`reviews/PHASE3-BATCH1-cycle2-independent-review.md`). Cycle 2 independently confirmed H1/H2/M1/M2/M3/L2/L3/L4 resolved; batch remains CHANGES_REQUESTED on the open B1 BLOCKER (benchmark gate) and new H4 (Python worker test suite import-path defect, never executed by either party). DECISION-P3-BENCHMARK-GATE-001: HPO chose Option 1 (run real benchmark), gate not waived, still OPEN.

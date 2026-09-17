@@ -2,7 +2,7 @@
 
 ## Status
 
-REVIEW
+CHANGES_REQUESTED
 
 ## Ownership
 
@@ -12,6 +12,7 @@ Reviewer: Claude Code
 ## Review Verdict History
 
 Cycle 1 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-independent-review.md`)
+Cycle 2 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-cycle2-independent-review.md`)
 
 ## Authorized Phase
 
@@ -136,17 +137,34 @@ Define and reconcile:
 
 ## Review
 
-Review File: reviews/PHASE3-BATCH1-independent-review.md
-Review Status: CHANGES_REQUESTED (batch cycle 1)
+Review File: reviews/PHASE3-BATCH1-cycle2-independent-review.md
+Review Status: CHANGES_REQUESTED (batch cycle 2)
 
-Unresolved MEDIUM findings for this task: M2 (P3-001's own Required Tests
-for lifecycle transitions, retry identity preservation, retranscription
-identity independence, and ownership isolation were never implemented or
-tested; AC 11-13 are asserted only in prose), M1 (transcription/attempt
-identity fields exist but cannot be populated with real values by any
-current caller). AC4 (explicit language hint) cannot be verified as working
-because of a P3-003 finding (H2) that discards it entirely downstream. See
-the review for full detail and required changes.
+Cycle 1 findings for this task (M1, M2, L1) are independently confirmed
+resolved in cycle 2: TranscriptionLifecycle/TranscriptionIdentity/
+ProcessingAttemptIdentity/TranscriptionOwnership are implemented and tested
+(15 tests in DomainContractTest.php), TranscriptionInvocation carries real
+IDs, and AC4 (explicit language hint) now works end-to-end following the
+P3-003 H2 fix. Cycle 2 records one new LOW for this task (L5): the L1
+Windows-path fix does not reject forward-slash drive-letter paths
+(`C:/...`) and is not exercised by any test; not independently exploitable
+because the Python worker still rejects it. This task's own findings do not
+block the task in isolation; the batch verdict remains CHANGES_REQUESTED
+because of the batch-wide B1 (benchmark gate) and H4 (Python test-suite
+import path) findings recorded against P3-003. See the review for full
+detail.
+
+### Correction Cycle 2 (2026-09-17)
+
+L5: RESOLVED. `TranscriptionMedia.php`'s drive-letter regex tightened from
+`/\A[a-zA-Z]:\\\\/i` (backslash only) to `/\A[a-zA-Z]:[\\\/]/i`, rejecting
+both `C:\...` and `C:/...`. Two new tests added directly exercising the
+regex (`tests/Unit/Transcription/TranscriptionMediaTest.php` now has 9
+tests, not 7). `php artisan test --filter=TranscriptionMediaTest` → 9
+passed, 19 assertions. This task's findings are now fully resolved; the
+batch verdict still depends on P3-003's B1 (benchmark gate — see
+`BENCHMARK-GATE-EVIDENCE.md`, still blocked on missing representative
+media, not on Python installation).
 
 ## Completion
 

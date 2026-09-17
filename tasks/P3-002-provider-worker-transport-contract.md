@@ -2,7 +2,7 @@
 
 ## Status
 
-REVIEW
+CHANGES_REQUESTED
 
 ## Ownership
 
@@ -12,6 +12,7 @@ Reviewer: Claude Code
 ## Review Verdict History
 
 Cycle 1 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-independent-review.md`)
+Cycle 2 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-cycle2-independent-review.md`)
 
 ## Authorized Phase
 
@@ -117,14 +118,20 @@ Define:
 
 ## Review
 
-Review File: reviews/PHASE3-BATCH1-independent-review.md
-Review Status: IN_PROGRESS (correction cycle 1)
+Review File: reviews/PHASE3-BATCH1-cycle2-independent-review.md
+Review Status: CHANGES_REQUESTED (batch cycle 2)
 
-Findings resolved:
+Findings independently confirmed resolved in cycle 2:
 - H1: Bearer token env var unified (RTFTT_TRANSCRIPTION_WORKER_TOKEN)
 - M1: TranscriptionInvocation context with real IDs
-- M3: HttpTranscriptionProvider feature tests added
+- M3: HttpTranscriptionProvider feature tests added (Http::fake(), 5 tests)
 - L2: Timeout reads from config
+
+This task's own findings do not block it in isolation; the batch verdict
+remains CHANGES_REQUESTED because of the batch-wide B1 (benchmark gate) and
+H4 (Python test-suite import path) findings recorded against P3-003, which
+also leave P3-002 AC7 (bearer authentication) confirmed configured but still
+not verified by a real end-to-end worker call.
 
 ## Completion
 
