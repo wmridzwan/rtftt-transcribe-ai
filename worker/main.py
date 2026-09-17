@@ -66,8 +66,8 @@ async def transcribe(
         # Prepare audio (FFmpeg)
         prepared_path = prepare_audio(media_path)
 
-        # Transcribe (faster-whisper)
-        result = transcribe_audio(prepared_path)
+        # Transcribe (faster-whisper) with language hint
+        result = transcribe_audio(prepared_path, requested_language=request.requested_language)
 
         processing_time = time.time() - start_time
         logger.info(

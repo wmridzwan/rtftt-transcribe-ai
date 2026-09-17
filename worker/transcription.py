@@ -30,18 +30,28 @@ def get_model() -> WhisperModel:
     return _model
 
 
-def transcribe_audio(audio_path: Path) -> dict:
+def transcribe_audio(audio_path: Path, requested_language: str | None = None) -> dict:
     """
     Transcribe prepared audio with faster-whisper.
+
+    Args:
+        audio_path: Path to prepared WAV audio file.
+        requested_language: Optional BCP 47 language hint (e.g., 'ms', 'en').
+            None means auto-detect. The hint is passed to faster-whisper
+            but does not guarantee single-language output (code-switching
+            support remains required).
 
     Returns normalized response dict matching WorkerResponse contract.
     Segment language is derived per-segment, not copied from transcript.
     """
     model = get_model()
 
+    # Pass language hint to faster-whisper; None = auto-detect
+    language_param = requested_language if requested_language else None
+
     segments_iter, info = model.transcribe(
         str(audio_path),
-        language=None,
+        language=language_param,
         task="transcribe",
         vad_filter=True,
     )

@@ -19,27 +19,25 @@ class HttpTranscriptionProvider implements TranscriptionProvider
     ) {}
 
     public function transcribe(
-        TranscriptionMedia $media,
-        TranscriptionOptions $options,
+        TranscriptionInvocation $invocation,
     ): NormalizedTranscript {
         $request = WorkerRequest::create(
-            transcriptionId: 0, // Will be set by caller
-            attemptId: 0, // Will be set by caller
-            mediaReference: $media,
-            requestedLanguage: $options->requestedLanguage,
+            transcriptionId: $invocation->transcriptionId,
+            attemptId: $invocation->processingAttemptId,
+            mediaReference: $invocation->media,
+            requestedLanguage: $invocation->options->requestedLanguage,
         );
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer '.$this->bearerToken,
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-        ])->timeout(300)->post(
+        ])->timeout(config('transcription.timeout_seconds', 300))->post(
             $this->workerBaseUrl.'/transcribe',
             $request->toArray(),
         );
 
         if ($response->failed()) {
-            // Check for worker error envelope
             $body = $response->json();
             if (isset($body['error_code'])) {
                 $errorResponse = WorkerErrorResponse::fromArray($body);

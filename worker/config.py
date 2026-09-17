@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 
-WORKER_TOKEN = os.environ.get("RTFTT_WORKER_TOKEN", "")
+WORKER_TOKEN = os.environ.get("RTFTT_TRANSCRIPTION_WORKER_TOKEN", "")
 SHARED_MEDIA_ROOT = Path(os.environ.get("RTFTT_SHARED_MEDIA_ROOT", "/media"))
 PREPARED_AUDIO_DIR = Path(os.environ.get("RTFTT_PREPARED_AUDIO_DIR", "/tmp/rtftt-prepared"))
 MODEL_NAME = os.environ.get("RTFTT_WHISPER_MODEL", "turbo")

@@ -122,10 +122,10 @@ Implementation owner must not mark their own work VERIFIED.
 
 ## Implementation Notes
 
-### PHP Files
+### PHP Files (created by P3-002, not P3-003)
 
-- `app/Providers/TranscriptionServiceProvider.php` — container binding
-- `app/Transcription/HttpTranscriptionProvider.php` — HTTP provider adapter
+- `app/Providers/TranscriptionServiceProvider.php` — container binding (P3-002)
+- `app/Transcription/HttpTranscriptionProvider.php` — HTTP provider adapter (P3-002)
 
 ### Python Files
 
@@ -140,7 +140,7 @@ Implementation owner must not mark their own work VERIFIED.
 
 ### Configuration
 
-- `config/transcription.php` — worker URL, token, timeout, retention, shared root
+- `config/transcription.php` — worker URL, token, timeout, retention, shared root (created by P3-002)
 - Environment variables: RTFTT_TRANSCRIPTION_WORKER_URL, RTFTT_TRANSCRIPTION_WORKER_TOKEN, RTFTT_WHISPER_MODEL, RTFTT_WHISPER_DEVICE, RTFTT_WHISPER_COMPUTE_TYPE, RTFTT_SHARED_MEDIA_ROOT, RTFTT_PREPARED_AUDIO_RETENTION
 
 ### Worker Behavior

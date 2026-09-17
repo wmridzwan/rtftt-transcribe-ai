@@ -11,13 +11,13 @@ namespace App\Transcription;
 interface TranscriptionProvider
 {
     /**
-     * Transcribe media using the given options.
+     * Transcribe media using the given invocation context.
      *
-     * Returns a normalized transcript. Throws TranscriptionException
-     * on provider-level failure.
+     * The invocation carries real transcription/attempt IDs, media
+     * reference, and options. Returns a normalized transcript.
+     * Throws TranscriptionException on provider-level failure.
      */
     public function transcribe(
-        TranscriptionMedia $media,
-        TranscriptionOptions $options,
+        TranscriptionInvocation $invocation,
     ): NormalizedTranscript;
 }
