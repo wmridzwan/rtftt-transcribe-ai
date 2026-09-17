@@ -11,5 +11,6 @@ MODEL_NAME = os.environ.get("RTFTT_WHISPER_MODEL", "turbo")
 DEVICE = os.environ.get("RTFTT_WHISPER_DEVICE", "auto")
 COMPUTE_TYPE = os.environ.get("RTFTT_WHISPER_COMPUTE_TYPE", "float16")
 CONTRACT_VERSION = "1.0"
+SAMPLE_RATE = 16000  # faster-whisper expects 16kHz mono audio
 MAX_WORKER_TIMEOUT = int(os.environ.get("RTFTT_WORKER_TIMEOUT", "300"))
 PREPARED_AUDIO_RETENTION = os.environ.get("RTFTT_PREPARED_AUDIO_RETENTION", "ephemeral")

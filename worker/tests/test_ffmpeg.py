@@ -92,3 +92,12 @@ class TestPrepareAudio:
 
                 with pytest.raises(FfmpegError, match="not found"):
                     prepare_audio(input_file)
+
+    def test_uses_mkstemp_not_mktemp(self):
+        """prepare_audio uses race-safe tempfile.mkstemp, not tempfile.mktemp."""
+        import inspect
+        import worker.ffmpeg as ffmpeg_module
+
+        source = inspect.getsource(ffmpeg_module.prepare_audio)
+        assert "mkstemp" in source
+        assert "mktemp" not in source or "mkstemp" in source

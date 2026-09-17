@@ -22,12 +22,15 @@ def prepare_audio(input_path: Path) -> Path:
     """
     config.PREPARED_AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
-    output_path = Path(
-        tempfile.mktemp(
-            dir=str(config.PREPARED_AUDIO_DIR),
-            suffix=".wav",
-        )
+    # Use mkstemp for race-safe temporary file creation
+    fd, temp_path_str = tempfile.mkstemp(
+        dir=str(config.PREPARED_AUDIO_DIR),
+        suffix=".wav",
     )
+    output_path = Path(temp_path_str)
+    # Close the file descriptor immediately; FFmpeg will open it by path
+    import os
+    os.close(fd)
 
     cmd = [
         "ffmpeg",
