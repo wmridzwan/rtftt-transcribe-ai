@@ -29,8 +29,8 @@ final readonly class TranscriptionMedia
             throw new \InvalidArgumentException('Storage key must be a relative path.');
         }
 
-        // Reject Windows drive-letter paths (e.g., C:\...)
-        if (preg_match('/\A[a-zA-Z]:\\\\/i', $storageKey) === 1) {
+        // Reject Windows drive-letter paths (e.g., C:\... and C:/...)
+        if (preg_match('/\A[a-zA-Z]:[\\\\\/]/i', $storageKey) === 1) {
             throw new \InvalidArgumentException('Storage key must be a relative path.');
         }
 

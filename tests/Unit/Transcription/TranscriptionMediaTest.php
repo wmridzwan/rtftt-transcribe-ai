@@ -50,6 +50,22 @@ it('rejects absolute windows path', function () {
     );
 })->throws(InvalidArgumentException::class, 'Storage key must be a relative path.');
 
+it('rejects windows drive-letter path with backslash', function () {
+    new TranscriptionMedia(
+        storageKey: 'C:\\Windows\\file.mp3',
+        mimeType: 'audio/mpeg',
+        fileSizeBytes: 1024000,
+    );
+})->throws(InvalidArgumentException::class, 'Storage key must be a relative path.');
+
+it('rejects windows drive-letter path with forward slash', function () {
+    new TranscriptionMedia(
+        storageKey: 'C:/Windows/file.mp3',
+        mimeType: 'audio/mpeg',
+        fileSizeBytes: 1024000,
+    );
+})->throws(InvalidArgumentException::class, 'Storage key must be a relative path.');
+
 it('rejects path traversal', function () {
     new TranscriptionMedia(
         storageKey: 'media/../../../etc/passwd',
