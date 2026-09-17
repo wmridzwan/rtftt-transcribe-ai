@@ -10,11 +10,18 @@ setup/ai-development-os
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
-Phase 3 Batch 1 — AUTHORIZED (P3-001, P3-002, P3-003)
+Phase 3 Batch 1 — AUTHORIZED, currently in remediation after
+CHANGES_REQUESTED cycle 1 (independent review:
+`reviews/PHASE3-BATCH1-independent-review.md`)
+
+Batch 2 = NOT AUTHORIZED
+Batch 3 = NOT AUTHORIZED
 
 Status: Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product
 Owner on 2026-09-17. Phase 3 Batch 1 authorized by HPO on 2026-09-17
-(DECISION-P3-BATCH1-001). P3-001, P3-002, P3-003 promoted to READY.
+(DECISION-P3-BATCH1-001). Batch 1 independent review returned
+CHANGES_REQUESTED (cycle 1). Correction cycle in progress. Benchmark gate
+decided: HPO chose Option 1 — run real benchmark (DECISION-P3-BENCHMARK-GATE-001).
 Batch 2/3 remain unauthorized. Option D remains in force.
 Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
@@ -77,11 +84,18 @@ The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_si
 
 ## Active Task
 
-Phase 3 Batch 1 is authorized and READY: P3-001 (Transcription Domain
-Contract), P3-002 (Provider + Worker Transport Contract), P3-003 (Real
-Internal Provider). Execution is sequential: P3-001 → P3-002 → Benchmark
-Gate → P3-003. P2-004A and P2-004A1 remain BLOCKED and deferred under
-ADR-013.
+Phase 3 Batch 1 implementation (P3-001, P3-002, P3-003) completed
+implementation and moved to REVIEW on 2026-09-17. Independent batch review
+by Claude Code returned CHANGES_REQUESTED (cycle 1) on 2026-09-17:
+`reviews/PHASE3-BATCH1-independent-review.md`. All three tasks are now
+CHANGES_REQUESTED and returned to OpenCode. One BLOCKER (P3-003 proceeded
+without the Turbo vs Large-v3 benchmark gate actually being recorded —
+`BENCHMARK-GATE-EVIDENCE.md` remains Status: DEFERRED with all fields TBD)
+and three HIGH findings (worker bearer-token env-var name mismatch;
+requested-language hint silently discarded by the worker; zero automated
+Python test coverage against an explicit AC) block VERIFIED. See the review
+for the full findings list and required changes. P2-004A and P2-004A1
+remain BLOCKED and deferred under ADR-013.
 P2-001A, P2-002A,
 P2-002B, and P2-002C completed the authorized follow-up batch and were closed
 as DONE after independent verification.
@@ -94,10 +108,11 @@ TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after 
 
 ## Ready Tasks
 
-Phase 3 Batch 1 is READY:
-- P3-001 (Transcription Domain Contract) — READY, execution starts here
-- P3-002 (Provider + Worker Transport Contract) — READY, after P3-001
-- P3-003 (Real Internal Provider) — READY, after benchmark gate
+Phase 3 Batch 1 tasks are CHANGES_REQUESTED (see Active Task above and
+`reviews/PHASE3-BATCH1-independent-review.md`), not READY:
+- P3-001 (Transcription Domain Contract) — CHANGES_REQUESTED
+- P3-002 (Provider + Worker Transport Contract) — CHANGES_REQUESTED
+- P3-003 (Real Internal Provider) — CHANGES_REQUESTED
 
 P3-004 through P3-008 remain BACKLOG (Batch 2/3, not authorized).
 Option D remains in force.
@@ -281,11 +296,13 @@ changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P3-BATCH1-001 resolved HPO-AUTHORIZED (2026-09-17). Phase 3
-Batch 1 authorized. P3-001/P3-002/P3-003 promoted to READY. DECISION-P1-001
-resolved as Title REQUIRED. DECISION-P2-CONCURRENCY-001 is DECIDED as Option
-D. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED. DECISION-P2-CONCURRENCY-002
-is DECIDED. Option D remains in force. P2-004A/P2-004A1 remain BLOCKED.
+DECISION-P3-BATCH1-001 resolved DECIDED (2026-09-17). Phase 3 Batch 1
+authorized. DECISION-P3-BENCHMARK-GATE-001 OPEN — HPO chose Option 1
+(run real benchmark), gate not waived, awaiting actual evidence.
+DECISION-P1-001 resolved as Title REQUIRED. DECISION-P2-CONCURRENCY-001
+is DECIDED as Option D. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED.
+DECISION-P2-CONCURRENCY-002 is DECIDED. Option D remains in force.
+P2-004A/P2-004A1 remain BLOCKED.
 
 ## Known Issues
 
@@ -348,10 +365,13 @@ Future browser/E2E verification should cover:
 
 ## Next Action
 
-Phase 3 Batch 1 authorized by HPO (2026-09-17). P3-001 (Transcription
-Domain Contract) is the current execution task. Sequential order:
-P3-001 → P3-002 → Benchmark Gate → P3-003. No Claude review between
-batch tasks. P3-004–P3-008 remain BACKLOG (not authorized).
+Phase 3 Batch 1 review returned CHANGES_REQUESTED (cycle 1, 2026-09-17).
+OpenCode must address the required changes in
+`reviews/PHASE3-BATCH1-independent-review.md` for P3-001/P3-002/P3-003 and
+return the batch to REVIEW. The benchmark-gate BLOCKER (B1) additionally
+needs a Human Product Owner decision before P3-003 rework resumes on model
+selection — see `DECISION_QUEUE.md`. P3-004–P3-008 remain BACKLOG (not
+authorized).
 
 ## Phase Authorization
 
@@ -360,9 +380,11 @@ P2-005, P2-004A2, P2-007 are DONE. P2-004A/P2-004A1 are BLOCKED under
 ADR-013. Option D remains in force.
 
 Phase 3 Batch 1 authorized by HPO (2026-09-17, DECISION-P3-BATCH1-001).
-P3-001, P3-002, P3-003 are READY. P3-004–P3-008 are BACKLOG (not
-authorized). See plan.md.
+Batch 1 independent review returned CHANGES_REQUESTED (cycle 1, 2026-09-17).
+Correction cycle in progress. DECISION-P3-BENCHMARK-GATE-001: HPO chose
+Option 1 (run real benchmark), gate not waived. P3-004–P3-008 are BACKLOG
+(not authorized). See plan.md.
 
 ## Review status
 
-Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only. Phase 3 Batch 1 authorized by HPO (2026-09-17). P3-001/P3-002/P3-003 are READY and under sequential implementation.
+Independent review verified the ADR-010 governance reconciliation, P2-001/P2-002 checkpoint, and earlier follow-ups. P2-001A, P2-002A, P2-002B, and P2-002C are DONE. TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE. DECISION-P1-001 is resolved by ADR-006. The cycle-2 independent review is preserved: P2-003, P2-005, and P2-004A2 are DONE; P2-004A and P2-004A1 are BLOCKED and deferred from the current gate under ADR-013. P2-007 is DONE (closed 2026-09-17). P2-006 remains closure-only. Phase 3 Batch 1 authorized by HPO (2026-09-17). P3-001/P3-002/P3-003 in correction cycle after CHANGES_REQUESTED (cycle 1, `reviews/PHASE3-BATCH1-independent-review.md`). DECISION-P3-BENCHMARK-GATE-001: HPO chose Option 1 (run real benchmark), gate not waived.

@@ -2,12 +2,16 @@
 
 ## Status
 
-REVIEW
+IN_PROGRESS
 
 ## Ownership
 
 Implementation Owner: OpenCode (per AGENTS.md agent model)
-Reviewer: UNASSIGNED (pending batch review)
+Reviewer: Claude Code
+
+## Review Verdict History
+
+Cycle 1 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-independent-review.md`)
 
 ## Authorized Phase
 
@@ -90,8 +94,25 @@ Implement:
 
 ## Review
 
-Review File: None yet.
-Review Status: PENDING
+Review File: reviews/PHASE3-BATCH1-independent-review.md
+Review Status: CHANGES_REQUESTED (batch cycle 1)
+
+One BLOCKER and three HIGH findings against this task:
+
+- B1: implementation proceeded without the Turbo vs Large-v3 benchmark gate
+  actually being recorded (`BENCHMARK-GATE-EVIDENCE.md` is explicitly
+  `Status: DEFERRED`, all fields TBD) — this task's own Prerequisite
+  ("Turbo vs Large-v3 Benchmark Gate — evidence recorded") was not met, and
+  the policy-required STOP/escalate-to-HPO did not happen.
+- H1: `RTFTT_TRANSCRIPTION_WORKER_TOKEN` (Laravel) vs `RTFTT_WORKER_TOKEN`
+  (worker) mismatch — real authentication will fail as configured.
+- H2: `requested_language` is parsed by the worker but never applied to the
+  faster-whisper call.
+- H3: no Python test suite exists anywhere in `worker/`, despite AC22
+  explicitly requiring "Python tests pass."
+
+See the review for full detail, all findings, and required changes before
+resubmitting.
 
 ## Completion
 

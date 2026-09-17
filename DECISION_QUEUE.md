@@ -55,11 +55,85 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 ## Open Decisions
 
+### DECISION-P3-BENCHMARK-GATE-001 — Turbo vs Large-v3 benchmark gate was not recorded before P3-003 proceeded
+
+Decision ID: DECISION-P3-BENCHMARK-GATE-001
+
+Status: OPEN — HPO chose Option 1 (run real benchmark)
+
+Type: Phase Authorization / Architecture
+
+Originating Task: P3-003 (raised in independent batch review,
+`reviews/PHASE3-BATCH1-independent-review.md`, finding B1)
+
+Raised By: Claude Code (independent review)
+
+Priority: BLOCKER
+
+Question:
+
+`.ai/guidelines/orchestration-policy.md`'s Phase 3 Batch-Execution Exception
+requires the Turbo vs Large-v3 benchmark gate to be recorded before P3-003
+begins. `BENCHMARK-GATE-EVIDENCE.md` is explicitly `Status: DEFERRED —
+Python not installed on current system`, with every evidence field left
+`TBD`; no benchmark was ever run. P3-003 was implemented anyway, hardcoding
+`turbo` as the default model. How should this be resolved?
+
+Options:
+
+1. Set up the Python/faster-whisper environment, run
+   `scripts/benchmark/benchmark_gate.py` against representative media, and
+   record real evidence in `BENCHMARK-GATE-EVIDENCE.md` before P3-003 rework
+   resumes.
+2. HPO explicitly waives/defers the benchmark gate and accepts `turbo` as
+   the interim model default, recording that decision durably (this does
+   not retroactively make the earlier silent bypass acceptable practice for
+   future batches).
+3. Select Large-v3 as the default without benchmarking, if HPO has other
+   grounds for that choice.
+
+Recommendation:
+
+Option 1 if the environment can reasonably be set up; the gate exists
+specifically because the spec anticipates a real accuracy/latency tradeoff
+between the two models for RTFTT's multilingual (ms/en/zh/ta + code-switching)
+workload, and `turbo`'s suitability for that workload is exactly what is
+unproven. If environment setup is materially blocked, Option 2 is acceptable
+but should be an explicit, recorded HPO decision rather than an implicit
+default.
+
+Impact:
+
+P3-003 cannot be marked VERIFIED while this remains unresolved (see
+`reviews/PHASE3-BATCH1-independent-review.md`, finding B1). This does not by
+itself require re-implementing P3-003's code — only the model-selection
+question needs resolving; the other required changes in the review
+(H1/H2/H3/M1-M3) can be fixed independently of this decision.
+
+Blocks:
+
+- P3-003 VERIFIED/DONE.
+- Phase 3 Batch 1 overall VERIFIED/DONE.
+
+Does Not Block:
+
+- P3-001/P3-002 rework on their own findings (H1 config wiring, M1-M3),
+  which do not depend on the model-selection outcome.
+- Batch 2/3, which remain separately unauthorized.
+
+Resolution:
+
+HPO chose Option 1 on 2026-09-17: Run the real Turbo vs Large-v3 benchmark.
+Benchmark gate is NOT waived. OpenCode to set up local Python/faster-whisper
+environment, execute benchmark against representative multilingual media,
+and record real evidence in BENCHMARK-GATE-EVIDENCE.md. Decision remains
+OPEN until actual benchmark evidence satisfies the gate.
+
 ### DECISION-P3-BATCH1-001 — Authorize Phase 3 Batch 1
 
 Decision ID: DECISION-P3-BATCH1-001
 
-Status: OPEN
+Status: DECIDED
 
 Type: Phase Authorization
 

@@ -2,12 +2,16 @@
 
 ## Status
 
-REVIEW
+IN_PROGRESS
 
 ## Ownership
 
 Implementation Owner: OpenCode (per AGENTS.md agent model)
-Reviewer: UNASSIGNED (pending batch review)
+Reviewer: Claude Code
+
+## Review Verdict History
+
+Cycle 1 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-independent-review.md`)
 
 ## Authorized Phase
 
@@ -102,6 +106,20 @@ Define:
 - Bearer authentication configured (config/transcription.php)
 - Invalid response rejected (WorkerResponseValidator)
 - Failure taxonomy foundation (TranscriptionFailure + WorkerErrorResponse)
+
+## Review
+
+Review File: reviews/PHASE3-BATCH1-independent-review.md
+Review Status: CHANGES_REQUESTED (batch cycle 1)
+
+Unresolved finding for this task: AC7 (bearer authentication configuration)
+does not currently hold end-to-end — H1 in the review found that
+`config/transcription.php` and `worker/config.py` use mismatched
+environment variable names for the same secret, so the "configured
+authentication" this task defines does not agree with the P3-003 worker's
+expectation. M1/M3 also apply to code introduced by this task
+(`HttpTranscriptionProvider`, `WorkerRequest`). See the review for full
+detail and required changes.
 
 ## Completion
 

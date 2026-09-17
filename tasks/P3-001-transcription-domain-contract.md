@@ -2,12 +2,16 @@
 
 ## Status
 
-REVIEW
+IN_PROGRESS
 
 ## Ownership
 
 Implementation Owner: OpenCode (per AGENTS.md agent model)
-Reviewer: UNASSIGNED (pending batch review)
+Reviewer: Claude Code
+
+## Review Verdict History
+
+Cycle 1 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-independent-review.md`)
 
 ## Authorized Phase
 
@@ -119,8 +123,17 @@ Define and reconcile:
 
 ## Review
 
-Review File: None yet.
-Review Status: PENDING
+Review File: reviews/PHASE3-BATCH1-independent-review.md
+Review Status: CHANGES_REQUESTED (batch cycle 1)
+
+Unresolved MEDIUM findings for this task: M2 (P3-001's own Required Tests
+for lifecycle transitions, retry identity preservation, retranscription
+identity independence, and ownership isolation were never implemented or
+tested; AC 11-13 are asserted only in prose), M1 (transcription/attempt
+identity fields exist but cannot be populated with real values by any
+current caller). AC4 (explicit language hint) cannot be verified as working
+because of a P3-003 finding (H2) that discards it entirely downstream. See
+the review for full detail and required changes.
 
 ## Completion
 
