@@ -26,3 +26,10 @@ yarn-error.log
 test-output.txt
 
 /storage/orchestration
+
+worker/.venv
+worker/__pycache__
+worker/tests/__pycache__
+worker/.pytest_cache
+benchmark-media/
+benchmark-results.json

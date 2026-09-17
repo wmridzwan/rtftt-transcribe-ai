@@ -54,19 +54,32 @@ class TestResolveMediaPath:
             resolve_media_path("media/../../../etc/passwd")
 
     def test_path_escape_rejected(self, tmp_path):
-        """Resolved path escaping shared root is rejected."""
-        outside = tmp_path / "outside"
-        outside.mkdir()
-        (outside / "file.mp3").write_bytes(b"fake")
+        """A drive-relative key (no leading slash, no '..') that escapes the
+        shared root via path-join semantics is rejected.
 
-        with pytest.raises(MediaAccessError, match="escapes shared root"):
-            from worker import config
-            original = config.SHARED_MEDIA_ROOT
-            config.SHARED_MEDIA_ROOT = tmp_path / "media"
-            try:
-                resolve_media_path(str(outside / "file.mp3"))
-            finally:
-                config.SHARED_MEDIA_ROOT = original
+        `os.path.isabs()` returns False for a drive-relative key like
+        `C:evil\\file.mp3` (no leading slash after the colon), and it
+        contains no `..`, so it reaches the resolved-path containment
+        check. On Windows, joining a key whose drive letter differs from
+        the shared root's drive discards the root entirely and resolves
+        relative to the current working directory on that other drive,
+        landing outside the shared root. The root is pinned to a drive
+        letter distinct from the key's so this reproduces regardless of
+        which drive the test runs on.
+        """
+        from worker import config
+
+        other_drive = "Z:" if tmp_path.drive.upper() != "Z:" else "Y:"
+        original = config.SHARED_MEDIA_ROOT
+        config.SHARED_MEDIA_ROOT = Path(f"{other_drive}/nonexistent-media-root")
+        try:
+            drive_relative_key = f"{tmp_path.drive}evil\\file.mp3"
+            assert not os.path.isabs(drive_relative_key)
+
+            with pytest.raises(MediaAccessError, match="escapes shared root"):
+                resolve_media_path(drive_relative_key)
+        finally:
+            config.SHARED_MEDIA_ROOT = original
 
     def test_nonexistent_file_rejected(self, tmp_path):
         """Non-existent file is rejected."""

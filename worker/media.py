@@ -21,15 +21,19 @@ def resolve_media_path(storage_key: str) -> Path:
     - Reject path traversal (..)
     - Resolve only beneath configured shared-media root
     """
-    if os.path.isabs(storage_key):
+    # os.path.isabs() is platform-dependent and, on Windows, does not treat
+    # a POSIX-style leading slash with no drive letter as absolute. Check
+    # explicitly so rejection does not depend on host OS quirks.
+    if storage_key.startswith("/") or storage_key.startswith("\\") or os.path.isabs(storage_key):
         raise MediaAccessError("Media reference rejected: absolute path not allowed.")
 
     if ".." in storage_key:
         raise MediaAccessError("Media reference rejected: path traversal not allowed.")
 
-    resolved = (config.SHARED_MEDIA_ROOT / storage_key).resolve()
+    shared_root = config.SHARED_MEDIA_ROOT.resolve()
+    resolved = (shared_root / storage_key).resolve()
 
-    if not str(resolved).startswith(str(config.SHARED_MEDIA_ROOT.resolve())):
+    if resolved != shared_root and shared_root not in resolved.parents:
         raise MediaAccessError("Media reference rejected: path escapes shared root.")
 
     if not resolved.exists():

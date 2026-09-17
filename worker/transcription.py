@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import ctranslate2
 from faster_whisper import WhisperModel
 
 from . import config
@@ -15,8 +16,7 @@ def get_model() -> WhisperModel:
     if _model is None:
         device = config.DEVICE
         if device == "auto":
-            import torch
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+            device = "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
 
         compute_type = config.COMPUTE_TYPE
         if device == "cpu" and compute_type == "float16":

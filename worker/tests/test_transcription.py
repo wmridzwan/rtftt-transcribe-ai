@@ -152,3 +152,64 @@ class TestTranscribeAudio:
         result = transcribe_audio(Path("/fake/audio.wav"))
 
         assert result["contract_version"] == "1.0"
+
+
+class TestGetModel:
+    """Test device/compute_type resolution (worker/transcription.py:get_model)."""
+
+    def setup_method(self):
+        import worker.transcription as transcription_module
+        transcription_module._model = None
+
+    def teardown_method(self):
+        import worker.transcription as transcription_module
+        transcription_module._model = None
+
+    @patch("worker.transcription.WhisperModel")
+    @patch("worker.transcription.ctranslate2")
+    def test_auto_resolves_to_cpu_without_torch(self, mock_ctranslate2, mock_whisper_model, monkeypatch):
+        """device='auto' with no CUDA devices resolves to cpu, with no
+        dependency on torch (this is a real, non-mocked import path;
+        get_model() must not require torch to be installed)."""
+        mock_ctranslate2.get_cuda_device_count.return_value = 0
+        monkeypatch.setattr("worker.config.DEVICE", "auto")
+        monkeypatch.setattr("worker.config.COMPUTE_TYPE", "float16")
+
+        from worker.transcription import get_model
+        get_model()
+
+        mock_whisper_model.assert_called_once()
+        _, kwargs = mock_whisper_model.call_args
+        assert kwargs["device"] == "cpu"
+        assert kwargs["compute_type"] == "int8"
+
+    @patch("worker.transcription.WhisperModel")
+    @patch("worker.transcription.ctranslate2")
+    def test_explicit_cpu_downgrades_float16_to_int8(self, mock_ctranslate2, mock_whisper_model, monkeypatch):
+        """Explicit device='cpu' with compute_type='float16' (unsupported on
+        CPU by ctranslate2) is downgraded to 'int8'."""
+        monkeypatch.setattr("worker.config.DEVICE", "cpu")
+        monkeypatch.setattr("worker.config.COMPUTE_TYPE", "float16")
+
+        from worker.transcription import get_model
+        get_model()
+
+        mock_ctranslate2.get_cuda_device_count.assert_not_called()
+        _, kwargs = mock_whisper_model.call_args
+        assert kwargs["device"] == "cpu"
+        assert kwargs["compute_type"] == "int8"
+
+    @patch("worker.transcription.WhisperModel")
+    @patch("worker.transcription.ctranslate2")
+    def test_model_is_cached_after_first_call(self, mock_ctranslate2, mock_whisper_model, monkeypatch):
+        """get_model() only constructs WhisperModel once (lazy singleton)."""
+        mock_ctranslate2.get_cuda_device_count.return_value = 0
+        monkeypatch.setattr("worker.config.DEVICE", "auto")
+        monkeypatch.setattr("worker.config.COMPUTE_TYPE", "int8")
+
+        from worker.transcription import get_model
+        first = get_model()
+        second = get_model()
+
+        assert first is second
+        mock_whisper_model.assert_called_once()
