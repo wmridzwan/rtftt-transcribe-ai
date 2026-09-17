@@ -59,7 +59,7 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 Decision ID: DECISION-P3-BENCHMARK-GATE-001
 
-Status: RESOLVED — turbo selected as default model
+Status: OPEN — model selection reopened by HPO escalation after Cycle-3 review
 
 Type: Phase Authorization / Architecture
 
@@ -139,11 +139,18 @@ Update (2026-09-17, Python retry): Python 3.13.14 installed, faster-whisper
 1.2.1 working, 25 Python tests pass. Python-installation blocker resolved.
 Benchmark media now sourced from FLEURS corpus.
 
-**RESOLVED (2026-09-17, cycle 3):** Real benchmark executed on 16 samples
+**Initial gate (2026-09-17, cycle 3):** Real benchmark executed on 16 samples
 (12 FLEURS + 4 synthetic mixed). Turbo mean RTF: 4.17. Large-v3 mean RTF: 6.08.
-Turbo is 1.46x faster. No materially unacceptable degradation observed.
-Gate decision: **turbo as default model**. See `BENCHMARK-GATE-EVIDENCE.md`
-for full evidence. DECISION-P3-BENCHMARK-GATE-001 is RESOLVED.
+Turbo is 1.46x faster. Initial gate decision: turbo as default model.
+
+**REOPENED (2026-09-17, HPO escalation):** Cycle-3 independent review exposed
+undisclosed quality evidence: turbo cross-script corruption on Tamil sample
+ta_in_1, limited Tamil sample size (only 3 real samples), large-v3 synthetic
+hallucination/repetition. HPO directed expanded Tamil benchmark (≥15 samples),
+expanded mixed-language benchmark (8+ additional transition samples), and
+script-corruption analysis. Model selection decision remains OPEN pending
+expanded evidence. Earlier turbo selection history preserved but not final.
+See `reviews/PHASE3-BATCH1-cycle3-independent-review.md`.
 
 ### DECISION-P3-BATCH1-001 — Authorize Phase 3 Batch 1
 
