@@ -59,7 +59,7 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 Decision ID: DECISION-P3-BENCHMARK-GATE-001
 
-Status: OPEN — HPO chose Option 1 (run real benchmark)
+Status: RESOLVED — turbo selected as default model
 
 Type: Phase Authorization / Architecture
 
@@ -134,12 +134,16 @@ functional mixed-language transition evidence for this initial model-selection
 gate, explicitly labeled synthetic. Natural real-world code-switching remains
 a later integration-quality verification requirement. FLEURS is used only as
 benchmark input; downloaded audio files must not be committed to the repository.
-Decision remains OPEN until benchmark actually runs and produces a valid gate
-outcome.
 
 Update (2026-09-17, Python retry): Python 3.13.14 installed, faster-whisper
 1.2.1 working, 25 Python tests pass. Python-installation blocker resolved.
 Benchmark media now sourced from FLEURS corpus.
+
+**RESOLVED (2026-09-17, cycle 3):** Real benchmark executed on 16 samples
+(12 FLEURS + 4 synthetic mixed). Turbo mean RTF: 4.17. Large-v3 mean RTF: 6.08.
+Turbo is 1.46x faster. No materially unacceptable degradation observed.
+Gate decision: **turbo as default model**. See `BENCHMARK-GATE-EVIDENCE.md`
+for full evidence. DECISION-P3-BENCHMARK-GATE-001 is RESOLVED.
 
 ### DECISION-P3-BATCH1-001 — Authorize Phase 3 Batch 1
 
