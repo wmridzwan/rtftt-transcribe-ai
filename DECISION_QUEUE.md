@@ -152,6 +152,72 @@ script-corruption analysis. Model selection decision remains OPEN pending
 expanded evidence. Earlier turbo selection history preserved but not final.
 See `reviews/PHASE3-BATCH1-cycle3-independent-review.md`.
 
+### DECISION-P3-ESCALATION-001 — Three-cycle escalation resolution
+
+Decision ID: DECISION-P3-ESCALATION-001
+
+Status: DECIDED
+
+Type: Escalation Resolution / Phase Authorization
+
+Originating Task: P3-001, P3-002, P3-003 (three consecutive CHANGES_REQUESTED
+cycles triggered escalation per `.ai/guidelines/orchestration-policy.md`)
+
+Raised By: Human Product Owner (escalation resolution)
+
+Priority: BLOCKER
+
+Question:
+
+Three consecutive CHANGES_REQUESTED cycles (Cycle 1, Cycle 2, Cycle 3)
+triggered the canonical escalation rule. Per policy, P3-001/P3-002/P3-003
+became BLOCKED. How should the escalation be resolved?
+
+Options (canonical, from `.ai/guidelines/orchestration-policy.md`):
+
+1. Reassign to a different approach
+2. Defer the task
+3. Accept with known limitations
+4. Close as unneeded
+
+Resolution:
+
+HPO selected Option 2 — **Defer the task** (2026-09-18).
+
+Batch 1 remains BLOCKED. A narrowly scoped remediation is explicitly
+authorized for the unresolved H6 benchmark/model-quality issue only:
+
+- Execute expanded Tamil benchmark (≥15 real FLEURS ta_in samples)
+- Execute expanded mixed-language benchmark (8+ additional transition samples)
+- Retain FLEURS reference transcriptions
+- Record raw per-sample outputs and timings
+- Update benchmark evidence honestly
+- Correct benchmark/gate governance status
+- Prepare evidence for HPO/model decision if required
+
+No unrelated P3 implementation is authorized. H5 is confirmed fixed
+(regression checks required, no new architecture work). The authorized
+remediation scope is H6 only.
+
+After remediation completion: request fresh independent post-escalation
+review. Do not autonomously transition BLOCKED → REVIEW.
+
+Impact:
+
+- P3-001/P3-002/P3-003 remain BLOCKED during remediation
+- H6 expanded benchmark is the only authorized implementation work
+- Batch 2/3 remain NOT AUTHORIZED
+- No autonomous Cycle 5; next review is "Post-Escalation Independent Review"
+
+Blocks:
+
+- P3-001, P3-002, P3-003 (BLOCKED pending remediation + fresh review)
+
+Does Not Block:
+
+- P3-004 through P3-008 (remain BACKLOG / NOT AUTHORIZED)
+- H6 expanded benchmark remediation (explicitly authorized)
+
 ### DECISION-P3-BATCH1-001 — Authorize Phase 3 Batch 1
 
 Decision ID: DECISION-P3-BATCH1-001

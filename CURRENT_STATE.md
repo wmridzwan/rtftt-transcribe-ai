@@ -10,18 +10,23 @@ setup/ai-development-os
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
-Phase 3 Batch 1 — HPO ESCALATION REMEDIATION
+Phase 3 Batch 1 — BLOCKED under three-cycle escalation
 
-Independent review:
+P3-001 = BLOCKED
+P3-002 = BLOCKED
+P3-003 = BLOCKED
+
 Cycle 1 = CHANGES_REQUESTED
 Cycle 2 = CHANGES_REQUESTED
-Cycle 3 = CHANGES_REQUESTED
+Cycle 3 = CHANGES_REQUESTED — escalation triggered
+Cycle 4 = CHANGES_REQUESTED — post-escalation governance review
 
-Current blockers:
-H5 — segment-language derivation (fictional `segment.language` field)
-H6 — model-quality / Tamil evidence (insufficient sample size)
+H5 = FIXED / regression verification required
+H6 = OPEN
+G1 = governance correction applied
 
 Batch 1 = NOT VERIFIED
+
 Batch 2 = NOT AUTHORIZED
 Batch 3 = NOT AUTHORIZED
 
@@ -100,12 +105,11 @@ The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_si
 
 Phase 3 Batch 1 implementation (P3-001, P3-002, P3-003) completed
 implementation and moved to REVIEW on 2026-09-17. Three consecutive
-CHANGES_REQUESTED cycles (cycle 1, cycle 2, cycle 3) triggered HPO escalation.
-HPO-directed escalation remediation in progress: H5 (segment-language
-derivation using WhisperModel.detect_language()), H6 (expanded Tamil and
-mixed-language benchmark corpus). All three tasks remain REVIEW / escalation
-pending remediation. P3-004 through P3-008 remain BACKLOG (not authorized).
-Option D remains in force.
+CHANGES_REQUESTED cycles (cycle 1, cycle 2, cycle 3) triggered HPO
+escalation. HPO selected Option 2 (Defer the task) with narrow H6
+remediation authorized. P3-001/P3-002/P3-003 are BLOCKED. H5 confirmed
+fixed. H6 expanded benchmark in progress. P3-004 through P3-008 remain
+BACKLOG (not authorized). Option D remains in force.
 P2-001A, P2-002A,
 P2-002B, and P2-002C completed the authorized follow-up batch and were closed
 as DONE after independent verification.
@@ -118,15 +122,16 @@ TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after 
 
 ## Ready Tasks
 
-Phase 3 Batch 1 tasks are in HPO escalation remediation:
-- P3-001 (Transcription Domain Contract) — REVIEW / escalation pending remediation
-- P3-002 (Provider + Worker Transport Contract) — REVIEW / escalation pending remediation
-- P3-003 (Real Internal Provider) — REVIEW / escalation pending remediation
+Phase 3 Batch 1 tasks are BLOCKED under three-cycle escalation:
+- P3-001 (Transcription Domain Contract) — BLOCKED
+- P3-002 (Provider + Worker Transport Contract) — BLOCKED
+- P3-003 (Real Internal Provider) — BLOCKED
 
 Review verdict history:
 Cycle 1 = CHANGES_REQUESTED
 Cycle 2 = CHANGES_REQUESTED
-Cycle 3 = CHANGES_REQUESTED
+Cycle 3 = CHANGES_REQUESTED — escalation triggered
+Cycle 4 = CHANGES_REQUESTED — post-escalation governance review
 
 P3-004 through P3-008 remain BACKLOG (Batch 2/3, not authorized).
 Option D remains in force.
@@ -310,10 +315,10 @@ changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P3-BATCH1-001 resolved DECIDED (2026-09-17). Phase 3 Batch 1
-authorized. DECISION-P3-BENCHMARK-GATE-001 OPEN — model selection reopened
-by HPO escalation after Cycle-3 review. Expanded benchmark corpus required
-before final gate decision.
+DECISION-P3-ESCALATION-001 resolved DECIDED (2026-09-18). HPO selected
+Option 2 (Defer the task) with narrow H6 remediation authorized.
+P3-001/P3-002/P3-003 BLOCKED. DECISION-P3-BENCHMARK-GATE-001 OPEN —
+expanded evidence required. DECISION-P3-BATCH1-001 DECIDED.
 DECISION-P1-001 resolved as Title REQUIRED. DECISION-P2-CONCURRENCY-001
 is DECIDED as Option D. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED.
 DECISION-P2-CONCURRENCY-002 is DECIDED. Option D remains in force.
@@ -380,14 +385,15 @@ Future browser/E2E verification should cover:
 
 ## Next Action
 
-Phase 3 Batch 1 is in HPO escalation remediation. Three consecutive
-CHANGES_REQUESTED cycles triggered escalation to the Human Product Owner.
-HPO directed: (1) implement genuine per-segment language identification
-using WhisperModel.detect_language() — H5; (2) expand Tamil benchmark to
-≥15 real samples and mixed-language benchmark with 8+ additional transition
-samples — H6; (3) fix Decision Queue vocabulary and CURRENT_STATE — S1/S2;
-(4) fix tempfile.mktemp race condition — INFO. Batch 2/3 remain unauthorized.
-See `reviews/PHASE3-BATCH1-cycle3-independent-review.md` for full findings.
+Phase 3 Batch 1 is BLOCKED under three-cycle escalation. HPO selected
+Option 2 (Defer the task) with narrow H6 remediation authorized: expanded
+Tamil benchmark (≥15 samples), expanded mixed-language benchmark (8+
+additional), reference transcription retention, script-corruption analysis.
+H5 confirmed fixed. Next: complete expanded benchmark, produce gate
+decision, request fresh independent post-escalation review. Batch 2/3
+remain unauthorized. See
+`reviews/PHASE3-BATCH1-cycle4-independent-review.md` and
+`DECISION_QUEUE.md` (DECISION-P3-ESCALATION-001).
 
 ## Phase Authorization
 

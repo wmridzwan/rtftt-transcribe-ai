@@ -2,7 +2,7 @@
 
 ## Status
 
-REVIEW
+BLOCKED
 
 ## Ownership
 
@@ -13,6 +13,8 @@ Reviewer: Claude Code
 
 Cycle 1 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-independent-review.md`)
 Cycle 2 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-cycle2-independent-review.md`)
+Cycle 3 = CHANGES_REQUESTED — escalation triggered (`reviews/PHASE3-BATCH1-cycle3-independent-review.md`)
+Cycle 4 = CHANGES_REQUESTED — post-escalation governance review (`reviews/PHASE3-BATCH1-cycle4-independent-review.md`)
 
 ## Authorized Phase
 
