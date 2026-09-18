@@ -260,6 +260,16 @@ Does Not Block:
 - P3-004 through P3-008 (remain BACKLOG / NOT AUTHORIZED)
 - H6 expanded benchmark remediation (completed under explicit HPO exception)
 
+**Closure (2026-09-18):** The Final HPO-Decision Verification
+(`reviews/PHASE3-BATCH1-final-hpo-decision-verification.md`) returned
+**VERIFIED** with no BLOCKER or HIGH findings. The HPO accepted and closed
+Phase 3 Batch 1. P3-001/P3-002/P3-003 transitioned
+**BLOCKED → (HPO closure decision; prerequisite: independent VERIFIED) → DONE**.
+Full review history preserved (Cycle 1–4 CHANGES_REQUESTED, Post-Escalation
+Independent Review CHANGES_REQUESTED, Final HPO-Decision Verification
+VERIFIED). LOW/INFO findings are tracked as non-blocking follow-up debt and
+do not reopen Batch 1. Batch 2/3 remain NOT AUTHORIZED.
+
 ### DECISION-P3-BATCH1-001 — Authorize Phase 3 Batch 1
 
 Decision ID: DECISION-P3-BATCH1-001

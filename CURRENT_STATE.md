@@ -10,31 +10,22 @@ setup/ai-development-os
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
-Phase 3 Batch 1 — BLOCKED under three-cycle escalation
+Phase 3 Batch 1 = COMPLETE / CLOSED
 
-P3-001 = BLOCKED
-P3-002 = BLOCKED
-P3-003 = BLOCKED
+P3-001 = DONE
+P3-002 = DONE
+P3-003 = DONE
 
-Cycle 1 = CHANGES_REQUESTED
-Cycle 2 = CHANGES_REQUESTED
-Cycle 3 = CHANGES_REQUESTED — escalation triggered
-Cycle 4 = CHANGES_REQUESTED — post-escalation governance review
+Final independent verification = VERIFIED
 
-H5 = FIXED
-H6 = expanded evidence produced; corrected; awaiting final verification
+Canonical model = large-v3
+Turbo = non-default / experimental
 
-Canonical Phase 3 model:
-large-v3 (HPO decision 2026-09-18)
-Turbo = non-default optional/experimental profile
+Benchmark decision = DECIDED
+Escalation decision = DECIDED
 
-Benchmark decision:
-DECISION-P3-BENCHMARK-GATE-001 = DECIDED (large-v3)
-
-Escalation outcome:
-Accept with known limitations (large-v3)
-
-Batch 1 = NOT VERIFIED
+H5 = resolved
+H6 = resolved by final HPO model decision
 
 Batch 2 = NOT AUTHORIZED
 Batch 3 = NOT AUTHORIZED
@@ -112,17 +103,22 @@ The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_si
 
 ## Active Task
 
-Phase 3 Batch 1 implementation (P3-001, P3-002, P3-003) completed
-implementation and moved to REVIEW on 2026-09-17. Three consecutive
-CHANGES_REQUESTED cycles triggered HPO escalation. HPO exception authorized
-narrow H6 remediation while Batch 1 remained BLOCKED. H5 confirmed fixed.
-H6 expanded benchmark completed (36 samples, both models). Post-escalation
-review found a script-detector defect; corrected analysis showed turbo
-corruption on 3/15 real Tamil samples. HPO final decision: **large-v3** is
-the initial canonical Phase 3 model; turbo is non-default/experimental.
-DECISION-P3-BENCHMARK-GATE-001 = DECIDED. P3-001/P3-002/P3-003 remain
-BLOCKED. P3-004 through P3-008 remain BACKLOG (not authorized). Option D
-remains in force.
+Phase 3 Batch 1 (P3-001, P3-002, P3-003) is COMPLETE / CLOSED.
+
+History: implementation completed 2026-09-17; three consecutive
+CHANGES_REQUESTED cycles triggered HPO escalation; HPO authorized narrow H6
+remediation while Batch 1 remained BLOCKED; H5 confirmed fixed; H6 expanded
+benchmark completed (36 samples, both models); post-escalation review found a
+script-detector defect; corrected analysis showed turbo corruption on 3/15
+real Tamil samples; HPO final decision selected **large-v3** as the initial
+canonical Phase 3 model (turbo = non-default/experimental); the Final
+HPO-Decision Verification returned VERIFIED; HPO accepted and closed Batch 1
+on 2026-09-18.
+
+Canonical transition: BLOCKED → (HPO closure decision; prerequisite: Final
+HPO-Decision Verification = VERIFIED) → DONE. No implementation change was
+authorized by closure. P3-004 through P3-008 remain BACKLOG (not authorized).
+Option D remains in force.
 P2-001A, P2-002A,
 P2-002B, and P2-002C completed the authorized follow-up batch and were closed
 as DONE after independent verification.
@@ -135,16 +131,18 @@ TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after 
 
 ## Ready Tasks
 
-Phase 3 Batch 1 tasks are BLOCKED under three-cycle escalation:
-- P3-001 (Transcription Domain Contract) — BLOCKED
-- P3-002 (Provider + Worker Transport Contract) — BLOCKED
-- P3-003 (Real Internal Provider) — BLOCKED
+Phase 3 Batch 1 tasks are DONE (closed by HPO 2026-09-18):
+- P3-001 (Transcription Domain Contract) — DONE
+- P3-002 (Provider + Worker Transport Contract) — DONE
+- P3-003 (Real Internal Provider) — DONE
 
-Review verdict history:
+Review verdict history (preserved in full):
 Cycle 1 = CHANGES_REQUESTED
 Cycle 2 = CHANGES_REQUESTED
 Cycle 3 = CHANGES_REQUESTED — escalation triggered
 Cycle 4 = CHANGES_REQUESTED — post-escalation governance review
+Post-Escalation Independent Review = CHANGES_REQUESTED
+Final HPO-Decision Verification = VERIFIED
 
 P3-004 through P3-008 remain BACKLOG (Batch 2/3, not authorized).
 Option D remains in force.
@@ -328,11 +326,12 @@ changes, or any later phase.
 
 ## Decisions Required
 
-DECISION-P3-ESCALATION-001 resolved DECIDED (2026-09-18). HPO exception:
+DECISION-P3-ESCALATION-001 = DECIDED (2026-09-18). HPO exception:
 Batch 1 BLOCKED, narrow H6 remediation authorized. Escalation outcome:
 Accept with known limitations (large-v3). DECISION-P3-BENCHMARK-GATE-001
-DECIDED — large-v3 selected as initial canonical Phase 3 model; turbo is
-non-default/experimental. DECISION-P3-BATCH1-001 DECIDED.
+= DECIDED — large-v3 selected as initial canonical Phase 3 model; turbo is
+non-default/experimental. No further model-selection gate is required for
+Batch 1. DECISION-P3-BATCH1-001 DECIDED.
 DECISION-P1-001 resolved as Title REQUIRED. DECISION-P2-CONCURRENCY-001
 is DECIDED as Option D. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED.
 DECISION-P2-CONCURRENCY-002 is DECIDED. Option D remains in force.
@@ -340,16 +339,31 @@ P2-004A/P2-004A1 remain BLOCKED.
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 planning reconciled under ADR-017; implementation not authorized.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 Batch 1 is COMPLETE / CLOSED (P3-001/P3-002/P3-003 DONE); canonical model large-v3. Batch 2/3 remain unauthorized.
+
+## Phase 3 Batch 1 Non-Blocking Follow-Up Debt
+
+These LOW/INFO findings from the Final HPO-Decision Verification are tracked
+as non-blocking debt. They do not prevent Batch 1 closure and are NOT promoted
+into Batch 2 scope.
+
+- Malformed-2xx `HttpTranscriptionProvider` response coverage residual.
+- Unused `requested_language` parameter in the segment-language helper.
+- `MediaAccessError` safe-message asymmetry.
+- P3-002 real end-to-end bearer-auth residual.
+- Raw benchmark results are git-ignored (reproducible via committed tooling,
+  not directly committed).
+- Two test warnings.
 
 ## Future Gates
 
 The following are not current blockers, but must be decided before their
-respective future gates: Turbo vs Large-v3 benchmark gate (before P3-003
-finalization); actor-versus-owner and multi-tenancy semantics; and
+respective future gates: actor-versus-owner and multi-tenancy semantics; and
 first-production-use deployment, rollback, backup/restore, monitoring,
 failed-job visibility, retention/deletion, derived-artifact deletion,
-log/privacy, and legal/privacy validation.
+log/privacy, and legal/privacy validation. The Phase 3 model-selection gate is
+closed for Batch 1 (large-v3, DECIDED). Naturalistic code-switch quality
+verification remains a P3-008 requirement.
 
 ## Phase 2 Deferred Debt Register
 
@@ -399,16 +413,14 @@ Future browser/E2E verification should cover:
 
 ## Next Action
 
-Phase 3 Batch 1 is BLOCKED under three-cycle escalation. HPO exception
-authorized narrow H6 remediation (completed). Post-escalation review found a
-script-detector defect; corrected re-analysis showed turbo corruption on
-3/15 real Tamil samples. HPO final decision: **large-v3** selected as the
-initial canonical Phase 3 model; turbo is non-default/experimental.
-DECISION-P3-BENCHMARK-GATE-001 = DECIDED. Batch 2/3 remain unauthorized.
-Next: request `Phase 3 Batch 1 — Final HPO-Decision Verification`. See
-`reviews/PHASE3-BATCH1-post-escalation-independent-review.md`,
-`DECISION_QUEUE.md` (DECISION-P3-ESCALATION-001),
-`BENCHMARK-GATE-EVIDENCE.md`.
+Phase 3 Batch 1 is COMPLETE / CLOSED. The Final HPO-Decision Verification
+returned VERIFIED; the HPO accepted and closed P3-001/P3-002/P3-003 as DONE
+(2026-09-18). Canonical model: large-v3 (turbo = non-default/experimental).
+DECISION-P3-BENCHMARK-GATE-001 = DECIDED; DECISION-P3-ESCALATION-001 =
+DECIDED (Accept with known limitations). Batch 2/3 remain unauthorized;
+no P3-004–P3-008 work is authorized. See
+`reviews/PHASE3-BATCH1-final-hpo-decision-verification.md`,
+`DECISION_QUEUE.md`, `BENCHMARK-GATE-EVIDENCE.md`.
 
 ## Phase Authorization
 
@@ -418,17 +430,19 @@ ADR-013. Option D remains in force.
 
 Phase 3 Batch 1 authorized by HPO (2026-09-17, DECISION-P3-BATCH1-001).
 Batch 1 independent review returned CHANGES_REQUESTED cycle 1, cycle 2,
-cycle 3 (escalation triggered), cycle 4 (post-escalation governance review).
-HPO exception authorized narrow H6 remediation while BLOCKED. HPO final
-model decision: large-v3. P3-004–P3-008 are BACKLOG (not authorized).
+cycle 3 (escalation triggered), cycle 4 (post-escalation governance review),
+and the Post-Escalation Independent Review (CHANGES_REQUESTED). HPO exception
+authorized narrow H6 remediation while BLOCKED. HPO final model decision:
+large-v3. Final HPO-Decision Verification = VERIFIED. Batch 1 accepted and
+closed as DONE (2026-09-18). P3-004–P3-008 are BACKLOG (not authorized).
 See plan.md.
 
 ## Review status
 
-P2-007 is DONE. P2-006 remains closure-only. Phase 3 Batch 1 BLOCKED under
-three-cycle escalation. Cycle 1/2/3/4 = CHANGES_REQUESTED. HPO exception
-authorized H6 expanded benchmark (completed). Post-escalation review found
-BLOCKER-1 (detector defect); corrected analysis: turbo 3/15 real Tamil
-corruption, large-v3 1/15 + 1 empty mixed. HPO final decision: large-v3 is
-the initial canonical Phase 3 model. DECISION-P3-BENCHMARK-GATE-001: DECIDED.
+P2-007 is DONE. P2-006 remains closure-only. Phase 3 Batch 1 COMPLETE /
+CLOSED. Review history: Cycle 1/2/3/4 = CHANGES_REQUESTED; Post-Escalation
+Independent Review = CHANGES_REQUESTED; Final HPO-Decision Verification =
+VERIFIED. H5 resolved; H6 resolved by final HPO model decision. Canonical
+model: large-v3. DECISION-P3-BENCHMARK-GATE-001: DECIDED.
 DECISION-P3-ESCALATION-001: DECIDED (Accept with known limitations).
+Batch 2/3 remain unauthorized.

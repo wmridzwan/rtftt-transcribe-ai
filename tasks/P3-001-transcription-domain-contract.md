@@ -2,7 +2,7 @@
 
 ## Status
 
-BLOCKED
+DONE
 
 ## Ownership
 
@@ -15,6 +15,23 @@ Cycle 1 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-independent-review.md`)
 Cycle 2 = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-cycle2-independent-review.md`)
 Cycle 3 = CHANGES_REQUESTED — escalation triggered (`reviews/PHASE3-BATCH1-cycle3-independent-review.md`)
 Cycle 4 = CHANGES_REQUESTED — post-escalation governance review (`reviews/PHASE3-BATCH1-cycle4-independent-review.md`)
+Post-Escalation Independent Review = CHANGES_REQUESTED (`reviews/PHASE3-BATCH1-post-escalation-independent-review.md`)
+Final HPO-Decision Verification = VERIFIED (`reviews/PHASE3-BATCH1-final-hpo-decision-verification.md`)
+
+## Closure
+
+Closed as DONE by the Human Product Owner (2026-09-18), accepting and
+closing Phase 3 Batch 1.
+
+Canonical transition applied: **BLOCKED → (HPO closure decision; prerequisite:
+Final HPO-Decision Verification = VERIFIED) → DONE**. The orchestration policy
+does not define a BLOCKED → VERIFIED intermediate; BLOCKED is released by an
+explicit HPO decision, and the final independent verification is preserved as
+the closure prerequisite. The earlier BLOCKED state (three-cycle escalation)
+was real and is preserved as history above — it is not rewritten.
+
+Closure is governance/state reconciliation only. No implementation change is
+authorized by this closure. Batch 2/3 remain NOT AUTHORIZED.
 
 ## Authorized Phase
 
