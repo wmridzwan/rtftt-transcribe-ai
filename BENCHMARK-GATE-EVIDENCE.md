@@ -1,16 +1,48 @@
 # Phase 3 Benchmark Gate Evidence — turbo vs large-v3
 
-Last Updated: 2026-09-18 (HPO escalation remediation — expanded benchmark)
+Last Updated: 2026-09-18 (HPO final model decision + corrected analysis)
 
 ## Gate Status
 
 Initial benchmark execution = COMPLETED
-Final model-selection gate = **PASSED — TURBO SUPPORTED** (expanded evidence)
+Expanded benchmark execution = COMPLETED
+Final model-selection gate = **DECIDED — large-v3 selected**
 
-`DECISION-P3-BENCHMARK-GATE-001` remains OPEN per Decision Queue canonical
-vocabulary. The expanded evidence supports turbo as the default model.
-Final gate closure requires independent post-escalation review and HPO
-confirmation.
+`DECISION-P3-BENCHMARK-GATE-001` = DECIDED.
+
+## Final HPO Decision
+
+**INITIAL PHASE 3 MODEL = large-v3.**
+
+Turbo is **NOT** the default model. Turbo remains available only as a
+non-default optional/experimental fast model profile (selectable via
+`RTFTT_WHISPER_MODEL`), with no new UX/model-selection scope.
+
+Rationale: turbo was materially faster (1.67x) but showed repeated
+cross-script hallucination/corruption on real Tamil audio at approximately
+20% of the expanded real Tamil sample set (3/15). The canonical Phase 3 rule
+was "turbo preferred unless evidence demonstrates materially unacceptable
+degradation." The HPO determined turbo's repeated real-Tamil corruption is
+materially unacceptable for the initial default model.
+
+## Evidence-Integrity Correction (IMPORTANT)
+
+An earlier revision of this document claimed "15/15 real Tamil samples CLEAN
+for turbo" and "the original Cycle-3 corruption was isolated, does not
+repeat." **Those claims were incorrect.** They were produced by a defective
+script-corruption detector that only checked CJK presence and a Tamil-script
+ratio, and auto-passed empty transcripts as clean. It failed to detect
+Hebrew, Cyrillic, Korean (Hangul), Arabic, Gurmukhi, Greek, and other scripts.
+
+The defect was identified by the post-escalation independent review
+(`reviews/PHASE3-BATCH1-post-escalation-independent-review.md`, BLOCKER-1)
+and is corrected here using the reworked detector
+(`scripts/benchmark/script_integrity.py`, with tests in
+`scripts/benchmark/tests/test_script_integrity.py`).
+
+The raw per-sample transcripts were preserved unchanged; only the derived
+script-integrity analysis was regenerated. No model inference was re-run to
+correct the analysis.
 
 ## Environment
 
@@ -29,36 +61,14 @@ confirmation.
 
 ### Tamil Samples (15 real FLEURS)
 
-Selection rule: Deterministic indices from google/fleurs ta_in validation split.
-Initial: [0, 5, 10] (ta_in_1, ta_in_2, ta_in_3)
-Expanded: [15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70] (ta_in_4 through ta_in_15)
-Total: 15 real Tamil samples.
-
-All indices selected before any model execution. No cherry-picking.
-
-| Alias | Index | Duration | Reference Available |
-|-------|-------|----------|-------------------|
-| ta_in_1 | 0 | 14.1s | Yes (backfilled) |
-| ta_in_2 | 5 | 6.2s | Yes (backfilled) |
-| ta_in_3 | 10 | 10.3s | Yes (backfilled) |
-| ta_in_4 | 15 | 4.5s | Yes |
-| ta_in_5 | 20 | 8.5s | Yes |
-| ta_in_6 | 25 | 12.1s | Yes |
-| ta_in_7 | 30 | 5.5s | Yes |
-| ta_in_8 | 35 | 6.4s | Yes |
-| ta_in_9 | 40 | 8.9s | Yes |
-| ta_in_10 | 45 | 12.3s | Yes |
-| ta_in_11 | 50 | 29.2s | Yes |
-| ta_in_12 | 55 | 6.4s | Yes |
-| ta_in_13 | 60 | 24.7s | Yes |
-| ta_in_14 | 65 | 7.7s | Yes |
-| ta_in_15 | 70 | 9.6s | Yes |
+Selection rule: Deterministic indices from `google/fleurs` `ta_in` validation
+split. Initial: [0, 5, 10]. Expanded: [15, 20, 25, 30, 35, 40, 45, 50, 55,
+60, 65, 70]. All indices selected before model execution. No cherry-picking.
+All 15 have FLEURS reference transcriptions (3 backfilled from the FLEURS API).
 
 ### Non-Tamil FLEURS (9 samples)
 
-ms_my: indices [0, 5, 10] — 3 samples
-en_us: indices [0, 5, 10] — 3 samples
-cmn_hans_cn: indices [0, 5, 10] — 3 samples
+ms_my, en_us, cmn_hans_cn: indices [0, 5, 10] each.
 
 ### Synthetic Mixed-Language (12 samples)
 
@@ -81,159 +91,111 @@ All labeled: SYNTHETIC MULTILINGUAL TRANSITION SAMPLE
 
 Total corpus: 36 samples (15 Tamil + 9 non-Tamil FLEURS + 12 synthetic mixed)
 
-## Expanded Benchmark Results
-
-### Turbo (large-v3-turbo)
-
-| Metric | Value |
-|--------|-------|
-| Model size | large-v3-turbo |
-| Device | CPU |
-| Compute type | int8 |
-| Load time | 9.7s |
-| Total inference | 1,526.1s |
-| Mean RTF | 4.6269 |
-| RTF range | [1.5803, 9.0540] |
-| Total segments | 44 |
-
-### Large-v3
-
-| Metric | Value |
-|--------|-------|
-| Model size | large-v3 |
-| Device | CPU |
-| Compute type | int8 |
-| Load time | ~10s |
-| Total inference | ~2,783s |
-| Mean RTF | 7.7306 |
-| RTF range | [2.0100, 23.6000] |
-| Total segments | ~50 |
-
-### Comparison
+## Performance Results (preserved, unchanged)
 
 | Metric | Turbo | Large-v3 | Ratio |
 |--------|-------|----------|-------|
-| Mean RTF | 4.63 | 7.73 | turbo 1.67x faster |
-| Tamil RTF (mean) | ~5.7 | ~9.4 | turbo 1.65x faster |
-| Tamil corruption | 0/15 | 0/15 | equivalent |
-| Mixed corruption | 4/12 (CJK in mixed) | 0/12 | large-v3 cleaner on synthetic |
+| Mean RTF | 4.6269 | 7.7306 | turbo 1.67x faster |
+| Load time | 9.7s | ~10s | — |
+| Device / compute | CPU / int8 | CPU / int8 | — |
 
-### Tamil Per-Sample Quality (Turbo)
+Turbo's performance advantage is real and preserved as a known tradeoff.
 
-| Alias | RTF | Lang | Script Integrity |
-|-------|-----|------|-----------------|
-| ta_in_1 | 5.62 | ta | CLEAN |
-| ta_in_2 | 6.39 | ta | CLEAN |
-| ta_in_3 | 3.81 | ta | CLEAN |
-| ta_in_4 | 8.85 | ta | CLEAN |
-| ta_in_5 | 6.04 | ta | CLEAN |
-| ta_in_6 | 3.97 | ta | CLEAN |
-| ta_in_7 | 8.32 | ta | CLEAN |
-| ta_in_8 | 7.61 | ta | CLEAN |
-| ta_in_9 | 5.19 | ta | CLEAN |
-| ta_in_10 | 4.11 | ta | CLEAN |
-| ta_in_11 | 3.16 | ta | CLEAN |
-| ta_in_12 | 7.75 | ta | CLEAN |
-| ta_in_13 | 4.40 | ta | CLEAN |
-| ta_in_14 | 6.35 | ta | CLEAN |
-| ta_in_15 | 5.03 | ta | CLEAN |
+## Tamil Quality Results (corrected)
 
-**Result: 15/15 real Tamil samples CLEAN for turbo. The original Cycle-3
-corruption on ta_in_1 does not repeat on the expanded corpus.**
+### Turbo — 3 of 15 real Tamil samples corrupted
 
-### Tamil Per-Sample Quality (Large-v3)
+| Alias | Unexpected scripts | Note |
+|-------|-------------------|------|
+| ta_in_1 | Korean (2), Hebrew (5), Cyrillic (3) | Same sample that failed in Cycle 3 — **corruption reproduced** |
+| ta_in_11 | Arabic (2), Korean (3), Cyrillic (4) | Multi-script hallucinated gibberish |
+| ta_in_13 | Arabic (2) | Script contamination |
 
-| Alias | RTF | Lang | Script Integrity |
-|-------|-----|------|-----------------|
-| ta_in_1 | 23.60 | ta | CLEAN |
-| ta_in_2 | 9.16 | ta | CLEAN |
-| ta_in_3 | 5.02 | ta | CLEAN |
-| ta_in_4 | 11.56 | ta | CLEAN |
-| ta_in_5 | 6.51 | ta | CLEAN |
-| ta_in_6 | 4.94 | ta | CLEAN |
-| ta_in_7 | 9.16 | ta | CLEAN |
-| ta_in_8 | 8.36 | ta | CLEAN |
-| ta_in_9 | 5.74 | ta | CLEAN |
-| ta_in_10 | 4.95 | ta | CLEAN |
-| ta_in_11 | 13.00 | ta | CLEAN |
-| ta_in_12 | 8.56 | ta | CLEAN |
-| ta_in_13 | 14.61 | ta | CLEAN |
-| ta_in_14 | 7.19 | ta | CLEAN |
-| ta_in_15 | 8.30 | ml | CLEAN (detected Malayalam) |
+Turbo produced fluent multi-script hallucinated gibberish injected into
+otherwise-Tamil output on 3 of 15 real Tamil samples (~20%).
 
-**Result: 15/15 real Tamil samples CLEAN for large-v3. Note: ta_in_15
-detected as Malayalam (ml) instead of Tamil (ta) — a language-detection
-quirk, not script corruption.**
+### Large-v3 — 1 of 15 real Tamil samples corrupted
 
-### Mixed-Language Observations (Turbo)
+| Alias | Unexpected scripts | Note |
+|-------|-------------------|------|
+| ta_in_15 | Gurmukhi (91 chars, entire output) | Output rendered entirely in Gurmukhi (Punjabi) script; zero Tamil characters |
 
-4 of 12 synthetic mixed samples show CJK characters in output:
-- MIX-07 (ta→en): 2 CJK chars — Chinese audio segment produces expected CJK
-- MIX-09 (ms→ta): 3 CJK chars — minor contamination
-- MIX-11 (en→ms→ta→cmn): 44 CJK chars — Chinese segment dominates output
-- MIX-12 (ta→cmn→en→ms): 2 CJK chars + low Tamil ratio — Chinese segment present
+Large-v3's real-Tamil corruption rate is materially lower than turbo's
+(1/15 vs 3/15), and its failure mode is a single wrong-script rendering
+rather than fluent multi-script fabrication.
 
-These are synthetic concatenated samples containing Chinese audio segments.
-CJK characters in the output for samples containing Chinese audio are
-expected behavior, not corruption. No CJK appears in real Tamil-only output.
+## Mixed-Language Results (corrected)
 
-### Mixed-Language Observations (Large-v3)
+### Turbo — 5 of 12 synthetic mixed samples flagged
 
-All 12 synthetic mixed samples: CLEAN. Large-v3 produces cleaner output on
-synthetic concatenated samples, but at 1.67x slower inference.
+| Alias | Unexpected scripts |
+|-------|-------------------|
+| MIX-07 (ta→en) | Thai (2) |
+| MIX-09 (ms→ta) | Cyrillic (2), Greek (1), Korean (1) |
+| MIX-10 (ta→ms) | Greek (2) |
+| MIX-11 (en→ms→ta→cmn) | Cyrillic (3), Devanagari (1) |
+| MIX-12 (ta→cmn→en→ms) | Devanagari (1), Greek (200) |
 
-## Cycle-3 Corruption Disclosure
+### Large-v3 — 2 of 12 synthetic mixed samples flagged + 1 empty
 
-The original 16-sample benchmark (3 real Tamil samples) showed:
-- Turbo ta_in_1: cross-script corruption (Cycle 3 finding)
-- Large-v3 ta_in_1: anomalous RTF of 23.6 (same sample)
+| Alias | Observation |
+|-------|-------------|
+| MIX-07 (ta→en) | Cyrillic (4) |
+| MIX-11 (en→ms→ta→cmn) | Cyrillic (4) |
+| MIX-09 (ms→ta) | **Empty transcript** — total content omission (0 segments) |
 
-The expanded 15-sample Tamil benchmark shows:
-- Turbo: 0/15 real Tamil samples corrupted — original corruption was isolated
-- Large-v3: 0/15 real Tamil samples corrupted — consistent quality
+Large-v3 remains cleaner than turbo on synthetic mixed samples (2 flagged +
+1 empty vs turbo's 5 flagged), but is not perfect.
 
-The original corruption did not repeat on the expanded corpus. The small
-original sample size (3) made the single corruption appear more systemic
-than it was.
+## Known Limitations (recorded honestly)
 
-## Model Gate Decision
+- Large-v3 is slower on CPU (~7.73 RTF vs turbo's ~4.63).
+- Large-v3 still has occasional wrong-script/hallucination behavior
+  (ta_in_15 rendered in Gurmukhi; MIX-09 produced empty output).
+- Synthetic concatenated samples do not prove natural conversational
+  code-switch accuracy. Naturalistic code-switch verification remains a
+  P3-008 requirement.
+- Phase 3 does not establish a WER SLA. No numerical accuracy threshold is
+  defined by this decision.
+- Script-integrity detection is heuristic; it flags unexpected scripts and
+  empty output but does not prove semantic correctness. Names, numbers,
+  acronyms, and legitimate borrowing may appear in other scripts.
+- The earlier evidence document overstated turbo's Tamil quality due to a
+  defective detector; this is corrected here and preserved as history.
 
-**BENCHMARK GATE PASSED — TURBO SUPPORTED**
+## Model Gate Conclusion
 
-Rationale:
-1. 0/15 real Tamil samples show script corruption for turbo (original Cycle-3
-   corruption was isolated, not systemic)
-2. Turbo is 1.67x faster than large-v3 on CPU
-3. Both models produce clean output on real Tamil audio
-4. Large-v3's advantage on synthetic mixed samples does not justify 1.67x
-   slower inference for real-world usage
-5. Language detection quality is equivalent on real audio
+```text
+BENCHMARK REQUIRES HPO MODEL DECISION  ->  DECIDED: large-v3
+```
 
-Known limitations:
-- Turbo produces minor CJK artifacts on synthetic concatenated samples
-  containing Chinese audio (expected behavior, not corruption)
-- Large-v3 detected ta_in_15 as Malayalam instead of Tamil (detection quirk)
-- Per-segment language identification overhead not measured (LOW, INFO)
+The HPO selected large-v3 as the initial canonical Phase 3 model.
+Turbo is non-default / experimental only.
 
 ## Decision Rule Applied
 
-> If expanded evidence shows Turbo acceptable: record
-> BENCHMARK GATE PASSED — TURBO SUPPORTED
+Canonical rule: turbo preferred unless evidence demonstrates materially
+unacceptable degradation for RTFTT's multilingual workload.
 
-Evidence supports this outcome. Gate passed.
+Turbo's repeated real-Tamil cross-script corruption (3/15, ~20%) is
+materially unacceptable for the initial default model. Therefore large-v3
+was selected.
 
 ## Privacy
 
-FLEURS samples are public domain (CC BY 4.0) research data. Synthetic
+FLEURS samples are public-domain (CC BY 4.0) research data. Synthetic
 concatenation samples contain no real user data. All media files git-ignored.
 
 ## Historical Notes
 
 - Cycle 1 (2026-09-17): BLOCKED — Python environment + missing media
 - Cycle 2 (2026-09-17): BLOCKED — Python resolved, media still missing
-- Cycle 3 (2026-09-17): EXECUTED — initial 16-sample benchmark; turbo selected
-- Cycle 3 (2026-09-17): REOPENED — HPO escalation after Tamil corruption found
-- Cycle 4 (2026-09-18): governance review confirmed H5 fixed, H6 open
-- HPO escalation (2026-09-18): Option 2 (Defer), narrow H6 remediation authorized
-- Expanded benchmark (2026-09-18): 36 samples, both models complete
-- Gate decision (2026-09-18): TURBO SUPPORTED (15/15 Tamil clean)
+- Cycle 3 (2026-09-17): initial 16-sample benchmark; provisional turbo selection
+- Cycle 3 (2026-09-17): REOPENED after Tamil corruption found
+- Cycle 4 (2026-09-18): governance review; H5 fixed, H6 open
+- HPO escalation (2026-09-18): narrow H6 remediation authorized
+- Expanded benchmark (2026-09-18): 36 samples, both models
+- Post-escalation review (2026-09-18): BLOCKER-1 — detector defect found;
+  turbo Tamil corruption reproduced at 3/15; large-v3 ta_in_15 Gurmukhi;
+  large-v3 MIX-09 empty
+- HPO final decision (2026-09-18): **large-v3 selected**; turbo non-default

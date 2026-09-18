@@ -322,3 +322,35 @@ class TestGetModel:
 
         assert first is second
         mock_whisper_model.assert_called_once()
+
+
+class TestCanonicalModelDefault:
+    """The canonical Phase 3 default model is large-v3 (HPO decision 2026-09-18)."""
+
+    def test_default_model_is_large_v3(self):
+        """RTFTT_WHISPER_MODEL defaults to large-v3, not turbo."""
+        import importlib
+        import os
+
+        import worker.config as config_module
+
+        # With the env var unset, the default must be large-v3
+        env = dict(os.environ)
+        env.pop("RTFTT_WHISPER_MODEL", None)
+        try:
+            os.environ.pop("RTFTT_WHISPER_MODEL", None)
+            importlib.reload(config_module)
+            assert config_module.MODEL_NAME == "large-v3"
+        finally:
+            os.environ.clear()
+            os.environ.update(env)
+            importlib.reload(config_module)
+
+    def test_main_reports_centralized_model_name(self):
+        """worker.main uses config.MODEL_NAME, not a duplicated hardcode."""
+        import inspect
+        import worker.main as main_module
+
+        source = inspect.getsource(main_module)
+        assert "MODEL_NAME" in source
+        assert 'os.environ.get("RTFTT_WHISPER_MODEL"' not in source

@@ -1,7 +1,6 @@
 """RTFTT Transcription Worker — FastAPI application."""
 
 import logging
-import os
 import time
 from pathlib import Path
 
@@ -10,7 +9,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from .auth import verify_token
-from .config import PREPARED_AUDIO_RETENTION, MAX_WORKER_TIMEOUT
+from .config import PREPARED_AUDIO_RETENTION, MAX_WORKER_TIMEOUT, MODEL_NAME
 from .ffmpeg import FfmpegError, prepare_audio
 from .media import MediaAccessError, resolve_media_path
 from .transcription import transcribe_audio
@@ -77,7 +76,7 @@ async def transcribe(
                 "transcription_id": request.transcription_id,
                 "attempt_id": request.attempt_id,
                 "processing_seconds": round(processing_time, 3),
-                "model": os.environ.get("RTFTT_WHISPER_MODEL", "turbo"),
+                "model": MODEL_NAME,
                 "speech_detected": result["speech_detected"],
                 "segment_count": len(result["segments"]),
             },

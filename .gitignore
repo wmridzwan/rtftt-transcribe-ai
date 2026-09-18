@@ -28,9 +28,8 @@ test-output.txt
 /storage/orchestration
 
 worker/.venv
-worker/__pycache__
-worker/tests/__pycache__
-scripts/benchmark/__pycache__
-worker/.pytest_cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
 benchmark-media/
 benchmark-results.json

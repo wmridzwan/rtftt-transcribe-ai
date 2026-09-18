@@ -10,11 +10,16 @@ segment-LID overhead measurements.
 import json
 import time
 import sys
-import unicodedata
 from pathlib import Path
 
 WORKER_DIR = Path(__file__).parent.parent / "worker"
 sys.path.insert(0, str(WORKER_DIR))
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from scripts.benchmark.script_integrity import (
+    analyze_transcript as analyze_script_integrity_impl,
+    expected_scripts_for,
+)
 
 from faster_whisper import WhisperModel
 
@@ -27,47 +32,16 @@ MODELS = {
 }
 
 
-def analyze_script_integrity(transcript: str, expected_lang: str) -> dict:
-    """Analyze script corruption in transcript.
+def analyze_script_integrity(transcript: str, alias: str = "") -> dict:
+    """Comprehensive heuristic script-integrity analysis.
 
-    For Tamil (ta): expect dominant Tamil script (U+0B80-U+0BFF).
-    For Mandarin (zh): expect dominant CJK Unified Ideographs (U+4E00-U+9FFF).
-    Unexpected script mixing is flagged.
+    Delegates to the shared script_integrity module (all script classes,
+    explicit empty-output flagging). `expected_lang` is derived from the
+    sample alias, not the model's own detected language, so a wrong-script
+    hallucination cannot suppress its own detection.
     """
-    if not transcript:
-        return {"clean": True, "flags": []}
-
-    flags = []
-    total_chars = len(transcript)
-
-    if expected_lang == "ta":
-        # Tamil block: U+0B80-U+0BFF
-        tamil_chars = sum(1 for c in transcript if "\u0B80" <= c <= "\u0BFF")
-        latin_chars = sum(1 for c in transcript if c.isascii() and c.isalpha())
-        cjk_chars = sum(1 for c in transcript if "\u4E00" <= c <= "\u9FFF")
-
-        if tamil_chars > 0:
-            tamil_ratio = tamil_chars / total_chars
-        else:
-            tamil_ratio = 0.0
-
-        # Flag if significant non-Tamil, non-Latin content
-        if cjk_chars > 0:
-            flags.append(f"CJK characters found: {cjk_chars}")
-        if tamil_ratio < 0.3 and tamil_chars > 0:
-            flags.append(f"Low Tamil script ratio: {tamil_ratio:.2f}")
-        if tamil_chars == 0 and latin_chars > 0:
-            flags.append("No Tamil script at all (Latin only)")
-
-    elif expected_lang == "zh":
-        # CJK block: U+4E00-U+9FFF
-        cjk_chars = sum(1 for c in transcript if "\u4E00" <= c <= "\u9FFF")
-        tamil_chars = sum(1 for c in transcript if "\u0B80" <= c <= "\u0BFF")
-
-        if tamil_chars > 0:
-            flags.append(f"Tamil characters in Chinese output: {tamil_chars}")
-
-    return {"clean": len(flags) == 0, "flags": flags}
+    expected = expected_scripts_for(alias)
+    return analyze_script_integrity_impl(transcript, expected)
 
 
 def run_benchmark(model_name: str, model_config: dict) -> dict:
@@ -123,13 +97,8 @@ def run_benchmark(model_name: str, model_config: dict) -> dict:
         transcript = " ".join(s.text.strip() for s in segment_list)
         detected_lang = info.language if info.language else "und"
 
-        # Script corruption analysis
-        expected_lang = detected_lang
-        if "ta" in sample.get("config", ""):
-            expected_lang = "ta"
-        elif "cmn" in sample.get("config", ""):
-            expected_lang = "zh"
-        script_analysis = analyze_script_integrity(transcript, expected_lang)
+        # Script corruption analysis (heuristic, all script classes)
+        script_analysis = analyze_script_integrity(transcript, alias)
 
         sample_result = {
             "alias": alias,

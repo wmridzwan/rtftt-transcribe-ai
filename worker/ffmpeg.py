@@ -1,5 +1,6 @@
 """FFmpeg audio preparation: 16 kHz, mono, PCM 16-bit."""
 
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -29,7 +30,6 @@ def prepare_audio(input_path: Path) -> Path:
     )
     output_path = Path(temp_path_str)
     # Close the file descriptor immediately; FFmpeg will open it by path
-    import os
     os.close(fd)
 
     cmd = [

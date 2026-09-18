@@ -67,12 +67,8 @@ def resume_model(model_name: str) -> dict:
         transcript = " ".join(s.text.strip() for s in segment_list)
         detected_lang = info.language if info.language else "und"
 
-        expected_lang = detected_lang
-        if "ta" in sample.get("config", ""):
-            expected_lang = "ta"
-        elif "cmn" in sample.get("config", ""):
-            expected_lang = "zh"
-        script_analysis = analyze_script_integrity(transcript, expected_lang)
+        # Script corruption analysis (heuristic, all script classes)
+        script_analysis = analyze_script_integrity(transcript, alias)
 
         results["samples"].append({
             "alias": alias,

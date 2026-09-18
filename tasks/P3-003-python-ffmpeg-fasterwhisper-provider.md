@@ -239,7 +239,8 @@ Implementation owner must not mark their own work VERIFIED.
 - Bearer token authentication (env-backed)
 - Shared-filesystem media resolution (rejects absolute paths, traversal)
 - FFmpeg preparation: 16kHz, mono, PCM 16-bit WAV
-- faster-whisper inference (model configurable, default: turbo)
+- faster-whisper inference (model configurable; canonical default: large-v3
+  per HPO decision 2026-09-18; turbo available as non-default profile)
 - Segment-level language normalization (not copied from transcript)
 - No-speech: speech_detected=false, text="", language=und, segments=[]
 - Prepared audio cleanup (ephemeral default)

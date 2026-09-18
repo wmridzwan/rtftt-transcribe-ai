@@ -59,7 +59,7 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 Decision ID: DECISION-P3-BENCHMARK-GATE-001
 
-Status: OPEN — expanded evidence produced; awaiting independent post-escalation verification
+Status: DECIDED — large-v3 selected as initial canonical Phase 3 model
 
 Type: Phase Authorization / Architecture
 
@@ -152,6 +152,29 @@ script-corruption analysis. Model selection decision remains OPEN pending
 expanded evidence. Earlier turbo selection history preserved but not final.
 See `reviews/PHASE3-BATCH1-cycle3-independent-review.md`.
 
+**Expanded evidence (2026-09-18):** 36-sample corpus (15 real Tamil, 9
+non-Tamil FLEURS, 12 synthetic mixed) run through both models. Performance:
+turbo mean RTF 4.6269, large-v3 mean RTF 7.7306 (turbo 1.67x faster).
+
+**Post-escalation review (2026-09-18):** Independent review found BLOCKER-1:
+the script-corruption detector used to produce the initial "15/15 Tamil
+clean" claim was defective — it checked only CJK presence and Tamil ratio and
+auto-passed empty transcripts. Corrected re-analysis of the preserved raw
+transcripts found turbo produced multi-script hallucinated corruption on
+3/15 real Tamil samples (ta_in_1, ta_in_11, ta_in_13; Hebrew/Cyrillic/Korean/
+Arabic), and large-v3 produced one wrong-script Tamil output (ta_in_15,
+Gurmukhi) plus one empty mixed output (MIX-09). See
+`reviews/PHASE3-BATCH1-post-escalation-independent-review.md`.
+
+**DECIDED (2026-09-18, HPO final model decision):** HPO selected **large-v3**
+as the initial canonical Phase 3 transcription model. Turbo was faster but
+showed repeated material cross-script corruption on real Tamil benchmark
+samples (~20%, 3/15). Turbo remains available only as a non-default
+optional/experimental fast model profile (via `RTFTT_WHISPER_MODEL`), with no
+new UX/model-selection scope. Full decision history preserved above; earlier
+provisional turbo selection is recorded but superseded. See
+`BENCHMARK-GATE-EVIDENCE.md` for corrected evidence.
+
 ### DECISION-P3-ESCALATION-001 — Three-cycle escalation resolution
 
 Decision ID: DECISION-P3-ESCALATION-001
@@ -205,12 +228,28 @@ history of the incorrect record rather than erasing it.
 Post-remediation: fresh independent post-escalation review requested.
 Batch 1 remains BLOCKED pending that review.
 
+**Escalation outcome for the unresolved model-quality issue (2026-09-18):**
+HPO chooses the canonical escalation outcome equivalent to **Option 3 —
+Accept with known limitations**, for Batch 1 using large-v3.
+
+Known limitations accepted:
+
+- Slower CPU inference (large-v3 mean RTF ~7.73 vs turbo ~4.63).
+- Occasional wrong-script/hallucination behavior still possible (large-v3
+  rendered one real Tamil sample in Gurmukhi and produced one empty mixed
+  output).
+- Synthetic mixed-language tests do not prove natural conversational
+  code-switch accuracy; P3-008 must later perform real integration-quality
+  verification.
+- Phase 3 does not establish a WER SLA.
+- Large-v3 is not represented as perfect.
+
 Impact:
 
 - P3-001/P3-002/P3-003 remain BLOCKED during and after remediation
 - H6 expanded benchmark is the only authorized implementation work
 - Batch 2/3 remain NOT AUTHORIZED
-- No autonomous Cycle 5; next review is "Post-Escalation Independent Review"
+- No autonomous Cycle 5; next review is "Final HPO-Decision Verification"
 
 Blocks:
 
