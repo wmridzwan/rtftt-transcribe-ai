@@ -59,7 +59,7 @@ To be completed by the authorized decision-maker. Link the durable ADR or task u
 
 Decision ID: DECISION-P3-BENCHMARK-GATE-001
 
-Status: OPEN — model selection reopened by HPO escalation after Cycle-3 review
+Status: OPEN — expanded evidence produced; awaiting independent post-escalation verification
 
 Type: Phase Authorization / Architecture
 
@@ -158,7 +158,7 @@ Decision ID: DECISION-P3-ESCALATION-001
 
 Status: DECIDED
 
-Type: Escalation Resolution / Phase Authorization
+Type: Escalation Resolution / HPO Exception
 
 Originating Task: P3-001, P3-002, P3-003 (three consecutive CHANGES_REQUESTED
 cycles triggered escalation per `.ai/guidelines/orchestration-policy.md`)
@@ -173,7 +173,7 @@ Three consecutive CHANGES_REQUESTED cycles (Cycle 1, Cycle 2, Cycle 3)
 triggered the canonical escalation rule. Per policy, P3-001/P3-002/P3-003
 became BLOCKED. How should the escalation be resolved?
 
-Options (canonical, from `.ai/guidelines/orchestration-policy.md`):
+Canonical options (exact, from `.ai/guidelines/orchestration-policy.md` lines 75-79):
 
 1. Reassign to a different approach
 2. Defer the task
@@ -182,41 +182,44 @@ Options (canonical, from `.ai/guidelines/orchestration-policy.md`):
 
 Resolution:
 
-HPO selected Option 2 — **Defer the task** (2026-09-18).
+None of the four canonical options explicitly supports "keep BLOCKED while
+permitting narrowly scoped HPO-directed remediation and subsequent independent
+re-review." The HPO action that occurred does not map cleanly to any single
+canonical option.
 
-Batch 1 remains BLOCKED. A narrowly scoped remediation is explicitly
-authorized for the unresolved H6 benchmark/model-quality issue only:
+**HPO Exception (2026-09-18):**
 
-- Execute expanded Tamil benchmark (≥15 real FLEURS ta_in samples)
-- Execute expanded mixed-language benchmark (8+ additional transition samples)
-- Retain FLEURS reference transcriptions
-- Record raw per-sample outputs and timings
-- Update benchmark evidence honestly
-- Correct benchmark/gate governance status
-- Prepare evidence for HPO/model decision if required
+Batch 1 remained BLOCKED. HPO explicitly authorized only H6 benchmark
+remediation (expanded Tamil corpus, expanded mixed-language corpus,
+script-corruption analysis, model-gate reassessment). This did not reopen
+autonomous implementation. This did not authorize a normal Cycle 4/5.
+H5 was already confirmed fixed; regression checks were authorized but no
+new H5 architecture work.
 
-No unrelated P3 implementation is authorized. H5 is confirmed fixed
-(regression checks required, no new architecture work). The authorized
-remediation scope is H6 only.
+The earlier "Option 2 — Defer the task" recording was incorrect and is
+reconciled here. "Defer the task" does not accurately describe the HPO
+action, which included explicit authorization of specific remediation work
+while maintaining BLOCKED status. This reconciliation preserves the
+history of the incorrect record rather than erasing it.
 
-After remediation completion: request fresh independent post-escalation
-review. Do not autonomously transition BLOCKED → REVIEW.
+Post-remediation: fresh independent post-escalation review requested.
+Batch 1 remains BLOCKED pending that review.
 
 Impact:
 
-- P3-001/P3-002/P3-003 remain BLOCKED during remediation
+- P3-001/P3-002/P3-003 remain BLOCKED during and after remediation
 - H6 expanded benchmark is the only authorized implementation work
 - Batch 2/3 remain NOT AUTHORIZED
 - No autonomous Cycle 5; next review is "Post-Escalation Independent Review"
 
 Blocks:
 
-- P3-001, P3-002, P3-003 (BLOCKED pending remediation + fresh review)
+- P3-001, P3-002, P3-003 (BLOCKED pending fresh independent review)
 
 Does Not Block:
 
 - P3-004 through P3-008 (remain BACKLOG / NOT AUTHORIZED)
-- H6 expanded benchmark remediation (explicitly authorized)
+- H6 expanded benchmark remediation (completed under explicit HPO exception)
 
 ### DECISION-P3-BATCH1-001 — Authorize Phase 3 Batch 1
 
