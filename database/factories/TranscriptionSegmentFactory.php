@@ -21,6 +21,7 @@ class TranscriptionSegmentFactory extends Factory
             'start_seconds' => 0,
             'end_seconds' => fake()->numberBetween(5, 30),
             'text' => fake()->sentence(),
+            'language' => fake()->randomElement(['ms', 'en', 'zh', 'ta', 'und']),
         ];
     }
 }

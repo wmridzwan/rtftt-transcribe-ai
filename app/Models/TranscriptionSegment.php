@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\TranscriptExperience\SegmentTimestamp;
+use App\Transcription\LanguageIdentifier;
 use Database\Factories\TranscriptionSegmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,9 +14,10 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $transcription_id
  * @property int $segment_index
- * @property int $start_seconds
- * @property int $end_seconds
+ * @property float $start_seconds
+ * @property float $end_seconds
  * @property string $text
+ * @property LanguageIdentifier $language
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -29,14 +32,16 @@ class TranscriptionSegment extends Model
         'start_seconds',
         'end_seconds',
         'text',
+        'language',
     ];
 
     protected function casts(): array
     {
         return [
             'segment_index' => 'integer',
-            'start_seconds' => 'integer',
-            'end_seconds' => 'integer',
+            'start_seconds' => 'float',
+            'end_seconds' => 'float',
+            'language' => LanguageIdentifier::class,
         ];
     }
 
@@ -48,9 +53,10 @@ class TranscriptionSegment extends Model
 
     public function getFormattedStartAttribute(): string
     {
-        $hours = intdiv($this->start_seconds, 3600);
-        $minutes = intdiv($this->start_seconds % 3600, 60);
-        $seconds = $this->start_seconds % 60;
+        $totalSeconds = (int) floor($this->start_seconds);
+        $hours = intdiv($totalSeconds, 3600);
+        $minutes = intdiv($totalSeconds % 3600, 60);
+        $seconds = $totalSeconds % 60;
 
         if ($hours > 0) {
             return sprintf('%d:%02d:%02d', $hours, $minutes, $seconds);
@@ -59,11 +65,21 @@ class TranscriptionSegment extends Model
         return sprintf('%02d:%02d', $minutes, $seconds);
     }
 
+    /**
+     * Exact persisted numeric seconds for media seeking (P4-001 canonical
+     * primitive); never re-rounded and never parsed from the display string.
+     */
+    public function getSeekSecondsAttribute(): string
+    {
+        return SegmentTimestamp::fromSeconds($this->start_seconds)->seek();
+    }
+
     public function getFormattedEndAttribute(): string
     {
-        $hours = intdiv($this->end_seconds, 3600);
-        $minutes = intdiv($this->end_seconds % 3600, 60);
-        $seconds = $this->end_seconds % 60;
+        $totalSeconds = (int) floor($this->end_seconds);
+        $hours = intdiv($totalSeconds, 3600);
+        $minutes = intdiv($totalSeconds % 3600, 60);
+        $seconds = $totalSeconds % 60;
 
         if ($hours > 0) {
             return sprintf('%d:%02d:%02d', $hours, $minutes, $seconds);
