@@ -29,6 +29,12 @@
                     </flux:menu>
                 </flux:dropdown>
 
+                @if ($canExport)
+                    <flux:button icon="language" variant="subtle" size="sm" href="{{ route('transcriptions.translations.show', $transcription) }}" data-translate-link>
+                        Translate
+                    </flux:button>
+                @endif
+
                 <flux:button icon="pencil-square" variant="subtle" size="sm" x-on:click="showRenameModal = true">
                     Rename
                 </flux:button>

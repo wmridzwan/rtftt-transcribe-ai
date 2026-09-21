@@ -78,6 +78,12 @@ class Transcription extends Model
         return $this->hasMany(TranscriptionSegment::class)->orderBy('segment_index');
     }
 
+    /** @return HasMany<Translation, $this> */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(Translation::class);
+    }
+
     /** @return HasMany<ProcessingJob, $this> */
     public function processingJobs(): HasMany
     {

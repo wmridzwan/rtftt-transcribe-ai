@@ -41,6 +41,19 @@ enum TranslationTarget: string
     }
 
     /**
+     * Human-readable name for selectors and headings.
+     */
+    public function label(): string
+    {
+        return match ($this) {
+            self::Malay => 'Malay (Bahasa Melayu)',
+            self::English => 'English',
+            self::Chinese => 'Chinese (中文)',
+            self::Tamil => 'Tamil (தமிழ்)',
+        };
+    }
+
+    /**
      * @return list<string>
      */
     public static function values(): array
