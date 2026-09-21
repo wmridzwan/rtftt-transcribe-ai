@@ -2,7 +2,10 @@
 
 ## Status
 
-BACKLOG — requires HPO READY promotion.
+IMPLEMENTED_PENDING_REVIEW — provider boundary, validator, worker module,
+tests, and internal pre-review complete (2026-09-21). Worker `/translate` route
+wiring is implemented in the working tree but uncommitted under B-001. Not
+VERIFIED; not DONE. Independent review pending.
 
 ## Ownership
 

@@ -34,6 +34,22 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 | GOV-2 (reviewer) | `GOVERNANCE_BLOCKER` | `AGENTS.md` / `CURRENT_STATE.md` updated in the working tree to record Phase 5 = AUTHORIZED FOR IMPLEMENTATION, P5-001/P5-002 = VERIFIED, P6/P7 allowlists only. These two files carry pre-existing Phase 4 governance edits and remain uncommitted (see B-001). | 2026-09-21 |
 | GOV-3 (reviewer) | `GOVERNANCE_BLOCKER` | Same root cause as B-001 (uncommitted Phase 3/4 baseline); not a new defect. | 2026-09-21 |
 
+### B-002 — P5-003 worker `/translate` route wiring cannot be committed
+- Classification: `GOVERNANCE_BLOCKER` (informational; work-level, non-stopping)
+- Task/Source: P5-003
+- Detail: the `/translate` FastAPI route lives in `worker/main.py`, which also
+  carries uncommitted Phase 3/4 worker changes in the dirty baseline. Committing
+  the file wholesale would mix the Phase 3 baseline into a P5-003 commit.
+- Impact: the route is implemented and worker-tested in the working tree
+  (`worker/tests/test_translation.py`, 4 passed) but remains uncommitted.
+  `worker/translation.py` is committed. PHP-side P5-003 is fully committed and
+  self-sufficient.
+- Mitigation: same as B-001 — do not stage baseline files wholesale.
+- Owner decision required: none to proceed; the HPO should commit the Phase 3/4
+  baseline on its own authority so these wiring files can be committed.
+- Blocked work: none (worker endpoint is not required by PHP tests; P5-008 will
+  require it).
+
 ## Rules
 
 1. Record every blocker with classification and affected task.

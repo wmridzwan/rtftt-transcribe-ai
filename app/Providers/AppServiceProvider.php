@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\MediaFile;
+use App\Translation\HttpTranslationProvider;
+use App\Translation\TranslationProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +18,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(TranslationProvider::class, function () {
+            return new HttpTranslationProvider(
+                workerBaseUrl: (string) config('translation.worker_url', 'http://localhost:8000'),
+                bearerToken: (string) config('translation.worker_token', ''),
+                providerName: (string) config('translation.provider', 'self-hosted'),
+                model: (string) config('translation.model', 'self-hosted-default'),
+                contractVersion: (string) config('translation.contract_version', '1.0'),
+            );
+        });
     }
 
     /**
