@@ -108,3 +108,20 @@ def test_nllb_code_mapping_uses_flores_standard():
     assert translation.NLLB_CODES["en"] == "eng_Latn"
     assert translation.NLLB_CODES["zh"] == "zho_Hans"
     assert translation.NLLB_CODES["ta"] == "tam_Taml"
+
+def test_translation_model_dependencies_are_exactly_pinned():
+    # P5-004B: the real-model gate (P5-008) must verify the set that ships, so the
+    # approved Phase 5 model dependencies may not drift to open-ended `>=` ranges.
+    from pathlib import Path
+
+    requirements = (Path(__file__).resolve().parents[1] / "requirements.txt").read_text().splitlines()
+    declared = {}
+    for line in requirements:
+        line = line.strip()
+        if line and not line.startswith("#"):
+            name = line.replace("==", " ").replace(">=", " ").replace("<", " ").split()[0]
+            declared[name] = line
+
+    for name in ("transformers", "torch", "sentencepiece"):
+        assert name in declared, f"{name} must be declared"
+        assert "==" in declared[name] and ">=" not in declared[name], declared[name]

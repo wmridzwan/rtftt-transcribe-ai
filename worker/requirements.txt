@@ -5,11 +5,19 @@ faster-whisper>=1.0.0
 ctranslate2>=4.0.0
 pydantic>=2.0.0
 
-# Self-hosted translation (P5-003 / ADR-022 D5-04).
+# Self-hosted translation (P5-003 / ADR-022 D5-04; approved Phase 5 dependencies).
 # Required by the default translation provider (worker/translation.py, NLLB).
-transformers>=4.40.0
-torch>=2.2.0
-sentencepiece>=0.2.0
+#
+# Pinned exactly so the P5-008 real-model gate verifies the same set that ships.
+# The pins stay inside the transformers 4.x line: worker/translation.py assigns
+# `tokenizer.src_lang` and calls `convert_tokens_to_ids()`, which are documented
+# for 4.x; 5.x is a breaking major and needs its own verification before adoption.
+# Resolution of this exact set was checked with `pip install --dry-run` on
+# CPython 3.13 (Windows). The real-model gate has NOT been run yet. To change a
+# pin, re-run that gate.
+transformers==4.57.6
+torch==2.9.1
+sentencepiece==0.2.1
 
 # Test dependencies
 pytest>=7.0.0
