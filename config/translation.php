@@ -28,5 +28,19 @@ return [
 
     'timeout_seconds' => (int) env('RTFTT_TRANSLATION_TIMEOUT_SECONDS', 300),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Stale attempt recovery
+    |--------------------------------------------------------------------------
+    |
+    | A `translating` translation older than this threshold is considered
+    | abandoned and recoverable (P5-005). When unset it is derived from the
+    | canonical provider execution timeout plus an explicit 60-second safety
+    | margin so a legitimately long translation is never mistaken for stale.
+    |
+    */
+
+    'attempt_stale_seconds' => env('RTFTT_TRANSLATION_ATTEMPT_STALE_SECONDS'),
+
     'contract_version' => '1.0',
 ];

@@ -2,7 +2,9 @@
 
 ## Status
 
-BACKLOG — requires HPO READY promotion.
+IMPLEMENTED_PENDING_REVIEW — manual retry, stale recovery, genuine two-process
+retry concurrency evidence, tests, and internal pre-review complete
+(2026-09-21). Not VERIFIED; not DONE. Independent review pending.
 
 ## Ownership
 
