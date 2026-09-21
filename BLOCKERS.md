@@ -33,6 +33,8 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 | GOV-1 (reviewer) | `GOVERNANCE_BLOCKER` | Ratified under ADR-023 / `PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md` §4: eligible downstream work may start once a committed predecessor reaches `IMPLEMENTED_PENDING_REVIEW`. P5-002-after-P5-001 ordering ratified. | 2026-09-21 |
 | GOV-2 (reviewer) | `GOVERNANCE_BLOCKER` | `AGENTS.md` / `CURRENT_STATE.md` updated in the working tree to record Phase 5 = AUTHORIZED FOR IMPLEMENTATION, P5-001/P5-002 = VERIFIED, P6/P7 allowlists only. These two files carry pre-existing Phase 4 governance edits and remain uncommitted (see B-001). | 2026-09-21 |
 | GOV-3 (reviewer) | `GOVERNANCE_BLOCKER` | Same root cause as B-001 (uncommitted Phase 3/4 baseline); not a new defect. | 2026-09-21 |
+| B-001 (named items) | `GOVERNANCE_BLOCKER` | Named P5 dependencies tracked with provenance: `SegmentTimestamp` (`2ea55d3`), segment-language schema/cast (`da482e3`), speech-detected schema (`6961087`). The wider Phase 3/4 baseline (e.g. unique-segment-index/failure-code migrations, transcription/processing-job controllers) remains uncommitted and is still an HPO action; a catch-all baseline commit was expressly not created. | 2026-09-21 |
+| B-002 (named items) | `GOVERNANCE_BLOCKER` | Worker `/translate` wiring tracked (`63a1a76`); worker model runtime dependencies declared in `worker/requirements.txt` (P5-003 cycle 2). | 2026-09-21 |
 
 ### B-002 — P5-003 worker `/translate` route wiring cannot be committed
 - Classification: `GOVERNANCE_BLOCKER` (informational; work-level, non-stopping)
