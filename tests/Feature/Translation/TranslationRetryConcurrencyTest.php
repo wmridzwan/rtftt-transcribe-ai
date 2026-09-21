@@ -33,6 +33,7 @@ beforeEach(function (): void {
             "transcription_id" INTEGER NOT NULL,
             "target_language" TEXT NOT NULL,
             "status" TEXT NOT NULL DEFAULT \'pending\',
+            "attempt_token" TEXT NULL,
             "source_language" TEXT NULL,
             "provider" TEXT NULL,
             "model" TEXT NULL,
@@ -47,8 +48,8 @@ beforeEach(function (): void {
 
     $now = now()->toDateTimeString();
 
-    $pdo->prepare('INSERT INTO "translations" ("transcription_id", "target_language", "status", "failure_code", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?, ?)')
-        ->execute([1, 'ms', 'failed', 'PROVIDER_FAILED', $now, $now]);
+    $pdo->prepare('INSERT INTO "translations" ("transcription_id", "target_language", "status", "failure_code", "attempt_token", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?, ?, ?)')
+        ->execute([1, 'ms', 'failed', 'PROVIDER_FAILED', 'old-token', $now, $now]);
     $this->raceTranslationId = (int) $pdo->lastInsertId();
 
     $pdo = null;

@@ -46,6 +46,7 @@ class StaleTranslationAttemptRecovery
         $stale = Translation::query()
             ->where('status', TranslationStatus::Translating->value)
             ->whereNotNull('started_at')
+            ->whereNotNull('attempt_token')
             ->where('started_at', '<=', $cutoff)
             ->orderBy('id')
             ->get();
@@ -53,9 +54,12 @@ class StaleTranslationAttemptRecovery
         $recovered = 0;
 
         foreach ($stale as $translation) {
+            // Fenced by attempt identity: a retry between the SELECT and the
+            // UPDATE mints a new token, so this CAS cannot fail a newer attempt.
             $won = Translation::query()
                 ->whereKey($translation->getKey())
                 ->where('status', TranslationStatus::Translating->value)
+                ->where('attempt_token', $translation->attempt_token)
                 ->update([
                     'status' => TranslationStatus::Failed->value,
                     'failure_code' => TranslationFailure::ProviderTimeout->value,

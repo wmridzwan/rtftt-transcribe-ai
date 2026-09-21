@@ -2,9 +2,20 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — manual retry, stale recovery, genuine two-process
-retry concurrency evidence, tests, and internal pre-review complete
-(2026-09-21). Not VERIFIED; not DONE. Independent review pending.
+IMPLEMENTED_PENDING_REVIEW — corrective cycle 2 (2026-09-21) addresses the
+consolidated independent review X-1 (AC4), X-2 (AC2), M-1, L-1: attempt-token
+fencing of stale recovery, converging retry, and X-1/X-2 regression tests.
+Independent re-review pending. Not VERIFIED; not DONE.
+
+## Cycle 2 Notes
+
+- `StaleTranslationAttemptRecovery` is token-fenced and selects only
+  token-bearing translating rows.
+- `TranslationRetry` converges on any active attempt (no raw unique-index
+  exception).
+- Regressions: old-token job after recovery and after recovery+retry;
+  request-after-failure; active-attempt convergence.
+- Pre-review: `reviews/pre-review/P5-005-cycle2-pre-review.md`.
 
 ## Ownership
 
