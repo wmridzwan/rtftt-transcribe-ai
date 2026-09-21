@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string $title
  * @property string|null $language
  * @property string|null $detected_language
+ * @property bool|null $speech_detected
  * @property string|null $model
  * @property TranscriptionStatus $status
  * @property string|null $full_text
@@ -38,6 +39,7 @@ class Transcription extends Model
         'title',
         'language',
         'detected_language',
+        'speech_detected',
         'model',
         'status',
         'full_text',
@@ -51,6 +53,7 @@ class Transcription extends Model
     {
         return [
             'status' => TranscriptionStatus::class,
+            'speech_detected' => 'boolean',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'processing_seconds' => 'integer',

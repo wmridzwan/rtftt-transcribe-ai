@@ -25,6 +25,7 @@ class TranscriptionFactory extends Factory
             'title' => fake()->sentence(3),
             'language' => fake()->randomElement(['en', 'ms', 'zh', null]),
             'detected_language' => fake()->randomElement(['en', 'ms', 'zh', null]),
+            'speech_detected' => $status === TranscriptionStatus::Completed ? true : null,
             'model' => fake()->randomElement(['faster-whisper-medium', 'faster-whisper-large-v3', null]),
             'status' => $status,
             'full_text' => $status === TranscriptionStatus::Completed ? fake()->paragraphs(3, true) : null,
@@ -48,6 +49,7 @@ class TranscriptionFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => TranscriptionStatus::Completed,
             'full_text' => fake()->paragraphs(3, true),
+            'speech_detected' => true,
             'started_at' => fake()->dateTimeBetween('-30 days', 'now'),
             'completed_at' => fake()->dateTimeBetween('-30 days', 'now'),
             'processing_seconds' => fake()->numberBetween(10, 3600),
