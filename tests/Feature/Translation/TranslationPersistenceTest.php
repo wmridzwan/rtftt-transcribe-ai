@@ -5,12 +5,42 @@ use App\Models\TranscriptionSegment;
 use App\Models\Translation;
 use App\Models\TranslationSegment;
 use App\Transcription\LanguageIdentifier;
+use App\Translation\TranslationException;
 use App\Translation\TranslationResult;
 use App\Translation\TranslationResultWriter;
 use App\Translation\TranslationSegmentData;
 use App\Translation\TranslationStatus;
 use App\Translation\TranslationTarget;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
+
+function sourceTranscription(): Transcription
+{
+    $transcription = Transcription::factory()->completed()->create([
+        'detected_language' => 'en',
+        'full_text' => 'Original source text',
+    ]);
+
+    TranscriptionSegment::factory()->create([
+        'transcription_id' => $transcription->getKey(),
+        'segment_index' => 0,
+        'start_seconds' => 0,
+        'end_seconds' => 4.999,
+        'text' => 'Hello',
+        'language' => 'en',
+    ]);
+
+    TranscriptionSegment::factory()->create([
+        'transcription_id' => $transcription->getKey(),
+        'segment_index' => 1,
+        'start_seconds' => 4.999,
+        'end_seconds' => 9.5,
+        'text' => 'Welcome',
+        'language' => 'en',
+    ]);
+
+    return $transcription;
+}
 
 function translationResultFixture(
     TranslationTarget $target = TranslationTarget::Malay,
@@ -56,18 +86,7 @@ it('persists a translation with enum casts and ordered segments', function () {
 });
 
 it('writes an aligned translation without mutating the source transcript', function () {
-    $transcription = Transcription::factory()->completed()->create([
-        'detected_language' => 'en',
-        'full_text' => 'Original source text',
-    ]);
-    TranscriptionSegment::factory()->create([
-        'transcription_id' => $transcription->getKey(),
-        'segment_index' => 0,
-        'start_seconds' => 0,
-        'end_seconds' => 5,
-        'text' => 'Original source text',
-        'language' => 'en',
-    ]);
+    $transcription = sourceTranscription();
 
     $beforeTranscript = $transcription->fresh()->only(['full_text', 'status', 'detected_language']);
     $beforeSegments = $transcription->segments()->get()->map->only(['segment_index', 'start_seconds', 'end_seconds', 'text', 'language'])->all();
@@ -87,7 +106,7 @@ it('writes an aligned translation without mutating the source transcript', funct
 });
 
 it('is idempotent for repeated writes of the same target', function () {
-    $transcription = Transcription::factory()->completed()->create();
+    $transcription = sourceTranscription();
     $writer = app(TranslationResultWriter::class);
 
     $first = $writer->persist($transcription, translationResultFixture());
@@ -99,7 +118,7 @@ it('is idempotent for repeated writes of the same target', function () {
 });
 
 it('never overwrites a completed translation', function () {
-    $transcription = Transcription::factory()->completed()->create();
+    $transcription = sourceTranscription();
     $writer = app(TranslationResultWriter::class);
 
     $writer->persist($transcription, translationResultFixture());
@@ -155,4 +174,156 @@ it('enforces unique segment index per translation', function () {
         'translation_id' => $translation->getKey(),
         'segment_index' => 0,
     ]))->toThrow(QueryException::class);
+});
+
+it('rejects a result whose segment count differs from the source', function () {
+    $transcription = sourceTranscription();
+
+    $result = new TranslationResult(
+        targetLanguage: TranslationTarget::Malay,
+        fullText: 'x',
+        segments: [],
+        provider: 'self-hosted',
+        model: 'translation-test',
+    );
+
+    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, $result))
+        ->toThrow(TranslationException::class);
+
+    expect(Translation::query()->where('transcription_id', $transcription->getKey())->count())->toBe(0);
+});
+
+it('rejects a result with foreign segment indices', function () {
+    $transcription = sourceTranscription();
+
+    $result = new TranslationResult(
+        targetLanguage: TranslationTarget::Malay,
+        fullText: 'x',
+        segments: [
+            new TranslationSegmentData(77, 0.0, 4.999, 'x', LanguageIdentifier::English),
+            new TranslationSegmentData(78, 4.999, 9.5, 'y', LanguageIdentifier::English),
+        ],
+        provider: 'self-hosted',
+        model: 'translation-test',
+    );
+
+    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, $result))
+        ->toThrow(TranslationException::class);
+});
+
+it('rejects a result with timestamps that do not match the source', function () {
+    $transcription = sourceTranscription();
+
+    $result = new TranslationResult(
+        targetLanguage: TranslationTarget::Malay,
+        fullText: 'x',
+        segments: [
+            new TranslationSegmentData(0, 0.0, 3.0, 'x', LanguageIdentifier::English),
+            new TranslationSegmentData(1, 4.999, 9.5, 'y', LanguageIdentifier::English),
+        ],
+        provider: 'self-hosted',
+        model: 'translation-test',
+    );
+
+    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, $result))
+        ->toThrow(TranslationException::class);
+});
+
+it('completes a matching active row through the translation_id path', function () {
+    $transcription = sourceTranscription();
+
+    $translation = Translation::factory()->create([
+        'transcription_id' => $transcription->getKey(),
+        'target_language' => 'ms',
+        'status' => 'queued',
+    ]);
+
+    $result = app(TranslationResultWriter::class)->persist(
+        $transcription,
+        translationResultFixture(),
+        $translation->getKey(),
+    );
+
+    expect($result->getKey())->toBe($translation->getKey())
+        ->and($result->fresh()->status)->toBe(TranslationStatus::Completed)
+        ->and($result->segments()->count())->toBe(2);
+});
+
+it('rejects a translation_id whose target differs from the result', function () {
+    $transcription = sourceTranscription();
+
+    $translation = Translation::factory()->create([
+        'transcription_id' => $transcription->getKey(),
+        'target_language' => 'en',
+        'status' => 'queued',
+    ]);
+
+    expect(fn () => app(TranslationResultWriter::class)->persist(
+        $transcription,
+        translationResultFixture(target: TranslationTarget::Malay),
+        $translation->getKey(),
+    ))->toThrow(TranslationException::class);
+
+    expect($translation->fresh()->status)->toBe(TranslationStatus::Queued);
+});
+
+it('rejects completing a failed translation directly', function () {
+    $transcription = sourceTranscription();
+
+    $translation = Translation::factory()->failed()->create([
+        'transcription_id' => $transcription->getKey(),
+        'target_language' => 'ms',
+    ]);
+
+    expect(fn () => app(TranslationResultWriter::class)->persist(
+        $transcription,
+        translationResultFixture(),
+        $translation->getKey(),
+    ))->toThrow(TranslationException::class);
+
+    expect($translation->fresh()->status)->toBe(TranslationStatus::Failed);
+});
+
+it('rolls back the whole write when persistence fails mid-transaction', function () {
+    $transcription = sourceTranscription();
+    $armed = true;
+
+    Translation::creating(function () use (&$armed) {
+        if ($armed) {
+            $armed = false;
+            throw new RuntimeException('forced translation create failure');
+        }
+    });
+
+    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, translationResultFixture()))
+        ->toThrow(RuntimeException::class);
+
+    expect(Translation::query()->where('transcription_id', $transcription->getKey())->count())->toBe(0)
+        ->and(TranslationSegment::query()->count())->toBe(0);
+});
+
+it('wraps a unique-index collision as a persistence failure', function () {
+    $transcription = sourceTranscription();
+    $fired = false;
+
+    Translation::creating(function (Translation $model) use (&$fired, $transcription) {
+        if ($fired) {
+            return;
+        }
+
+        $fired = true;
+
+        DB::table('translations')->insert([
+            'transcription_id' => $transcription->getKey(),
+            'target_language' => $model->target_language->value,
+            'status' => 'completed',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    });
+
+    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, translationResultFixture()))
+        ->toThrow(TranslationException::class);
+
+    expect(Translation::query()->where('transcription_id', $transcription->getKey())->count())->toBe(0);
 });
