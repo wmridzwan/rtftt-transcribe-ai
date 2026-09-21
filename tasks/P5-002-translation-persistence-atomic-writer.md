@@ -2,9 +2,25 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — implementation, tests, evidence, and internal
-pre-review complete (2026-09-21). Not VERIFIED; not DONE. Independent review
-pending.
+VERIFIED — independent review `reviews/P5-002-independent-review.md` (2026-09-21)
+returned VERIFIED with no BLOCKER/HIGH; three MEDIUM findings recorded as
+non-blocking and carried into follow-up P5-002A (recommended before P5-004).
+Not DONE; HPO closure required.
+
+## Review
+
+Review File: `reviews/P5-002-independent-review.md`
+
+Review Status: VERIFIED (2026-09-21). MEDIUM-1 (translationId path not bound to
+target/lifecycle), MEDIUM-2 (no source-alignment enforcement), MEDIUM-3 (missing
+rollback/translationId/race tests); LOW-1 (unique collision surfaces raw),
+LOW-2 (source_language informational), LOW-3 (SQLite-only guard, D7-01).
+
+## Follow-Up
+
+- P5-002A — writer target/lifecycle binding, alignment enforcement, collision
+  handling, and missing tests, referencing the review above. Recommended before
+  P5-004 starts.
 
 ## Ownership
 

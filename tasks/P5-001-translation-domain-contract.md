@@ -2,9 +2,22 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — implementation, tests, evidence, and internal
-pre-review complete (2026-09-21). Not VERIFIED; not DONE. Independent review
-pending.
+VERIFIED — independent review `reviews/P5-001-independent-review.md` (2026-09-21)
+returned VERIFIED with no BLOCKER/HIGH/MEDIUM. LOW-1/LOW-2 and INFO-1..3
+recorded as non-blocking; LOW-1/LOW-2 carried into follow-up P5-001A. Not DONE;
+HPO closure required.
+
+## Review
+
+Review File: `reviews/P5-001-independent-review.md`
+
+Review Status: VERIFIED (2026-09-21). No BLOCKER/HIGH/MEDIUM. Non-blocking:
+LOW-1 (`TranslationSegmentData` accepts NAN/INF timestamps), LOW-2
+(`TranslationInvocation` accepts duplicate source indices), INFO-1..3.
+
+## Follow-Up
+
+- P5-001A — DTO input guards (LOW-1, LOW-2), referencing the review above.
 
 ## Ownership
 
