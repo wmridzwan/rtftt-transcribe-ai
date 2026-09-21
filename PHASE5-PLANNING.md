@@ -204,6 +204,11 @@ Candidate states: `pending`, `queued`, `translating`, `completed`, `failed`,
 with retry reachable only through an explicit authorized action (mirroring
 ADR-018). `retryable` is a derived property, not necessarily a stored state.
 
+**Attempt identity invariant (canonical, added 2026-09-21):** every translation
+execution attempt has an explicit identity. Any writer, failure handler, retry,
+stale-recovery operation, or lifecycle mutation must prove it is acting on the
+current attempt before changing persisted translation state.
+
 Where the lifecycle lives:
 
 - **On `Transcription`** — rejected: a completed transcription is protected and

@@ -69,6 +69,18 @@ result DTOs, alignment/passthrough policy, and the provider-neutral interface.
    `translate(TranslationInvocation $invocation): TranslationResult`.
 10. Unit tests for items 1–8.
 
+## Attempt Identity Invariant (canonical)
+
+> Every translation execution attempt has an explicit identity. Any writer,
+> failure handler, retry, stale-recovery operation, or lifecycle mutation must
+> prove it is acting on the current attempt before changing persisted
+> translation state.
+
+This invariant is binding on P5-004/P5-005 and any future translation mutation
+surface. Concretely, a queued execution attempt carries an opaque attempt token;
+claim, completion, failure, retry, and stale-recovery mutations are all fenced by
+that token, so a late or stale actor cannot mutate a newer attempt.
+
 ## Non-Scope
 
 - database schema/migrations/models (P5-002);
