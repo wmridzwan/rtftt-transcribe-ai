@@ -26,6 +26,20 @@ return [
 
     'model' => env('RTFTT_TRANSLATION_MODEL', 'self-hosted-default'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Queue orchestration
+    |--------------------------------------------------------------------------
+    |
+    | Small identifiers only are placed on the queue. Mirrors the Phase 3
+    | convention: a dedicated queue name with an optional explicit connection.
+    |
+    */
+
+    'queue' => env('RTFTT_TRANSLATION_QUEUE', 'translation'),
+
+    'queue_connection' => env('RTFTT_TRANSLATION_QUEUE_CONNECTION', env('RTFTT_TRANSCRIPTION_QUEUE_CONNECTION')),
+
     'timeout_seconds' => (int) env('RTFTT_TRANSLATION_TIMEOUT_SECONDS', 300),
 
     /*

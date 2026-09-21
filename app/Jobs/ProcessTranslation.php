@@ -8,6 +8,7 @@ use App\Models\Translation;
 use App\Translation\TranslationException;
 use App\Translation\TranslationFailure;
 use App\Translation\TranslationInvocation;
+use App\Translation\TranslationLifecycle;
 use App\Translation\TranslationProvider;
 use App\Translation\TranslationResultWriter;
 use App\Translation\TranslationSegmentData;
@@ -17,36 +18,34 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Throwable;
 
 /**
- * Asynchronous translation orchestration (ADR-022).
+ * Asynchronous translation orchestration (ADR-022; P5-004 cycle 2).
  *
- * The payload contains only small server-controlled identifiers. At-least-once
- * delivery is made safe by a CAS claim on the translation row plus the
- * idempotent, atomic, alignment-enforcing TranslationResultWriter. The source
- * transcription is never modified.
+ * The payload carries only small server-controlled identifiers plus the
+ * attempt token. Every state mutation is fenced by that token, so a late or
+ * stale worker can never mutate a newer attempt.
  */
 class ProcessTranslation implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * Phase 5 implements manual domain retry only (mirrors ADR-018). A single
-     * transport delivery keeps failures terminal and avoids duplicate
-     * inference.
-     */
     public int $tries = 1;
 
     public function __construct(
         public readonly int $translationId,
         public readonly int $transcriptionId,
+        public readonly string $attemptToken,
     ) {
         if ($translationId <= 0 || $transcriptionId <= 0) {
             throw new InvalidArgumentException('Translation and transcription identifiers must be positive integers.');
+        }
+
+        if ($attemptToken === '') {
+            throw new InvalidArgumentException('The attempt token must not be empty.');
         }
     }
 
@@ -71,8 +70,14 @@ class ProcessTranslation implements ShouldQueue
             return;
         }
 
+        if (! TranslationLifecycle::canTransition($translation->status, TranslationStatus::Translating)) {
+            $this->skip('translation is not in a claimable state');
+
+            return;
+        }
+
         if (! $this->claim($translation)) {
-            $this->skip('translation already claimed');
+            $this->skip('attempt superseded or already claimed');
 
             return;
         }
@@ -119,7 +124,7 @@ class ProcessTranslation implements ShouldQueue
         }
 
         try {
-            $writer->persist($transcription, $result, $translation->getKey());
+            $writer->persist($transcription, $result, $translation->getKey(), $this->attemptToken);
         } catch (TranslationException $exception) {
             $this->fail($translation, $exception->failure, $exception->getMessage());
 
@@ -157,14 +162,14 @@ class ProcessTranslation implements ShouldQueue
     }
 
     /**
-     * Atomically claim a pending/queued translation. A duplicate delivery that
-     * arrives after another worker already claimed (or finished) observes zero
-     * affected rows and no-ops.
+     * Atomically claim the current attempt. A duplicate or stale delivery
+     * observes zero affected rows and no-ops.
      */
     private function claim(Translation $translation): bool
     {
         $claimed = Translation::query()
             ->whereKey($translation->getKey())
+            ->where('attempt_token', $this->attemptToken)
             ->whereIn('status', [
                 TranslationStatus::Pending->value,
                 TranslationStatus::Queued->value,
@@ -185,17 +190,28 @@ class ProcessTranslation implements ShouldQueue
 
     private function fail(Translation $translation, TranslationFailure $failure, string $safeMessage): void
     {
-        DB::transaction(function () use ($translation, $failure): void {
-            $fresh = Translation::query()->whereKey($translation->getKey())->lockForUpdate()->first();
+        $updated = Translation::query()
+            ->whereKey($translation->getKey())
+            ->where('attempt_token', $this->attemptToken)
+            ->whereIn('status', [
+                TranslationStatus::Pending->value,
+                TranslationStatus::Queued->value,
+                TranslationStatus::Translating->value,
+            ])
+            ->update([
+                'status' => TranslationStatus::Failed->value,
+                'failure_code' => $failure->value,
+                'completed_at' => now(),
+            ]);
 
-            if ($fresh !== null && $fresh->status !== TranslationStatus::Completed) {
-                $fresh->forceFill([
-                    'status' => TranslationStatus::Failed,
-                    'failure_code' => $failure,
-                    'completed_at' => now(),
-                ])->save();
-            }
-        });
+        if ($updated === 0) {
+            Log::warning('Translation failure ignored for a superseded attempt.', [
+                'translation_id' => $translation->getKey(),
+                'failure' => $failure->value,
+            ]);
+
+            return;
+        }
 
         Log::warning('Translation job failed.', [
             'translation_id' => $translation->getKey(),

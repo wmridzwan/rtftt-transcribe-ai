@@ -67,6 +67,16 @@ function writerResult(
     );
 }
 
+function writerPersist(Transcription $transcription, TranslationResult $result, Translation $translation): Translation
+{
+    return app(TranslationResultWriter::class)->persist(
+        $transcription,
+        $result,
+        $translation->getKey(),
+        (string) $translation->attempt_token,
+    );
+}
+
 it('persists a translation with enum casts and ordered segments', function () {
     $translation = Translation::factory()->create(['target_language' => 'ms', 'status' => 'completed', 'source_language' => 'en']);
 
@@ -88,9 +98,7 @@ it('completes a translating translation and copies authoritative source alignmen
     $before = $transcription->segments()->get()->map->only(['segment_index', 'start_seconds', 'end_seconds', 'text', 'language'])->all();
 
     // Provider echoes a wrong source language; the writer must ignore it.
-    $result = writerResult(sourceLanguage: LanguageIdentifier::Chinese);
-
-    $written = app(TranslationResultWriter::class)->persist($transcription, $result, $translation->getKey());
+    $written = writerPersist($transcription, writerResult(sourceLanguage: LanguageIdentifier::Chinese), $translation);
 
     expect($written->fresh()->status)->toBe(TranslationStatus::Completed)
         ->and($written->segments()->pluck('text')->all())->toBe(['Hai semua', 'Selamat datang'])
@@ -105,10 +113,9 @@ it('completes a translating translation and copies authoritative source alignmen
 it('is idempotent for repeated writes of the same translation row', function () {
     $transcription = writerSource();
     $translation = writerTranslation($transcription);
-    $writer = app(TranslationResultWriter::class);
 
-    $first = $writer->persist($transcription, writerResult(), $translation->getKey());
-    $second = $writer->persist($transcription, writerResult(), $translation->getKey());
+    $first = writerPersist($transcription, writerResult(), $translation);
+    $second = writerPersist($transcription, writerResult(), $translation);
 
     expect($first->getKey())->toBe($second->getKey())
         ->and(TranslationSegment::query()->where('translation_id', $translation->getKey())->count())->toBe(2);
@@ -117,19 +124,32 @@ it('is idempotent for repeated writes of the same translation row', function () 
 it('never overwrites a completed translation', function () {
     $transcription = writerSource();
     $translation = writerTranslation($transcription);
-    $writer = app(TranslationResultWriter::class);
 
-    $writer->persist($transcription, writerResult(), $translation->getKey());
-    $writer->persist($transcription, writerResult(fullText: 'DIFFERENT'), $translation->getKey());
+    writerPersist($transcription, writerResult(), $translation);
+    writerPersist($transcription, writerResult(fullText: 'DIFFERENT'), $translation);
 
     expect($translation->fresh()->full_text)->toBe('Hai semua');
+});
+
+it('rejects a stale attempt token', function () {
+    $transcription = writerSource();
+    $translation = writerTranslation($transcription);
+
+    expect(fn () => app(TranslationResultWriter::class)->persist(
+        $transcription,
+        writerResult(),
+        $translation->getKey(),
+        'a-different-token',
+    ))->toThrow(TranslationException::class);
+
+    expect($translation->fresh()->status)->toBe(TranslationStatus::Translating);
 });
 
 it('rejects a translation_id whose target differs from the result', function () {
     $transcription = writerSource();
     $translation = writerTranslation($transcription, target: 'en');
 
-    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, writerResult(), $translation->getKey()))
+    expect(fn () => writerPersist($transcription, writerResult(), $translation))
         ->toThrow(TranslationException::class);
 
     expect($translation->fresh()->status)->toBe(TranslationStatus::Translating);
@@ -139,7 +159,7 @@ it('rejects completing a failed translation directly', function () {
     $transcription = writerSource();
     $translation = writerTranslation($transcription, status: 'failed');
 
-    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, writerResult(), $translation->getKey()))
+    expect(fn () => writerPersist($transcription, writerResult(), $translation))
         ->toThrow(TranslationException::class);
 });
 
@@ -147,7 +167,7 @@ it('rejects completing a queued translation without a claim', function () {
     $transcription = writerSource();
     $translation = writerTranslation($transcription, status: 'queued');
 
-    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, writerResult(), $translation->getKey()))
+    expect(fn () => writerPersist($transcription, writerResult(), $translation))
         ->toThrow(TranslationException::class);
 });
 
@@ -157,7 +177,7 @@ it('rejects a result whose segment count differs from the source', function () {
 
     $result = new TranslationResult(TranslationTarget::Malay, 'x', [], 'self-hosted', 'translation-test');
 
-    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, $result, $translation->getKey()))
+    expect(fn () => writerPersist($transcription, $result, $translation))
         ->toThrow(TranslationException::class);
 });
 
@@ -176,7 +196,7 @@ it('rejects a result with foreign segment indices', function () {
         'translation-test',
     );
 
-    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, $result, $translation->getKey()))
+    expect(fn () => writerPersist($transcription, $result, $translation))
         ->toThrow(TranslationException::class);
 });
 
@@ -195,7 +215,7 @@ it('rejects a result with timestamps that do not match the source', function () 
         'translation-test',
     );
 
-    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, $result, $translation->getKey()))
+    expect(fn () => writerPersist($transcription, $result, $translation))
         ->toThrow(TranslationException::class);
 });
 
@@ -217,7 +237,7 @@ it('rolls back the translation and all segments when segment persistence fails',
         }
     });
 
-    expect(fn () => app(TranslationResultWriter::class)->persist($transcription, writerResult(), $translation->getKey()))
+    expect(fn () => writerPersist($transcription, writerResult(), $translation))
         ->toThrow(RuntimeException::class);
 
     $armed = false;

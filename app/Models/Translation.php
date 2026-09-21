@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property int $transcription_id
  * @property TranslationTarget $target_language
  * @property TranslationStatus $status
+ * @property string|null $attempt_token
  * @property LanguageIdentifier|null $source_language
  * @property string|null $provider
  * @property string|null $model
@@ -37,6 +38,7 @@ class Translation extends Model
         'transcription_id',
         'target_language',
         'status',
+        'attempt_token',
         'source_language',
         'provider',
         'model',

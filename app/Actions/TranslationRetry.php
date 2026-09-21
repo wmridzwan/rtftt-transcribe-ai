@@ -2,26 +2,28 @@
 
 namespace App\Actions;
 
-use App\Jobs\ProcessTranslation;
 use App\Models\Translation;
 use App\Translation\TranslationException;
 use App\Translation\TranslationFailure;
 use App\Translation\TranslationStatus;
 use Illuminate\Database\DatabaseManager;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
- * P5-005 manual domain retry (mirrors ADR-018).
+ * P5-005 manual domain retry (mirrors ADR-018), attempt-fenced (P5-004 cycle 2).
  *
- * Retry is manual-only: there is no automatic retry scheduler or backoff. The
- * translation row is reused; a guarded compare-and-set moves it
- * `failed → queued`, and the completed state is protected. A concurrent retry
- * cannot create a second active translation because the CAS is the correctness
- * boundary.
+ * Retry is manual-only. Each retry mints a new attempt token under a guarded
+ * `failed → queued` compare-and-set; a late writer or recovery acting on the
+ * previous token can no longer mutate the new attempt. A concurrent retry
+ * converges on the existing active attempt instead of leaking a unique-index
+ * exception.
  */
 class TranslationRetry
 {
-    public function __construct(private readonly DatabaseManager $database) {}
+    public function __construct(
+        private readonly DatabaseManager $database,
+        private readonly TranslationDispatcher $dispatcher,
+    ) {}
 
     /**
      * Retryability derives from the authoritative provider-neutral
@@ -48,7 +50,6 @@ class TranslationRetry
             );
         }
 
-        // Idempotent: an already-active translation is returned unchanged.
         $active = $this->active($translation);
 
         if ($active !== null) {
@@ -62,12 +63,15 @@ class TranslationRetry
             );
         }
 
-        $won = $this->database->transaction(function () use ($translation): bool {
+        $token = (string) Str::uuid();
+
+        $won = $this->database->transaction(function () use ($translation, $token): bool {
             $affected = Translation::query()
                 ->whereKey($translation->getKey())
                 ->where('status', TranslationStatus::Failed->value)
                 ->update([
                     'status' => TranslationStatus::Queued->value,
+                    'attempt_token' => $token,
                     'failure_code' => null,
                     'completed_at' => null,
                     'started_at' => null,
@@ -79,7 +83,7 @@ class TranslationRetry
         $translation->refresh();
 
         if (! $won) {
-            // A concurrent retry won the CAS; converge on its active row.
+            // A concurrent retry won the CAS; converge on the active attempt.
             $active = $this->active($translation);
 
             if ($active !== null) {
@@ -92,12 +96,7 @@ class TranslationRetry
             );
         }
 
-        ProcessTranslation::dispatch($translation->getKey(), $translation->transcription_id);
-
-        Log::info('Translation retry queued.', [
-            'translation_id' => $translation->getKey(),
-            'transcription_id' => $translation->transcription_id,
-        ]);
+        $this->dispatcher->dispatch($translation, $token);
 
         return $translation;
     }
@@ -105,11 +104,13 @@ class TranslationRetry
     private function active(Translation $translation): ?Translation
     {
         return Translation::query()
-            ->whereKey($translation->getKey())
+            ->where('transcription_id', $translation->transcription_id)
+            ->where('target_language', $translation->target_language->value)
             ->whereIn('status', [
                 TranslationStatus::Queued->value,
                 TranslationStatus::Translating->value,
             ])
+            ->orderByDesc('id')
             ->first();
     }
 }

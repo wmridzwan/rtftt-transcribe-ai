@@ -19,6 +19,7 @@ class TranslationFactory extends Factory
             'transcription_id' => Transcription::factory(),
             'target_language' => fake()->randomElement(['ms', 'en', 'zh', 'ta']),
             'status' => 'pending',
+            'attempt_token' => fake()->uuid(),
             'source_language' => fake()->randomElement(['ms', 'en', 'zh', 'ta', 'und']),
             'provider' => 'self-hosted',
             'model' => 'translation-test',

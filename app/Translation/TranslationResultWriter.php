@@ -31,10 +31,18 @@ class TranslationResultWriter
         Transcription $transcription,
         TranslationResult $result,
         int $translationId,
+        string $attemptToken,
     ): Translation {
+        if ($attemptToken === '') {
+            throw new TranslationException(
+                TranslationFailure::InvalidRequest,
+                'A translation attempt token is required.',
+            );
+        }
+
         $sourceByIndex = $this->validatedSourceSegments($transcription, $result);
 
-        return DB::transaction(function () use ($transcription, $result, $translationId, $sourceByIndex): Translation {
+        return DB::transaction(function () use ($transcription, $result, $translationId, $attemptToken, $sourceByIndex): Translation {
             $translation = Translation::query()
                 ->whereKey($translationId)
                 ->where('transcription_id', $transcription->getKey())
@@ -49,13 +57,27 @@ class TranslationResultWriter
             }
 
             if ($translation->status === TranslationStatus::Completed) {
-                return $translation;
+                if ($translation->attempt_token === $attemptToken) {
+                    return $translation;
+                }
+
+                throw new TranslationException(
+                    TranslationFailure::InvalidRequest,
+                    'A completed translation cannot be overwritten by a different attempt.',
+                );
             }
 
             if ($translation->status === TranslationStatus::Failed) {
                 throw new TranslationException(
                     TranslationFailure::InvalidRequest,
                     'A failed translation must be requeued before it can be completed.',
+                );
+            }
+
+            if ($translation->attempt_token !== $attemptToken) {
+                throw new TranslationException(
+                    TranslationFailure::InvalidRequest,
+                    'The translation attempt is no longer current.',
                 );
             }
 

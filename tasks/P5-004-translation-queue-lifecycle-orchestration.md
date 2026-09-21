@@ -2,9 +2,18 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — queue orchestration, CAS claim, orchestrator,
-genuine two-process concurrency evidence, tests, and internal pre-review
-complete (2026-09-21). Not VERIFIED; not DONE. Independent review pending.
+IMPLEMENTED_PENDING_REVIEW — corrective cycle 2 (2026-09-21) addresses the
+consolidated independent review X-1, X-2, M-1, M-2 (attempt-token fencing,
+lifecycle enforcement, dedicated queue routing, single identity model).
+Independent re-review pending. Not VERIFIED; not DONE.
+
+## Cycle 2 Notes
+
+- Additive `attempt_token` on `translations`; all mutations fenced.
+- `TranslationLifecycle` enforced at claim and completion.
+- `config/translation.php` queue/connection + `TranslationDispatcher`.
+- `request()` delegates failed targets to the retry path (no second row).
+- Pre-review: `reviews/pre-review/P5-004-cycle2-pre-review.md`.
 
 ## Ownership
 

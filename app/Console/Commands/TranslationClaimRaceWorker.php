@@ -82,7 +82,11 @@ class TranslationClaimRaceWorker extends Command
 
             $translation = Translation::query()->findOrFail($translationId);
 
-            $job = new ProcessTranslation($translation->getKey(), $translation->transcription_id);
+            $job = new ProcessTranslation(
+                $translation->getKey(),
+                $translation->transcription_id,
+                (string) $translation->attempt_token,
+            );
 
             $method = new ReflectionMethod($job, 'claim');
             $claimed = (bool) $method->invoke($job, $translation);
