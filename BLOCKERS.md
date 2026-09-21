@@ -30,7 +30,9 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 
 | # | Classification | Resolution | Date |
 |---|---|---|---|
-| — | — | — | — |
+| GOV-1 (reviewer) | `GOVERNANCE_BLOCKER` | Ratified under ADR-023 / `PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md` §4: eligible downstream work may start once a committed predecessor reaches `IMPLEMENTED_PENDING_REVIEW`. P5-002-after-P5-001 ordering ratified. | 2026-09-21 |
+| GOV-2 (reviewer) | `GOVERNANCE_BLOCKER` | `AGENTS.md` / `CURRENT_STATE.md` updated in the working tree to record Phase 5 = AUTHORIZED FOR IMPLEMENTATION, P5-001/P5-002 = VERIFIED, P6/P7 allowlists only. These two files carry pre-existing Phase 4 governance edits and remain uncommitted (see B-001). | 2026-09-21 |
+| GOV-3 (reviewer) | `GOVERNANCE_BLOCKER` | Same root cause as B-001 (uncommitted Phase 3/4 baseline); not a new defect. | 2026-09-21 |
 
 ## Rules
 
