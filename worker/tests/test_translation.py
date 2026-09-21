@@ -100,3 +100,11 @@ def test_passthrough_when_source_matches_target():
 
     assert result["segments"][0]["text"] == "Hai"
     assert result["target_language"] == "ms"
+
+
+def test_nllb_code_mapping_uses_flores_standard():
+    # Standard Malay is zsm_Latn in FLORES-200; msa_Latn resolves to the unk id.
+    assert translation.NLLB_CODES["ms"] == "zsm_Latn"
+    assert translation.NLLB_CODES["en"] == "eng_Latn"
+    assert translation.NLLB_CODES["zh"] == "zho_Hans"
+    assert translation.NLLB_CODES["ta"] == "tam_Taml"

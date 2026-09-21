@@ -8,6 +8,7 @@ use App\Translation\TranslationInvocation;
 use App\Translation\TranslationProvider;
 use App\Translation\TranslationSegmentData;
 use App\Translation\TranslationTarget;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 function translationInvocationFixture(): TranslationInvocation
@@ -137,4 +138,62 @@ it('rejects a non-object response', function () {
 
 it('resolves the translation provider bound in the container', function () {
     expect(app(TranslationProvider::class))->toBeInstanceOf(HttpTranslationProvider::class);
+});
+
+it('rejects an empty or partial provider response', function () {
+    $body = successfulTranslationResponse();
+    $body['segments'] = [];
+
+    Http::fake(['localhost:8000/translate' => Http::response($body, 200)]);
+
+    expect(fn () => provider()->translate(translationInvocationFixture()))->toThrow(TranslationException::class);
+
+    $body = successfulTranslationResponse();
+    $body['segments'] = [$body['segments'][0]];
+
+    Http::fake(['localhost:8000/translate' => Http::response($body, 200)]);
+
+    expect(fn () => provider()->translate(translationInvocationFixture()))->toThrow(TranslationException::class);
+});
+
+it('rejects a foreign segment index', function () {
+    $body = successfulTranslationResponse();
+    $body['segments'][0]['segment_index'] = 99;
+
+    Http::fake(['localhost:8000/translate' => Http::response($body, 200)]);
+
+    expect(fn () => provider()->translate(translationInvocationFixture()))->toThrow(TranslationException::class);
+});
+
+it('rejects an array text without a raw warning', function () {
+    $body = successfulTranslationResponse();
+    $body['segments'][0]['text'] = ['a'];
+
+    Http::fake(['localhost:8000/translate' => Http::response($body, 200)]);
+
+    expect(fn () => provider()->translate(translationInvocationFixture()))->toThrow(TranslationException::class);
+});
+
+it('maps a 401 without an envelope to a non-retryable configuration failure', function () {
+    Http::fake(['localhost:8000/translate' => Http::response(['detail' => 'Unauthorized'], 401)]);
+
+    try {
+        provider()->translate(translationInvocationFixture());
+        $this->fail('Expected TranslationException.');
+    } catch (TranslationException $exception) {
+        expect($exception->failure)->toBe(TranslationFailure::ConfigurationError);
+    }
+});
+
+it('maps a transport timeout to ProviderTimeout', function () {
+    Http::fake(function () {
+        throw new ConnectionException('cURL error 28: Operation timed out');
+    });
+
+    try {
+        provider()->translate(translationInvocationFixture());
+        $this->fail('Expected TranslationException.');
+    } catch (TranslationException $exception) {
+        expect($exception->failure)->toBe(TranslationFailure::ProviderTimeout);
+    }
 });

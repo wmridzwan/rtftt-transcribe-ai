@@ -2,10 +2,20 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — provider boundary, validator, worker module,
-tests, and internal pre-review complete (2026-09-21). Worker `/translate` route
-wiring is implemented in the working tree but uncommitted under B-001. Not
-VERIFIED; not DONE. Independent review pending.
+IMPLEMENTED_PENDING_REVIEW — corrective cycle 2 (2026-09-21) addresses the
+consolidated independent review (`reviews/P5-001A-P5-002A-P5-003-P5-004-P5-005-P5-007-independent-review.md`)
+P5-003 H-1/M-1/M-2/L-1/L-2 and the worker-dependency INFO. Independent
+re-review pending. Not VERIFIED; not DONE.
+
+## Cycle 2 Notes
+
+- Strict invocation-aligned response validation (count/index/timestamps/
+  source-language echo); authoritative alignment copied from the invocation.
+- Strict types; no raw PHP warnings.
+- Transport + HTTP-status failure mapping.
+- `zsm_Latn` correction; per-segment tokenizer `src_lang`; worker runtime
+  dependencies declared in `worker/requirements.txt`.
+- Pre-review: `reviews/pre-review/P5-003-cycle2-pre-review.md`.
 
 ## Ownership
 
@@ -65,6 +75,19 @@ crosses the boundary.
 
 Feature/contract tests with a fake HTTP transport; response-validator unit
 tests; no mock may claim the final real-provider gate.
+
+## Review
+
+Review File: `reviews/P5-003-independent-review.md`
+
+Review Status: CHANGES_REQUESTED (2026-09-21, cycle 1 of 3).
+
+Required: HIGH-1 — enforce segment count/index set/timestamps against the
+invocation at the provider boundary (taxonomy failures) with tests for partial,
+empty, and foreign-index responses. Strongly recommended in the same cycle:
+MEDIUM-1 (strict type validation; array `text` leaks a raw `ErrorException`) and
+MEDIUM-2 (`ms` maps to invalid NLLB code `msa_Latn`; should be `zsm_Latn`, add a
+mapping test). LOW-1..LOW-4 and INFO recorded in the review.
 
 ## Expected Reviewer
 

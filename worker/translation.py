@@ -17,13 +17,17 @@ PROVIDER_NAME = "self-hosted"
 
 DEFAULT_MODEL = "facebook/nllb-200-distilled-600M"
 
-# BCP 47 (rtftt vocabulary) -> NLLB-200 language codes.
+# BCP 47 (rtftt vocabulary) -> NLLB-200 / FLORES-200 language codes.
+# Standard Malay is `zsm_Latn` in FLORES-200 (`msa_Latn` is not a valid code and
+# resolves to the unknown token, producing garbage).
 NLLB_CODES = {
-    "ms": "msa_Latn",
+    "ms": "zsm_Latn",
     "en": "eng_Latn",
     "zh": "zho_Hans",
     "ta": "tam_Taml",
 }
+
+DEFAULT_SOURCE_CODE = "eng_Latn"
 
 _model = None
 _tokenizer = None
@@ -70,8 +74,13 @@ def get_model():
     return _model, _tokenizer
 
 
-def _translate_text(model, tokenizer, text: str, target_language: str) -> str:
+def _translate_text(model, tokenizer, text: str, target_language: str, source_language: str) -> str:
     code = NLLB_CODES[target_language]
+
+    # NLLB requires an explicit source language; otherwise it defaults to
+    # English and mistranslates non-English source segments.
+    tokenizer.src_lang = NLLB_CODES.get(source_language, DEFAULT_SOURCE_CODE)
+
     inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
     generated = model.generate(
         **inputs,
@@ -102,7 +111,7 @@ def translate_segments(segments: list[dict], target_language: str) -> dict:
         else:
             if model is None:
                 model, tokenizer = get_model()
-            translated = _translate_text(model, tokenizer, text, target_language)
+            translated = _translate_text(model, tokenizer, text, target_language, source_language)
 
         translated_segments.append({
             "segment_index": int(segment["segment_index"]),
