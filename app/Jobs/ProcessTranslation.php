@@ -82,14 +82,37 @@ class ProcessTranslation implements ShouldQueue
             return;
         }
 
+        // Everything after the claim runs inside one failure contract: any
+        // setup or execution failure is recorded through the taxonomy (fenced by
+        // the attempt token) instead of stranding the row in `translating`.
+        try {
+            $this->execute($translation, $provider, $writer);
+        } catch (TranslationException $exception) {
+            $this->fail($translation, $exception->failure, $exception->getMessage());
+        } catch (Throwable $exception) {
+            Log::error('Translation job raised an unexpected failure.', [
+                'translation_id' => $translation->getKey(),
+                'exception' => $exception::class,
+            ]);
+
+            $this->fail($translation, TranslationFailure::ProcessingFailed, 'Unexpected translation failure.');
+        }
+    }
+
+    /**
+     * @throws TranslationException
+     */
+    private function execute(
+        Translation $translation,
+        TranslationProvider $provider,
+        TranslationResultWriter $writer,
+    ): void {
         $transcription = Transcription::query()
             ->with('segments')
             ->find($this->transcriptionId);
 
         if ($transcription === null) {
-            $this->fail($translation, TranslationFailure::InvalidRequest, 'The source transcription is missing.');
-
-            return;
+            throw new TranslationException(TranslationFailure::InvalidRequest, 'The source transcription is missing.');
         }
 
         $invocation = TranslationInvocation::create(
@@ -109,35 +132,27 @@ class ProcessTranslation implements ShouldQueue
         try {
             $result = $provider->translate($invocation);
         } catch (TranslationException $exception) {
-            $this->fail($translation, $exception->failure, $exception->getMessage());
-
-            return;
+            throw $exception;
         } catch (Throwable $exception) {
             Log::error('Translation provider raised an unexpected failure.', [
                 'translation_id' => $translation->getKey(),
                 'exception' => $exception::class,
             ]);
 
-            $this->fail($translation, TranslationFailure::ProcessingFailed, 'Unexpected translation failure.');
-
-            return;
+            throw new TranslationException(TranslationFailure::ProcessingFailed, 'Unexpected translation failure.', $exception);
         }
 
         try {
             $writer->persist($transcription, $result, $translation->getKey(), $this->attemptToken);
         } catch (TranslationException $exception) {
-            $this->fail($translation, $exception->failure, $exception->getMessage());
-
-            return;
+            throw $exception;
         } catch (Throwable $exception) {
             Log::error('Translation result persistence raised an unexpected failure.', [
                 'translation_id' => $translation->getKey(),
                 'exception' => $exception::class,
             ]);
 
-            $this->fail($translation, TranslationFailure::PersistenceFailed, 'Translation persistence failed.');
-
-            return;
+            throw new TranslationException(TranslationFailure::PersistenceFailed, 'Translation persistence failed.', $exception);
         }
 
         Log::info('Translation job completed.', [

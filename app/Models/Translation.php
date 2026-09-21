@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property TranslationTarget $target_language
  * @property TranslationStatus $status
  * @property string|null $attempt_token
+ * @property Carbon|null $dispatched_at
  * @property LanguageIdentifier|null $source_language
  * @property string|null $provider
  * @property string|null $model
@@ -39,6 +40,7 @@ class Translation extends Model
         'target_language',
         'status',
         'attempt_token',
+        'dispatched_at',
         'source_language',
         'provider',
         'model',
@@ -55,6 +57,7 @@ class Translation extends Model
             'status' => TranslationStatus::class,
             'source_language' => LanguageIdentifier::class,
             'failure_code' => TranslationFailure::class,
+            'dispatched_at' => 'datetime',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
@@ -75,5 +78,15 @@ class Translation extends Model
     public function isCompleted(): bool
     {
         return $this->status === TranslationStatus::Completed;
+    }
+
+    /**
+     * A queued attempt whose message never reached the queue (dispatch failed).
+     */
+    public function isAwaitingDispatch(): bool
+    {
+        return $this->status === TranslationStatus::Queued
+            && $this->attempt_token !== null
+            && $this->dispatched_at === null;
     }
 }

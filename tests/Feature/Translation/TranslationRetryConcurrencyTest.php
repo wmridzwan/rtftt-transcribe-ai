@@ -34,6 +34,7 @@ beforeEach(function (): void {
             "target_language" TEXT NOT NULL,
             "status" TEXT NOT NULL DEFAULT \'pending\',
             "attempt_token" TEXT NULL,
+            "dispatched_at" TEXT NULL,
             "source_language" TEXT NULL,
             "provider" TEXT NULL,
             "model" TEXT NULL,
@@ -126,22 +127,27 @@ it('proves exactly one independent process wins the translation retry CAS', func
     expect($outcomeA['status'])->toBe('ok')
         ->and($outcomeB['status'])->toBe('ok');
 
-    // Exactly one process dispatched the retry job (won the CAS); the other
-    // converged on the active row without dispatching.
+    // Exactly one new attempt exists: both processes converge on the same row
+    // and the same attempt token (only one won the CAS and minted a token). The
+    // loser may re-dispatch that same attempt before the winner stamps it, which
+    // is harmless because the job claim is token-fenced.
     $dispatched = (int) $outcomeA['dispatched'] + (int) $outcomeB['dispatched'];
 
-    expect($dispatched)->toBe(1)
+    expect($dispatched)->toBeGreaterThanOrEqual(1)->toBeLessThanOrEqual(2)
         ->and($outcomeA['translation_id'])->toBe($this->raceTranslationId)
-        ->and($outcomeB['translation_id'])->toBe($this->raceTranslationId);
+        ->and($outcomeB['translation_id'])->toBe($this->raceTranslationId)
+        ->and($outcomeA['attempt_token'])->toBe($outcomeB['attempt_token'])
+        ->and($outcomeA['attempt_token'])->not->toBe('old-token');
 
     $pdo = new PDO("sqlite:{$this->raceDbPath}");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $statement = $pdo->prepare('SELECT "status", "failure_code" FROM "translations" WHERE "id" = ?');
+    $statement = $pdo->prepare('SELECT "status", "failure_code", "attempt_token" FROM "translations" WHERE "id" = ?');
     $statement->execute([$this->raceTranslationId]);
     $row = $statement->fetch(PDO::FETCH_ASSOC);
     $pdo = null;
 
     expect($row)->not->toBeFalse()
         ->and($row['status'])->toBe('queued')
-        ->and($row['failure_code'])->toBeNull();
+        ->and($row['failure_code'])->toBeNull()
+        ->and($row['attempt_token'])->toBe($outcomeA['attempt_token']);
 });

@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\TranslationRetry;
+use App\Actions\TranslationOrchestrator;
 use App\Jobs\ProcessTranslation;
-use App\Models\Translation;
+use App\Models\Transcription;
+use App\Translation\TranslationTarget;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -14,18 +15,18 @@ use Illuminate\Support\Testing\Fakes\QueueFake;
 use Throwable;
 
 /**
- * Test harness command for the P5-005 manual-retry concurrency race.
+ * Test harness command for the P5-004B concurrent first-request race.
  *
  * Guarded to the testing environment. Each spawned process opens its own SQLite
  * connection to the shared race database and, after a filesystem rendezvous,
- * invokes the real (production) App\Actions\TranslationRetry action exactly
- * once. The queue is faked so no inference runs; the number of dispatched jobs
- * identifies the CAS winner. This proves the production retry CAS under genuine
- * independent processes/connections.
+ * invokes the real App\Actions\TranslationOrchestrator::request() exactly once
+ * for the same (transcription, target). The queue is faked so no inference
+ * runs. Proves that concurrent first requests converge on one row without a raw
+ * constraint exception under genuine independent processes/connections.
  */
-#[Signature('test:translation-retry-race-worker {translationId} {goFile} {resultFile} {readyFile} {barrierDir}')]
-#[Description('Test harness for the P5-005 translation retry race (testing environment only)')]
-class TranslationRetryRaceWorker extends Command
+#[Signature('test:translation-request-race-worker {transcriptionId} {goFile} {resultFile} {readyFile} {barrierDir}')]
+#[Description('Test harness for the P5-004B translation request race (testing environment only)')]
+class TranslationRequestRaceWorker extends Command
 {
     protected $hidden = true;
 
@@ -37,7 +38,7 @@ class TranslationRetryRaceWorker extends Command
             return self::FAILURE;
         }
 
-        $translationId = (int) $this->argument('translationId');
+        $transcriptionId = (int) $this->argument('transcriptionId');
         $goFile = (string) $this->argument('goFile');
         $resultFile = (string) $this->argument('resultFile');
         $readyFile = (string) $this->argument('readyFile');
@@ -50,12 +51,7 @@ class TranslationRetryRaceWorker extends Command
 
         while (! file_exists($goFile)) {
             if (time() - $start > $timeout) {
-                $this->writeResult($resultFile, [
-                    'status' => 'timeout',
-                    'translation_id' => null,
-                    'dispatched' => 0,
-                    'error' => 'Timed out waiting for go signal',
-                ]);
+                $this->writeResult($resultFile, ['status' => 'timeout', 'error' => 'Timed out waiting for go signal']);
 
                 return self::FAILURE;
             }
@@ -63,18 +59,13 @@ class TranslationRetryRaceWorker extends Command
             usleep(10_000);
         }
 
-        file_put_contents($barrierDir.'/'.getmypid().'.at_retry', '1');
+        file_put_contents($barrierDir.'/'.getmypid().'.at_request', '1');
 
         $barrierStart = time();
 
-        while (count(glob($barrierDir.'/*.at_retry') ?: []) < 2) {
+        while (count(glob($barrierDir.'/*.at_request') ?: []) < 2) {
             if (time() - $barrierStart > $timeout) {
-                $this->writeResult($resultFile, [
-                    'status' => 'timeout',
-                    'translation_id' => null,
-                    'dispatched' => 0,
-                    'error' => 'Timed out waiting at the retry barrier',
-                ]);
+                $this->writeResult($resultFile, ['status' => 'timeout', 'error' => 'Timed out waiting at the request barrier']);
 
                 return self::FAILURE;
             }
@@ -87,9 +78,9 @@ class TranslationRetryRaceWorker extends Command
 
             Queue::fake();
 
-            $translation = Translation::query()->findOrFail($translationId);
+            $transcription = Transcription::query()->findOrFail($transcriptionId);
 
-            $retried = app(TranslationRetry::class)->retry($translation);
+            $translation = app(TranslationOrchestrator::class)->request($transcription, TranslationTarget::Malay);
 
             $root = Queue::getFacadeRoot();
             $dispatched = $root instanceof QueueFake
@@ -98,8 +89,7 @@ class TranslationRetryRaceWorker extends Command
 
             $this->writeResult($resultFile, [
                 'status' => 'ok',
-                'translation_id' => $retried->getKey(),
-                'attempt_token' => $retried->attempt_token,
+                'translation_id' => $translation->getKey(),
                 'dispatched' => $dispatched,
             ]);
 
@@ -107,9 +97,7 @@ class TranslationRetryRaceWorker extends Command
         } catch (Throwable $exception) {
             $this->writeResult($resultFile, [
                 'status' => 'error',
-                'translation_id' => null,
-                'dispatched' => 0,
-                'error' => $exception->getMessage(),
+                'error' => $exception::class.': '.$exception->getMessage(),
             ]);
 
             return self::FAILURE;

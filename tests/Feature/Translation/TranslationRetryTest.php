@@ -59,6 +59,7 @@ it('returns an already-active translation without dispatching', function () {
         'transcription_id' => translationSource()->getKey(),
         'status' => 'queued',
         'failure_code' => null,
+        'dispatched_at' => now(),
     ]);
 
     $retried = app(TranslationRetry::class)->retry($translation);
@@ -82,6 +83,7 @@ it('converges on an active attempt instead of leaking a unique-index exception (
         'transcription_id' => $transcription->getKey(),
         'target_language' => 'ms',
         'status' => 'queued',
+        'dispatched_at' => now(),
     ]);
 
     $result = app(TranslationRetry::class)->retry($failed);

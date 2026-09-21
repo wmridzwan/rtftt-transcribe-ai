@@ -7,6 +7,7 @@ use App\Translation\TranslationException;
 use App\Translation\TranslationFailure;
 use App\Translation\TranslationStatus;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Str;
 
 /**
@@ -15,8 +16,14 @@ use Illuminate\Support\Str;
  * Retry is manual-only. Each retry mints a new attempt token under a guarded
  * `failed → queued` compare-and-set; a late writer or recovery acting on the
  * previous token can no longer mutate the new attempt. A concurrent retry
- * converges on the existing active attempt instead of leaking a unique-index
+ * converges on the existing attempt instead of leaking a unique-index
  * exception.
+ *
+ * P5-004B: the caller's model is never trusted. The persisted row is reloaded,
+ * and retryability is part of the compare-and-set predicate, so a stale
+ * in-memory model cannot requeue a currently non-retryable failure.
+ *
+ * Authorization is the caller's responsibility (controller/action layer).
  */
 class TranslationRetry
 {
@@ -43,20 +50,29 @@ class TranslationRetry
      */
     public function retry(Translation $translation): Translation
     {
-        if ($translation->status === TranslationStatus::Completed) {
+        $current = Translation::query()->whereKey($translation->getKey())->first();
+
+        if ($current === null) {
+            throw new TranslationException(
+                TranslationFailure::InvalidRequest,
+                'The translation no longer exists.',
+            );
+        }
+
+        if ($current->status === TranslationStatus::Completed) {
             throw new TranslationException(
                 TranslationFailure::InvalidRequest,
                 'A completed translation cannot be retried.',
             );
         }
 
-        $active = $this->active($translation);
+        $converged = $this->converge($current);
 
-        if ($active !== null) {
-            return $active;
+        if ($converged !== null) {
+            return $converged;
         }
 
-        if (! $this->isEligible($translation)) {
+        if (! $this->isEligible($current)) {
             throw new TranslationException(
                 TranslationFailure::InvalidRequest,
                 'The translation is not retry-eligible.',
@@ -65,29 +81,29 @@ class TranslationRetry
 
         $token = (string) Str::uuid();
 
-        $won = $this->database->transaction(function () use ($translation, $token): bool {
-            $affected = Translation::query()
-                ->whereKey($translation->getKey())
+        try {
+            $won = $this->database->transaction(fn (): bool => Translation::query()
+                ->whereKey($current->getKey())
                 ->where('status', TranslationStatus::Failed->value)
+                ->whereIn('failure_code', self::retryableFailureCodes())
                 ->update([
                     'status' => TranslationStatus::Queued->value,
                     'attempt_token' => $token,
+                    'dispatched_at' => null,
                     'failure_code' => null,
                     'completed_at' => null,
                     'started_at' => null,
-                ]);
-
-            return $affected === 1;
-        });
-
-        $translation->refresh();
+                ]) === 1);
+        } catch (UniqueConstraintViolationException) {
+            $won = false;
+        }
 
         if (! $won) {
-            // A concurrent retry won the CAS; converge on the active attempt.
-            $active = $this->active($translation);
+            // A concurrent retry or request won; converge on the surviving row.
+            $converged = $this->converge($current->refresh());
 
-            if ($active !== null) {
-                return $active;
+            if ($converged !== null) {
+                return $converged;
             }
 
             throw new TranslationException(
@@ -96,21 +112,52 @@ class TranslationRetry
             );
         }
 
-        $this->dispatcher->dispatch($translation, $token);
+        $current->refresh();
 
-        return $translation;
+        $this->dispatcher->dispatch($current, $token);
+
+        return $current;
     }
 
-    private function active(Translation $translation): ?Translation
+    /**
+     * The row this retry converges on, when the target already has a live or
+     * completed attempt: the row itself if it is active, otherwise any sibling
+     * covered by the one-active-per-target unique index.
+     */
+    private function converge(Translation $translation): ?Translation
     {
-        return Translation::query()
+        $existing = Translation::query()
             ->where('transcription_id', $translation->transcription_id)
             ->where('target_language', $translation->target_language->value)
             ->whereIn('status', [
                 TranslationStatus::Queued->value,
                 TranslationStatus::Translating->value,
+                TranslationStatus::Pending->value,
+                TranslationStatus::Completed->value,
             ])
             ->orderByDesc('id')
             ->first();
+
+        if ($existing === null) {
+            return null;
+        }
+
+        $this->dispatcher->ensureDispatched($existing);
+
+        return $existing->refresh();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function retryableFailureCodes(): array
+    {
+        return array_values(array_map(
+            static fn (TranslationFailure $failure): string => $failure->value,
+            array_filter(
+                TranslationFailure::cases(),
+                static fn (TranslationFailure $failure): bool => $failure->isRetryable(),
+            ),
+        ));
     }
 }

@@ -54,19 +54,7 @@ class StaleTranslationAttemptRecovery
         $recovered = 0;
 
         foreach ($stale as $translation) {
-            // Fenced by attempt identity: a retry between the SELECT and the
-            // UPDATE mints a new token, so this CAS cannot fail a newer attempt.
-            $won = Translation::query()
-                ->whereKey($translation->getKey())
-                ->where('status', TranslationStatus::Translating->value)
-                ->where('attempt_token', $translation->attempt_token)
-                ->update([
-                    'status' => TranslationStatus::Failed->value,
-                    'failure_code' => TranslationFailure::ProviderTimeout->value,
-                    'completed_at' => $now,
-                ]);
-
-            if ($won === 1) {
+            if ($this->recoverAttempt($translation, $now)) {
                 $recovered++;
             }
         }
@@ -76,5 +64,32 @@ class StaleTranslationAttemptRecovery
         }
 
         return $recovered;
+    }
+
+    /**
+     * Recover one attempt, fenced by its identity.
+     *
+     * A retry between the caller's SELECT and this UPDATE mints a new token, so
+     * the compare-and-set cannot fail a newer attempt. Returns whether this call
+     * moved the attempt to `failed`.
+     */
+    public function recoverAttempt(Translation $stale, ?CarbonInterface $now = null): bool
+    {
+        $now ??= now();
+
+        // An attempt without an identity cannot be fenced; never recover it.
+        if ($stale->attempt_token === null || $stale->attempt_token === '') {
+            return false;
+        }
+
+        return Translation::query()
+            ->whereKey($stale->getKey())
+            ->where('status', TranslationStatus::Translating->value)
+            ->where('attempt_token', $stale->attempt_token)
+            ->update([
+                'status' => TranslationStatus::Failed->value,
+                'failure_code' => TranslationFailure::ProviderTimeout->value,
+                'completed_at' => $now,
+            ]) === 1;
     }
 }
