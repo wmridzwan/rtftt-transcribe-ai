@@ -2,7 +2,9 @@
 
 ## Status
 
-BACKLOG — requires HPO READY promotion.
+IMPLEMENTED_PENDING_REVIEW — controller, routes, tests, and internal
+pre-review complete (2026-09-21). Not VERIFIED; not DONE. Independent review
+pending.
 
 ## Ownership
 
