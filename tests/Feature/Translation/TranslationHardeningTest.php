@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\TranslationDispatcher;
 use App\Actions\TranslationOrchestrator;
 use App\Actions\TranslationRetry;
 use App\Jobs\ProcessTranslation;
@@ -13,6 +14,7 @@ use App\Translation\TranslationResultWriter;
 use App\Translation\TranslationSegmentData;
 use App\Translation\TranslationStatus;
 use App\Translation\TranslationTarget;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -375,4 +377,77 @@ it('persists exact source-authoritative timestamps when the provider drifts with
     }
 
     expect((float) $translated[0]->start_seconds)->not->toBe(0.0004);
+});
+
+// --- P4B-1/P4B-2/P4B-3: dispatch stamp and convergence guard -----------------
+
+it('does not surface a dispatch failure when only the dispatched_at stamp fails (P4B-1)', function (): void {
+    Queue::fake();
+
+    $transcription = translationSource();
+
+    // The queue push succeeds, but the bookkeeping stamp write fails.
+    DB::beforeExecuting(function (string $query): void {
+        if (preg_match('/update\s+"translations"\s+set\s+"dispatched_at"/i', $query) === 1) {
+            throw new QueryException('sqlite', $query, [], new PDOException('stamp write failed'));
+        }
+    });
+
+    $translation = app(TranslationOrchestrator::class)->request($transcription, TranslationTarget::Malay);
+
+    // No raw fatal: the request returns the still-valid, queued attempt.
+    expect($translation)->toBeInstanceOf(Translation::class)
+        ->and($translation->status)->toBe(TranslationStatus::Queued)
+        ->and($translation->fresh()->dispatched_at)->toBeNull()
+        ->and($translation->fresh()->isAwaitingDispatch())->toBeTrue();
+
+    Queue::assertPushed(ProcessTranslation::class, 1);
+});
+
+it('does not stamp dispatched_at for a superseded attempt token (P4B-2)', function (): void {
+    Queue::fake();
+
+    $translation = Translation::factory()->create([
+        'transcription_id' => translationSource()->getKey(),
+        'target_language' => 'ms',
+        'status' => 'queued',
+        'attempt_token' => 'newer-token',
+        'dispatched_at' => null,
+    ]);
+
+    app(TranslationDispatcher::class)->dispatch($translation, 'old-token');
+
+    expect($translation->fresh()->dispatched_at)->toBeNull();
+
+    Queue::assertPushed(ProcessTranslation::class, 1);
+});
+
+it('propagates an unrelated database error instead of treating it as a concurrency retry (P4B-3)', function (): void {
+    Queue::fake();
+
+    $transcription = translationSource();
+
+    Translation::creating(function (): void {
+        throw new QueryException(
+            'sqlite',
+            'insert into "translations" ("target_language") values (?)',
+            [],
+            new PDOException('unrelated-db-failure'),
+        );
+    });
+
+    $thrown = null;
+
+    try {
+        app(TranslationOrchestrator::class)->request($transcription, TranslationTarget::Malay);
+    } catch (Throwable $exception) {
+        $thrown = $exception;
+    }
+
+    expect($thrown)->not->toBeNull()
+        ->toBeInstanceOf(QueryException::class)
+        ->and($thrown)->not->toBeInstanceOf(TranslationException::class)
+        ->and($thrown->getMessage())->toContain('unrelated-db-failure');
+
+    Queue::assertNothingPushed();
 });

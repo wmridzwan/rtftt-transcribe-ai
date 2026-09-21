@@ -198,7 +198,22 @@ class ProcessTranslation implements ShouldQueue
             return false;
         }
 
-        $translation->refresh();
+        try {
+            $translation->refresh();
+        } catch (Throwable $exception) {
+            Log::error('Translation claim refresh failed after a successful claim.', [
+                'translation_id' => $translation->getKey(),
+                'exception' => $exception::class,
+            ]);
+
+            $this->fail(
+                $translation,
+                TranslationFailure::ProcessingFailed,
+                'The translation attempt could not be prepared.',
+            );
+
+            return false;
+        }
 
         return true;
     }

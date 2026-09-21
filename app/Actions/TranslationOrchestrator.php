@@ -13,6 +13,7 @@ use Illuminate\Contracts\Database\ConcurrencyErrorDetector;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -100,6 +101,13 @@ class TranslationOrchestrator
 
             usleep(self::BACKOFF_MICROSECONDS * $attempt);
         }
+
+        Log::warning('Translation request convergence exhausted.', [
+            'transcription_id' => $transcription->getKey(),
+            'target_language' => $target->value,
+            'attempts' => self::CONVERGENCE_ATTEMPTS,
+            'exception' => $last->getMessage(),
+        ]);
 
         throw new TranslationException(
             TranslationFailure::ProcessingFailed,

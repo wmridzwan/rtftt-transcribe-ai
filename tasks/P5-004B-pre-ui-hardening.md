@@ -2,8 +2,10 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — 2026-09-21. Independent review pending. Not
-VERIFIED; not DONE.
+IMPLEMENTED_PENDING_REVIEW — corrective pass 2026-09-22 addressing
+`reviews/P5-004B-P5-006-independent-review.md` P4B-1, P4B-2, P4B-3 (and P4B-4,
+P4B-5). Pending light fresh independent re-review; all three fences
+mutation-killed. Not VERIFIED; not DONE.
 
 ## Ownership
 
@@ -58,4 +60,7 @@ runbook, zero-segment handling, UI (P5-006), the wider Phase 3/4 baseline.
 
 ## Review
 
-Pre-review: `reviews/pre-review/P5-004B-pre-review.md`. Independent review pending.
+Pre-review: `reviews/pre-review/P5-004B-pre-review.md` (initial) and
+`reviews/pre-review/P5-004B-corrective-pre-review.md` (corrective).
+Independent review: `reviews/P5-004B-P5-006-independent-review.md`
+(CHANGES_REQUESTED → corrective pass). Independent re-review pending.

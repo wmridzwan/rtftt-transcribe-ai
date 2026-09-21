@@ -53,10 +53,23 @@ class TranslationDispatcher
             );
         }
 
-        Translation::query()
-            ->whereKey($translation->getKey())
-            ->where('attempt_token', $attemptToken)
-            ->update(['dispatched_at' => now()]);
+        // The push succeeded: the job will run even if the bookkeeping stamp
+        // below fails, so a stamp failure must never surface as a dispatch
+        // failure to the caller.
+        try {
+            Translation::query()
+                ->whereKey($translation->getKey())
+                ->where('attempt_token', $attemptToken)
+                ->update(['dispatched_at' => now()]);
+        } catch (Throwable $exception) {
+            Log::warning('Translation dispatched_at stamp failed after a successful queue push.', [
+                'translation_id' => $translation->getKey(),
+                'transcription_id' => $translation->transcription_id,
+                'attempt_token' => $attemptToken,
+                'exception' => $exception::class,
+                'message' => $exception->getMessage(),
+            ]);
+        }
 
         Log::info('Translation dispatched to queue.', [
             'translation_id' => $translation->getKey(),
