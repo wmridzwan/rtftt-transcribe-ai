@@ -32,6 +32,15 @@ it('rejects invalid translation segment alignment', function () {
     expect(fn () => translationSegment(0, 5.0, 3.0))->toThrow(InvalidArgumentException::class, 'End seconds must be greater than or equal to start seconds.');
 });
 
+it('rejects non-finite timestamps', function () {
+    expect(fn () => translationSegment(0, NAN, 1.0))
+        ->toThrow(InvalidArgumentException::class, 'Start seconds must be a finite number.');
+    expect(fn () => translationSegment(0, 0.0, INF))
+        ->toThrow(InvalidArgumentException::class, 'End seconds must be a finite number.');
+    expect(fn () => translationSegment(0, -INF, 1.0))
+        ->toThrow(InvalidArgumentException::class, 'Start seconds must be a finite number.');
+});
+
 it('creates a valid segment-aligned translation result', function () {
     $result = new TranslationResult(
         targetLanguage: TranslationTarget::Malay,

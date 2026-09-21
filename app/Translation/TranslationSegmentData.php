@@ -24,6 +24,14 @@ final readonly class TranslationSegmentData
             throw new \InvalidArgumentException('Segment index must be non-negative.');
         }
 
+        if (! is_finite($startSeconds)) {
+            throw new \InvalidArgumentException('Start seconds must be a finite number.');
+        }
+
+        if (! is_finite($endSeconds)) {
+            throw new \InvalidArgumentException('End seconds must be a finite number.');
+        }
+
         if ($startSeconds < 0) {
             throw new \InvalidArgumentException('Start seconds must be non-negative.');
         }

@@ -35,6 +35,16 @@ final readonly class TranslationInvocation
         if ($translationId !== null && $translationId <= 0) {
             throw new \InvalidArgumentException('Translation ID must be a positive integer when present.');
         }
+
+        $seen = [];
+
+        foreach ($segments as $segment) {
+            if (isset($seen[$segment->segmentIndex])) {
+                throw new \InvalidArgumentException('Invocation source segment indices must be unique.');
+            }
+
+            $seen[$segment->segmentIndex] = true;
+        }
     }
 
     /**

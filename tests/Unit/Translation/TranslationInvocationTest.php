@@ -48,3 +48,22 @@ it('rejects an empty request id', function () {
         segments: [],
     );
 })->throws(InvalidArgumentException::class);
+
+it('allows an empty source segment list', function () {
+    $invocation = TranslationInvocation::create(
+        transcriptionId: 1,
+        targetLanguage: TranslationTarget::English,
+        segments: [],
+    );
+
+    expect($invocation->segments)->toBe([]);
+});
+
+it('rejects duplicate source segment indices', function () {
+    new TranslationInvocation(
+        transcriptionId: 1,
+        requestId: 'req',
+        targetLanguage: TranslationTarget::English,
+        segments: [invocationSegment(0), invocationSegment(0)],
+    );
+})->throws(InvalidArgumentException::class, 'Invocation source segment indices must be unique.');
