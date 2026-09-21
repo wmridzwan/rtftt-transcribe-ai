@@ -3,10 +3,11 @@
 namespace App\Translation;
 
 use App\Models\Transcription;
+use App\Models\TranscriptionSegment;
 use App\Models\Translation;
 use App\Models\TranslationSegment;
 use App\Transcription\LanguageIdentifier;
-use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -15,8 +16,10 @@ use Illuminate\Support\Facades\DB;
  *
  * Guarantees:
  * - a translation and its segments are persisted in one transaction;
- * - persisted segments are aligned to the source transcription's segment set;
- * - repeated writes for the same (transcription, target) do not duplicate rows;
+ * - persistence targets one explicit translation row and target;
+ * - completion is only legal from the `translating` state (lifecycle-enforced);
+ * - persisted alignment (index, timestamps, source language) is copied from the
+ *   source transcript rows, never from provider output;
  * - a completed translation is never overwritten;
  * - the source transcription and its segments are never modified.
  */
@@ -24,60 +27,73 @@ class TranslationResultWriter
 {
     private const TIMESTAMP_TOLERANCE_SECONDS = 0.0005;
 
-    /**
-     * Persist a provider result against a source transcription.
-     *
-     * @param  int|null  $translationId  When provided, the writer targets an
-     *                                   existing non-completed, same-target
-     *                                   translation row rather than resolving
-     *                                   by target.
-     */
     public function persist(
         Transcription $transcription,
         TranslationResult $result,
-        ?int $translationId = null,
+        int $translationId,
     ): Translation {
-        $this->assertAligned($transcription, $result);
+        $sourceByIndex = $this->validatedSourceSegments($transcription, $result);
 
-        try {
-            return DB::transaction(function () use ($transcription, $result, $translationId): Translation {
-                $translation = $this->resolveTarget($transcription, $result, $translationId);
+        return DB::transaction(function () use ($transcription, $result, $translationId, $sourceByIndex): Translation {
+            $translation = Translation::query()
+                ->whereKey($translationId)
+                ->where('transcription_id', $transcription->getKey())
+                ->lockForUpdate()
+                ->first();
 
-                if ($translation->isCompleted()) {
-                    return $translation;
-                }
+            if ($translation === null || $translation->target_language !== $result->targetLanguage) {
+                throw new TranslationException(
+                    TranslationFailure::InvalidRequest,
+                    'The translation row does not match the requested source and target.',
+                );
+            }
 
-                $translation->forceFill([
-                    'status' => TranslationStatus::Completed,
-                    'source_language' => $translation->source_language
-                        ?? $this->sourceLanguage($transcription),
-                    'provider' => $result->provider,
-                    'model' => $result->model,
-                    'full_text' => $result->fullText,
-                    'failure_code' => null,
-                    'started_at' => $translation->started_at ?? now(),
-                    'completed_at' => now(),
-                ])->save();
-
-                $this->replaceSegments($translation, $result);
-
+            if ($translation->status === TranslationStatus::Completed) {
                 return $translation;
-            });
-        } catch (UniqueConstraintViolationException $exception) {
-            throw new TranslationException(
-                TranslationFailure::PersistenceFailed,
-                'A competing translation write prevented persistence.',
-                $exception,
-            );
-        }
+            }
+
+            if ($translation->status === TranslationStatus::Failed) {
+                throw new TranslationException(
+                    TranslationFailure::InvalidRequest,
+                    'A failed translation must be requeued before it can be completed.',
+                );
+            }
+
+            if ($translation->status !== TranslationStatus::Translating) {
+                throw new TranslationException(
+                    TranslationFailure::InvalidRequest,
+                    'A translation can only complete from the translating state.',
+                );
+            }
+
+            TranslationLifecycle::assertValidTransition($translation->status, TranslationStatus::Completed);
+
+            $translation->forceFill([
+                'status' => TranslationStatus::Completed,
+                'source_language' => $translation->source_language
+                    ?? $this->sourceLanguage($transcription),
+                'provider' => $result->provider,
+                'model' => $result->model,
+                'full_text' => $result->fullText,
+                'failure_code' => null,
+                'started_at' => $translation->started_at ?? now(),
+                'completed_at' => now(),
+            ])->save();
+
+            $this->replaceSegments($translation, $result, $sourceByIndex);
+
+            return $translation;
+        });
     }
 
     /**
-     * Enforce that the translated result matches the source segment set exactly
-     * (count, indices, and inherited timestamps). Re-segmentation is not
-     * permitted in Phase 5 (D5-01).
+     * Validate that the translated result matches the source segment set exactly
+     * (count, indices, and timestamps) and return the authoritative source rows
+     * keyed by segment index.
+     *
+     * @return Collection<int, TranscriptionSegment>
      */
-    private function assertAligned(Transcription $transcription, TranslationResult $result): void
+    private function validatedSourceSegments(Transcription $transcription, TranslationResult $result): Collection
     {
         $source = $transcription->segments()->orderBy('segment_index')->get();
 
@@ -108,90 +124,31 @@ class TranslationResultWriter
                 );
             }
         }
+
+        return $sourceByIndex;
     }
 
-    private function resolveTarget(
-        Transcription $transcription,
-        TranslationResult $result,
-        ?int $translationId,
-    ): Translation {
-        $query = Translation::query()
-            ->where('transcription_id', $transcription->getKey())
-            ->where('target_language', $result->targetLanguage->value);
-
-        $completed = (clone $query)
-            ->where('status', TranslationStatus::Completed->value)
-            ->lockForUpdate()
-            ->first();
-
-        if ($completed !== null) {
-            return $completed;
-        }
-
-        if ($translationId !== null) {
-            return $this->resolveByAttemptId($transcription, $result, $translationId);
-        }
-
-        $active = (clone $query)
-            ->whereIn('status', [
-                TranslationStatus::Pending->value,
-                TranslationStatus::Queued->value,
-                TranslationStatus::Translating->value,
-            ])
-            ->lockForUpdate()
-            ->first();
-
-        if ($active !== null) {
-            return $active;
-        }
-
-        return new Translation([
-            'transcription_id' => $transcription->getKey(),
-            'target_language' => $result->targetLanguage,
-            'status' => TranslationStatus::Pending,
-        ]);
-    }
-
-    private function resolveByAttemptId(
-        Transcription $transcription,
-        TranslationResult $result,
-        int $translationId,
-    ): Translation {
-        $translation = Translation::query()
-            ->whereKey($translationId)
-            ->where('transcription_id', $transcription->getKey())
-            ->lockForUpdate()
-            ->first();
-
-        if ($translation === null || $translation->target_language !== $result->targetLanguage) {
-            throw new TranslationException(
-                TranslationFailure::InvalidRequest,
-                'The translation row does not match the requested source and target.',
-            );
-        }
-
-        if ($translation->status === TranslationStatus::Failed) {
-            throw new TranslationException(
-                TranslationFailure::InvalidRequest,
-                'A failed translation must be requeued before it can be completed.',
-            );
-        }
-
-        return $translation;
-    }
-
-    private function replaceSegments(Translation $translation, TranslationResult $result): void
+    /**
+     * @param  Collection<int, TranscriptionSegment>  $sourceByIndex
+     */
+    private function replaceSegments(Translation $translation, TranslationResult $result, Collection $sourceByIndex): void
     {
         $translation->segments()->delete();
 
         foreach ($result->segments as $segment) {
+            $source = $sourceByIndex->get($segment->segmentIndex);
+
+            if ($source === null) {
+                continue;
+            }
+
             TranslationSegment::query()->create([
                 'translation_id' => $translation->getKey(),
-                'segment_index' => $segment->segmentIndex,
-                'start_seconds' => $segment->startSeconds,
-                'end_seconds' => $segment->endSeconds,
+                'segment_index' => $source->segment_index,
+                'start_seconds' => $source->start_seconds,
+                'end_seconds' => $source->end_seconds,
                 'text' => $segment->text,
-                'source_language' => $segment->sourceLanguage,
+                'source_language' => $source->language,
             ]);
         }
     }
