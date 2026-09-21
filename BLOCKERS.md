@@ -1,0 +1,41 @@
+# Blockers
+
+Blocker queue for the Phase 5–7 Controlled Parallel Execution Authorization
+(§19). A blocked task does not stop the run; the scheduler switches to another
+eligible track. The run stops only when no eligible authorized work remains or a
+`GLOBAL_BLOCKER` exists.
+
+Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
+`SECURITY_BLOCKER`, `DATA_INTEGRITY_BLOCKER`, `GOVERNANCE_BLOCKER`,
+`GLOBAL_BLOCKER`.
+
+## Open Blockers
+
+### B-001 — Phase 3/4 baseline is uncommitted; separate worktree not feasible
+- Classification: `GOVERNANCE_BLOCKER` (informational; work-level, non-stopping)
+- Task/Source: execution setup (§22)
+- Detail: the canonical worktree is dirty; all Phase 3 Batch 2/3 and Phase 4
+  implementation files are untracked/modified and absent from HEAD (`55c620a`).
+  `git worktree add` cannot carry untracked files, so a parallel worktree would
+  lack the required baseline. Execution therefore proceeds on an isolated branch
+  (`phase5-7/parallel-2026-09-21`) created in place.
+- Impact: the canonical branch is not advanced; pre-existing dirty changes are
+  preserved untouched; task-scoped commits stage only files owned by the task.
+- Mitigation recorded: never `git add -A`; stage explicit paths per task.
+- Owner decision required: none to proceed; HPO may later choose to commit the
+  Phase 3/4 baseline on its own authority.
+- Blocked work: none.
+
+## Resolved Blockers
+
+| # | Classification | Resolution | Date |
+|---|---|---|---|
+| — | — | — | — |
+
+## Rules
+
+1. Record every blocker with classification and affected task.
+2. A blocked task never halts unrelated eligible work.
+3. Contract/security/data-integrity/governance blockers require an HPO decision;
+   do not invent the resolution.
+4. Re-check the blocker queue before declaring the run idle.
