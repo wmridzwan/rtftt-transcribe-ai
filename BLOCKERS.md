@@ -11,7 +11,16 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 
 ## Open Blockers
 
-None.
+### B-005 — Independent P5-008 review blocked by reviewer session quota
+- Classification: `TRACK_BLOCKER` (review track; non-stopping for the repository)
+- Task/Source: P5-008 final independent review
+- Detail: the Claude Code reviewer CLI returned "You've hit your session limit ·
+  resets 6pm (Asia/Kuala_Lumpur)" on 2026-09-22. The API itself is reachable
+  (B-003 resolved), but the reviewer quota is exhausted for this session.
+- Impact: P5-008 remains IMPLEMENTED_PENDING_REVIEW; no fresh independent verdict
+  can be produced until the quota resets. The implementer must not self-verify.
+- Mitigation: resume the review after the quota resets; all evidence is committed.
+- Blocked work: P5-008 independent review and the Phase 5 closure decision only.
 
 ## Resolved Blockers
 
