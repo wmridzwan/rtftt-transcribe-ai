@@ -2,8 +2,10 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — writer fixes, tests, and internal pre-review
-complete (2026-09-21). Not VERIFIED; not DONE. Independent review pending.
+VERIFIED — independent review `reviews/P5-002A-independent-review.md`
+(2026-09-21) returned VERIFIED with no BLOCKER/HIGH; one MEDIUM (`translationId`
+not validated when a completed same-target row exists) and three LOW recorded as
+non-blocking. Not DONE; HPO closure required.
 
 ## Ownership
 
@@ -63,7 +65,13 @@ handle unique-index collisions deterministically, and add the missing tests.
 
 ## Review
 
-Independent review pending.
+Review File: `reviews/P5-002A-independent-review.md`
+
+Review Status: VERIFIED (2026-09-21). MEDIUM-1 (supplied `translationId` bypassed
+when a completed same-target row exists; recommended fix before P5-004); LOW-1
+(lifecycle source state enforced only as "not failed"), LOW-2 (collision test
+proves the error boundary, not convergence), LOW-3 (alignment check outside the
+transaction).
 
 ## Completion
 

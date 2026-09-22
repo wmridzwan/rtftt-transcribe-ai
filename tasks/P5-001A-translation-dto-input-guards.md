@@ -2,8 +2,9 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — guards, tests, and internal pre-review complete
-(2026-09-21). Not VERIFIED; not DONE. Independent review pending.
+VERIFIED — independent review `reviews/P5-001A-independent-review.md`
+(2026-09-21) returned VERIFIED with no BLOCKER/HIGH/MEDIUM/LOW (one INFO).
+Not DONE; HPO closure required.
 
 ## Ownership
 
@@ -53,7 +54,10 @@ Tighten the domain-contract input guards without changing any accepted behavior.
 
 ## Review
 
-Independent review pending.
+Review File: `reviews/P5-001A-independent-review.md`
+
+Review Status: VERIFIED (2026-09-21). No BLOCKER/HIGH/MEDIUM/LOW. INFO-1:
+pre-review evidence figures are combined-state, not task-specific.
 
 ## Completion
 

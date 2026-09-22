@@ -2,12 +2,18 @@
 
 ## Status
 
-BACKLOG
+DONE
 
 ## Ownership
 
-Implementation Owner: UNASSIGNED
-Reviewer: UNASSIGNED
+Implementation Owner: OpenCode (per AGENTS.md agent model)
+Reviewer: Claude Code
+
+## Authorization
+
+Promoted to READY by the Human Product Owner as part of Phase 3 Batch 2
+authorization (2026-09-18). Batch 2 authorized tasks: P3-004, P3-005, P3-006.
+Batch 3 remains unauthorized.
 
 ## Authorized Phase
 
@@ -63,10 +69,61 @@ Reuse/reconcile current Transcription schema. Persist:
 11. Only minimal additive migration allowed if strictly required.
 12. All tests pass; Pint clean; PHPStan 0 errors.
 
+## Implementation Notes
+
+### Files Changed
+
+- `app/Actions/TranscriptionResultWriter.php` (new) — atomic transcript +
+  segment persistence and completion boundary (shared with P3-005).
+- `app/Models/Transcription.php` — `speech_detected` fillable + boolean cast.
+- `database/factories/TranscriptionFactory.php` — `speech_detected` default.
+- `database/migrations/2026_09_18_000003_add_speech_detected_to_transcriptions_table.php` (new).
+- `config/transcription.php` — canonical model config (`large-v3`).
+- `tests/Feature/Transcription/TranscriptPersistenceTest.php` (new).
+
+### Design
+
+- Persists `full_text`, `detected_language` (dominant), `speech_detected`,
+  `model`, `started_at`, `completed_at`, `processing_seconds` on the existing
+  `transcriptions` table.
+- Requested `language` (hint) is never overwritten; `detected_language` is a
+  distinct column.
+- Ownership integrity is asserted server-side: `transcription.user_id` must
+  equal `mediaFile.user_id`. The worker supplies no ownership identity, so it
+  cannot override server authority. Cross-user writes are impossible.
+- No-speech is persisted as a successful outcome (`text = ""`,
+  `detected_language = und`, `speech_detected = false`, no segments); it is
+  never converted into a worker/empty-result failure or retry loop.
+- Repeated persistence for an already-completed transcription is idempotent
+  (no-op), and a write for a terminal transcription never resurrects it.
+- Unicode/mixed scripts are stored verbatim; long transcripts are supported
+  within the SQLite `TEXT` column.
+
+### Schema
+
+Reused the existing `transcriptions` schema. One additive column
+(`speech_detected`, nullable boolean) was required because no existing column
+represented the normalized speech-detected semantic result. No Phase 1/2
+migration was modified. `duration` reuses the existing `MediaFile` duration
+relationship rather than introducing a duplicate transcript concept.
+
+### Verification
+
+- `php artisan test --compact tests/Feature/Transcription/TranscriptPersistenceTest.php`
+  → 9 passed, 31 assertions.
+- Pint clean; PHPStan 0 errors.
+
 ## Review
 
-Review File: None yet.
-Review Status: PENDING
+Review File: reviews/PHASE3-BATCH2-independent-review.md
+Review Status: VERIFIED (independent Batch 2 review, 2026-09-18).
+
+## Closure
+
+Closed as DONE by the Human Product Owner on 2026-09-19, based on the
+completed independent Batch 2 verification. Canonical transition:
+VERIFIED → (HPO closure decision) → DONE. Closure is governance/state
+reconciliation only; no implementation change is authorized by this closure.
 
 ## Completion
 
