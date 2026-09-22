@@ -49,6 +49,32 @@ it('exempts connections without a retry_after setting', function (): void {
     TranslationQueueConfig::assertConsistent();
 });
 
+it('resolves the effective connection from the default when no override is set', function (): void {
+    config()->set('translation.queue_connection', null);
+    config()->set('queue.default', 'database');
+    config()->set('queue.connections.database.retry_after', 420);
+
+    expect(TranslationQueueConfig::effectiveConnection())->toBe('database')
+        ->and(TranslationQueueConfig::connectionRetryAfterSeconds())->toBe(420)
+        ->and(TranslationQueueConfig::consistencyViolation())->toBeNull();
+});
+
+it('flags the default connection when its retry_after is too low and no override is set', function (): void {
+    config()->set('translation.queue_connection', null);
+    config()->set('queue.default', 'database');
+    config()->set('queue.connections.database.retry_after', 90);
+    config()->set('translation.retry_after_seconds', 420);
+
+    expect(TranslationQueueConfig::consistencyViolation())->not->toBeNull();
+});
+
+it('ships default database and redis retry_after at or above the requirement', function (): void {
+    $required = TranslationQueueConfig::requiredRetryAfterSeconds();
+
+    expect((int) config('queue.connections.database.retry_after'))->toBeGreaterThanOrEqual($required)
+        ->and((int) config('queue.connections.redis.retry_after'))->toBeGreaterThanOrEqual($required);
+});
+
 it('configures a positive sqlite busy_timeout independent of local config', function (): void {
     $busyTimeout = (int) DB::connection()->getPdo()->query('PRAGMA busy_timeout')->fetchColumn();
 

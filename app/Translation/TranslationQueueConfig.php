@@ -41,9 +41,29 @@ final class TranslationQueueConfig
         return is_string($connection) && $connection !== '' ? $connection : null;
     }
 
+    /**
+     * The connection the dispatcher will actually use: the explicit translation
+     * override when set, otherwise the application default queue connection
+     * (mirroring `TranslationDispatcher::dispatch()`). This closes the P5-004C
+     * review BLOCKER: the guard must check the effective connection, not only an
+     * explicitly configured override.
+     */
+    public static function effectiveConnection(): ?string
+    {
+        $configured = self::configuredConnection();
+
+        if ($configured !== null) {
+            return $configured;
+        }
+
+        $default = config('queue.default');
+
+        return is_string($default) && $default !== '' ? $default : null;
+    }
+
     public static function connectionRetryAfterSeconds(?string $connection = null): ?int
     {
-        $connection ??= self::configuredConnection();
+        $connection ??= self::effectiveConnection();
 
         if ($connection === null) {
             return null;
@@ -59,7 +79,7 @@ final class TranslationQueueConfig
      */
     public static function consistencyViolation(): ?string
     {
-        $connection = self::configuredConnection();
+        $connection = self::effectiveConnection();
 
         if ($connection === null) {
             return null;

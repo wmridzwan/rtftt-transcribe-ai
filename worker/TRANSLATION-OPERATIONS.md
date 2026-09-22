@@ -41,9 +41,15 @@ RTFTT_TRANSLATION_QUEUE_CONNECTION=redis
 REDIS_QUEUE_RETRY_AFTER=420
 ```
 
-`TranslationQueueConfig::assertConsistent()` fails application boot when a
-configured translation queue connection has `retry_after` below the required
-value (drivers without `retry_after`, e.g. `sync`, are exempt).
+The effective connection is `translation.queue_connection` when set, otherwise
+`QUEUE_CONNECTION` (`config('queue.default')`) — the same fallback the dispatcher
+uses. The committed defaults for the `database` and `redis` connections are
+therefore 420 s (`DB_QUEUE_RETRY_AFTER` / `REDIS_QUEUE_RETRY_AFTER`), so the
+shipped configuration is compliant even when no translation override is set.
+
+`TranslationQueueConfig::assertConsistent()` fails application boot when the
+**effective** connection has `retry_after` below the required value (drivers
+without `retry_after`, e.g. `sync`, are exempt).
 
 ## Stale-attempt recovery
 

@@ -2,8 +2,21 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — 2026-09-22. Independent review pending. Not
+IMPLEMENTED_PENDING_REVIEW — corrective cycle 2 (2026-09-22) closes the BLOCKER
+from `reviews/P5-004C-independent-review.md`: the retry_after guard now resolves
+the effective connection (explicit override or `queue.default`), and the shipped
+`database`/`redis` retry_after defaults are 420 s, so the invariant
+provider (300) < job (330) < retry_after (420) holds under the committed
+configuration and fails fast otherwise. Fresh independent re-review pending. Not
 VERIFIED; not DONE. P5-008 not started.
+
+## Cycle 2 Notes
+
+- `TranslationQueueConfig::effectiveConnection()` + effective-connection
+  `consistencyViolation()`.
+- `config/queue.php` database/redis `retry_after` defaults 90 → 420.
+- `.env.example` and `worker/TRANSLATION-OPERATIONS.md` updated.
+- Pre-review: `reviews/pre-review/P5-004C-cycle2-pre-review.md`.
 
 ## Ownership
 
