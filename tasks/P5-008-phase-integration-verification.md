@@ -2,14 +2,15 @@
 
 ## Status
 
-BLOCKED — promoted `BACKLOG → READY` and execution authorized by the Human
-Product Owner on 2026-09-22 (`DECISION-P5-008-AUTHORIZATION-001`). Blocked at the
-real-model prerequisite: the committed worker venv does not contain the pinned
-self-hosted translation runtime (`transformers`, `torch`, `sentencepiece`), and no
-translation model is cached locally, so the required real self-hosted
-provider/model path (ADR-022 D5-09) cannot be exercised. The gate was not
-over-claimed with mocks. See `PHASE5-P5-008-INTEGRATION-EVIDENCE.md` and
-`BLOCKERS.md` B-004. Not VERIFIED; not DONE. Phase 5 is not closed.
+IMPLEMENTED_PENDING_REVIEW — the real self-hosted gate was executed on
+2026-09-22 after B-004 provisioning (torch 2.14.0+cpu, transformers 5.17.0,
+sentencepiece 0.2.2, canonical `facebook/nllb-200-distilled-600M`, local Redis).
+Real queued path `Laravel → Redis → worker → NLLB → persistence` completed for
+targets `ms`/`en`/`zh`/`ta` with code-switch input, alignment and source-language
+preservation, source immutability, ownership isolation, TXT/SRT/VTT/DOCX exports,
+browser verification (Playwright 18/18), full-suite 624/623, and clean-checkout
+reproducibility. Evidence: `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`. Independent
+review pending. Not VERIFIED; not DONE. Phase 5 not closed.
 
 ## Ownership
 

@@ -11,20 +11,7 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 
 ## Open Blockers
 
-### B-004 — P5-008 real self-hosted translation runtime unavailable
-- Classification: `GLOBAL_BLOCKER` (blocks the Phase 5 integration gate; only
-  remaining Phase 5 work)
-- Task/Source: P5-008 (promoted READY, `DECISION-P5-008-AUTHORIZATION-001`)
-- Detail: the committed worker venv lacks `transformers`, `torch`,
-  `sentencepiece`; no translation model is cached (only faster-whisper ASR
-  models); and no live Redis server is reachable on `127.0.0.1:6379`. The
-  required real self-hosted provider/model + live-queue path cannot be
-  exercised. Evidence: `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`.
-- Impact: P5-008 cannot reach IMPLEMENTED_PENDING_REVIEW with real evidence; it
-  is recorded BLOCKED. Mocks are not substituted (ADR-022 D5-09).
-- Owner decision required: provision the real runtime/model + Redis, or approve
-  a smaller self-hosted model, or explicitly disposition/defer the gate.
-- Blocked work: P5-008 only. Phase 6/7 remain unauthorized regardless.
+None.
 
 ## Resolved Blockers
 
@@ -36,6 +23,7 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 | B-001 | `GOVERNANCE_BLOCKER` | Phase 3/4 baseline committed in the pre-review-pause checkpoint (`2dc4c66`, `76f884d`, `943dba1`) plus the named P5 dependencies (`2ea55d3`, `da482e3`, `6961087`). The working tree is now clean at HEAD. | 2026-09-22 |
 | B-002 | `GOVERNANCE_BLOCKER` | Worker `/translate` wiring committed (`63a1a76`); worker model runtime dependencies declared in `worker/requirements.txt` (P5-003 cycle 2). | 2026-09-22 |
 | B-003 | `TRACK_BLOCKER` | Claude API recovered on 2026-09-22 (`claude -p` returns normally). Fresh review/re-review is authorized by `DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001`; execution is the next batch. | 2026-09-22 |
+| B-004 | `GLOBAL_BLOCKER` | Resolved by Option A provisioning (2026-09-22): installed torch 2.14.0+cpu / transformers 5.17.0 / sentencepiece 0.2.2, downloaded the canonical `facebook/nllb-200-distilled-600M` (HF cache relocated to `D:\hf-cache`), started local Redis 5.0.14.1. The real queued gate then executed; P5-008 moved to IMPLEMENTED_PENDING_REVIEW. | 2026-09-22 |
 
 ## Rules
 
