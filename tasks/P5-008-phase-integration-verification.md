@@ -2,22 +2,24 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — corrective complete (`DECISION-P5-008-CORRECTIVE-001`;
-ADR-024). The independent review returned CHANGES_REQUESTED because the earlier
-real run used an undeclared/unauthorized runtime. The corrective: adopted the
-proven runtime (`transformers==5.17.0`, `torch==2.14.0`, `sentencepiece==0.2.2`),
-reconciled all declarations and guard tests to one canonical runtime,
-re-provisioned a clean canonical `facebook/nllb-200-distilled-600M` cache
-(pinned revision; weights not committed), committed a reproducible real-gate
-harness (`verification/p5-008-real-gate.mjs`,
+DONE — closed by the Human Product Owner on 2026-09-23
+(`DECISION-P5-008-CLOSURE-001`) on the basis of the accepted fresh independent
+VERIFIED verdict (`reviews/P5-008-independent-review.md`). The corrective
+(`DECISION-P5-008-CORRECTIVE-001`; ADR-024) adopted the proven runtime
+(`transformers==5.17.0`, `torch==2.14.0`, `sentencepiece==0.2.2`), reconciled
+all declarations and guard tests to one canonical runtime, re-provisioned a
+clean canonical `facebook/nllb-200-distilled-600M` cache (pinned revision;
+weights not committed), committed a reproducible real-gate harness
+(`verification/p5-008-real-gate.mjs`,
 `app/Console/Commands/Phase5IntegrationVerification.php`), executed a true
 browser-to-real-model end-to-end flow (no worker double), and re-ran the
 canonical gate for `ms`/`en`/`zh`/`ta` with a code-switched source, alignment,
 source immutability, ownership isolation, and TXT/SRT/VTT/DOCX exports. Quality:
 worker 46, translation 193, full suite 626/625, Pint clean, PHPStan 0. Evidence:
 `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`; runbook:
-`verification/p5-008/README.md`. Fresh independent review pending. Not VERIFIED;
-not DONE. Phase 5 not closed.
+`verification/p5-008/README.md`. Non-blocking LOW/INFO debt retained;
+historical review/corrective provenance preserved unchanged.
+`DECISION-PHASE5-CLOSURE-001` closes Phase 5.
 
 ## Ownership
 

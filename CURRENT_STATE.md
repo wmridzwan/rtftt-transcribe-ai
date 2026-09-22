@@ -1,6 +1,6 @@
 # RTFTT Transcribe AI — Current State
 
-Last Updated: 2026-09-19
+Last Updated: 2026-09-23
 
 ## Current Branch
 
@@ -16,27 +16,29 @@ Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001). P4-001..P4-006 = DON
 (P4-004 corrective cycle DECISION-P4-004-CORRECTIVE-CLOSURE-001; P4-006
 DECISION-P4-006-CLOSURE-001; DECISION-P4-006-FINDING-001 CLOSED).
 
-Phase 5 = AUTHORIZED FOR IMPLEMENTATION (2026-09-21,
-DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
-authorizes cross-phase Playwright). DONE (HPO closures 2026-09-22): P5-001,
-P5-001A, P5-002, P5-002A, P5-002B, P5-003, P5-004, P5-004B, P5-004C, P5-005,
-P5-006, P5-007 (DECISION-PHASE5-TASK-CLOSURES-001; P5-004B/P5-006 closed
-earlier). P5-008 = IMPLEMENTED_PENDING_REVIEW (corrective complete,
-`DECISION-P5-008-CORRECTIVE-001`; ADR-024). The independent review returned
-CHANGES_REQUESTED (undeclared runtime); the corrective adopted the proven runtime
-(`transformers==5.17.0`, `torch==2.14.0`, `sentencepiece==0.2.2`), reconciled all
-declarations and guard tests, re-provisioned a clean canonical NLLB cache,
-committed a reproducible real-gate harness, executed a true browser-to-real-model
-flow, and re-ran the canonical gate for ms/en/zh/ta (code-switch, alignment,
-immutability, ownership, exports). Quality: worker 46, translation 193, full
-suite 626/625, Pint clean, PHPStan 0. Evidence:
-`PHASE5-P5-008-INTEGRATION-EVIDENCE.md`; runbook `verification/p5-008/README.md`.
-Phase 5 is NOT closed; fresh independent review pending. Phase 3/4 baseline
-committed (B-001/B-002 resolved); working tree clean.
+Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001). All P5 tasks DONE
+(P5-001, P5-001A, P5-002, P5-002A, P5-002B, P5-003, P5-004, P5-004B, P5-004C,
+P5-005, P5-006, P5-007, P5-008). P5-008 was independently VERIFIED by a fresh
+review (`reviews/P5-008-independent-review.md`; no BLOCKER/HIGH/MEDIUM) and
+closed DONE (`DECISION-P5-008-CLOSURE-001`). Corrective provenance:
+`DECISION-P5-008-CORRECTIVE-001`; ADR-024 (canonical runtime
+`transformers==5.17.0`/`torch==2.14.0`/`sentencepiece==0.2.2`; canonical model
+`facebook/nllb-200-distilled-600M`). Real-model, real-Redis, and real
+browser-to-real-model E2E evidence: `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`;
+runbook `verification/p5-008/README.md`. Quality: worker 46, translation 193,
+full suite 626/625, Pint clean, PHPStan 0. Final closure report:
+`PHASE5-CLOSURE-REPORT.md`. LOW/INFO debt carried non-blocking
+(`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Phase 3/4 baseline committed
+(B-001/B-002 resolved); working tree clean.
 
 Phase 6 / Phase 7 = NOT GENERALLY AUTHORIZED; controlled-parallel early-start /
 early-hardening allowlists only (ADR-023;
-`PHASE5-7-EXECUTION-CLASSIFICATION.md`).
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`). Phase 6 is now the primary
+product-development path and requires a separate HPO authorization; Phase 7
+early-hardening may run in parallel only where contracts prove independence.
+Eligibility reconstruction and the recommended next batch are in
+`PHASE5-7-EXECUTION-CLASSIFICATION.md` and `PHASE6-PLANNING.md` /
+`PHASE7-PLANNING.md`.
 
 Phase 3 Batch 1 = COMPLETE / CLOSED
 
@@ -121,7 +123,7 @@ BLOCKER/HIGH/MEDIUM; LOW-1/INFO-1 non-blocking). P4-006 was then closed DONE
 (DECISION-P4-006-CLOSURE-001), completing the Phase 4 task gate; Phase 4 was
 closed by the HPO (DECISION-PHASE4-CLOSURE-001, 2026-09-20). Residual LOW/INFO
 debt is retained (`reviews/PHASE4-final-closure.md`); Phase 4 is not represented
-as defect-free. Phase 5 = NOT AUTHORIZED.
+as defect-free. Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).
 Option D remains in force. Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
@@ -456,7 +458,7 @@ P2-004A/P2-004A1 remain BLOCKED.
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 Batch 1 is COMPLETE / CLOSED (P3-001/P3-002/P3-003 DONE); canonical model large-v3. Phase 3 Batch 2 is CLOSED (P3-004/P3-005/P3-006 DONE; independent review VERIFIED, P3-006 HIGH-1 resolved via Correction Cycle 1). Batch 3 is CLOSED (2026-09-19, DECISION-P3-BATCH3-CLOSURE-001); P3-007 and P3-008 are DONE (DECISION-P3-007-CLOSURE-001, DECISION-P3-008-CLOSURE-001). Phase 3 = CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = NOT AUTHORIZED.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 Batch 1 is COMPLETE / CLOSED (P3-001/P3-002/P3-003 DONE); canonical model large-v3. Phase 3 Batch 2 is CLOSED (P3-004/P3-005/P3-006 DONE; independent review VERIFIED, P3-006 HIGH-1 resolved via Correction Cycle 1). Batch 3 is CLOSED (2026-09-19, DECISION-P3-BATCH3-CLOSURE-001); P3-007 and P3-008 are DONE (DECISION-P3-007-CLOSURE-001, DECISION-P3-008-CLOSURE-001). Phase 3 = CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).
 
 Non-blocking Wave 1 suite observation: the full PHP suite repeatedly passed at 422 total / 421 passed / 1 pre-existing skip / 0 failures, while the assertion count varied between 1400 and 1402 across independent runs. This variation is not attributed to Wave 1 and does not warrant a correction cycle.
 
@@ -569,7 +571,16 @@ final-gate rerun PASSED. The independent review
 (`reviews/P4-006-independent-review.md`) returned VERIFIED (no
 BLOCKER/HIGH/MEDIUM); P4-006 was closed DONE (DECISION-P4-006-CLOSURE-001) and
 Phase 4 was closed by the HPO (DECISION-PHASE4-CLOSURE-001, 2026-09-20).
-Phase 5 = NOT AUTHORIZED.
+
+Phase 5 followed under ADR-022/ADR-023. All P5 tasks are DONE; P5-008 was
+executed against the canonical self-hosted NLLB stack, independently VERIFIED
+(`reviews/P5-008-independent-review.md`; no BLOCKER/HIGH/MEDIUM), and closed DONE
+(`DECISION-P5-008-CLOSURE-001`). The HPO closed Phase 5 on 2026-09-23
+(`DECISION-PHASE5-CLOSURE-001`); LOW/INFO debt carried non-blocking
+(`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Final report:
+`PHASE5-CLOSURE-REPORT.md`. Phase 6/7 eligibility is reconstructed from
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`; no Phase 6/7 task is authorized yet.
+
 Canonical Phase 3
 model:
 large-v3 (turbo = non-default/experimental). See `PHASE4-PLANNING.md`,
@@ -610,7 +621,7 @@ Translation; Phase 6 = Advanced Transcript UX; Phase 7 = Production Hardening.
 P4-001..P4-006 = DONE (P4-004 corrective cycle
 DECISION-P4-004-CORRECTIVE-CLOSURE-001; P4-006 DECISION-P4-006-CLOSURE-001;
 DECISION-P4-006-FINDING-001 CLOSED). Residual LOW/INFO debt retained
-(`reviews/PHASE4-final-closure.md`). Phase 5 = NOT AUTHORIZED.
+(`reviews/PHASE4-final-closure.md`). Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).
 See plan.md.
 
 ## Review status
@@ -628,4 +639,4 @@ P3-004/P3-005/P3-006 = DONE (HPO closure 2026-09-19). Batch 3 = CLOSED
 (2026-09-19, DECISION-P3-BATCH3-CLOSURE-001); P3-007 = DONE (DECISION-P3-007-CLOSURE-001)
 and P3-008 = DONE (DECISION-P3-008-CLOSURE-001; independent review VERIFIED,
 no BLOCKER/HIGH/MEDIUM; mandatory B3-06/B3-07 gates accepted). Phase 3 = CLOSED
-(2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = NOT AUTHORIZED.
+(2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).

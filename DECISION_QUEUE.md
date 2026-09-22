@@ -2852,3 +2852,124 @@ Phase 5, and does not authorize Phase 6 or Phase 7.
 Blocks: None (corrective authorized).
 
 Does Not Block: Governance/state reconciliation; no Phase 6/7 work.
+
+### DECISION-P5-008-CLOSURE-001 — Accept the fresh independent P5-008 verdict and close P5-008 DONE
+
+Decision ID: DECISION-P5-008-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Phase Completion / Task Closure
+
+Originating Task: P5-008 (Phase 5 Integration Verification)
+
+Question:
+
+Should the fresh independent P5-008 verdict (`VERIFIED`) be accepted and P5-008 be
+closed DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-23. The fresh independent P5-008 review
+(`reviews/P5-008-independent-review.md`) returned **VERIFIED** with no BLOCKER,
+HIGH, or MEDIUM findings. The reviewer independently confirmed canonical runtime
+provenance; exact dependency pins; a valid canonical NLLB cache at the pinned
+revision; real non-empty model inference; the committed reproducible P5-008
+harness; a real Chromium → Laravel → Redis → worker → NLLB → persistence →
+browser E2E flow; all required targets `ms`/`en`/`zh`/`ta`; code-switched source
+handling; alignment/timestamp/source-language preservation; source immutability;
+ownership isolation; translated TXT/SRT/VTT/DOCX; queue/runtime safety; and the
+separation of real-model evidence from contract/concurrency evidence.
+
+P5-008 is transitioned `VERIFIED → DONE`. The full independent review artifact and
+all corrective provenance (`DECISION-P5-008-CORRECTIVE-001`; ADR-024;
+`PHASE5-P5-008-INTEGRATION-EVIDENCE.md`) are preserved unchanged. This decision
+does not, by itself, close Phase 5.
+
+Blocks: None.
+
+Does Not Block: `DECISION-PHASE5-CLOSURE-001` (separately recorded).
+
+### DECISION-PHASE5-CLOSURE-001 — Close Phase 5 (Translation)
+
+Decision ID: DECISION-PHASE5-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Phase Completion
+
+Originating Scope: Phase 5 — Translation (ADR-022)
+
+Question:
+
+Should Phase 5 be declared CLOSED?
+
+Resolution:
+
+HPO-DECIDED 2026-09-23: **Phase 5 = CLOSED.**
+
+Basis:
+
+- all required P5 tasks (P5-001, P5-001A, P5-002, P5-002A, P5-002B, P5-003,
+  P5-004, P5-004B, P5-004C, P5-005, P5-006, P5-007, P5-008) = DONE;
+- P5-008 independently VERIFIED (`reviews/P5-008-independent-review.md`);
+- real self-hosted canonical model path demonstrated (`facebook/nllb-200-distilled-600M`);
+- canonical runtime pinned and reproducible (`transformers==5.17.0`,
+  `torch==2.14.0`, `sentencepiece==0.2.2`; ADR-024);
+- real Redis-backed queue execution demonstrated;
+- committed integration harness (`verification/p5-008-real-gate.mjs`;
+  `app/Console/Commands/Phase5IntegrationVerification.php`);
+- real browser-to-real-model E2E demonstrated;
+- source transcript immutability and ownership isolation demonstrated;
+- required multilingual/code-switch behavior demonstrated (`ms`/`en`/`zh`/`ta`;
+  code-switched source);
+- translated TXT/SRT/VTT/DOCX demonstrated;
+- full regression/static verification passing (worker 46; translation
+  193/733; full PHP 626/625; Pint clean; PHPStan 0);
+- no unresolved BLOCKER/HIGH/MEDIUM findings.
+
+No historical finding or corrective cycle is rewritten. Phase 5 closure does not
+authorize general Phase 6 or Phase 7 implementation; those remain governed by
+ADR-023 and `PHASE5-7-EXECUTION-CLASSIFICATION.md`.
+
+Blocks: None.
+
+Does Not Block: Phase 6/7 eligibility reconstruction and controlled-parallel
+early-start/early-hardening work already permitted by ADR-023; general Phase 6/7
+still requires separate HPO authorization.
+
+### DECISION-PHASE5-DEBT-CARRYFORWARD-001 — Carry forward Phase 5 LOW/INFO debt as non-blocking
+
+Decision ID: DECISION-PHASE5-DEBT-CARRYFORWARD-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Debt / Risk Acceptance
+
+Originating Scope: Phase 5 residual LOW/INFO findings
+
+Resolution:
+
+HPO-DECIDED 2026-09-23: the remaining LOW/INFO findings are preserved as
+non-blocking deferred debt and Phase 5 is **not** reopened to clean them. At
+minimum:
+
+- redis-payload leakage check is heuristic rather than structural;
+- command-level export isolation evidence is weaker than HTTP-level evidence;
+- persisted model identity remains config-derived;
+- `und → eng_Latn` remains the documented fallback;
+- Laravel and worker default model labels differ unless explicitly configured;
+- non-translation worker dependency ranges remain outside the Phase 5 canonical
+  runtime trio;
+- unrelated PHPUnit warnings remain informational;
+- B-006 / `D:` corruption hazard remains documented operational evidence.
+
+Additionally retained from Phase 5 reviews: P5-002A MEDIUM (structurally
+prevented by the unique index) and the P5-002B/P5-003/P5-004/P5-004B/P5-004C/
+P5-005/P5-006/P5-007 LOW items recorded in `PHASE5-CLOSURE-REPORT.md`. Phase 7
+owns productionization of these items.
+
+Blocks: None.
+
+Does Not Block: Phase 6/7 eligibility reconstruction; no Phase 6/7
+implementation is authorized by this decision.

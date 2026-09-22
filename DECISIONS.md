@@ -1418,3 +1418,43 @@ Reference:
 `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`; `worker/requirements.txt`;
 `worker/TRANSLATION-OPERATIONS.md`; `tasks/P5-008-phase-integration-verification.md`;
 `DECISION_QUEUE.md` (`DECISION-P5-008-CORRECTIVE-001`); ADR-022 (D5-04, D5-09).
+
+## Phase 5 Closure — Translation
+
+Date: 2026-09-23
+
+Status: DECIDED — Human Product Owner (`DECISION-P5-008-CLOSURE-001`,
+`DECISION-PHASE5-CLOSURE-001`, `DECISION-PHASE5-DEBT-CARRYFORWARD-001`).
+
+Decision:
+
+Phase 5 (Translation) is **CLOSED**. The fresh independent P5-008 verdict
+(`reviews/P5-008-independent-review.md`; VERIFIED, no BLOCKER/HIGH/MEDIUM) was
+accepted and P5-008 was closed DONE. All Phase 5 tasks are DONE. The real
+self-hosted canonical model path (`facebook/nllb-200-distilled-600M`), the
+canonical runtime (`transformers==5.17.0`, `torch==2.14.0`,
+`sentencepiece==0.2.2`; ADR-024), a real Redis-backed queue run, a committed
+integration harness, and a real browser-to-real-model end-to-end flow were
+demonstrated; source immutability, ownership isolation, multilingual/code-switch
+behavior, and translated TXT/SRT/VTT/DOCX exports were verified; regression and
+static analysis pass.
+
+Residual LOW/INFO findings are carried forward as non-blocking deferred debt
+(`DECISION-PHASE5-DEBT-CARRYFORWARD-001`); Phase 5 is not reopened to clean them.
+No historical finding or corrective cycle is rewritten.
+
+Phase consequence:
+
+Phase 5 closure does not authorize general Phase 6 or Phase 7 implementation.
+Phase 6 is now the primary product-development path and may be authorized by a
+separate HPO decision; Phase 7 early-hardening may run in parallel only where the
+existing contracts prove independence. Phase 7 cannot close before Phase 6 is
+CLOSED; P7-012 must not run before Phase 6 is CLOSED. See
+`PHASE5-CLOSURE-REPORT.md` and `PHASE6-7-ELIGIBILITY-MATRIX.md`.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P5-008-CLOSURE-001`,
+`DECISION-PHASE5-CLOSURE-001`, `DECISION-PHASE5-DEBT-CARRYFORWARD-001`);
+`reviews/P5-008-independent-review.md`; `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`;
+`PHASE5-CLOSURE-REPORT.md`; ADR-022; ADR-023; ADR-024.

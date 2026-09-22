@@ -81,23 +81,27 @@ DECISION-P4-006-FINDING-001 CLOSED). Boundary:
 Phase 4 = Transcript Experience baseline; Phase 5 = Translation; Phase 6 =
 Advanced Transcript UX; Phase 7 = Production Hardening.
 
-**Phase 5**: Translation. AUTHORIZED FOR IMPLEMENTATION (2026-09-21,
-DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
-authorizes cross-phase Playwright). DONE (HPO closures 2026-09-22): P5-001,
-P5-001A, P5-002, P5-002A, P5-002B, P5-003, P5-004, P5-004B, P5-004C, P5-005,
-P5-006, P5-007. P5-008 = IMPLEMENTED_PENDING_REVIEW (corrective complete,
-`DECISION-P5-008-CORRECTIVE-001`; ADR-024 adopted runtime
-`transformers==5.17.0`/`torch==2.14.0`/`sentencepiece==0.2.2`; clean NLLB cache,
-committed real-gate harness, browser-to-real-model proof; fresh independent
-review pending). Phase 5 is NOT closed. Phase 3/4 baseline committed;
-B-001/B-002 resolved.
+**Phase 5**: Translation. CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001;
+ADR-022 froze D5-01..D5-09; ADR-021 authorized cross-phase Playwright). All P5
+tasks DONE (P5-001, P5-001A, P5-002, P5-002A, P5-002B, P5-003, P5-004, P5-004B,
+P5-004C, P5-005, P5-006, P5-007, P5-008). P5-008 was independently VERIFIED
+(`reviews/P5-008-independent-review.md`; no BLOCKER/HIGH/MEDIUM) and closed DONE
+(`DECISION-P5-008-CLOSURE-001`). Corrective provenance: ADR-024 adopted the
+canonical runtime `transformers==5.17.0`/`torch==2.14.0`/`sentencepiece==0.2.2`;
+clean canonical NLLB cache, committed real-gate harness, and
+browser-to-real-model proof. LOW/INFO debt carried non-blocking
+(`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Final report:
+`PHASE5-CLOSURE-REPORT.md`. Phase 3/4 baseline committed; B-001/B-002 resolved.
 
 **Phase 6 / Phase 7**: NOT GENERALLY AUTHORIZED. Controlled Parallel Execution
 Authorization (2026-09-21, ADR-023; `PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md`)
 allows only the early-start (Phase 6) and early-hardening (Phase 7) allowlists
-in `PHASE5-7-EXECUTION-CLASSIFICATION.md`. Phase 6 cannot close before Phase 5
-is CLOSED; Phase 7 cannot close before Phase 6 is CLOSED; P7-012 must not run
-before Phase 6 is CLOSED.
+in `PHASE5-7-EXECUTION-CLASSIFICATION.md`. Phase 5 is now CLOSED, so Phase 6 is
+the primary product-development path and may be authorized by a separate HPO
+decision; Phase 7 early-hardening may run in parallel only where the existing
+contracts prove independence. Phase 7 cannot close before Phase 6 is CLOSED;
+P7-012 must not run before Phase 6 is CLOSED. No Phase 6/7 task is authorized by
+Phase 5 closure; do not infer authorization from phase numbering.
 
 Phase 3 boundary (ADR-017):
 - provider-neutral Laravel transcription domain
@@ -114,9 +118,11 @@ Phase 3 boundary (ADR-017):
 **Do NOT implement**:
 - Phase 4 implementation beyond the closed Phase 4: Phase 4 is CLOSED
   (DECISION-PHASE4-CLOSURE-001); do not reopen Phase 4
+- Phase 5 implementation: Phase 5 is CLOSED
+  (DECISION-PHASE5-CLOSURE-001); do not reopen Phase 5
 - Phase 6/7 beyond their early-start/early-hardening allowlists
   (`PHASE5-7-EXECUTION-CLASSIFICATION.md`); do not treat the parallel-execution
-  authorization as general Phase 6/7 authorization
+  authorization or Phase 5 closure as general Phase 6/7 authorization
 - Phase 3 code outside the closed Batch 3 scope (P3-007, P3-008)
 - P3-008 final integration verification before P3-007 is independently VERIFIED
 - Automatic domain retry, Horizon, or provider-abstraction redesign

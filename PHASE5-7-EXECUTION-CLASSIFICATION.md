@@ -11,6 +11,13 @@ every candidate Phase 6/7 task before implementation begins. Classification
 describes the **earliest legal start point**; it does not authorize a task. A
 task still requires its own contract and an HPO promotion to READY.
 
+> **Status update (2026-09-23):** Phase 5 is CLOSED
+> (`DECISION-PHASE5-CLOSURE-001`). The post-Phase-5 eligibility reconstruction
+> and the recommended next batch are recorded in
+> `PHASE6-7-ELIGIBILITY-MATRIX.md`; that artifact supersedes the "current
+> eligibility" framing below while preserving this document's dependency
+> rationale. Phase 6/7 remain NOT GENERALLY AUTHORIZED.
+
 Classifications:
 
 - `EARLY_START_ELIGIBLE` — may be promoted to READY independent of Phase 5

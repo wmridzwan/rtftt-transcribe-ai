@@ -132,21 +132,28 @@ retained (`reviews/PHASE4-final-closure.md`).
 Review model: per-task implementation and independent review (D4-07).
 
 ### Phase 5 — Translation
-AUTHORIZED FOR IMPLEMENTATION (2026-09-21, DECISION-PHASE5-AUTHORIZATION-001;
-ADR-022). DONE (HPO closures 2026-09-22): P5-001, P5-001A, P5-002, P5-002A,
-P5-002B, P5-003, P5-004, P5-004B, P5-004C, P5-005, P5-006, P5-007. P5-008 =
-IMPLEMENTED_PENDING_REVIEW (corrective complete, `DECISION-P5-008-CORRECTIVE-001`;
-ADR-024 adopted runtime; clean NLLB cache; committed real-gate harness;
-browser-to-real-model proof; fresh independent review pending). Phase 5 is NOT
-closed. Controlled-parallel execution applies (ADR-023).
+CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001; ADR-022). All P5 tasks DONE
+(P5-001, P5-001A, P5-002, P5-002A, P5-002B, P5-003, P5-004, P5-004B, P5-004C,
+P5-005, P5-006, P5-007, P5-008). P5-008 was independently VERIFIED
+(`reviews/P5-008-independent-review.md`; no BLOCKER/HIGH/MEDIUM) and closed DONE
+(`DECISION-P5-008-CLOSURE-001`); ADR-024 adopted the canonical runtime
+(`transformers==5.17.0`/`torch==2.14.0`/`sentencepiece==0.2.2`), clean NLLB
+cache, committed real-gate harness, and browser-to-real-model proof. LOW/INFO
+debt carried non-blocking (`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Final
+report: `PHASE5-CLOSURE-REPORT.md`. Controlled-parallel execution applies
+(ADR-023).
 
 ### Phase 6 — Advanced Transcript UX
 NOT GENERALLY AUTHORIZED; early-start allowlist only (ADR-023;
-`PHASE5-7-EXECUTION-CLASSIFICATION.md`).
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`). Phase 5 is CLOSED, so Phase 6 is the
+primary product-development path and may be authorized by a separate HPO
+decision. No Phase 6 task is authorized by Phase 5 closure.
 
 ### Phase 7 — Production Hardening
 NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023;
-`PHASE5-7-EXECUTION-CLASSIFICATION.md`).
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`). May run in parallel with Phase 6 only
+where the existing contracts prove independence. Cannot close before Phase 6;
+P7-012 must not run before Phase 6 is CLOSED.
 
 The earlier Phase 4/5/6/7 decomposition is historical and was reconciled by
 ADR-019.
@@ -160,9 +167,9 @@ renumbered by an external product roadmap:
 2. Real File Upload & Media Library — COMPLETE_WITH_DEFERRED_DEBT
 3. Real Transcription Engine (ADR-017) — CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3 closed)
 4. Transcript Experience baseline (ADR-019) — CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE
-5. Translation — future; not authorized
-6. Advanced Transcript UX — future; not authorized
-7. Production Hardening — future; not authorized
+5. Translation — CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001); P5-001..P5-008 DONE
+6. Advanced Transcript UX — future; not authorized (Phase 5 CLOSED; needs separate HPO authorization)
+7. Production Hardening — future; not authorized (cannot close before Phase 6)
 
 Voxora is the long-term product and brand; RTFTT remains the current
 engineering/repository identity. Product evolution beyond Phase 7 may include
@@ -189,7 +196,8 @@ the accepted P2-002B contract and the independently VERIFIED P2-003 workflow.
 No P2-006 implementation was required. P2-007 is DONE. Phase 3 planning
 reconciled under ADR-017; Phase 3 Batch 3 closed on 2026-09-19
 (DECISION-P3-BATCH3-CLOSURE-001) with P3-007 DONE and P3-008 DONE. Phase 3 =
-CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 is authorized for
-task-contract authoring only (DECISION-PHASE4-AUTHORIZATION-001); implementation
-is NOT authorized.
+CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 is CLOSED
+(DECISION-PHASE4-CLOSURE-001, 2026-09-20); Phase 5 is CLOSED
+(DECISION-PHASE5-CLOSURE-001, 2026-09-23). Phase 6/7 implementation is NOT
+authorized beyond the ADR-023 early-start/early-hardening allowlists.
 Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT.

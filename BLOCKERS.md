@@ -11,16 +11,9 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 
 ## Open Blockers
 
-### B-005 — Independent P5-008 review blocked by reviewer session quota
-- Classification: `TRACK_BLOCKER` (review track; non-stopping for the repository)
-- Task/Source: P5-008 final independent review
-- Detail: the Claude Code reviewer CLI returned "You've hit your session limit ·
-  resets 6pm (Asia/Kuala_Lumpur)" on 2026-09-22. The API itself is reachable
-  (B-003 resolved), but the reviewer quota is exhausted for this session.
-- Impact: P5-008 remains IMPLEMENTED_PENDING_REVIEW; no fresh independent verdict
-  can be produced until the quota resets. The implementer must not self-verify.
-- Mitigation: resume the review after the quota resets; all evidence is committed.
-- Blocked work: P5-008 independent review and the Phase 5 closure decision only.
+None. B-005 is resolved; the fresh independent P5-008 review completed and
+returned VERIFIED (`reviews/P5-008-independent-review.md`), and Phase 5 is
+CLOSED (`DECISION-PHASE5-CLOSURE-001`).
 
 ## Resolved Blockers
 
@@ -33,7 +26,8 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 | B-002 | `GOVERNANCE_BLOCKER` | Worker `/translate` wiring committed (`63a1a76`); worker model runtime dependencies declared in `worker/requirements.txt` (P5-003 cycle 2). | 2026-09-22 |
 | B-003 | `TRACK_BLOCKER` | Claude API recovered on 2026-09-22 (`claude -p` returns normally). Fresh review/re-review is authorized by `DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001`; execution is the next batch. | 2026-09-22 |
 | B-004 | `GLOBAL_BLOCKER` | Resolved by Option A provisioning (2026-09-22): installed torch 2.14.0 / transformers 5.17.0 / sentencepiece 0.2.2 and started local Redis 5.0.14.1. Independent review then returned CHANGES_REQUESTED (undeclared runtime; corrupt cache); resolved by the P5-008 corrective (`DECISION-P5-008-CORRECTIVE-001`, ADR-024): canonical runtime reconciled, clean canonical NLLB cache re-provisioned, committed harness + real browser-to-real-model proof added, gate re-run. P5-008 = IMPLEMENTED_PENDING_REVIEW. | 2026-09-22 |
-| B-006 | `DATA_INTEGRITY_BLOCKER` | Resolved by relocation (2026-09-22): the `D:` volume was found to silently corrupt large files (same length, different bytes; NLLB cache `config.json`/`tokenizer.json` invalid) and the `D:`-hosted Redis had disabled writes after RDB save failures. The canonical model cache was re-provisioned on `C:` (`C:\rtftt-hf-cache`) and Redis re-pointed to `C:\rtftt-redis` with persistence disabled for the gate. Reproducible provisioning documented in `verification/p5-008/README.md`. | 2026-09-22 |
+| B-006 | `DATA_INTEGRITY_BLOCKER` | Resolved by relocation (2026-09-22): the `D:` volume was found to silently corrupt large files (same length, different bytes; NLLB cache `config.json`/`tokenizer.json` invalid) and the `D:`-hosted Redis had disabled writes after RDB save failures. The canonical model cache was re-provisioned on `C:` (`C:\rtftt-hf-cache`) and Redis re-pointed to `C:\rtftt-redis` with persistence disabled for the gate. Reproducible provisioning documented in `verification/p5-008/README.md`. Retained as documented operational evidence (see `DECISION-PHASE5-DEBT-CARRYFORWARD-001`). | 2026-09-22 |
+| B-005 | `TRACK_BLOCKER` | Resolved 2026-09-23: the reviewer session quota recovered; the fresh independent P5-008 review completed and returned VERIFIED (`reviews/P5-008-independent-review.md`). P5-008 closed DONE (`DECISION-P5-008-CLOSURE-001`); Phase 5 CLOSED (`DECISION-PHASE5-CLOSURE-001`). | 2026-09-23 |
 
 ## Rules
 
