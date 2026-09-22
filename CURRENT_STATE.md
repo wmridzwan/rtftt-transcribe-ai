@@ -1,6 +1,6 @@
 # RTFTT Transcribe AI — Current State
 
-Last Updated: 2026-09-17
+Last Updated: 2026-09-19
 
 ## Current Branch
 
@@ -9,6 +9,24 @@ setup/ai-development-os
 ## Current Authorized Phase
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
+
+Phase 3 — CLOSED (2026-09-19)
+
+Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001). P4-001..P4-006 = DONE
+(P4-004 corrective cycle DECISION-P4-004-CORRECTIVE-CLOSURE-001; P4-006
+DECISION-P4-006-CLOSURE-001; DECISION-P4-006-FINDING-001 CLOSED).
+
+Phase 5 = AUTHORIZED FOR IMPLEMENTATION (2026-09-21,
+DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
+authorizes cross-phase Playwright). P5-001 (Translation Domain Contract) and
+P5-002 (Translation Persistence / Atomic Writer) = VERIFIED by independent
+review (`reviews/P5-001-independent-review.md`,
+`reviews/P5-002-independent-review.md`); awaiting HPO closure to DONE.
+P5-001A / P5-002A = IMPLEMENTED_PENDING_REVIEW. P5-003..P5-008 = BACKLOG.
+
+Phase 6 / Phase 7 = NOT GENERALLY AUTHORIZED; controlled-parallel early-start /
+early-hardening allowlists only (ADR-023;
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`).
 
 Phase 3 Batch 1 = COMPLETE / CLOSED
 
@@ -27,22 +45,74 @@ Escalation decision = DECIDED
 H5 = resolved
 H6 = resolved by final HPO model decision
 
-Batch 2 = NOT AUTHORIZED
-Batch 3 = NOT AUTHORIZED
+Phase 3 Batch 2 = CLOSED
+
+P3-004 = DONE
+P3-005 = DONE
+P3-006 = DONE
+
+Batch 2 independent review = VERIFIED (P3-006 HIGH-1 resolved via Correction
+Cycle 1 re-review)
+Batch 3 = CLOSED (2026-09-19)
+P3-007 = DONE
+P3-008 = DONE
+
+Phase 3 = CLOSED (2026-09-19)
+Phase 4 = NOT AUTHORIZED
 
 Status: Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product
-Owner on 2026-09-17. Phase 3 Batch 1 authorized by HPO on 2026-09-17
-(DECISION-P3-BATCH1-001). Batch 1 independent review returned
-CHANGES_REQUESTED cycle 1, then cycle 2 (2026-09-17,
-`reviews/PHASE3-BATCH1-cycle2-independent-review.md`). Cycle 2 confirmed
-H1/H2/M1/M2/M3/L2/L3/L4 resolved but found one new HIGH (H4: the new Python
-worker test suite's conftest.py import-path setup is likely broken and has
-never been executed by either party) and the BLOCKER (B1: benchmark gate)
-remains open. Benchmark gate decided: HPO chose Option 1 — run real
-benchmark (DECISION-P3-BENCHMARK-GATE-001), but Python installation keeps
-failing in this environment and this now needs fresh HPO input rather than
-a third autonomous cycle. Batch 2/3 remain unauthorized. Option D remains
-in force. Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
+Owner on 2026-09-17. Phase 3 Batch 1 was authorized by HPO on 2026-09-17
+(DECISION-P3-BATCH1-001), reviewed across multiple cycles, remediated, and
+accepted/closed as DONE on 2026-09-18 with canonical model **large-v3**.
+Phase 3 Batch 2 was authorized by the HPO on 2026-09-18
+(DECISION-P3-BATCH2-001) for P3-004/P3-005/P3-006. One independent Claude
+Batch 2 review returned P3-004 = VERIFIED, P3-005 = VERIFIED, P3-006 =
+CHANGES_REQUESTED (HIGH-1: genuine independent-process concurrency evidence
+for the `ProcessingJob` CAS claim), Batch 2 overall = CHANGES_REQUESTED.
+Correction Cycle 1 (P3-006 only) added a real two-independent-process SQLite
+race test; the focused independent re-review returned P3-006 = VERIFIED,
+Batch 2 overall = VERIFIED, HIGH-1 = RESOLVED. The HPO closed all three tasks
+VERIFIED → DONE and recorded Phase 3 Batch 2 = CLOSED on 2026-09-19
+(DECISION-P3-BATCH2-CLOSURE-001). Phase 3 Batch 3 (P3-007/P3-008) was
+authorized by the HPO on 2026-09-19 (DECISION-P3-BATCH3-001) after resolving
+owner decisions B3-01 through B3-07 (ADR-018); P3-007 was implemented,
+independently VERIFIED, and closed as DONE on 2026-09-19
+(DECISION-P3-007-CLOSURE-001). P3-008 integration verification was executed on
+2026-09-19 (live Redis and real faster-whisper `large-v3` gates passed),
+independently VERIFIED, and closed as DONE on 2026-09-19
+(DECISION-P3-008-CLOSURE-001). The HPO recorded Phase 3 Batch 3 = CLOSED
+(DECISION-P3-BATCH3-CLOSURE-001), then closed Phase 3 as a whole on 2026-09-19
+(DECISION-PHASE3-CLOSURE-001). Phase 3 = CLOSED. Phase 4 is reconciled by
+ADR-019; contracts P4-001..P4-006 were authored and audited, and P4-001 was
+authorized for implementation and promoted BACKLOG → READY
+(DECISION-P4-001-AUTHORIZATION-001). P4-001 implementation is complete and was
+independently reviewed on 2026-09-19 (`reviews/P4-001-independent-review.md`):
+VERIFIED, no BLOCKER/HIGH/MEDIUM findings (LOW-1/LOW-2 non-blocking), and closed
+as DONE by the HPO (DECISION-P4-001-CLOSURE-001). Wave 1 (P4-002, P4-004, P4-005) was then
+authorized (DECISION-P4-WAVE1-AUTHORIZATION-001), implemented, independently
+VERIFIED, and closed as DONE (DECISION-P4-002-CLOSURE-001,
+DECISION-P4-004-CLOSURE-001, DECISION-P4-005-CLOSURE-001); Phase 4 Wave 1 =
+CLOSED. The browser-verification strategy is resolved
+(DECISION-P4-BROWSER-VERIFICATION-001), and P4-003 was authorized and promoted
+READY (DECISION-P4-003-AUTHORIZATION-001); it was implemented, independently
+VERIFIED, and closed as DONE (DECISION-P4-003-CLOSURE-001). P4-006 was
+authorized (DECISION-P4-006-AUTHORIZATION-001) and executed; its final
+integration gate FAILED on V4-14 and V4-18, a real-browser defect in the frozen
+P4-004 `transcriptSearch` component (`this.$el` resolves to the event target in
+child-element handlers). The HPO authorized a P4-004 corrective reopen
+(DECISION-P4-004-REOPEN-001); the correction was independently re-verified
+(`reviews/P4-004-corrective-independent-re-review.md`) and P4-004 was re-closed
+DONE (DECISION-P4-004-CORRECTIVE-CLOSURE-001). The P4-006 finding is CLOSED
+(DECISION-P4-006-FINDING-001), and P4-006 was released to READY and re-executed;
+the fresh final-gate rerun PASSED all mandatory V4-01..V4-25 items
+(`P4-006-INTEGRATION-VERIFICATION-RERUN-EVIDENCE.md`), and the independent
+review (`reviews/P4-006-independent-review.md`) returned VERIFIED (no
+BLOCKER/HIGH/MEDIUM; LOW-1/INFO-1 non-blocking). P4-006 was then closed DONE
+(DECISION-P4-006-CLOSURE-001), completing the Phase 4 task gate; Phase 4 was
+closed by the HPO (DECISION-PHASE4-CLOSURE-001, 2026-09-20). Residual LOW/INFO
+debt is retained (`reviews/PHASE4-final-closure.md`); Phase 4 is not represented
+as defect-free. Phase 5 = NOT AUTHORIZED.
+Option D remains in force. Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
 
@@ -54,6 +124,22 @@ Latest full test suite (2026-09-17, Phase 2 closure):
 
 Focused upload-related suite: 25 passed / 83 assertions. FFprobe was available.
 Pint passed. Full PHPStan: 0 errors. Frontend build passed.
+
+Batch 2 verification (2026-09-18, incl. P3-006 Correction Cycle 1):
+
+- Full PHP suite: 334 total, 333 passed, 1 skipped, 1028 assertions, 2 warnings
+  (the skip and warnings are the pre-existing Batch 1 baseline).
+- Focused Batch 2 suites: TranscriptPersistence 9, SegmentPersistence 7,
+  AtomicCompletion 2, ProcessTranscriptionJob 13,
+  TranscriptionQueueOrchestration 9, ProcessTranscriptionPayload 2,
+  TranscriptionClaimConcurrency 1 (genuine two-process SQLite race).
+- Pint clean; PHPStan 0 errors (run with `--memory-limit=1G`; the local PHP
+  CLI `memory_limit=128M` crashes PHPStan's parallel worker).
+- Python worker untouched; worker suite re-run for regression: 33 passed.
+- Queue backend exercised: Laravel `database` queue with real serialization +
+  `queue:work --once`; `Queue::fake` for dispatch assertions; Redis-outage
+  path exercised against an unavailable endpoint. Real working Redis was not
+  available in this environment.
 
 Skipped test:
 
@@ -95,7 +181,8 @@ VERIFIED verdict (round 2, 2026-09-15). P2-004A and P2-004A1 are BLOCKED
 after the third consecutive CHANGES_REQUESTED cycle because the SQLite
 concurrency safety contract is not explicitly defined, repository-controlled,
 or proven with genuine independent connections/processes. P2-007 is
-DONE (closed 2026-09-17). Phase 3 remains not authorized.
+DONE (closed 2026-09-17). Phase 3 = CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3
+closed, P3-007 DONE; P3-008 DONE).
 
 ## Phase 2 Infrastructure Readiness
 
@@ -117,8 +204,17 @@ on 2026-09-18.
 
 Canonical transition: BLOCKED → (HPO closure decision; prerequisite: Final
 HPO-Decision Verification = VERIFIED) → DONE. No implementation change was
-authorized by closure. P3-004 through P3-008 remain BACKLOG (not authorized).
-Option D remains in force.
+authorized by closure.
+
+Phase 3 Batch 2 authorized by the HPO on 2026-09-18
+(DECISION-P3-BATCH2-001): P3-004 (Transcript Persistence), P3-005 (Segment
+Persistence + Atomic Completion), P3-006 (Redis Queue Orchestration +
+Idempotent Delivery). P3-004/P3-005/P3-006 were promoted to READY, implemented
+sequentially by OpenCode, independently reviewed, corrected (P3-006 Correction
+Cycle 1), re-reviewed, and closed as DONE by the HPO on 2026-09-19
+(DECISION-P3-BATCH2-CLOSURE-001). Phase 3 Batch 2 = CLOSED. Batch 3 was
+subsequently authorized on 2026-09-19 (DECISION-P3-BATCH3-001; ADR-018) with
+P3-007/P3-008 promoted to READY. Option D remains in force.
 P2-001A, P2-002A,
 P2-002B, and P2-002C completed the authorized follow-up batch and were closed
 as DONE after independent verification.
@@ -144,7 +240,15 @@ Cycle 4 = CHANGES_REQUESTED — post-escalation governance review
 Post-Escalation Independent Review = CHANGES_REQUESTED
 Final HPO-Decision Verification = VERIFIED
 
-P3-004 through P3-008 remain BACKLOG (Batch 2/3, not authorized).
+Phase 3 Batch 2 tasks are DONE (closed by HPO 2026-09-19; independent review
+VERIFIED, P3-006 HIGH-1 resolved via Correction Cycle 1):
+- P3-004 (Transcript Persistence) — DONE
+- P3-005 (Segment Persistence + Atomic Completion) — DONE
+- P3-006 (Redis Queue Orchestration + Idempotent Delivery) — DONE
+
+P3-007 is DONE (HPO closure 2026-09-19, DECISION-P3-007-CLOSURE-001).
+P3-008 is DONE (HPO closure 2026-09-19, DECISION-P3-008-CLOSURE-001).
+Phase 3 Batch 3 = CLOSED (DECISION-P3-BATCH3-CLOSURE-001).
 Option D remains in force.
 
 ## P2-003 Active Task
@@ -260,7 +364,8 @@ isolation, promotion and persistence compensation, ambiguous retry recovery,
 staging cleanup, and the absence of processing/transcription side effects.
 The remaining out-of-band staging cleanup/lease work remains blocked under
 P2-004A/P2-004A1, and P2-005 is DONE after independent verification. P2-007
-is DONE (closed 2026-09-17). Phase 3 remains unauthorized.
+is DONE (closed 2026-09-17). Phase 3 = CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3
+closed, P3-007 DONE; P3-008 DONE).
 
 ## Blocked Tasks
 
@@ -331,7 +436,9 @@ Batch 1 BLOCKED, narrow H6 remediation authorized. Escalation outcome:
 Accept with known limitations (large-v3). DECISION-P3-BENCHMARK-GATE-001
 = DECIDED — large-v3 selected as initial canonical Phase 3 model; turbo is
 non-default/experimental. No further model-selection gate is required for
-Batch 1. DECISION-P3-BATCH1-001 DECIDED.
+Batch 1. DECISION-P3-BATCH1-001 DECIDED. DECISION-P3-BATCH2-001 DECIDED —
+Phase 3 Batch 2 authorized (P3-004/P3-005/P3-006); Batch 3 authorized 2026-09-19
+(DECISION-P3-BATCH3-001); B3-01 through B3-07 DECIDED (ADR-018).
 DECISION-P1-001 resolved as Title REQUIRED. DECISION-P2-CONCURRENCY-001
 is DECIDED as Option D. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED.
 DECISION-P2-CONCURRENCY-002 is DECIDED. Option D remains in force.
@@ -339,7 +446,9 @@ P2-004A/P2-004A1 remain BLOCKED.
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 Batch 1 is COMPLETE / CLOSED (P3-001/P3-002/P3-003 DONE); canonical model large-v3. Batch 2/3 remain unauthorized.
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 Batch 1 is COMPLETE / CLOSED (P3-001/P3-002/P3-003 DONE); canonical model large-v3. Phase 3 Batch 2 is CLOSED (P3-004/P3-005/P3-006 DONE; independent review VERIFIED, P3-006 HIGH-1 resolved via Correction Cycle 1). Batch 3 is CLOSED (2026-09-19, DECISION-P3-BATCH3-CLOSURE-001); P3-007 and P3-008 are DONE (DECISION-P3-007-CLOSURE-001, DECISION-P3-008-CLOSURE-001). Phase 3 = CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = NOT AUTHORIZED.
+
+Non-blocking Wave 1 suite observation: the full PHP suite repeatedly passed at 422 total / 421 passed / 1 pre-existing skip / 0 failures, while the assertion count varied between 1400 and 1402 across independent runs. This variation is not attributed to Wave 1 and does not warrant a correction cycle.
 
 ## Phase 3 Batch 1 Non-Blocking Follow-Up Debt
 
@@ -413,14 +522,49 @@ Future browser/E2E verification should cover:
 
 ## Next Action
 
-Phase 3 Batch 1 is COMPLETE / CLOSED. The Final HPO-Decision Verification
-returned VERIFIED; the HPO accepted and closed P3-001/P3-002/P3-003 as DONE
-(2026-09-18). Canonical model: large-v3 (turbo = non-default/experimental).
-DECISION-P3-BENCHMARK-GATE-001 = DECIDED; DECISION-P3-ESCALATION-001 =
-DECIDED (Accept with known limitations). Batch 2/3 remain unauthorized;
-no P3-004–P3-008 work is authorized. See
-`reviews/PHASE3-BATCH1-final-hpo-decision-verification.md`,
-`DECISION_QUEUE.md`, `BENCHMARK-GATE-EVIDENCE.md`.
+Phase 3 Batch 3 = AUTHORIZED (2026-09-19). The HPO resolved owner decisions
+B3-01 through B3-07 and recorded them in `DECISION_QUEUE.md` and ADR-018
+(`DECISIONS.md`), then authorized Batch 3 via DECISION-P3-BATCH3-001 for P3-007
+and P3-008. P3-007 was independently VERIFIED and closed as DONE by the HPO on
+2026-09-19 (DECISION-P3-007-CLOSURE-001); no BLOCKER/HIGH/MEDIUM remain, and
+MEDIUM-1 was reconciled to the non-blocking LOW-1. P3-008 integration
+verification was executed on 2026-09-19 against the frozen P3-007 behavior:
+live Redis and real FFmpeg/faster-whisper `large-v3` gates passed; the
+independent review returned VERIFIED with no BLOCKER/HIGH/MEDIUM; and the HPO
+closed P3-008 as DONE (DECISION-P3-008-CLOSURE-001) and recorded Phase 3
+Batch 3 = CLOSED (DECISION-P3-BATCH3-CLOSURE-001). Evidence:
+`PHASE3-P3-008-INTEGRATION-EVIDENCE.md` and
+`reviews/P3-008-independent-review.md`. The HPO then closed Phase 3 as a whole
+on 2026-09-19 (DECISION-PHASE3-CLOSURE-001). Phase 3 = CLOSED.
+
+Phase 4 planning followed on 2026-09-19: the HPO resolved D4-01 through D4-07,
+ratified ADR-019 (PROPOSED → ACCEPTED), and authorized Phase 4 for task-contract
+authoring only (DECISION-PHASE4-AUTHORIZATION-001). Task contracts P4-001
+through P4-006 were authored and audited; P4-001 was then authorized for
+implementation and promoted BACKLOG → READY (DECISION-P4-001-AUTHORIZATION-001),
+implemented, independently reviewed (VERIFIED; no BLOCKER/HIGH/MEDIUM), and
+closed as DONE (DECISION-P4-001-CLOSURE-001). Wave 1 (P4-002, P4-004, P4-005)
+was then authorized (DECISION-P4-WAVE1-AUTHORIZATION-001), implemented,
+independently VERIFIED, and closed as DONE
+(DECISION-P4-002/004/005-CLOSURE-001); Wave 1 = CLOSED. The
+browser-verification strategy is resolved and P4-003 was authorized
+(DECISION-P4-BROWSER-VERIFICATION-001, DECISION-P4-003-AUTHORIZATION-001);
+P4-003 was implemented, independently VERIFIED, and closed as DONE
+(DECISION-P4-003-CLOSURE-001). P4-006 executed and found a P4-004 defect; the
+HPO authorized a P4-004 corrective reopen (DECISION-P4-004-REOPEN-001), the
+correction was independently re-verified and P4-004 was re-closed DONE
+(DECISION-P4-004-CORRECTIVE-CLOSURE-001). The finding is CLOSED
+(DECISION-P4-006-FINDING-001); P4-006 was released and re-executed, and the fresh
+final-gate rerun PASSED. The independent review
+(`reviews/P4-006-independent-review.md`) returned VERIFIED (no
+BLOCKER/HIGH/MEDIUM); P4-006 was closed DONE (DECISION-P4-006-CLOSURE-001) and
+Phase 4 was closed by the HPO (DECISION-PHASE4-CLOSURE-001, 2026-09-20).
+Phase 5 = NOT AUTHORIZED.
+Canonical Phase 3
+model:
+large-v3 (turbo = non-default/experimental). See `PHASE4-PLANNING.md`,
+`PHASE4-TASK-CONTRACT-AUDIT.md`, `DECISION_QUEUE.md`, and
+`PHASE3-BATCH3-PLANNING.md`.
 
 ## Phase Authorization
 
@@ -428,21 +572,50 @@ Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). P2-003,
 P2-005, P2-004A2, P2-007 are DONE. P2-004A/P2-004A1 are BLOCKED under
 ADR-013. Option D remains in force.
 
-Phase 3 Batch 1 authorized by HPO (2026-09-17, DECISION-P3-BATCH1-001).
-Batch 1 independent review returned CHANGES_REQUESTED cycle 1, cycle 2,
-cycle 3 (escalation triggered), cycle 4 (post-escalation governance review),
-and the Post-Escalation Independent Review (CHANGES_REQUESTED). HPO exception
-authorized narrow H6 remediation while BLOCKED. HPO final model decision:
-large-v3. Final HPO-Decision Verification = VERIFIED. Batch 1 accepted and
-closed as DONE (2026-09-18). P3-004–P3-008 are BACKLOG (not authorized).
+Phase 3 Batch 1 authorized by HPO (2026-09-17, DECISION-P3-BATCH1-001);
+accepted and closed as DONE (2026-09-18). Canonical model: large-v3.
+
+Phase 3 Batch 2 authorized by HPO (2026-09-18, DECISION-P3-BATCH2-001):
+P3-004, P3-005, P3-006. One independent Claude batch review returned
+P3-004/P3-005 VERIFIED and P3-006 CHANGES_REQUESTED; Correction Cycle 1
+(P3-006 only) resolved HIGH-1, and the focused independent re-review returned
+P3-006 = VERIFIED. The HPO closed P3-004/P3-005/P3-006 as DONE and recorded
+Phase 3 Batch 2 = CLOSED (2026-09-19, DECISION-P3-BATCH2-CLOSURE-001).
+Phase 3 Batch 3 authorized by HPO (2026-09-19, DECISION-P3-BATCH3-001):
+P3-007 (Failure / Retry / Recovery Hardening), P3-008 (Real Phase Integration
+Verification). Owner decisions B3-01 through B3-07 DECIDED (ADR-018). P3-007 is
+DONE (independently VERIFIED, HPO closure 2026-09-19,
+DECISION-P3-007-CLOSURE-001); P3-008 integration verification is complete,
+independently VERIFIED, and closed as DONE
+(DECISION-P3-008-CLOSURE-001). P3-008 final
+execution used live Redis and real faster-whisper `large-v3` (dependency on
+P3-007 verification satisfied). Phase 3 Batch 3 = CLOSED
+(DECISION-P3-BATCH3-CLOSURE-001). Phase 3 = CLOSED (2026-09-19,
+DECISION-PHASE3-CLOSURE-001).
+
+Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001).
+DECISION-PHASE4-AUTHORIZATION-001 authorized contract authoring; ADR-019
+ACCEPTED. Boundary: Phase 4 = Transcript Experience baseline; Phase 5 =
+Translation; Phase 6 = Advanced Transcript UX; Phase 7 = Production Hardening.
+P4-001..P4-006 = DONE (P4-004 corrective cycle
+DECISION-P4-004-CORRECTIVE-CLOSURE-001; P4-006 DECISION-P4-006-CLOSURE-001;
+DECISION-P4-006-FINDING-001 CLOSED). Residual LOW/INFO debt retained
+(`reviews/PHASE4-final-closure.md`). Phase 5 = NOT AUTHORIZED.
 See plan.md.
 
 ## Review status
 
 P2-007 is DONE. P2-006 remains closure-only. Phase 3 Batch 1 COMPLETE /
-CLOSED. Review history: Cycle 1/2/3/4 = CHANGES_REQUESTED; Post-Escalation
-Independent Review = CHANGES_REQUESTED; Final HPO-Decision Verification =
-VERIFIED. H5 resolved; H6 resolved by final HPO model decision. Canonical
-model: large-v3. DECISION-P3-BENCHMARK-GATE-001: DECIDED.
+CLOSED. Batch 1 review history: Cycle 1/2/3/4 = CHANGES_REQUESTED;
+Post-Escalation Independent Review = CHANGES_REQUESTED; Final HPO-Decision
+Verification = VERIFIED. H5 resolved; H6 resolved by final HPO model decision.
+Canonical model: large-v3. DECISION-P3-BENCHMARK-GATE-001: DECIDED.
 DECISION-P3-ESCALATION-001: DECIDED (Accept with known limitations).
-Batch 2/3 remain unauthorized.
+
+Phase 3 Batch 2: P3-004 = VERIFIED, P3-005 = VERIFIED, P3-006 = VERIFIED
+(Correction Cycle 1 re-review; HIGH-1 RESOLVED). Batch 2 overall = VERIFIED.
+P3-004/P3-005/P3-006 = DONE (HPO closure 2026-09-19). Batch 3 = CLOSED
+(2026-09-19, DECISION-P3-BATCH3-CLOSURE-001); P3-007 = DONE (DECISION-P3-007-CLOSURE-001)
+and P3-008 = DONE (DECISION-P3-008-CLOSURE-001; independent review VERIFIED,
+no BLOCKER/HIGH/MEDIUM; mandatory B3-06/B3-07 gates accepted). Phase 3 = CLOSED
+(2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = NOT AUTHORIZED.

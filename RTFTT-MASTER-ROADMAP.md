@@ -24,11 +24,11 @@ future product roadmap:
 |---|---|---|
 | 1 | Application Foundation + Full Clickable Prototype | Accepted |
 | 2 | Real File Upload & Media Library | COMPLETE_WITH_DEFERRED_DEBT (closed 2026-09-17) |
-| 3 | Real Transcription Engine (ADR-017) | PLANNING RECONCILED; implementation not authorized |
-| 4 | Future (to be reconciled after Phase 3) | Not yet reconciled |
-| 5 | Future (to be reconciled after Phase 3) | Not yet reconciled |
-| 6 | Advanced Transcript UX | Future; not authorized |
-| 7 | Production Hardening | Future; not authorized |
+| 3 | Real Transcription Engine (ADR-017) | CLOSED (2026-09-19) — Batch 1 closed (2026-09-18); Batch 2 closed (2026-09-19); Batch 3 closed (2026-09-19, P3-007 DONE, P3-008 DONE) |
+| 4 | Transcript Experience baseline (ADR-019) | CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE |
+| 5 | Translation | AUTHORIZED FOR IMPLEMENTATION (2026-09-21, DECISION-PHASE5-AUTHORIZATION-001; ADR-022); P5-001/P5-002 VERIFIED (HPO closure pending) |
+| 6 | Advanced Transcript UX | NOT GENERALLY AUTHORIZED; early-start allowlist only (ADR-023) |
+| 7 | Production Hardening | NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023) |
 
 Phase 3 boundary amended by ADR-017 (2026-09-17): Phase 3 is the complete
 Real Transcription Engine encompassing transcription domain, provider
@@ -49,13 +49,34 @@ generation, or future SaaS schema. The accepted application upload boundary is
 one file with an exact 500 MiB (`524,288,000`-byte) limit, the accepted media
 matrix, no duration limit, duplicate uploads allowed, and private storage.
 
-Phase 3 (ADR-017) is the complete Real Transcription Engine. Before Batch 1
-may be promoted to READY, separate Human Product Owner authorization is
-required. The Turbo vs Large-v3 benchmark gate must be completed before
-P3-003 is finalized.
+Phase 3 (ADR-017) is the complete Real Transcription Engine. Batch 1
+(P3-001/P3-002/P3-003 + the Turbo vs Large-v3 benchmark gate) was closed as
+DONE on 2026-09-18 with canonical model large-v3. Batch 2 (P3-004/P3-005/
+P3-006) was independently VERIFIED and closed as DONE on 2026-09-19. Batch 3
+(P3-007/P3-008) was authorized by the Human Product Owner on 2026-09-19
+(DECISION-P3-BATCH3-001) after owner decisions B3-01 through B3-07 were resolved
+(ADR-018); P3-007 is DONE (HPO closure 2026-09-19) and P3-008 is DONE (HPO
+closure 2026-09-19; independent review VERIFIED, live Redis and real
+faster-whisper `large-v3` gates passed). Phase 3 Batch 3 = CLOSED
+(DECISION-P3-BATCH3-CLOSURE-001). Phase 3 as a whole was then closed by the HPO
+on 2026-09-19 (DECISION-PHASE3-CLOSURE-001). Phase 3 = CLOSED.
 
-Phases 4 and 5 as previously defined are absorbed into Phase 3 by ADR-017.
-Their future boundaries will be reconciled separately after Phase 3 approval.
+Phase 4 is reconciled by ADR-019 (ACCEPTED 2026-09-19): Phase 4 = Transcript
+Experience baseline (authorized playback, timestamp seeking, synchronized
+highlighting, in-transcript search, copy, export hardening over completed
+persisted transcripts). Task contracts P4-001..P4-006 were authored and audited;
+P4-001 is DONE. Wave 1 (P4-002, P4-004, P4-005) was authorized
+(DECISION-P4-WAVE1-AUTHORIZATION-001), implemented, independently VERIFIED, and
+closed as DONE; Wave 1 = CLOSED. P4-003 was implemented, independently VERIFIED,
+and closed as DONE (DECISION-P4-003-CLOSURE-001). P4-006 executed and found a
+P4-004 defect; P4-004 was corrected and re-closed DONE
+(DECISION-P4-004-CORRECTIVE-CLOSURE-001), the finding is CLOSED, P4-006 was
+re-executed (fresh final-gate rerun PASSED), independently VERIFIED, and closed
+DONE (DECISION-P4-006-CLOSURE-001). Phase 4 = CLOSED (2026-09-20,
+DECISION-PHASE4-CLOSURE-001). Phase 5 =
+Translation; Phase 6 =
+Advanced Transcript UX and Phase 7 = Production Hardening remain reserved. The
+earlier Phase 4/5 decomposition was absorbed into Phase 3 by ADR-017.
 
 ADR-002 establishes the high-level direction for an independently deployable
 transcription worker. The worker operational contract is now defined within

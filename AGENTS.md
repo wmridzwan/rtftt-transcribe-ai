@@ -65,9 +65,35 @@ php artisan make:model --help     # Check model options
 
 **Current Phase**: Phase 2 COMPLETE_WITH_DEFERRED_DEBT (closed 2026-09-17)
 
-**Phase 3**: Real Transcription Engine (ADR-017). Planning reconciled.
-Phase 3 implementation NOT AUTHORIZED. Batch 1 NOT AUTHORIZED.
-No P3 task is READY.
+**Phase 3**: Real Transcription Engine (ADR-017). CLOSED (2026-09-19,
+DECISION-PHASE3-CLOSURE-001).
+Batch 1 CLOSED (P3-001/P3-002/P3-003 DONE; canonical model large-v3).
+Batch 2 CLOSED (P3-004/P3-005/P3-006 DONE).
+Batch 3 CLOSED (2026-09-19, DECISION-P3-BATCH3-CLOSURE-001; ADR-018):
+P3-007 is DONE (HPO closure 2026-09-19); P3-008 is DONE (HPO closure 2026-09-19;
+independent review VERIFIED, live Redis and real faster-whisper `large-v3` gates
+passed). Phase 3 = CLOSED.
+
+**Phase 4**: Transcript Experience baseline (ADR-019). CLOSED (2026-09-20,
+DECISION-PHASE4-CLOSURE-001). P4-001..P4-006 = DONE (P4-004 corrective cycle
+DECISION-P4-004-CORRECTIVE-CLOSURE-001; P4-006 DECISION-P4-006-CLOSURE-001;
+DECISION-P4-006-FINDING-001 CLOSED). Boundary:
+Phase 4 = Transcript Experience baseline; Phase 5 = Translation; Phase 6 =
+Advanced Transcript UX; Phase 7 = Production Hardening.
+
+**Phase 5**: Translation. AUTHORIZED FOR IMPLEMENTATION (2026-09-21,
+DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
+authorizes cross-phase Playwright). P5-001 (Translation Domain Contract) and
+P5-002 (Translation Persistence / Atomic Writer) = VERIFIED by independent
+review; awaiting HPO closure to DONE. P5-001A/P5-002A follow-ups =
+IMPLEMENTED_PENDING_REVIEW.
+
+**Phase 6 / Phase 7**: NOT GENERALLY AUTHORIZED. Controlled Parallel Execution
+Authorization (2026-09-21, ADR-023; `PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md`)
+allows only the early-start (Phase 6) and early-hardening (Phase 7) allowlists
+in `PHASE5-7-EXECUTION-CLASSIFICATION.md`. Phase 6 cannot close before Phase 5
+is CLOSED; Phase 7 cannot close before Phase 6 is CLOSED; P7-012 must not run
+before Phase 6 is CLOSED.
 
 Phase 3 boundary (ADR-017):
 - provider-neutral Laravel transcription domain
@@ -82,9 +108,14 @@ Phase 3 boundary (ADR-017):
 - real end-to-end integration verification
 
 **Do NOT implement**:
-- Phase 3 code unless the batch containing that task has been explicitly authorized by the HPO
-- Batch 1 authorization covers only: P3-001, P3-002, Turbo vs Large-v3 Benchmark Gate, P3-003
-- Redis queue orchestration is P3-006 / Batch 2 and is NOT authorized by Batch 1
+- Phase 4 implementation beyond the closed Phase 4: Phase 4 is CLOSED
+  (DECISION-PHASE4-CLOSURE-001); do not reopen Phase 4
+- Phase 6/7 beyond their early-start/early-hardening allowlists
+  (`PHASE5-7-EXECUTION-CLASSIFICATION.md`); do not treat the parallel-execution
+  authorization as general Phase 6/7 authorization
+- Phase 3 code outside the closed Batch 3 scope (P3-007, P3-008)
+- P3-008 final integration verification before P3-007 is independently VERIFIED
+- Automatic domain retry, Horizon, or provider-abstraction redesign
 - AI features, billing, public registration
 
 **Preserve these frameworks**: Laravel, Livewire, Blade, Flux UI, Tailwind, Fortify, Pest

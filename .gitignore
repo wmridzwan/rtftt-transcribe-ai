@@ -33,3 +33,10 @@ __pycache__/
 .pytest_cache/
 benchmark-media/
 benchmark-results.json
+
+# P4-003 browser verification (generated)
+/verification/artifacts/
+/verification/fixtures/
+/database/p4-003-verification.sqlite
+/test-results/
+/playwright-report/

@@ -916,3 +916,450 @@ Reference:
 `PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md` (canonical durable specification);
 ADR-002; ADR-013; ADR-014; ADR-016;
 `RTFTT-MASTER-ROADMAP.md`; `architecture.md`; `CURRENT_STATE.md`; `plan.md`.
+
+## ADR-018 — Phase 3 Batch 3: Retry / Recovery Contract and Authorization
+
+Date: 2026-09-19
+
+Status: ACCEPTED
+
+Amends: The canonical transcription lifecycle (the `failed` terminal rule in
+`TranscriptionLifecycle`), as a narrowly-scoped extension. Does not supersede
+ADR-017 or the Phase 3 canonical specification; it operationalizes the
+retry/recovery portion of that scope. Option D (ADR-013) remains in force.
+
+Decision:
+
+The Human Product Owner resolved the Batch 3 owner decisions B3-01 through B3-07
+and authorized Phase 3 Batch 3 (`DECISION-P3-BATCH3-001`) for P3-007 (Failure /
+Retry / Recovery Hardening) and P3-008 (Real Phase Integration Verification).
+P3-007 and P3-008 are promoted to READY.
+
+### B3-01 — Same-transcription retry
+
+Approved same-transcription retry with a new processing attempt. The canonical
+lifecycle is extended with `failed → queued`, reachable only through an explicit
+authorized retry action. Each retry creates a new `ProcessingJob`; the previous
+failed attempt remains immutable historical evidence and is never reused or
+reset. The transcription identity is unchanged.
+
+### B3-02 — Manual domain retry only
+
+Phase 3 implements manual domain retry only. No automatic domain-level retry is
+introduced, and no automatic domain retry scheduler exists. Laravel transport
+retry is distinct from domain transcription retry and remains effectively
+single-attempt per the established queue contract. Automatic retry policy may be
+considered in a future phase.
+
+### B3-03 — No automatic retry schedule
+
+No automatic retry count or backoff schedule is introduced in Phase 3. Each
+explicit valid manual retry request may create one new attempt.
+Concurrency/idempotency protection ensures repeated or concurrent submissions of
+the same retry action cannot create multiple simultaneously active attempts. No
+arbitrary lifetime retry cap is imposed. Historical attempts remain
+observable/auditable.
+
+### B3-04 — Completed transcriptions protected
+
+Completed transcriptions cannot be retried or retranscribed under P3-007. For
+`status = completed`, the retry action must reject or safely no-op. Transcript
+text, detected language, segments, completion metadata, and successful attempt
+history must not be overwritten. Retranscription/reprocessing of completed media
+is a separate future product feature outside Phase 3.
+
+### B3-05 — Abandoned running-attempt recovery
+
+Phase 3 must support recovery of abandoned `running` attempts, but recovery must
+not automatically start a new inference attempt. Canonical semantics:
+
+```text
+running attempt
+→ demonstrably stale/abandoned
+→ terminal recoverable failure state
+→ transcription becomes eligible for explicit manual retry
+```
+
+The stale threshold is derived conservatively from the actual current provider
+execution timeout contract/configuration (~300 seconds), not an arbitrary
+hard-coded value. A stale-authority guard must prevent an old worker that later
+resumes from completing or overwriting newer authoritative state. The minimum
+additive schema needed to prove staleness safely may be used; heartbeat
+infrastructure is not introduced unless strictly necessary.
+
+### B3-06 — Live Redis evidence mandatory for the Phase 3 gate
+
+Live Redis integration evidence is mandatory before P3-008 can be VERIFIED.
+P3-008 must exercise an actual Redis instance and retain evidence of: dispatch
+through the configured Redis connection; the `transcription` queue; real
+serialization/deserialization; worker consumption of the Redis job;
+authoritative DB state reload; completion through the established pipeline; no
+media path/binary in the serialized job; and valid duplicate/stale protections
+where applicable. If Redis is unavailable, P3-008 remains unverified.
+Database-queue evidence is not a substitute for live Redis evidence.
+
+### B3-07 — Real FFmpeg + faster-whisper evidence mandatory for the Phase 3 gate
+
+A real self-hosted FFmpeg + faster-whisper end-to-end execution is mandatory
+before P3-008 can be VERIFIED. Mocks remain valid for unit/feature coverage but
+cannot satisfy the final integration requirement. A small controlled
+representative fixture is used. Evidence must demonstrate the real canonical
+path: private MediaFile → authorized opaque media resolution → FFmpeg extraction
+→ faster-whisper → normalized provider-neutral result → Laravel persistence →
+completed transcription, including actual FFmpeg invocation, actual
+faster-whisper worker execution, accurate model/config recording,
+provider-boundary crossing, text/segment persistence, ephemeral extracted-audio
+cleanup, and a path/binary-free queue payload. For code-switching coverage, a
+suitable real fixture may be used or the real-worker smoke run may be
+supplemented with deterministic normalized-result fixtures; the real-worker
+requirement does not require every scenario to invoke the large model. No false
+claim may be made if model/runtime execution is unavailable.
+
+### Failure taxonomy authority
+
+Laravel's provider-neutral `TranscriptionFailure` taxonomy is the authoritative
+domain retryability source. The worker-provided `retryable` value is transport
+metadata/advisory only and must not independently control domain retry policy.
+P3-007 must make the cross-layer contract internally consistent (current
+discrepancy: worker `FFMPEG_FAILED: retryable=true` vs Laravel
+`FfmpegFailed->isRetryable() = false`; `HttpTranscriptionProvider` currently
+discards the worker flag). If `FFMPEG_FAILED` remains non-retryable under the
+canonical Laravel taxonomy, the worker/envelope behavior must be aligned or
+explicitly normalized at the provider boundary.
+
+### Concurrency
+
+The CAS/guarded state transition is the primary correctness boundary; a partial
+unique index may provide defense-in-depth. SQLite concurrency claims require
+genuine independent-process/database-connection evidence per the ADR-013 /
+ADR-016 / P2-004A2 precedent. Concurrent retry requests must be proven to
+produce exactly one new active attempt; sequential-only tests are insufficient.
+Any partial unique index must be additive, SQLite-compatible, deterministically
+reversible, and must not replace the CAS protocol.
+
+### Execution dependency
+
+P3-007 must be implementation-complete, frozen, and independently VERIFIED
+before P3-008 executes the final Phase 3 integration verification. P3-008 may
+prepare fixtures/harness earlier but must not be VERIFIED while P3-007 remains
+unverified. Batch 3 authorization does not close Phase 3; Phase 3 closure
+requires its own later HPO decision under the Completion Gate.
+
+Reason:
+
+The Batch 3 plan (`PHASE3-BATCH3-PLANNING.md`) identified a blocking lifecycle
+contradiction and seven product/architecture decisions. The HPO resolved them
+in favor of a narrow, manual, bounded, evidence-gated retry/recovery contract
+that preserves all prior VERIFIED/DONE Batch 1/Batch 2 contracts and the
+provider-neutral architecture.
+
+Phase consequence:
+
+P3-007 and P3-008 are READY. Batch 3 is authorized. Phase 3 remains IN PROGRESS
+and is not closed. Batch 1/Batch 2 closures are unchanged. No application, test,
+migration, queue, worker, provider, schema, or configuration change is authorized
+by this ADR beyond the P3-007/P3-008 task contracts.
+
+Reference:
+
+`PHASE3-BATCH3-PLANNING.md`; `DECISION_QUEUE.md`
+(DECISION-P3-BATCH3-001, B3-01 through B3-07);
+`tasks/P3-007-failure-retry-recovery-hardening.md`;
+`tasks/P3-008-real-phase-integration-verification.md`;
+`PHASE3-REAL-TRANSCRIPTION-ENGINE-SPEC.md`; ADR-013; ADR-016; ADR-017;
+`.ai/guidelines/orchestration-policy.md`.
+
+## ADR-019 — Phase 4/5 Boundary Reconciliation: Transcript Experience Baseline
+
+Date: 2026-09-19
+
+Status: ACCEPTED — Human Product Owner decision 2026-09-19 (D4-01), ratified
+together with the Phase 4 task-contract-authoring authorization
+(DECISION-PHASE4-AUTHORIZATION-001).
+
+Proposal history: This ADR was first recorded as PROPOSED in the Phase 4 planning
+package (`PHASE4-PLANNING.md`, 2026-09-19). The Human Product Owner resolved
+D4-01 through D4-07 on 2026-09-19 and accepted the boundary below. The proposal
+text is preserved; the decided outcomes are recorded in "HPO Decision Outcomes".
+
+Amends: The Phase 4/5 boundary left unreconciled by ADR-017 ("Phases 4 and 5 as
+previously defined are absorbed into Phase 3... their future boundaries will be
+reconciled separately"). Does not supersede ADR-017 or ADR-018 and does not
+change any Phase 3 contract.
+
+### HPO Decision Outcomes (2026-09-19)
+
+| ID | Decision | Outcome |
+|----|----------|---------|
+| D4-01 | Phase boundary | ACCEPTED as proposed: Phase 4 = Transcript Experience baseline; Phase 5 = Translation; Phase 6 = Advanced Transcript UX (reserved); Phase 7 = Production Hardening (reserved) |
+| D4-02 | Media playback delivery | Authorized application range-stream endpoint behind the existing media/transcription ownership policy; byte ranges, `206`, correct `Content-Type`/`Accept-Ranges`, audio+video, no path leakage, no full-object PHP memory load. Signed temporary storage URLs are not the Phase 4 baseline |
+| D4-03 | Export set | Keep TXT, SRT, VTT, DOCX; harden and verify the existing implementation; do not rebuild or remove DOCX |
+| D4-04 | Search | Client-side search over loaded persisted segments; no server-side full-text infrastructure or DB index in Phase 4; Unicode-safe (Latin/Chinese/Tamil) |
+| D4-05 | Transcript editing | Excluded from Phase 4; deferred to Phase 6. Phase 4 transcript content is read-only |
+| D4-06 | Player scope | Audio + video, play/pause, volume, seek, click-timestamp seek, ms-accurate target, synchronized active-segment highlighting; no waveform/timeline/clipping/annotations. Playback speed optional only if a small baseline control |
+| D4-07 | Review model | Per-task implementation and independent review; no Phase-3-style batch-review exception; P4-006 is the final independent integration gate |
+
+Decision:
+
+Phase 4 is defined as the Transcript Experience baseline: the read, navigate,
+search, copy, and export experience over completed persisted Phase 3
+transcripts, plus authorized private media playback. Phase 5 is defined as
+Translation (original-vs-translated, Bahasa Melayu Malaysia output, persistence,
+and UX). Phase 6 remains reserved for Advanced Transcript UX and Phase 7 remains
+reserved for Production Hardening.
+
+### Phase 4 scope
+
+- authorized private media playback (range/streaming, ownership-enforced);
+- timestamp seeking and synchronized segment highlighting;
+- in-transcript search (client-side);
+- copy (full transcript and per-segment);
+- export hardening over completed persisted transcripts (TXT/SRT/VTT/DOCX);
+- Phase 4 integration verification.
+
+### Explicit Phase 4 non-scope
+
+- translation (Phase 5);
+- transcript editing, diarization/speaker labels, chapters, annotations
+  (Phase 6);
+- AI/summary/chat and live/realtime capabilities;
+- Horizon, automatic domain retry, provider-abstraction redesign;
+- retranscription/reprocessing of completed transcriptions;
+- production deployment, monitoring, retention/deletion, backup/restore,
+  PostgreSQL/Redis certification (Phase 7);
+- actor-vs-owner, admin-on-behalf-of, and multi-tenancy semantics.
+
+### Preserved contracts
+
+Phase 3 queue, retry, failure-taxonomy, language, no-speech, atomic-persistence,
+and media contracts remain authoritative and unchanged. Completed transcriptions
+remain protected.
+
+Reason:
+
+ADR-017 absorbed the earlier Phase 3/4/5 decomposition into Phase 3 and left
+Phase 4/5 open. The product priority sequence after reliable transcription is
+transcript experience, then translation. Assigning Phase 4 to the Transcript
+Experience baseline and Phase 5 to Translation reconciles the roadmap without
+disturbing the reserved Phase 6/7 boundaries.
+
+Phase consequence:
+
+Phase 4 boundary = DECIDED and this ADR = ACCEPTED. Phase 4 is AUTHORIZED FOR
+TASK-CONTRACT AUTHORING only (DECISION-PHASE4-AUTHORIZATION-001); implementation
+is NOT YET AUTHORIZED. Task contracts may be authored and refined, but no task
+may be promoted to READY until a separate HPO task/batch implementation
+authorization is recorded. This ADR authorizes no application code, test,
+migration, route, controller, Livewire component, streaming endpoint, JavaScript
+behavior, UI, schema, or configuration change. Supporting package:
+`PHASE4-PLANNING.md`; decided decisions: D4-01 through D4-07 in
+`DECISION_QUEUE.md`.
+
+Reference:
+
+`PHASE4-PLANNING.md`; `DECISION_QUEUE.md` (D4-01 through D4-07;
+DECISION-PHASE4-AUTHORIZATION-001); `RTFTT-MASTER-ROADMAP.md`; `plan.md`;
+`CURRENT_STATE.md`; ADR-013; ADR-017; ADR-018;
+`.ai/guidelines/orchestration-policy.md`.
+
+## ADR-020 — Playwright Verification Tooling for Phase 4
+
+Date: 2026-09-20
+
+Status: ACCEPTED
+
+Amends: `DECISION-P4-BROWSER-VERIFICATION-001` (preserved, not erased).
+Records `DECISION-P4-BROWSER-VERIFICATION-002`.
+
+Decision:
+
+The initial Phase 4 browser-verification strategy (documented
+environment-dependent manual browser verification, no automation) was not
+reliably executable by the CLI implementation agent, which has no GUI browser.
+This satisfies the escalation condition recorded in
+`DECISION-P4-BROWSER-VERIFICATION-001`.
+
+Playwright is authorized as dev/test-only verification tooling for Phase 4:
+
+- P4-003 browser verification;
+- P4-006 final Phase 4 integration verification;
+- directly related Phase 4 browser regression evidence where required.
+
+Constraints: not a production or product-runtime dependency; not a frontend
+architecture; does not replace Pest/PHP tests; Chromium-only unless a contract
+requires otherwise; minimal configuration; no unrelated JavaScript tooling; no
+general Phase 5/6/7 authorization. Any use beyond Phase 4 verification requires
+separate explicit authorization.
+
+Reason:
+
+P4-003 requires real `HTMLMediaElement` behavior (seek precision, active-segment
+synchronization, auto-scroll, keyboard) that backend tests cannot prove. Manual
+GUI verification was not executable by the agent; an automated, reproducible
+harness was required.
+
+Phase consequence:
+
+P4-003 browser evidence was completed under this ADR (ten Playwright checks
+passed; see `P4-003-BROWSER-VERIFICATION-EVIDENCE.md`). P4-003 remains REVIEW.
+P4-006 remains BACKLOG and still requires separate authorization. No
+application, schema, or worker change is authorized beyond verification tooling.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P4-BROWSER-VERIFICATION-001`,
+`DECISION-P4-BROWSER-VERIFICATION-002`); `P4-003-BROWSER-VERIFICATION-EVIDENCE.md`;
+`tasks/P4-003-segment-navigation-synchronized-highlighting.md`;
+`verification/` (Playwright harness, seed, router).
+
+## ADR-021 — Cross-Phase Browser Verification Tooling (Playwright)
+
+Date: 2026-09-21
+
+Status: ACCEPTED — Human Product Owner, under the Phase 5–7 Controlled Parallel
+Execution Authorization (2026-09-21), resolving DC-01.
+
+Amends/Generalizes: ADR-020 (`Playwright Verification Tooling for Phase 4`).
+ADR-020 is preserved unchanged as the Phase 4 record; this ADR generalizes the
+tooling authorization to Phases 5, 6, and 7 without retroactively changing the
+Phase 4 history.
+
+Decision:
+
+Playwright is the canonical dev/test-only browser verification tooling for
+Phases 5, 6, and 7, under the following constraints:
+
+- it is not a production or product-runtime dependency;
+- it remains Chromium-based unless a separate contract requires another browser;
+- it does not replace Pest/PHP tests;
+- each phase still requires its own explicit implementation authorization before
+  browser-dependent work is treated as governed;
+- browser evidence is required where an approved contract marks behavior as
+  browser-material (translation workspace, transcript editing, production
+  readiness flows);
+- mock or server-only tests may not be represented as real browser integration
+  evidence.
+
+Allowed tooling: Playwright test runner and the existing `verification/`
+harness conventions (config, seed, router, auth setup, fixtures), extended
+additively as needed.
+
+Evidence expectations: retained per-task artifacts naming the task, the checks
+performed, pass/fail, and any residual flake, following the Phase 4 evidence
+pattern.
+
+Per-phase authorization: this ADR does not itself authorize Phase 5, 6, or 7
+implementation. Each phase requires its own HPO authorization. Phase 5 is
+authorized separately (`DECISION-PHASE5-AUTHORIZATION-001`).
+
+Reason:
+
+Browser behavior is material across Phase 5 (translation workspace), Phase 6
+(editing), and Phase 7 (production browser matrix), and the Phase 4 CLI agent
+had no GUI browser. Keeping ADR-020 Phase-4-only while requiring per-phase
+re-authorization would be repetitive and risk inconsistent harness usage. A
+single explicit cross-phase ADR with per-phase authorization is clearer and
+preserves the Phase 4 record.
+
+Phase consequence:
+
+Browser verification tooling is governed for P5/P6/P7. No application, schema,
+worker, or runtime change is authorized by this ADR. DC-01 is RESOLVED.
+
+Reference:
+
+`DECISION_QUEUE.md` (DC-01, `DECISION-PHASE5-AUTHORIZATION-001`);
+`PHASE5-7-DECISION-REGISTER.md` (DC-01); `PHASE5-7-EXECUTION-CLASSIFICATION.md`;
+ADR-020; `verification/`.
+
+## ADR-022 — Phase 5 Translation Contract Decisions and Implementation Authorization
+
+Date: 2026-09-21
+
+Status: ACCEPTED — Human Product Owner, under the Phase 5–7 Controlled Parallel
+Execution Authorization (2026-09-21).
+
+Supersedes: the OPEN/CANDIDATE status of D5-01 through D5-09 recorded in
+`PHASE5-7-DECISION-REGISTER.md`. The planning register is preserved; these
+decisions are now frozen.
+
+Decision:
+
+The Human Product Owner freezes the Phase 5 translation contract and authorizes
+Phase 5 for implementation:
+
+| ID | Decision |
+|----|----------|
+| D5-01 | Segment-aligned hybrid translation unit; persisted translation is segment-aligned. |
+| D5-02 | Initial target languages: `ms`, `en`, `zh`, `ta`; source may also be `und`; code-switched transcripts are valid. |
+| D5-03 | Multiple persisted translations are allowed per source transcript/revision according to target-language/lifecycle identity. |
+| D5-04 | Provider-neutral application boundary with a self-hosted default translation provider. |
+| D5-05 | Translation is derived data and must not mutate the machine transcript source. |
+| D5-06 | Dedicated translation persistence must be used; do not store translation content in `transcriptions` or `transcription_segments`. |
+| D5-07 | Translation UX belongs within the transcript workspace. |
+| D5-08 | Translated exports: TXT, SRT, VTT, DOCX. |
+| D5-09 | Final Phase 5 integration verification must include the real authorized self-hosted provider/model path; mocks cannot substitute for the final real gate. |
+
+Phase 5 = AUTHORIZED FOR IMPLEMENTATION.
+
+Phase consequence:
+
+Phase 5 task contracts (`tasks/P5-001..P5-008`) may be authored and promoted to
+READY by the Human Product Owner. P6/P7 early-start work is limited to the
+allowlists in `PHASE5-7-EXECUTION-CLASSIFICATION.md`. Phase 6 and Phase 7 remain
+NOT GENERALLY AUTHORIZED. Phase closure still requires independent verification
+and explicit HPO closure. No frozen Phase 3/4 contract is changed.
+
+Reference:
+
+`PHASE5-PLANNING.md`; `PHASE5-7-EXECUTION-CLASSIFICATION.md`;
+`PHASE5-7-DECISION-REGISTER.md`; `DECISION_QUEUE.md`
+(`DECISION-PHASE5-AUTHORIZATION-001`, D5-01..D5-09, DC-01); ADR-017; ADR-018;
+ADR-019; ADR-021.
+
+## ADR-023 — Controlled Parallel Execution Model for Phases 5–7
+
+Date: 2026-09-21
+
+Status: ACCEPTED — Human Product Owner.
+
+Decision:
+
+Phase-level serialization is replaced by dependency-driven parallelism with
+strict contract and closure boundaries. Phase 5 is AUTHORIZED FOR
+IMPLEMENTATION. Phase 6 and Phase 7 are NOT GENERALLY AUTHORIZED but have
+early-start and early-hardening allowlists respectively
+(`PHASE5-7-EXECUTION-CLASSIFICATION.md`).
+
+An eligible task may begin once its predecessor reaches
+`IMPLEMENTED_PENDING_REVIEW` (committed, stable contract) under the standing
+unattended execution authority, without waiting for independent verification;
+if review later invalidates a consumed contract, downstream work is reconciled.
+This resolves reviewer GOV-1 and ratifies the P5-002-after-P5-001 ordering.
+
+The model defines the execution state machine
+(`BACKLOG → READY → IMPLEMENTING → IMPLEMENTED_PENDING_REVIEW → REVIEWING →
+VERIFIED → DONE`), the five execution tracks, contract-freeze rules, provisional
+decision policy (`DECISIONS-PROVISIONAL.md`), and the blocker policy
+(`BLOCKERS.md`). Independent verification and explicit HPO closure remain
+mandatory; no phase closes automatically.
+
+Reason:
+
+The previous strict phase serialization underused safe parallelism. The
+dependency-driven model maximizes throughput during unattended execution without
+weakening architectural governance, phase boundaries, independent verification,
+source immutability, or HPO ownership.
+
+Phase consequence:
+
+Phase 5 implementation proceeds. Phase 6/7 early work is limited to the
+allowlists. Phase 6 cannot close before Phase 5 is CLOSED; Phase 7 cannot close
+before Phase 6 is CLOSED; P7-012 must not run before Phase 6 is CLOSED. No frozen
+Phase 3/4 contract or Phase 5 decision is changed.
+
+Reference:
+
+`PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md`; `PHASE5-7-EXECUTION-CLASSIFICATION.md`;
+`PHASE5-7-DEPENDENCY-GRAPH.md`; `BLOCKERS.md`; `DECISIONS-PROVISIONAL.md`;
+`reviews/P5-002-independent-review.md` (GOV-1); ADR-021; ADR-022.
