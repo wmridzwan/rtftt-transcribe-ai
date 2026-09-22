@@ -85,9 +85,12 @@ Advanced Transcript UX; Phase 7 = Production Hardening.
 DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
 authorizes cross-phase Playwright). DONE (HPO closures 2026-09-22): P5-001,
 P5-001A, P5-002, P5-002A, P5-002B, P5-003, P5-004, P5-004B, P5-004C, P5-005,
-P5-006, P5-007. P5-008 = IMPLEMENTED_PENDING_REVIEW (real self-hosted gate
-executed after B-004 provisioning; independent review pending). Phase 5 is NOT
-closed. Phase 3/4 baseline committed; B-001/B-002 resolved.
+P5-006, P5-007. P5-008 = IMPLEMENTED_PENDING_REVIEW (corrective complete,
+`DECISION-P5-008-CORRECTIVE-001`; ADR-024 adopted runtime
+`transformers==5.17.0`/`torch==2.14.0`/`sentencepiece==0.2.2`; clean NLLB cache,
+committed real-gate harness, browser-to-real-model proof; fresh independent
+review pending). Phase 5 is NOT closed. Phase 3/4 baseline committed;
+B-001/B-002 resolved.
 
 **Phase 6 / Phase 7**: NOT GENERALLY AUTHORIZED. Controlled Parallel Execution
 Authorization (2026-09-21, ADR-023; `PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md`)

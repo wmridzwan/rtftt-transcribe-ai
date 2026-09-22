@@ -2602,15 +2602,15 @@ Does Not Block:
 
 - Phase 5 critical-path implementation; independent verification.
 
-### DECISION-P5-PERSISTENCE-FAILURE-001 — Transient vs deterministic persistence failures
+### DECISION-P5-PERSISTENCE-FAILURE-001 ï¿½ Transient vs deterministic persistence failures
 
 Decision ID: DECISION-P5-PERSISTENCE-FAILURE-001
 
-Status: DECIDED — HPO 2026-09-22 (Phase 5 operational pre-flight)
+Status: DECIDED ï¿½ HPO 2026-09-22 (Phase 5 operational pre-flight)
 
 Type: Architecture / Product
 
-Originating Scope: P5-004C (review residual 1; `reviews/P5-004B-P5-006-independent-review.md` §4.1)
+Originating Scope: P5-004C (review residual 1; `reviews/P5-004B-P5-006-independent-review.md` ï¿½4.1)
 
 Raised By: Human Product Owner
 
@@ -2649,11 +2649,11 @@ Does Not Block:
 
 - P5-008 real integration gate.
 
-### DECISION-P5-004B-CLOSURE-001 — Close P5-004B (Pre-UI Translation Hardening)
+### DECISION-P5-004B-CLOSURE-001 ï¿½ Close P5-004B (Pre-UI Translation Hardening)
 
 Decision ID: DECISION-P5-004B-CLOSURE-001
 
-Status: DECIDED — HPO 2026-09-22
+Status: DECIDED ï¿½ HPO 2026-09-22
 
 Type: Phase Completion / Task Closure
 
@@ -2675,11 +2675,11 @@ artifacts are preserved unchanged.
 Blocks: None.
 Does Not Block: P5-008 (separately gated).
 
-### DECISION-P5-006-CLOSURE-001 — Close P5-006 (Translation Workspace UI)
+### DECISION-P5-006-CLOSURE-001 ï¿½ Close P5-006 (Translation Workspace UI)
 
 Decision ID: DECISION-P5-006-CLOSURE-001
 
-Status: DECIDED — HPO 2026-09-22
+Status: DECIDED ï¿½ HPO 2026-09-22
 
 Type: Phase Completion / Task Closure
 
@@ -2701,11 +2701,11 @@ Historical review artifacts are preserved unchanged.
 Blocks: None.
 Does Not Block: P5-008 (separately gated).
 
-### DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001 — Authorize fresh independent review/re-review
+### DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001 ï¿½ Authorize fresh independent review/re-review
 
 Decision ID: DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001
 
-Status: DECIDED — HPO 2026-09-22
+Status: DECIDED ï¿½ HPO 2026-09-22
 
 Type: Phase Authorization / Verification
 
@@ -2728,11 +2728,11 @@ Blocks: None (review is authorized).
 Does Not Block: Safe allowlisted debt; no implementation authorization is
 created by this decision.
 
-### DECISION-P5-008-GATE-001 — P5-008 remains gated
+### DECISION-P5-008-GATE-001 ï¿½ P5-008 remains gated
 
 Decision ID: DECISION-P5-008-GATE-001
 
-Status: DECIDED — HPO 2026-09-22
+Status: DECIDED ï¿½ HPO 2026-09-22
 
 Type: Phase Completion / Phase Authorization
 
@@ -2750,11 +2750,11 @@ HPO-DECIDED 2026-09-22: NO. P5-008 remains BACKLOG. It stays gated on
 operational entry prerequisites recorded by P5-004C are satisfied. P5-008
 requires a separate explicit HPO READY promotion.
 
-### DECISION-PHASE5-TASK-CLOSURES-001 — Close independently VERIFIED Phase 5 tasks
+### DECISION-PHASE5-TASK-CLOSURES-001 ï¿½ Close independently VERIFIED Phase 5 tasks
 
 Decision ID: DECISION-PHASE5-TASK-CLOSURES-001
 
-Status: DECIDED — HPO 2026-09-22
+Status: DECIDED ï¿½ HPO 2026-09-22
 
 Type: Phase Completion / Task Closure
 
@@ -2771,11 +2771,11 @@ provenance, findings, and decision records are preserved unchanged.
 Blocks: None.
 Does Not Block: P5-008 (separately authorized).
 
-### DECISION-P5-008-AUTHORIZATION-001 — Promote and authorize P5-008
+### DECISION-P5-008-AUTHORIZATION-001 ï¿½ Promote and authorize P5-008
 
 Decision ID: DECISION-P5-008-AUTHORIZATION-001
 
-Status: DECIDED — HPO 2026-09-22
+Status: DECIDED ï¿½ HPO 2026-09-22
 
 Type: Phase Authorization / Task Authorization
 
@@ -2795,10 +2795,60 @@ self-hosted translation stack; mocks may not substitute for real-model evidence
 (ADR-022 D5-09). P5-008 may reach only IMPLEMENTED_PENDING_REVIEW and requires a
 fresh independent reviewer; it may not self-promote to VERIFIED.
 
-Execution outcome: P5-008 is BLOCKED at the real-model prerequisite (B-004) —
+Execution outcome: P5-008 is BLOCKED at the real-model prerequisite (B-004) ï¿½
 the worker venv lacks the pinned translation runtime, no translation model is
 cached, and no live Redis server is available. Evidence:
 `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`.
 
 Blocks: P5-008 execution until the runtime/model/Redis prerequisites exist.
+Does Not Block: Governance/state reconciliation; no Phase 6/7 work.
+
+### DECISION-P5-008-CORRECTIVE-001 â€” Adopt the proven worker runtime and correct P5-008
+
+Decision ID: DECISION-P5-008-CORRECTIVE-001
+
+Status: DECIDED â€” HPO 2026-09-22
+
+Type: Architecture / Runtime / Verification Corrective
+
+Originating Task: P5-008 (Phase 5 Integration Verification)
+
+Question:
+
+Following the independent P5-008 review (`CHANGES_REQUESTED`, BLOCKER: the real
+gate ran on an undeclared/unauthorized runtime set), which runtime is canonical,
+and what corrective is required before P5-008 may be re-reviewed?
+
+Resolution:
+
+HPO-DECIDED 2026-09-22. Adopt the real runtime set already proven to execute the
+canonical NLLB model: `transformers==5.17.0`, `torch==2.14.0`,
+`sentencepiece==0.2.2`. This supersedes the previous Phase 5 worker pins
+(`transformers==4.57.6`, `torch==2.9.1`, `sentencepiece==0.2.1`). The canonical
+model identity is unchanged (`facebook/nllb-200-distilled-600M`). Durable record:
+ADR-024 in `DECISIONS.md`.
+
+Rationale: the previous exact pins were never successfully real-model gated; the
+new exact set has been demonstrated to load and execute the canonical model under
+the current Python/runtime environment. Phase 5 standardizes on the proven
+runtime rather than regress to an unverified dependency set.
+
+Corrective required before re-review (P5-008 remains `CHANGES_REQUESTED`):
+
+1. Reconcile the committed worker dependency declarations and all documentation,
+   evidence, runtime tables, and guard tests to the single canonical runtime.
+2. Re-provision the canonical model into a clean cache location; verify artifacts
+   and inference; document the reproducible provisioning procedure.
+3. Commit a reproducible P5-008 real-gate harness (P3-008/P4-006 precedent).
+4. Execute one true browser-to-real-model end-to-end flow (no worker double).
+5. Re-run the canonical P5-008 real gate and retain tracked evidence.
+6. Record the config-derived persisted model identity as retained INFO debt.
+7. Record the `und â†’ eng_Latn` worker fallback assumption.
+
+On completion, P5-008 returns to `IMPLEMENTED_PENDING_REVIEW` and requires a fresh
+independent review. This decision does not mark P5-008 VERIFIED, does not close
+Phase 5, and does not authorize Phase 6 or Phase 7.
+
+Blocks: None (corrective authorized).
+
 Does Not Block: Governance/state reconciliation; no Phase 6/7 work.

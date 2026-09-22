@@ -1,6 +1,7 @@
 """RTFTT Transcription Worker — FastAPI application."""
 
 import logging
+import platform
 import time
 from pathlib import Path
 
@@ -13,7 +14,7 @@ from .config import PREPARED_AUDIO_RETENTION, MAX_WORKER_TIMEOUT, MODEL_NAME
 from .ffmpeg import FfmpegError, prepare_audio
 from .media import MediaAccessError, resolve_media_path
 from .transcription import transcribe_audio
-from .translation import TranslationError, translate_segments
+from .translation import TranslationError, model_name, translate_segments
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("rtftt-worker")
@@ -132,6 +133,38 @@ async def transcribe(
 async def health():
     """Health check endpoint."""
     return {"status": "ok"}
+
+
+def _module_version(name: str) -> str | None:
+    """Best-effort installed version of an optional runtime module."""
+    try:
+        module = __import__(name)
+
+        return getattr(module, "__version__", None)
+    except Exception:
+        return None
+
+
+@app.get("/runtime")
+async def runtime(token: str = Depends(verify_token)):
+    """Authenticated runtime provenance for the P5-008 real-gate harness.
+
+    Reports the installed translation runtime versions and the configured
+    canonical model identity so an operator/reviewer can prove the worker is
+    running the declared Phase 5 runtime (ADR-024). It does not load the model;
+    real inference is exercised through `/translate`.
+    """
+    return {
+        "status": "ok",
+        "python": platform.python_version(),
+        "dependencies": {
+            "transformers": _module_version("transformers"),
+            "torch": _module_version("torch"),
+            "sentencepiece": _module_version("sentencepiece"),
+        },
+        "model": model_name(),
+        "contract_version": "1.0",
+    }
 
 
 TRANSLATION_ERROR_STATUS = {

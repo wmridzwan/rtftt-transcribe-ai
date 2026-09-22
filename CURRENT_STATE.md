@@ -21,15 +21,18 @@ DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
 authorizes cross-phase Playwright). DONE (HPO closures 2026-09-22): P5-001,
 P5-001A, P5-002, P5-002A, P5-002B, P5-003, P5-004, P5-004B, P5-004C, P5-005,
 P5-006, P5-007 (DECISION-PHASE5-TASK-CLOSURES-001; P5-004B/P5-006 closed
-earlier). P5-008 = READY and execution authorized
-(DECISION-P5-008-AUTHORIZATION-001); the real self-hosted gate was executed on
-2026-09-22 after B-004 provisioning (torch/transformers/sentencepiece + canonical
-NLLB + local Redis) and P5-008 is now IMPLEMENTED_PENDING_REVIEW (real queued
-path for ms/en/zh/ta, code-switch, alignment, immutability, ownership, exports,
-browser 18/18, clean-checkout). Evidence:
-`PHASE5-P5-008-INTEGRATION-EVIDENCE.md`. Phase 5 is NOT closed; independent
-review pending. Phase 3/4 baseline committed (B-001/B-002 resolved); working tree
-clean.
+earlier). P5-008 = IMPLEMENTED_PENDING_REVIEW (corrective complete,
+`DECISION-P5-008-CORRECTIVE-001`; ADR-024). The independent review returned
+CHANGES_REQUESTED (undeclared runtime); the corrective adopted the proven runtime
+(`transformers==5.17.0`, `torch==2.14.0`, `sentencepiece==0.2.2`), reconciled all
+declarations and guard tests, re-provisioned a clean canonical NLLB cache,
+committed a reproducible real-gate harness, executed a true browser-to-real-model
+flow, and re-ran the canonical gate for ms/en/zh/ta (code-switch, alignment,
+immutability, ownership, exports). Quality: worker 46, translation 193, full
+suite 626/625, Pint clean, PHPStan 0. Evidence:
+`PHASE5-P5-008-INTEGRATION-EVIDENCE.md`; runbook `verification/p5-008/README.md`.
+Phase 5 is NOT closed; fresh independent review pending. Phase 3/4 baseline
+committed (B-001/B-002 resolved); working tree clean.
 
 Phase 6 / Phase 7 = NOT GENERALLY AUTHORIZED; controlled-parallel early-start /
 early-hardening allowlists only (ADR-023;

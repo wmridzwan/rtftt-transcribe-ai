@@ -5,12 +5,20 @@ Task: P5-008 (promoted `BACKLOG â†’ READY`; `DECISION-P5-008-AUTHORIZATION-001`)
 Status: **BLOCKED at the real-model prerequisite.** The real self-hosted
 provider/model gate (ADR-022 D5-09) was **not** executed and is **not** claimed.
 
-## Intended runtime configuration (from the frozen Phase 5 contract)
+## Intended runtime configuration (historical pre-gate snapshot)
+
+> **Superseded by ADR-024 (`DECISION-P5-008-CORRECTIVE-001`).** At the time of
+> this blocked report the worker declared exact pins
+> `transformers==4.57.6` / `torch==2.9.1` / `sentencepiece==0.2.1` (commit
+> `bd30c6d`), not the generic `>=` ranges recorded below. The canonical runtime
+> is now `transformers==5.17.0` / `torch==2.14.0` / `sentencepiece==0.2.2`. The
+> table is preserved as history; see "Canonical Real Gate" for the current
+> runtime.
 
 | Item | Value | Source |
 |---|---|---|
 | Provider / model identity | self-hosted; `RTFTT_TRANSLATION_MODEL` default `facebook/nllb-200-distilled-600M` | `worker/translation.py`, `config/translation.php` |
-| Worker runtime deps | `transformers>=4.40`, `torch>=2.2`, `sentencepiece>=0.2` (declared) | `worker/requirements.txt` |
+| Worker runtime deps | exact pins at the time: `transformers==4.57.6`, `torch==2.9.1`, `sentencepiece==0.2.1` (superseded by ADR-024) | `worker/requirements.txt` (commit `bd30c6d`) |
 | Queue connection | `translation.queue_connection` = effective default (`database` locally; `redis` canonically) | `config/translation.php`, `TranslationQueueConfig` |
 | Queue name | `translation` | `config/translation.php` |
 | Job timeout | 330 s | `translation.job_timeout_seconds` |
@@ -82,7 +90,7 @@ See `BLOCKERS.md` B-004 and `PHASE5-CLOSURE-REPORT.md` for the options.
 P5-008 remains BLOCKED; Phase 5 is not closed.
 ---
 
-# P5-008 — Real Gate Execution (provisioning resolved)
+# P5-008 ï¿½ Real Gate Execution (provisioning resolved)
 
 Date: 2026-09-22
 Status: **executed against the real self-hosted stack**; task moved to
@@ -110,14 +118,14 @@ above is preserved as history; B-004 is resolved.
 
 ## Environment verification
 
-1. Worker venv imports `torch`/`transformers`/`sentencepiece` — OK.
-2. Canonical model loads and infers — OK (see below).
+1. Worker venv imports `torch`/`transformers`/`sentencepiece` ï¿½ OK.
+2. Canonical model loads and infers ï¿½ OK (see below).
 3. Redis reachable (`redis-cli PING` ? PONG; phpredis connect OK).
 4. Queue worker consumes `translation` on `redis` (`queue:work redis
-   --queue=translation --timeout=330 --tries=1`) — OK.
-5. Laravel reaches the worker (`/health` ? `{"status":"ok"}`) — OK.
-6. Worker auth: authenticated `/translate` ? 200; unauthenticated ? 401 — OK.
-7. Timeouts: provider 300 < job 330 < retry_after 420; stale 360 — OK.
+   --queue=translation --timeout=330 --tries=1`) ï¿½ OK.
+5. Laravel reaches the worker (`/health` ? `{"status":"ok"}`) ï¿½ OK.
+6. Worker auth: authenticated `/translate` ? 200; unauthenticated ? 401 ï¿½ OK.
+7. Timeouts: provider 300 < job 330 < retry_after 420; stale 360 ï¿½ OK.
 
 ## Real inference evidence
 
@@ -185,3 +193,145 @@ accepted P5-006 evidence); the real-model evidence is the queued-path run above.
 Attempt-token fencing, retry/recovery, stale recovery, and queue timeout
 behaviour are verified by the contract-level suite and code review; the real run
 exercised the happy path. No unresolved BLOCKER/HIGH/MEDIUM.
+
+---
+
+# P5-008 â€” Canonical Real Gate (corrective, ADR-024)
+
+Date: 2026-09-22
+Authority: `DECISION-P5-008-CORRECTIVE-001`; ADR-024
+Status: **executed against the authorized canonical runtime and model**; P5-008
+returned to `IMPLEMENTED_PENDING_REVIEW` for a fresh independent review. Not
+VERIFIED; not DONE. Phase 5 not closed.
+
+This section supersedes the earlier "Real Gate Execution" section above. The
+independent review returned `CHANGES_REQUESTED` because the previous real run used
+an undeclared/unauthorized runtime. The corrective: adopt the proven runtime,
+reconcile all declarations, re-provision a clean cache, commit a reproducible
+harness, execute a true browser-to-real-model flow, and re-run the gate.
+
+## Authorized canonical runtime (ADR-024)
+
+| Package | Canonical version |
+|---|---|
+| `transformers` | `5.17.0` |
+| `torch` | `2.14.0` (CPU wheel `2.14.0+cpu`; local suffix accepted) |
+| `sentencepiece` | `0.2.2` |
+| Python | `3.13.14` |
+
+- Superseded pins: `transformers==4.57.6`, `torch==2.9.1`, `sentencepiece==0.2.1`
+  (never successfully real-model gated).
+- Model identity unchanged: `facebook/nllb-200-distilled-600M`.
+- Single declaration: `worker/requirements.txt` (exact pins; no `>=` ranges),
+  guarded by `worker/tests/test_requirements.py` and
+  `tests/Unit/Translation/TranslationRuntimePinTest.php`. The stale `>=` table
+  and the previous 4.x pins are corrected/marked superseded above.
+
+## Clean model cache (re-provisioned; weights not committed)
+
+- Location: `HF_HOME=C:\rtftt-hf-cache` (clean volume).
+- Revision: `f8d333a098d19b4fd9a8b18f94170487ad3f821d`.
+- `config.json` sha256 `f9b4081dâ€¦db51fbc5`; `tokenizer.json` sha256
+  `e316b82dâ€¦01bca665`; `pytorch_model.bin` sha256
+  `c266c2cfâ€¦83eefcc42` (2 460 457 927 bytes).
+- All JSON assets validated; tokenizer resolves `zsm_Latn`/`eng_Latn`/`zho_Hans`/
+  `tam_Taml` to their real NLLB ids; model loads and returns non-empty text.
+- Reproducible provisioning procedure: `verification/p5-008/README.md`.
+
+> **Recorded environment defect:** the previous cache on `D:` was silently
+> corrupt (large files changed bytes at constant length; JSON assets invalid),
+> which caused the earlier empty worker output. The `D:`-hosted Redis had also
+> disabled writes after RDB save failures. The cache was re-provisioned on `C:`
+> and Redis re-pointed at `C:\rtftt-redis` with persistence disabled for the gate.
+
+## Committed reproducible harness (P3-008 / P4-006 precedent)
+
+- `verification/p5-008-real-gate.mjs` â€” single orchestrator (starts the real
+  worker, runs preflight, browser proof, real Redis queued path, exports, and
+  writes evidence).
+- `app/Console/Commands/Phase5IntegrationVerification.php` â€” hidden artisan
+  harness (disabled unless `RTFTT_P5008_RUN=1`); modes `preflight`, `seed`,
+  `dispatch`, `redis-payload`, `assert`, `export`.
+- `worker/main.py` `GET /runtime` â€” authenticated runtime provenance (versions +
+  configured model); does not load the model.
+- `verification/p5-008-seed.php`, `p5-008-auth.setup.js`,
+  `playwright.p5-008.config.js`, `p5-008/real-model-e2e.spec.js` â€” real browser
+  proof (no worker double).
+- No credentials/secrets embedded (a fixed local verification token is used).
+
+## Real gate results (all checks `ok: true`)
+
+Preflight (`verification/p5-008/preflight.json`):
+- worker health 200; authenticated `/runtime` versions match the canonical pins;
+  canonical model `facebook/nllb-200-distilled-600M`; unauthenticated `/translate`
+  returns 401; authenticated real inference returns non-empty text
+  (`"Selamat pagi, selamat datang ke mesyuarat."`);
+- Redis reachable; effective queue connection `redis`, queue `translation`;
+  timeout invariant `provider 300 < job 330 < retry_after 420`; no consistency
+  violation.
+
+Browser-to-real-model proof (`verification/p5-008/browser-evidence.json`):
+- real Chromium -> real Laravel -> real Redis queue -> real `ProcessTranslation`
+  -> real authenticated worker -> real NLLB -> persisted translation; the open
+  page observed `completed` after polling; provider `self-hosted`, model
+  `facebook/nllb-200-distilled-600M`; all five segments non-empty and the English
+  segment translated (not identity); source unchanged; one real `-ms.txt` export
+  downloaded and non-empty.
+
+Real Redis queued path (`redis-payload.json`, `assert.json`, `exports.json`):
+- Redis payload present (`queues:translation`, 4 messages, 708 bytes, no media
+  path/binary, contains translation id).
+- All four contract targets `ms`/`en`/`zh`/`ta` `completed`, `aligned` and
+  `non_empty`; segment indices `0..4`, timestamps and source-language markers
+  preserved (`ms,en,zh,ta,und`); `source_unchanged: true`; non-owner view denied
+  (`ownership_isolated: true`).
+- Exports (real persisted translation, target `ta`): TXT/SRT/VTT/DOCX all `200`
+  with target-suffixed filenames; SRT/VTT inherit authoritative timestamps
+  (first `00:00:00,000`); cross-user export denied.
+
+## Model identity provenance (retained INFO debt)
+
+Laravel persists the model identity from `config('translation.model')`
+(default / gate value `facebook/nllb-200-distilled-600M`); it does not validate
+the worker's self-reported `model` field. This is unchanged (pre-existing P5-003
+L-3 design) and is retained as INFO debt. The harness independently confirms the
+worker loaded the canonical model via authenticated `/runtime` plus a real
+non-empty `/translate` probe, and the persisted row records the canonical name.
+No provider-contract redesign was performed.
+
+## `und` source assumption (recorded)
+
+`worker/translation.py` maps an unknown/`und` source segment to
+`DEFAULT_SOURCE_CODE = "eng_Latn"` (NLLB requires an explicit source language).
+This is the recorded Phase 5 fallback assumption; behaviour is unchanged.
+
+## Verification (independently run this corrective)
+
+- Worker pytest: `46 passed` (was 42; +2 `/runtime`, +2 requirements guard).
+- Translation suite: `193 passed / 733 assertions` (was 191; +2 pin guard).
+- Full PHP suite: `626 tests, 625 passed, 1 skipped, 2 warnings, 0 failures`
+  (was 624; +2 pin guard).
+- Concurrency/fencing/recovery/export focused: `24 passed / 103 assertions`.
+- Pint clean; PHPStan 0 errors.
+- Canonical real gate: `node verification/p5-008-real-gate.mjs` -> all checks
+  `ok: true` (preflight, browser-to-real-model, Redis queued path, assert,
+  exports).
+- Clean-checkout reproducibility: PHP translation suite reproduced on a clean
+  checkout; worker runtime reproduced by `pip install -r worker/requirements.txt`;
+  model cache reproduced by the pinned-revision provisioning in the runbook.
+
+## Retry/recovery/fencing scope (explicit separation)
+
+The real gate exercises the successful path. Attempt-token fencing, stale
+recovery, retry/recovery, and queue timeout behaviour remain proven by the
+contract-level and two-process concurrency suites (which passed), not by
+destructive real-model scenarios. This separation is intentional and is stated
+here so the real-model evidence is never represented as covering those cases.
+
+## Verdict
+
+P5-008 corrective complete -> `IMPLEMENTED_PENDING_REVIEW`. A fresh independent
+review must verify: canonical pins match the gated runtime; clean provisioning
+reproduces the runtime; the model cache is valid; the committed harness works;
+the browser-to-real-model evidence is genuine; and no mock is represented as
+real-model evidence. Not VERIFIED; Phase 5 not closed.

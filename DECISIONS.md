@@ -1363,3 +1363,58 @@ Reference:
 `PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md`; `PHASE5-7-EXECUTION-CLASSIFICATION.md`;
 `PHASE5-7-DEPENDENCY-GRAPH.md`; `BLOCKERS.md`; `DECISIONS-PROVISIONAL.md`;
 `reviews/P5-002-independent-review.md` (GOV-1); ADR-021; ADR-022.
+
+## ADR-024 — Canonical Phase 5 Translation Worker Runtime
+
+Date: 2026-09-22
+
+Status: ACCEPTED — Human Product Owner.
+
+Supersedes: the Phase 5 worker dependency pins recorded in `worker/requirements.txt`
+at commit `bd30c6d` (`transformers==4.57.6`, `torch==2.9.1`,
+`sentencepiece==0.2.1`), and the generic `>=` ranges that preceded them.
+
+Decision:
+
+The Human Product Owner adopts the real runtime set already demonstrated to load
+and execute the canonical `facebook/nllb-200-distilled-600M` model as the
+canonical Phase 5 translation worker runtime:
+
+| Package | Canonical version |
+|---|---|
+| `transformers` | `5.17.0` |
+| `torch` | `2.14.0` |
+| `sentencepiece` | `0.2.2` |
+
+The canonical translation model identity is unchanged:
+`facebook/nllb-200-distilled-600M`.
+
+Rationale:
+
+> The previous exact pins were never successfully real-model gated. The new exact
+> set has been demonstrated to load and execute the canonical
+> `facebook/nllb-200-distilled-600M` model under the current Python/runtime
+> environment. Phase 5 will standardize on the proven runtime rather than regress
+> to an unverified dependency set.
+
+Phase consequence:
+
+- `worker/requirements.txt` is updated to the authorized exact pins; all Phase 5
+  documentation, runtime tables, evidence, and guard tests must reflect this one
+  unambiguous declared translation runtime.
+- The P5-008 corrective (`DECISION-P5-008-CORRECTIVE-001`) re-provisions a clean,
+  valid model cache, commits a reproducible real-gate harness, executes a real
+  browser-to-real-model end-to-end flow, and re-runs the canonical gate.
+- P5-008 remains `CHANGES_REQUESTED` until the corrective completes; it then
+  returns to `IMPLEMENTED_PENDING_REVIEW` for a fresh independent review. This
+  ADR does not mark P5-008 VERIFIED, does not close Phase 5, and does not
+  authorize Phase 6 or Phase 7.
+- No frozen Phase 3/4 contract or other Phase 5 decision is changed. The
+  `und → eng_Latn` worker fallback assumption and the config-derived persisted
+  model identity are recorded as retained INFO debt (P5-008 corrective §6/§7).
+
+Reference:
+
+`PHASE5-P5-008-INTEGRATION-EVIDENCE.md`; `worker/requirements.txt`;
+`worker/TRANSLATION-OPERATIONS.md`; `tasks/P5-008-phase-integration-verification.md`;
+`DECISION_QUEUE.md` (`DECISION-P5-008-CORRECTIVE-001`); ADR-022 (D5-04, D5-09).

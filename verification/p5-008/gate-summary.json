@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-22T15:59:45.086Z",
+  "mode": "canonical-real-gate",
+  "canonical_model": "facebook/nllb-200-distilled-600M",
+  "canonical_pins": {
+    "transformers": "5.17.0",
+    "torch": "2.14.0",
+    "sentencepiece": "0.2.2"
+  },
+  "targets": [
+    "ms",
+    "en",
+    "zh",
+    "ta"
+  ],
+  "evidence": {
+    "preflight": "preflight.json",
+    "browser": "browser-evidence.json",
+    "redis_payload": "redis-payload.json",
+    "assert": "assert.json",
+    "exports": "exports.json"
+  }
+}

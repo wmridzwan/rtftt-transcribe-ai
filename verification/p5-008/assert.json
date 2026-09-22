@@ -1,0 +1,252 @@
+{
+    "transcription_status": "completed",
+    "source_unchanged": true,
+    "ownership_other_can_view": false,
+    "results": {
+        "ms": {
+            "translation_id": 1,
+            "status": "completed",
+            "provider": "self-hosted",
+            "model": "facebook/nllb-200-distilled-600M",
+            "aligned": true,
+            "non_empty": true,
+            "segment_indices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "source_languages": [
+                "ms",
+                "en",
+                "zh",
+                "ta",
+                "und"
+            ],
+            "full_text": "Selamat pagi semua orang Selamat pagi semua orang Selamat datang. Selamat pagi Selamat datang di mesyuarat ini.",
+            "segments": [
+                {
+                    "segment_index": 0,
+                    "start_seconds": 0,
+                    "end_seconds": 5,
+                    "source_language": "ms",
+                    "text": "Selamat pagi semua orang"
+                },
+                {
+                    "segment_index": 1,
+                    "start_seconds": 5,
+                    "end_seconds": 10,
+                    "source_language": "en",
+                    "text": "Selamat pagi semua orang"
+                },
+                {
+                    "segment_index": 2,
+                    "start_seconds": 10,
+                    "end_seconds": 15,
+                    "source_language": "zh",
+                    "text": "Selamat datang."
+                },
+                {
+                    "segment_index": 3,
+                    "start_seconds": 15,
+                    "end_seconds": 20,
+                    "source_language": "ta",
+                    "text": "Selamat pagi"
+                },
+                {
+                    "segment_index": 4,
+                    "start_seconds": 20,
+                    "end_seconds": 25,
+                    "source_language": "und",
+                    "text": "Selamat datang di mesyuarat ini."
+                }
+            ]
+        },
+        "en": {
+            "translation_id": 2,
+            "status": "completed",
+            "provider": "self-hosted",
+            "model": "facebook/nllb-200-distilled-600M",
+            "aligned": true,
+            "non_empty": true,
+            "segment_indices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "source_languages": [
+                "ms",
+                "en",
+                "zh",
+                "ta",
+                "und"
+            ],
+            "full_text": "Good morning to you all. Good morning everyone I'm going to see you. Good morning to you. Welcome to the meeting .",
+            "segments": [
+                {
+                    "segment_index": 0,
+                    "start_seconds": 0,
+                    "end_seconds": 5,
+                    "source_language": "ms",
+                    "text": "Good morning to you all."
+                },
+                {
+                    "segment_index": 1,
+                    "start_seconds": 5,
+                    "end_seconds": 10,
+                    "source_language": "en",
+                    "text": "Good morning everyone"
+                },
+                {
+                    "segment_index": 2,
+                    "start_seconds": 10,
+                    "end_seconds": 15,
+                    "source_language": "zh",
+                    "text": "I'm going to see you."
+                },
+                {
+                    "segment_index": 3,
+                    "start_seconds": 15,
+                    "end_seconds": 20,
+                    "source_language": "ta",
+                    "text": "Good morning to you."
+                },
+                {
+                    "segment_index": 4,
+                    "start_seconds": 20,
+                    "end_seconds": 25,
+                    "source_language": "und",
+                    "text": "Welcome to the meeting ."
+                }
+            ]
+        },
+        "zh": {
+            "translation_id": 3,
+            "status": "completed",
+            "provider": "self-hosted",
+            "model": "facebook/nllb-200-distilled-600M",
+            "aligned": true,
+            "non_empty": true,
+            "segment_indices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "source_languages": [
+                "ms",
+                "en",
+                "zh",
+                "ta",
+                "und"
+            ],
+            "full_text": "您好,大家 您好,大家 大家好 您好,早上 欢迎来到会议",
+            "segments": [
+                {
+                    "segment_index": 0,
+                    "start_seconds": 0,
+                    "end_seconds": 5,
+                    "source_language": "ms",
+                    "text": "您好,大家"
+                },
+                {
+                    "segment_index": 1,
+                    "start_seconds": 5,
+                    "end_seconds": 10,
+                    "source_language": "en",
+                    "text": "您好,大家"
+                },
+                {
+                    "segment_index": 2,
+                    "start_seconds": 10,
+                    "end_seconds": 15,
+                    "source_language": "zh",
+                    "text": "大家好"
+                },
+                {
+                    "segment_index": 3,
+                    "start_seconds": 15,
+                    "end_seconds": 20,
+                    "source_language": "ta",
+                    "text": "您好,早上"
+                },
+                {
+                    "segment_index": 4,
+                    "start_seconds": 20,
+                    "end_seconds": 25,
+                    "source_language": "und",
+                    "text": "欢迎来到会议"
+                }
+            ]
+        },
+        "ta": {
+            "translation_id": 4,
+            "status": "completed",
+            "provider": "self-hosted",
+            "model": "facebook/nllb-200-distilled-600M",
+            "aligned": true,
+            "non_empty": true,
+            "segment_indices": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "source_languages": [
+                "ms",
+                "en",
+                "zh",
+                "ta",
+                "und"
+            ],
+            "full_text": "வணக்கம். அனைவருக்கும் காலை வணக்கம் வணக்கம். காலை வணக்கம் கூட்டத்திற்கு வரவேற்கிறோம்",
+            "segments": [
+                {
+                    "segment_index": 0,
+                    "start_seconds": 0,
+                    "end_seconds": 5,
+                    "source_language": "ms",
+                    "text": "வணக்கம்."
+                },
+                {
+                    "segment_index": 1,
+                    "start_seconds": 5,
+                    "end_seconds": 10,
+                    "source_language": "en",
+                    "text": "அனைவருக்கும் காலை வணக்கம்"
+                },
+                {
+                    "segment_index": 2,
+                    "start_seconds": 10,
+                    "end_seconds": 15,
+                    "source_language": "zh",
+                    "text": "வணக்கம்."
+                },
+                {
+                    "segment_index": 3,
+                    "start_seconds": 15,
+                    "end_seconds": 20,
+                    "source_language": "ta",
+                    "text": "காலை வணக்கம்"
+                },
+                {
+                    "segment_index": 4,
+                    "start_seconds": 20,
+                    "end_seconds": 25,
+                    "source_language": "und",
+                    "text": "கூட்டத்திற்கு வரவேற்கிறோம்"
+                }
+            ]
+        }
+    },
+    "all_completed": true,
+    "all_aligned_non_empty": true,
+    "source_immutable": true,
+    "ownership_isolated": true,
+    "ok": true
+}

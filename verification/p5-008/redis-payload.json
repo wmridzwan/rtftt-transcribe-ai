@@ -1,0 +1,10 @@
+{
+    "queue_connection": "redis",
+    "queue_key": "queues:translation",
+    "list_length": 4,
+    "payload_bytes": 708,
+    "contains_media_path": false,
+    "contains_binary": false,
+    "contains_translation_id": true,
+    "ok": true
+}

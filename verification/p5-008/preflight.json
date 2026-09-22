@@ -1,0 +1,84 @@
+{
+    "canonical_pins": {
+        "transformers": "5.17.0",
+        "torch": "2.14.0",
+        "sentencepiece": "0.2.2"
+    },
+    "canonical_model": "facebook/nllb-200-distilled-600M",
+    "worker_url": "http://127.0.0.1:8100",
+    "worker_token_present": true,
+    "queue_connection": "redis",
+    "queue_name": "translation",
+    "queue_default": "redis",
+    "effective_connection": "redis",
+    "provider_timeout": 300,
+    "job_timeout": 330,
+    "required_retry_after": 420,
+    "effective_retry_after": 420,
+    "queue_consistency_violation": null,
+    "checks": [
+        {
+            "name": "worker_token_present",
+            "ok": true,
+            "detail": "Translation worker token is configured."
+        },
+        {
+            "name": "worker_health",
+            "ok": true,
+            "detail": "HTTP 200"
+        },
+        {
+            "name": "worker_runtime_versions",
+            "ok": true,
+            "detail": "pins match installed runtime"
+        },
+        {
+            "name": "worker_canonical_model",
+            "ok": true,
+            "detail": "facebook/nllb-200-distilled-600M"
+        },
+        {
+            "name": "worker_auth_enforced",
+            "ok": true,
+            "detail": "HTTP 401"
+        },
+        {
+            "name": "worker_real_inference_non_empty",
+            "ok": true,
+            "detail": "text length 42"
+        },
+        {
+            "name": "redis_reachable",
+            "ok": true,
+            "detail": "ping"
+        },
+        {
+            "name": "timeout_invariant",
+            "ok": true,
+            "detail": "provider < job < retry_after"
+        },
+        {
+            "name": "queue_consistent",
+            "ok": true,
+            "detail": "ok"
+        }
+    ],
+    "worker_runtime": {
+        "status": "ok",
+        "python": "3.13.14",
+        "dependencies": {
+            "transformers": "5.17.0",
+            "torch": "2.14.0+cpu",
+            "sentencepiece": "0.2.2"
+        },
+        "model": "facebook/nllb-200-distilled-600M",
+        "contract_version": "1.0"
+    },
+    "probe_translation": {
+        "status": 200,
+        "model": "facebook/nllb-200-distilled-600M",
+        "provider": "self-hosted",
+        "text": "Selamat pagi, selamat datang ke mesyuarat."
+    },
+    "ok": true
+}

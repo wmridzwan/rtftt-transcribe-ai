@@ -1,0 +1,36 @@
+{
+    "formats": {
+        "txt": {
+            "target": "ta",
+            "status": 200,
+            "content_type": "text/plain; charset=utf-8",
+            "filename_has_target_suffix": true,
+            "bytes": 276
+        },
+        "srt": {
+            "target": "ta",
+            "status": 200,
+            "content_type": "application/x-subrip; charset=utf-8",
+            "filename_has_target_suffix": true,
+            "bytes": 395
+        },
+        "vtt": {
+            "target": "ta",
+            "status": 200,
+            "content_type": "text/vtt; charset=utf-8",
+            "filename_has_target_suffix": true,
+            "bytes": 393
+        },
+        "docx": {
+            "target": "ta",
+            "status": 200,
+            "content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "filename_has_target_suffix": true,
+            "bytes": 7514
+        }
+    },
+    "ownership_isolated": true,
+    "first_source_timestamp": "0,000",
+    "all_exports_ok": true,
+    "ok": true
+}

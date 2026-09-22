@@ -135,9 +135,10 @@ Review model: per-task implementation and independent review (D4-07).
 AUTHORIZED FOR IMPLEMENTATION (2026-09-21, DECISION-PHASE5-AUTHORIZATION-001;
 ADR-022). DONE (HPO closures 2026-09-22): P5-001, P5-001A, P5-002, P5-002A,
 P5-002B, P5-003, P5-004, P5-004B, P5-004C, P5-005, P5-006, P5-007. P5-008 =
-IMPLEMENTED_PENDING_REVIEW (real gate executed after B-004 provisioning;
-independent review pending). Phase 5 is NOT closed. Controlled-parallel execution
-applies (ADR-023).
+IMPLEMENTED_PENDING_REVIEW (corrective complete, `DECISION-P5-008-CORRECTIVE-001`;
+ADR-024 adopted runtime; clean NLLB cache; committed real-gate harness;
+browser-to-real-model proof; fresh independent review pending). Phase 5 is NOT
+closed. Controlled-parallel execution applies (ADR-023).
 
 ### Phase 6 — Advanced Transcript UX
 NOT GENERALLY AUTHORIZED; early-start allowlist only (ADR-023;

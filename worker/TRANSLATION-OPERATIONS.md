@@ -4,6 +4,34 @@ This is the canonical operational contract for running **translation** jobs.
 The generic worker command is **not** sufficient: it listens to the default
 queue only and would never consume the translation queue.
 
+## Canonical translation runtime (ADR-024)
+
+The self-hosted translation provider requires an exact, pinned runtime. This is
+the single canonical Phase 5 translation runtime; the P5-008 real gate must run
+against exactly this set.
+
+| Package | Canonical version |
+|---|---|
+| `transformers` | `5.17.0` |
+| `torch` | `2.14.0` |
+| `sentencepiece` | `0.2.2` |
+
+- Declared in `worker/requirements.txt` (exact pins; no `>=` ranges).
+- Guarded by `worker/tests/test_requirements.py` and
+  `tests/Unit/Translation/TranslationRuntimePinTest.php`.
+- Canonical model identity (unchanged): `facebook/nllb-200-distilled-600M`
+  (`RTFTT_TRANSLATION_MODEL`).
+- Python: 3.13.x.
+
+Provisioning (reproducible; model weights are never committed to Git):
+
+```bash
+python -m venv worker/.venv
+worker/.venv/Scripts/python.exe -m pip install -r worker/requirements.txt
+# Re-provision the canonical model into a clean cache (see the P5-008 runbook,
+# section "Model cache provisioning"); record the resolved revision.
+```
+
 ## Queue and worker command
 
 Translation jobs are dispatched to the `translation` queue with a small

@@ -67,3 +67,23 @@ class TestErrorEnvelope:
         body = response.json()
         assert body["error_code"] == "PROCESSING_FAILED"
         assert body["retryable"] is False
+
+
+class TestRuntimeProvenance:
+    def test_runtime_reports_versions_and_canonical_model(self, client):
+        response = client.get("/runtime")
+
+        assert response.status_code == 200
+        body = response.json()
+        assert body["status"] == "ok"
+        assert body["model"] == "facebook/nllb-200-distilled-600M"
+        assert body["dependencies"]["torch"] == "2.14.0+cpu" or body["dependencies"]["torch"] == "2.14.0"
+        assert body["dependencies"]["transformers"] == "5.17.0"
+        assert body["dependencies"]["sentencepiece"] == "0.2.2"
+
+    def test_runtime_requires_authentication(self):
+        app.dependency_overrides.clear()
+        with patch("worker.config.WORKER_TOKEN", "secret-token"):
+            response = TestClient(app).get("/runtime")
+
+        assert response.status_code == 401

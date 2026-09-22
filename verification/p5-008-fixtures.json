@@ -1,0 +1,28 @@
+{
+    "email": "p5-008-ui@example.test",
+    "password": "password",
+    "otherEmail": "p5-008-ui-other@example.test",
+    "main": 1,
+    "segments": [
+        {
+            "text": "Selamat pagi semua orang",
+            "language": "ms"
+        },
+        {
+            "text": "Good morning everyone",
+            "language": "en"
+        },
+        {
+            "text": "大家好",
+            "language": "zh"
+        },
+        {
+            "text": "காலை வணக்கம்",
+            "language": "ta"
+        },
+        {
+            "text": "Welcome to the meeting",
+            "language": "und"
+        }
+    ]
+}

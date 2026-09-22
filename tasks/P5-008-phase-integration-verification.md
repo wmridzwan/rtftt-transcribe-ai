@@ -2,15 +2,22 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — the real self-hosted gate was executed on
-2026-09-22 after B-004 provisioning (torch 2.14.0+cpu, transformers 5.17.0,
-sentencepiece 0.2.2, canonical `facebook/nllb-200-distilled-600M`, local Redis).
-Real queued path `Laravel → Redis → worker → NLLB → persistence` completed for
-targets `ms`/`en`/`zh`/`ta` with code-switch input, alignment and source-language
-preservation, source immutability, ownership isolation, TXT/SRT/VTT/DOCX exports,
-browser verification (Playwright 18/18), full-suite 624/623, and clean-checkout
-reproducibility. Evidence: `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`. Independent
-review pending. Not VERIFIED; not DONE. Phase 5 not closed.
+IMPLEMENTED_PENDING_REVIEW — corrective complete (`DECISION-P5-008-CORRECTIVE-001`;
+ADR-024). The independent review returned CHANGES_REQUESTED because the earlier
+real run used an undeclared/unauthorized runtime. The corrective: adopted the
+proven runtime (`transformers==5.17.0`, `torch==2.14.0`, `sentencepiece==0.2.2`),
+reconciled all declarations and guard tests to one canonical runtime,
+re-provisioned a clean canonical `facebook/nllb-200-distilled-600M` cache
+(pinned revision; weights not committed), committed a reproducible real-gate
+harness (`verification/p5-008-real-gate.mjs`,
+`app/Console/Commands/Phase5IntegrationVerification.php`), executed a true
+browser-to-real-model end-to-end flow (no worker double), and re-ran the
+canonical gate for `ms`/`en`/`zh`/`ta` with a code-switched source, alignment,
+source immutability, ownership isolation, and TXT/SRT/VTT/DOCX exports. Quality:
+worker 46, translation 193, full suite 626/625, Pint clean, PHPStan 0. Evidence:
+`PHASE5-P5-008-INTEGRATION-EVIDENCE.md`; runbook:
+`verification/p5-008/README.md`. Fresh independent review pending. Not VERIFIED;
+not DONE. Phase 5 not closed.
 
 ## Ownership
 
