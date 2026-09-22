@@ -3,8 +3,6 @@
 use App\Actions\StaleTranslationAttemptRecovery;
 use App\Actions\TranslationRetry;
 use App\Jobs\ProcessTranslation;
-use App\Models\Transcription;
-use App\Models\TranscriptionSegment;
 use App\Models\Translation;
 use App\Transcription\LanguageIdentifier;
 use App\Translation\TranslationException;
@@ -16,48 +14,6 @@ use App\Translation\TranslationStatus;
 use App\Translation\TranslationTarget;
 use Illuminate\Support\Facades\Queue;
 use Tests\Support\RecordingTranslationProvider;
-
-function translationSource(): Transcription
-{
-    $transcription = Transcription::factory()->completed()->create([
-        'detected_language' => 'en',
-        'full_text' => 'Hello Welcome',
-    ]);
-
-    TranscriptionSegment::factory()->create([
-        'transcription_id' => $transcription->getKey(),
-        'segment_index' => 0,
-        'start_seconds' => 0,
-        'end_seconds' => 5,
-        'text' => 'Hello',
-        'language' => 'en',
-    ]);
-
-    TranscriptionSegment::factory()->create([
-        'transcription_id' => $transcription->getKey(),
-        'segment_index' => 1,
-        'start_seconds' => 5,
-        'end_seconds' => 10,
-        'text' => 'Welcome',
-        'language' => 'en',
-    ]);
-
-    return $transcription;
-}
-
-function alignedTranslationResult(): TranslationResult
-{
-    return new TranslationResult(
-        targetLanguage: TranslationTarget::Malay,
-        fullText: 'Hai Selamat datang',
-        segments: [
-            new TranslationSegmentData(0, 0.0, 5.0, 'Hai', LanguageIdentifier::English),
-            new TranslationSegmentData(1, 5.0, 10.0, 'Selamat datang', LanguageIdentifier::English),
-        ],
-        provider: 'self-hosted',
-        model: 'self-hosted-default',
-    );
-}
 
 function runTranslationJob(Translation $translation, RecordingTranslationProvider $provider, ?string $token = null): void
 {

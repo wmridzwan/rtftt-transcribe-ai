@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Transcription;
-use App\Models\TranscriptionSegment;
 use App\Models\Translation;
 use App\Models\TranslationSegment;
 use App\Transcription\LanguageIdentifier;
@@ -12,70 +11,6 @@ use App\Translation\TranslationSegmentData;
 use App\Translation\TranslationStatus;
 use App\Translation\TranslationTarget;
 use Illuminate\Database\QueryException;
-
-function writerSource(): Transcription
-{
-    $transcription = Transcription::factory()->completed()->create([
-        'detected_language' => 'en',
-        'full_text' => 'Original source text',
-    ]);
-
-    TranscriptionSegment::factory()->create([
-        'transcription_id' => $transcription->getKey(),
-        'segment_index' => 0,
-        'start_seconds' => 0,
-        'end_seconds' => 4.999,
-        'text' => 'Hello',
-        'language' => 'en',
-    ]);
-
-    TranscriptionSegment::factory()->create([
-        'transcription_id' => $transcription->getKey(),
-        'segment_index' => 1,
-        'start_seconds' => 4.999,
-        'end_seconds' => 9.5,
-        'text' => 'Welcome',
-        'language' => 'en',
-    ]);
-
-    return $transcription;
-}
-
-function writerTranslation(Transcription $transcription, string $status = 'translating', string $target = 'ms'): Translation
-{
-    return Translation::factory()->create([
-        'transcription_id' => $transcription->getKey(),
-        'target_language' => $target,
-        'status' => $status,
-    ]);
-}
-
-function writerResult(
-    TranslationTarget $target = TranslationTarget::Malay,
-    string $fullText = 'Hai semua',
-    LanguageIdentifier $sourceLanguage = LanguageIdentifier::English,
-): TranslationResult {
-    return new TranslationResult(
-        targetLanguage: $target,
-        fullText: $fullText,
-        segments: [
-            new TranslationSegmentData(0, 0.0, 4.999, 'Hai semua', $sourceLanguage),
-            new TranslationSegmentData(1, 4.999, 9.5, 'Selamat datang', $sourceLanguage),
-        ],
-        provider: 'self-hosted',
-        model: 'translation-test',
-    );
-}
-
-function writerPersist(Transcription $transcription, TranslationResult $result, Translation $translation): Translation
-{
-    return app(TranslationResultWriter::class)->persist(
-        $transcription,
-        $result,
-        $translation->getKey(),
-        (string) $translation->attempt_token,
-    );
-}
 
 it('persists a translation with enum casts and ordered segments', function () {
     $translation = Translation::factory()->create(['target_language' => 'ms', 'status' => 'completed', 'source_language' => 'en']);
