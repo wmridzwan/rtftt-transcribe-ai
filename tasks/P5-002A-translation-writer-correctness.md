@@ -2,10 +2,11 @@
 
 ## Status
 
-VERIFIED — independent review `reviews/P5-002A-independent-review.md`
-(2026-09-21) returned VERIFIED with no BLOCKER/HIGH; one MEDIUM (`translationId`
-not validated when a completed same-target row exists) and three LOW recorded as
-non-blocking. Not DONE; HPO closure required.
+DONE — closed by the Human Product Owner on 2026-09-22
+(`DECISION-PHASE5-TASK-CLOSURES-001`) on the basis of the recorded independent
+VERIFIED verdict (`reviews/P5-002A-independent-review.md`). One MEDIUM
+(`translationId` not validated when a completed same-target row exists) and three
+LOW retained as non-blocking. Historical review artifacts preserved unchanged.
 
 ## Ownership
 

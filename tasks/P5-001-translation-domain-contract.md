@@ -2,10 +2,11 @@
 
 ## Status
 
-VERIFIED — independent review `reviews/P5-001-independent-review.md` (2026-09-21)
-returned VERIFIED with no BLOCKER/HIGH/MEDIUM. LOW-1/LOW-2 and INFO-1..3
-recorded as non-blocking; LOW-1/LOW-2 carried into follow-up P5-001A. Not DONE;
-HPO closure required.
+DONE — closed by the Human Product Owner on 2026-09-22
+(`DECISION-PHASE5-TASK-CLOSURES-001`) on the basis of the recorded independent
+VERIFIED verdict (`reviews/P5-001-independent-review.md`). LOW-1/LOW-2 and
+INFO-1..3 retained as non-blocking debt; LOW-1/LOW-2 carried into P5-001A.
+Historical review artifacts preserved unchanged.
 
 ## Review
 

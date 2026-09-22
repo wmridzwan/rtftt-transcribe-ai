@@ -2,10 +2,11 @@
 
 ## Status
 
-VERIFIED — independent review `reviews/P5-002-independent-review.md` (2026-09-21)
-returned VERIFIED with no BLOCKER/HIGH; three MEDIUM findings recorded as
-non-blocking and carried into follow-up P5-002A (recommended before P5-004).
-Not DONE; HPO closure required.
+DONE — closed by the Human Product Owner on 2026-09-22
+(`DECISION-PHASE5-TASK-CLOSURES-001`) on the basis of the recorded independent
+VERIFIED verdict (`reviews/P5-002-independent-review.md`). Three MEDIUM findings
+retained as non-blocking and carried into P5-002A. Historical review artifacts
+preserved unchanged.
 
 ## Review
 

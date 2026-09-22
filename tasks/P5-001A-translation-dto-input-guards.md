@@ -2,9 +2,10 @@
 
 ## Status
 
-VERIFIED — independent review `reviews/P5-001A-independent-review.md`
-(2026-09-21) returned VERIFIED with no BLOCKER/HIGH/MEDIUM/LOW (one INFO).
-Not DONE; HPO closure required.
+DONE — closed by the Human Product Owner on 2026-09-22
+(`DECISION-PHASE5-TASK-CLOSURES-001`) on the basis of the recorded independent
+VERIFIED verdict (`reviews/P5-001A-independent-review.md`). One INFO retained.
+Historical review artifacts preserved unchanged.
 
 ## Ownership
 

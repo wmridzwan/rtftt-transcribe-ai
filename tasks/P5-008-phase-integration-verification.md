@@ -2,7 +2,14 @@
 
 ## Status
 
-BACKLOG — requires HPO READY promotion.
+BLOCKED — promoted `BACKLOG → READY` and execution authorized by the Human
+Product Owner on 2026-09-22 (`DECISION-P5-008-AUTHORIZATION-001`). Blocked at the
+real-model prerequisite: the committed worker venv does not contain the pinned
+self-hosted translation runtime (`transformers`, `torch`, `sentencepiece`), and no
+translation model is cached locally, so the required real self-hosted
+provider/model path (ADR-022 D5-09) cannot be exercised. The gate was not
+over-claimed with mocks. See `PHASE5-P5-008-INTEGRATION-EVIDENCE.md` and
+`BLOCKERS.md` B-004. Not VERIFIED; not DONE. Phase 5 is not closed.
 
 ## Ownership
 

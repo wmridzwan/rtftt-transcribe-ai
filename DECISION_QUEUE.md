@@ -2749,3 +2749,56 @@ HPO-DECIDED 2026-09-22: NO. P5-008 remains BACKLOG. It stays gated on
 (DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001) and (b) confirmation that the
 operational entry prerequisites recorded by P5-004C are satisfied. P5-008
 requires a separate explicit HPO READY promotion.
+
+### DECISION-PHASE5-TASK-CLOSURES-001 — Close independently VERIFIED Phase 5 tasks
+
+Decision ID: DECISION-PHASE5-TASK-CLOSURES-001
+
+Status: DECIDED — HPO 2026-09-22
+
+Type: Phase Completion / Task Closure
+
+Originating Scope: Phase 5 tasks with recorded independent VERIFIED verdicts
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-22. The recorded independent VERIFIED verdicts are accepted
+and the following tasks are closed DONE: P5-001, P5-001A, P5-002, P5-002A,
+P5-002B, P5-003, P5-004, P5-004C, P5-005, P5-007. P5-004B and P5-006 were
+already DONE and are unchanged. All historical review artifacts, corrective-cycle
+provenance, findings, and decision records are preserved unchanged.
+
+Blocks: None.
+Does Not Block: P5-008 (separately authorized).
+
+### DECISION-P5-008-AUTHORIZATION-001 — Promote and authorize P5-008
+
+Decision ID: DECISION-P5-008-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-22
+
+Type: Phase Authorization / Task Authorization
+
+Originating Task: P5-008 (Phase 5 Integration Verification)
+
+Question:
+
+Should P5-008 be promoted from BACKLOG/GATED to READY and authorized for
+execution as the Phase 5 final integration gate?
+
+Resolution:
+
+HPO-AUTHORIZED 2026-09-22. P5-008 is promoted BACKLOG ? READY for execution as
+the Phase 5 final integration gate only. This authorization does NOT authorize
+Phase 6 or Phase 7 implementation. The gate must use the real authorized
+self-hosted translation stack; mocks may not substitute for real-model evidence
+(ADR-022 D5-09). P5-008 may reach only IMPLEMENTED_PENDING_REVIEW and requires a
+fresh independent reviewer; it may not self-promote to VERIFIED.
+
+Execution outcome: P5-008 is BLOCKED at the real-model prerequisite (B-004) —
+the worker venv lacks the pinned translation runtime, no translation model is
+cached, and no live Redis server is available. Evidence:
+`PHASE5-P5-008-INTEGRATION-EVIDENCE.md`.
+
+Blocks: P5-008 execution until the runtime/model/Redis prerequisites exist.
+Does Not Block: Governance/state reconciliation; no Phase 6/7 work.

@@ -2,9 +2,10 @@
 
 ## Status
 
-VERIFIED — independent review `reviews/P5-corrective-batch-cycle2-independent-review.md`
-(2026-09-21) returned VERIFIED with no BLOCKER/HIGH; LOW L-1/L-2 retained.
-Not DONE; HPO closure required.
+DONE — closed by the Human Product Owner on 2026-09-22
+(`DECISION-PHASE5-TASK-CLOSURES-001`) on the basis of the recorded independent
+VERIFIED verdict (`reviews/P5-corrective-batch-cycle2-independent-review.md`).
+LOW L-1/L-2 retained. Historical review artifacts preserved unchanged.
 
 ## Ownership
 

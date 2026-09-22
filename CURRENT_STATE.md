@@ -18,12 +18,16 @@ DECISION-P4-006-CLOSURE-001; DECISION-P4-006-FINDING-001 CLOSED).
 
 Phase 5 = AUTHORIZED FOR IMPLEMENTATION (2026-09-21,
 DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
-authorizes cross-phase Playwright). DONE (HPO closure 2026-09-22): P5-004B,
-P5-006. VERIFIED (HPO closure pending): P5-001, P5-001A, P5-002, P5-002A,
-P5-002B, P5-003, P5-004, P5-004C, P5-005, P5-007. P5-008 = BACKLOG and gated
-(DECISION-P5-008-GATE-001): reviews reconciled and P5-004C operational
-prerequisites satisfied; requires a separate HPO READY promotion. The Phase 3/4
-baseline is committed (B-001/B-002 resolved); working tree clean.
+authorizes cross-phase Playwright). DONE (HPO closures 2026-09-22): P5-001,
+P5-001A, P5-002, P5-002A, P5-002B, P5-003, P5-004, P5-004B, P5-004C, P5-005,
+P5-006, P5-007 (DECISION-PHASE5-TASK-CLOSURES-001; P5-004B/P5-006 closed
+earlier). P5-008 = READY and execution authorized
+(DECISION-P5-008-AUTHORIZATION-001) but BLOCKED at the real-model prerequisite
+(B-004): the worker venv lacks `transformers`/`torch`/`sentencepiece`, no
+translation model is cached, and no live Redis server is available; the real
+self-hosted provider/model gate was not executed and is not claimed
+(`PHASE5-P5-008-INTEGRATION-EVIDENCE.md`). Phase 5 is NOT closed. Phase 3/4
+baseline committed (B-001/B-002 resolved); working tree clean.
 
 Phase 6 / Phase 7 = NOT GENERALLY AUTHORIZED; controlled-parallel early-start /
 early-hardening allowlists only (ADR-023;

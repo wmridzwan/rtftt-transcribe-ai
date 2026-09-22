@@ -2,11 +2,12 @@
 
 ## Status
 
-VERIFIED — cycle-1 BLOCKER closed; independent cycle-2 re-review
-`reviews/P5-004C-cycle2-independent-re-review.md` (2026-09-22) returned VERIFIED
-with no BLOCKER/HIGH. Cycle-1 review `reviews/P5-004C-independent-review.md`
-(CHANGES_REQUESTED) is preserved. Not DONE; HPO closure required. P5-008 not
-started.
+DONE — closed by the Human Product Owner on 2026-09-22
+(`DECISION-PHASE5-TASK-CLOSURES-001`) on the basis of the cycle-2 independent
+re-review (`reviews/P5-004C-cycle2-independent-re-review.md`, VERIFIED, no
+BLOCKER/HIGH). Cycle-1 review `reviews/P5-004C-independent-review.md`
+(CHANGES_REQUESTED) and the corrective provenance are preserved unchanged. P5-008
+not started at closure time.
 
 ## Cycle 2 Notes
 
