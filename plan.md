@@ -133,8 +133,11 @@ Review model: per-task implementation and independent review (D4-07).
 
 ### Phase 5 — Translation
 AUTHORIZED FOR IMPLEMENTATION (2026-09-21, DECISION-PHASE5-AUTHORIZATION-001;
-ADR-022). P5-001/P5-002 = VERIFIED (HPO closure pending); P5-003..P5-008 =
-BACKLOG. Controlled-parallel execution applies (ADR-023).
+ADR-022). DONE (HPO closure 2026-09-22): P5-004B, P5-006. VERIFIED (closure
+pending): P5-001, P5-001A, P5-002, P5-002A. Review authorized
+(DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001): P5-002B, P5-003, P5-004,
+P5-005, P5-007, P5-004C. P5-008 = BACKLOG and gated
+(DECISION-P5-008-GATE-001). Controlled-parallel execution applies (ADR-023).
 
 ### Phase 6 — Advanced Transcript UX
 NOT GENERALLY AUTHORIZED; early-start allowlist only (ADR-023;

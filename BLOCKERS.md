@@ -11,20 +11,7 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 
 ## Open Blockers
 
-### B-003 — Independent review track unavailable (Claude API 500)
-- Classification: `TRACK_BLOCKER` (review track; non-stopping for safe non-implementation work)
-- Task/Source: P5-004C review; re-review of P5-002B/P5-003/P5-004/P5-005/P5-007
-- Detail: `claude` CLI is installed (2.1.278) but the API returns
-  `API Error: 500 Internal server error` as of 2026-09-22. No fresh independent
-  reviewer can be run in this session.
-- Impact: P5-004C remains `IMPLEMENTED_PENDING_REVIEW`; the corrective cycles for
-  P5-002B/P5-003/P5-004/P5-005/P5-007 remain un-re-reviewed. No task can be
-  promoted to VERIFIED by the implementer.
-- Mitigation: do not self-verify; record the pending state; resume review when
-  the Claude API recovers. Safe allowlisted debt may continue meanwhile.
-- Owner decision required: none to proceed; HPO may authorize review later.
-- Blocked work: independent review only; implementation of already-authorized
-  tasks is unaffected.
+None.
 
 ## Resolved Blockers
 
@@ -35,6 +22,7 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 | GOV-3 | `GOVERNANCE_BLOCKER` | Same root cause as B-001 (uncommitted Phase 3/4 baseline); closed with B-001. | 2026-09-22 |
 | B-001 | `GOVERNANCE_BLOCKER` | Phase 3/4 baseline committed in the pre-review-pause checkpoint (`2dc4c66`, `76f884d`, `943dba1`) plus the named P5 dependencies (`2ea55d3`, `da482e3`, `6961087`). The working tree is now clean at HEAD. | 2026-09-22 |
 | B-002 | `GOVERNANCE_BLOCKER` | Worker `/translate` wiring committed (`63a1a76`); worker model runtime dependencies declared in `worker/requirements.txt` (P5-003 cycle 2). | 2026-09-22 |
+| B-003 | `TRACK_BLOCKER` | Claude API recovered on 2026-09-22 (`claude -p` returns normally). Fresh review/re-review is authorized by `DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001`; execution is the next batch. | 2026-09-22 |
 
 ## Rules
 

@@ -2648,3 +2648,104 @@ Blocks:
 Does Not Block:
 
 - P5-008 real integration gate.
+
+### DECISION-P5-004B-CLOSURE-001 — Close P5-004B (Pre-UI Translation Hardening)
+
+Decision ID: DECISION-P5-004B-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-22
+
+Type: Phase Completion / Task Closure
+
+Originating Task: P5-004B
+
+Question:
+
+Should the independent VERIFIED verdict for P5-004B be accepted and the task be
+closed as DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-22. The recorded independent corrective re-review
+(`reviews/P5-004B-corrective-independent-re-review.md`, VERIFIED, no
+BLOCKER/HIGH) is accepted and P5-004B is closed DONE. LOW R-1 closed by P5-004C;
+R-3 closed by commit 794802c; R-2 remains non-blocking debt. Historical review
+artifacts are preserved unchanged.
+
+Blocks: None.
+Does Not Block: P5-008 (separately gated).
+
+### DECISION-P5-006-CLOSURE-001 — Close P5-006 (Translation Workspace UI)
+
+Decision ID: DECISION-P5-006-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-22
+
+Type: Phase Completion / Task Closure
+
+Originating Task: P5-006
+
+Question:
+
+Should the independent VERIFIED verdict for P5-006 be accepted and the task be
+closed as DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-22. The recorded independent review
+(`reviews/P5-004B-P5-006-independent-review.md`, VERIFIED, no blocking
+BLOCKER/HIGH/MEDIUM; all seven acceptance criteria satisfied) is accepted and
+P5-006 is closed DONE. LOW P6-3/P6-4 and INFO P6-5 remain non-blocking debt.
+Historical review artifacts are preserved unchanged.
+
+Blocks: None.
+Does Not Block: P5-008 (separately gated).
+
+### DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001 — Authorize fresh independent review/re-review
+
+Decision ID: DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-22
+
+Type: Phase Authorization / Verification
+
+Originating Scope: Phase 5 pending reviews
+
+Question:
+
+Should fresh independent review/re-review be authorized, without implementation
+changes, for the Phase 5 tasks still awaiting independent verification?
+
+Resolution:
+
+HPO-AUTHORIZED 2026-09-22 for: P5-004C, P5-002B, P5-003, P5-004, P5-005,
+P5-007. These reviews must be performed in a fresh reviewer context and must not
+include implementation changes. Findings are reconciled through the normal
+three-cycle corrective limit; a task may be closed only after its review returns
+VERIFIED and the HPO accepts the closure.
+
+Blocks: None (review is authorized).
+Does Not Block: Safe allowlisted debt; no implementation authorization is
+created by this decision.
+
+### DECISION-P5-008-GATE-001 — P5-008 remains gated
+
+Decision ID: DECISION-P5-008-GATE-001
+
+Status: DECIDED — HPO 2026-09-22
+
+Type: Phase Completion / Phase Authorization
+
+Originating Scope: P5-008 (Phase 5 Integration Verification)
+
+Question:
+
+Should P5-008 be promoted to READY at this time?
+
+Resolution:
+
+HPO-DECIDED 2026-09-22: NO. P5-008 remains BACKLOG. It stays gated on
+(a) successful reconciliation of the pending Phase 5 reviews
+(DECISION-P5-PENDING-REVIEW-AUTHORIZATION-001) and (b) confirmation that the
+operational entry prerequisites recorded by P5-004C are satisfied. P5-008
+requires a separate explicit HPO READY promotion.

@@ -2,10 +2,14 @@
 
 ## Status
 
-VERIFIED — independent review `reviews/P5-004B-P5-006-independent-review.md`
-(2026-09-22) returned VERIFIED with no BLOCKER/HIGH/MEDIUM blocking; all seven
-acceptance criteria satisfied. LOW P6-3/P6-4 and INFO P6-5 retained as
-non-blocking debt. Not DONE; HPO closure required. P5-008 has not been started.
+DONE — closed by the Human Product Owner on 2026-09-22
+(`DECISION-P5-006-CLOSURE-001`) on the basis of the independent review
+`reviews/P5-004B-P5-006-independent-review.md` (VERIFIED; no blocking
+BLOCKER/HIGH/MEDIUM; all seven acceptance criteria satisfied). LOW P6-3/P6-4 and
+INFO P6-5 are retained as non-blocking debt.
+
+Canonical transition: VERIFIED → (HPO closure decision) → DONE. Historical
+review artifacts are preserved unchanged. P5-008 has not been started.
 
 Implementation Owner for this task: Claude Code (explicit HPO reassignment). The same
 agent performed the preceding independent review, so **an independent reviewer that did not

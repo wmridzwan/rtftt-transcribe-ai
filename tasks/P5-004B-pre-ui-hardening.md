@@ -2,13 +2,14 @@
 
 ## Status
 
-VERIFIED — independent corrective re-review
-`reviews/P5-004B-corrective-independent-re-review.md` (2026-09-22) returned
-VERIFIED with no BLOCKER/HIGH; LOW R-1/R-2/R-3 and INFO-1/INFO-2 recorded. R-1
-(post-claim refresh regression test) is closed by P5-004C's
-`records a post-claim refresh failure through the failure taxonomy` test. R-2
-(awaiting-dispatch UI label) and R-3 (test-file self-containment) remain
-non-blocking debt. Not DONE; HPO closure required.
+DONE — closed by the Human Product Owner on 2026-09-22
+(`DECISION-P5-004B-CLOSURE-001`) on the basis of the independent corrective
+re-review `reviews/P5-004B-corrective-independent-re-review.md` (VERIFIED, no
+BLOCKER/HIGH). LOW R-1/R-2/R-3 and INFO-1/INFO-2 are retained; R-1 is closed by
+P5-004C, R-3 is closed by `794802c`, R-2 remains non-blocking debt.
+
+Canonical transition: VERIFIED → (HPO closure decision) → DONE. Historical
+review artifacts are preserved unchanged.
 
 ## Ownership
 
@@ -66,7 +67,8 @@ runbook, zero-segment handling, UI (P5-006), the wider Phase 3/4 baseline.
 Pre-review: `reviews/pre-review/P5-004B-pre-review.md` (initial) and
 `reviews/pre-review/P5-004B-corrective-pre-review.md` (corrective).
 Independent review: `reviews/P5-004B-P5-006-independent-review.md`
-(CHANGES_REQUESTED → corrective pass). Independent re-review pending.
+(CHANGES_REQUESTED → corrective pass). Corrective re-review:
+`reviews/P5-004B-corrective-independent-re-review.md` (VERIFIED).
 
 ## Provenance Note (additive, 2026-09-22)
 
