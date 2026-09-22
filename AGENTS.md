@@ -83,10 +83,11 @@ Advanced Transcript UX; Phase 7 = Production Hardening.
 
 **Phase 5**: Translation. AUTHORIZED FOR IMPLEMENTATION (2026-09-21,
 DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
-authorizes cross-phase Playwright). P5-001 (Translation Domain Contract) and
-P5-002 (Translation Persistence / Atomic Writer) = VERIFIED by independent
-review; awaiting HPO closure to DONE. P5-001A/P5-002A follow-ups =
-IMPLEMENTED_PENDING_REVIEW.
+authorizes cross-phase Playwright). VERIFIED (HPO closure pending): P5-001,
+P5-001A, P5-002, P5-002A, P5-004B, P5-006. IMPLEMENTED_PENDING_REVIEW: P5-002B,
+P5-003, P5-004, P5-005, P5-007 (corrective cycles), P5-004C (operational
+pre-flight). P5-008 = BACKLOG (requires HPO READY promotion). Phase 3/4 baseline
+committed; B-001/B-002 resolved.
 
 **Phase 6 / Phase 7**: NOT GENERALLY AUTHORIZED. Controlled Parallel Execution
 Authorization (2026-09-21, ADR-023; `PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md`)

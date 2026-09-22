@@ -18,11 +18,12 @@ DECISION-P4-006-CLOSURE-001; DECISION-P4-006-FINDING-001 CLOSED).
 
 Phase 5 = AUTHORIZED FOR IMPLEMENTATION (2026-09-21,
 DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
-authorizes cross-phase Playwright). P5-001 (Translation Domain Contract) and
-P5-002 (Translation Persistence / Atomic Writer) = VERIFIED by independent
-review (`reviews/P5-001-independent-review.md`,
-`reviews/P5-002-independent-review.md`); awaiting HPO closure to DONE.
-P5-001A / P5-002A = IMPLEMENTED_PENDING_REVIEW. P5-003..P5-008 = BACKLOG.
+authorizes cross-phase Playwright). VERIFIED, awaiting HPO closure to DONE:
+P5-001, P5-001A, P5-002, P5-002A, P5-004B, P5-006. IMPLEMENTED_PENDING_REVIEW:
+P5-002B, P5-003, P5-004, P5-005, P5-007 (corrective cycles; independent
+re-review pending) and P5-004C (operational pre-flight; independent review
+pending). P5-008 = BACKLOG (requires HPO READY promotion). The Phase 3/4
+baseline is now committed (B-001/B-002 resolved); working tree clean.
 
 Phase 6 / Phase 7 = NOT GENERALLY AUTHORIZED; controlled-parallel early-start /
 early-hardening allowlists only (ADR-023;

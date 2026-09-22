@@ -2,9 +2,10 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — 2026-09-21. Promoted and authorized by the HPO
-instruction of 2026-09-21 ("implement P5-006 after the pre-UI hardening"). Independent
-review pending. Not VERIFIED; not DONE. P5-008 has not been started.
+VERIFIED — independent review `reviews/P5-004B-P5-006-independent-review.md`
+(2026-09-22) returned VERIFIED with no BLOCKER/HIGH/MEDIUM blocking; all seven
+acceptance criteria satisfied. LOW P6-3/P6-4 and INFO P6-5 retained as
+non-blocking debt. Not DONE; HPO closure required. P5-008 has not been started.
 
 Implementation Owner for this task: Claude Code (explicit HPO reassignment). The same
 agent performed the preceding independent review, so **an independent reviewer that did not

@@ -2,10 +2,13 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — corrective pass 2026-09-22 addressing
-`reviews/P5-004B-P5-006-independent-review.md` P4B-1, P4B-2, P4B-3 (and P4B-4,
-P4B-5). Pending light fresh independent re-review; all three fences
-mutation-killed. Not VERIFIED; not DONE.
+VERIFIED — independent corrective re-review
+`reviews/P5-004B-corrective-independent-re-review.md` (2026-09-22) returned
+VERIFIED with no BLOCKER/HIGH; LOW R-1/R-2/R-3 and INFO-1/INFO-2 recorded. R-1
+(post-claim refresh regression test) is closed by P5-004C's
+`records a post-claim refresh failure through the failure taxonomy` test. R-2
+(awaiting-dispatch UI label) and R-3 (test-file self-containment) remain
+non-blocking debt. Not DONE; HPO closure required.
 
 ## Ownership
 
