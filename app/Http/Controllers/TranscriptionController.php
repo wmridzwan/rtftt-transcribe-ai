@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\TranscriptionRetry;
+use App\Enums\MediaType;
 use App\Models\Transcription;
+use App\TranscriptExperience\TranscriptCopy;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -41,12 +44,38 @@ class TranscriptionController extends Controller
         return view('transcriptions.create');
     }
 
-    public function show(Transcription $transcription): View
+    public function show(Transcription $transcription, TranscriptionRetry $retry): View
     {
         $this->authorize('view', $transcription);
 
         $transcription->load(['mediaFile', 'segments', 'processingJobs']);
 
-        return view('transcriptions.show', compact('transcription'));
+        $retryEligible = $retry->isEligible($transcription);
+        $fullTranscriptText = TranscriptCopy::fullText($transcription->segments);
+
+        $mediaFile = $transcription->mediaFile;
+        $mediaAvailable = $mediaFile !== null && $mediaFile->hasPhysicalFile();
+        $streamUrl = $mediaAvailable
+            ? route('media.stream', ['mediaFile' => $mediaFile->uuid])
+            : null;
+        $mediaElement = $mediaFile?->media_type === MediaType::Video ? 'video' : 'audio';
+
+        $playbackSegments = $transcription->segments
+            ->map(fn ($segment): array => [
+                'index' => $segment->segment_index,
+                'start' => (float) $segment->start_seconds,
+                'end' => (float) $segment->end_seconds,
+            ])
+            ->values()
+            ->all();
+
+        return view('transcriptions.show', compact(
+            'transcription',
+            'retryEligible',
+            'fullTranscriptText',
+            'streamUrl',
+            'mediaElement',
+            'playbackSegments',
+        ));
     }
 }

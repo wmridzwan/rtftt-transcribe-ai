@@ -41,6 +41,11 @@ class HttpTranscriptionProvider implements TranscriptionProvider
             $body = $response->json();
             if (isset($body['error_code'])) {
                 $errorResponse = WorkerErrorResponse::fromArray($body);
+
+                // ADR-018: the worker's `retryable` flag is advisory transport
+                // metadata only. Domain retryability is authoritative in
+                // TranscriptionFailure::isRetryable() and is never overridden
+                // here, so the cross-layer contract cannot diverge.
                 throw new TranscriptionException(
                     failure: $errorResponse->toFailure(),
                     message: $errorResponse->safeMessage,

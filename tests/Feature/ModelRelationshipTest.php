@@ -51,7 +51,10 @@ test('transcription has many segments', function () {
 
 test('transcription has many processing jobs', function () {
     $transcription = Transcription::factory()->create();
-    ProcessingJob::factory()->count(3)->create(['transcription_id' => $transcription->id]);
+
+    // Under the P3-007 one-active-attempt invariant only one attempt may be
+    // queued/running per transcription, so historical attempts are terminal.
+    ProcessingJob::factory()->completed()->count(3)->create(['transcription_id' => $transcription->id]);
 
     $this->assertCount(3, $transcription->processingJobs);
 });

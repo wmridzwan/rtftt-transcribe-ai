@@ -46,7 +46,7 @@ it('rejects invalid lifecycle transitions', function () {
 
     expect(TranscriptionLifecycle::canTransition(
         TranscriptionStatus::Failed,
-        TranscriptionStatus::Queued,
+        TranscriptionStatus::Transcribing,
     ))->toBeFalse();
 });
 
@@ -105,16 +105,18 @@ it('throws on invalid transition assertion', function () {
     );
 })->throws(InvalidArgumentException::class, 'Invalid lifecycle transition: draft → completed.');
 
-it('terminal states have no transitions', function () {
+it('terminal states have no transitions except the canonical retry re-open', function () {
     expect(TranscriptionLifecycle::canTransition(
         TranscriptionStatus::Completed,
         TranscriptionStatus::Draft,
     ))->toBeFalse();
 
+    // P3-007 / ADR-018: failed → queued is the single canonical retry
+    // re-open transition; all other exits from failed remain invalid.
     expect(TranscriptionLifecycle::canTransition(
         TranscriptionStatus::Failed,
         TranscriptionStatus::Queued,
-    ))->toBeFalse();
+    ))->toBeTrue();
 
     expect(TranscriptionLifecycle::canTransition(
         TranscriptionStatus::Cancelled,

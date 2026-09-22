@@ -1,0 +1,201 @@
+{
+    "baseUrl": "http://127.0.0.1:8123",
+    "email": "p4-006@example.test",
+    "password": "password",
+    "otherEmail": "p4-006-other@example.test",
+    "audio": {
+        "transcriptionId": 1,
+        "uuid": "9b7e9a43-4804-4301-8a0f-331614131579",
+        "segments": [
+            {
+                "index": 0,
+                "start": 0.5,
+                "end": 4,
+                "language": "en",
+                "text": "First segment"
+            },
+            {
+                "index": 1,
+                "start": 4,
+                "end": 8.25,
+                "language": "ms",
+                "text": "Segmen kedua"
+            },
+            {
+                "index": 2,
+                "start": 12.345,
+                "end": 16.5,
+                "language": "zh",
+                "text": "\u7b2c\u4e09\u6bb5"
+            },
+            {
+                "index": 3,
+                "start": 16.5,
+                "end": 18,
+                "language": "ta",
+                "text": "\u0ba8\u0bbe\u0ba9\u0bcd\u0b95\u0bbe\u0bae\u0bcd"
+            },
+            {
+                "index": 4,
+                "start": 18,
+                "end": 19.5,
+                "language": "und",
+                "text": "Undetermined text"
+            },
+            {
+                "index": 5,
+                "start": 19.5,
+                "end": 21,
+                "language": "en",
+                "text": "Sixth segment"
+            },
+            {
+                "index": 6,
+                "start": 21,
+                "end": 22.5,
+                "language": "ms",
+                "text": "Segmen keenam"
+            },
+            {
+                "index": 7,
+                "start": 22.5,
+                "end": 24,
+                "language": "zh",
+                "text": "\u7b2c\u516b\u6bb5"
+            }
+        ]
+    },
+    "video": {
+        "transcriptionId": 2,
+        "uuid": "77bf2605-9bc6-4fb9-8509-de5610b6310e",
+        "segments": [
+            {
+                "index": 0,
+                "start": 0.5,
+                "end": 4,
+                "language": "en",
+                "text": "First segment"
+            },
+            {
+                "index": 1,
+                "start": 4,
+                "end": 8.25,
+                "language": "ms",
+                "text": "Segmen kedua"
+            },
+            {
+                "index": 2,
+                "start": 12.345,
+                "end": 16.5,
+                "language": "zh",
+                "text": "\u7b2c\u4e09\u6bb5"
+            },
+            {
+                "index": 3,
+                "start": 16.5,
+                "end": 18,
+                "language": "ta",
+                "text": "\u0ba8\u0bbe\u0ba9\u0bcd\u0b95\u0bbe\u0bae\u0bcd"
+            },
+            {
+                "index": 4,
+                "start": 18,
+                "end": 19.5,
+                "language": "und",
+                "text": "Undetermined text"
+            },
+            {
+                "index": 5,
+                "start": 19.5,
+                "end": 21,
+                "language": "en",
+                "text": "Sixth segment"
+            },
+            {
+                "index": 6,
+                "start": 21,
+                "end": 22.5,
+                "language": "ms",
+                "text": "Segmen keenam"
+            },
+            {
+                "index": 7,
+                "start": 22.5,
+                "end": 24,
+                "language": "zh",
+                "text": "\u7b2c\u516b\u6bb5"
+            }
+        ]
+    },
+    "processing": {
+        "transcriptionId": 3
+    },
+    "failed": {
+        "transcriptionId": 4
+    },
+    "noSpeech": {
+        "transcriptionId": 5,
+        "uuid": "22f10868-b242-4dd4-bddd-7cf45aa2048f"
+    },
+    "copyFullText": "First segment\nSegmen kedua\n\u7b2c\u4e09\u6bb5\n\u0ba8\u0bbe\u0ba9\u0bcd\u0b95\u0bbe\u0bae\u0bcd\nUndetermined text\nSixth segment\nSegmen keenam\n\u7b2c\u516b\u6bb5",
+    "search": {
+        "latin": {
+            "query": "segmen",
+            "expected": 4
+        },
+        "chinese": {
+            "query": "\u7b2c\u4e09",
+            "expected": 1
+        },
+        "tamil": {
+            "query": "\u0ba8\u0bbe\u0ba9\u0bcd\u0b95\u0bbe\u0bae\u0bcd",
+            "expected": 1
+        }
+    },
+    "samples": [
+        {
+            "time": 0.5,
+            "expected": 0
+        },
+        {
+            "time": 3.999,
+            "expected": 0
+        },
+        {
+            "time": 4,
+            "expected": 1
+        },
+        {
+            "time": 8.249,
+            "expected": 1
+        },
+        {
+            "time": 8.25,
+            "expected": null
+        },
+        {
+            "time": 10,
+            "expected": null
+        },
+        {
+            "time": 12.344,
+            "expected": null
+        },
+        {
+            "time": 12.345,
+            "expected": 2
+        },
+        {
+            "time": 16.499,
+            "expected": 2
+        },
+        {
+            "time": 16.5,
+            "expected": 3
+        },
+        {
+            "time": 24,
+            "expected": null
+        }
+    ]
+}

@@ -1,0 +1,29 @@
+{
+    "baseUrl": "http://127.0.0.1:8123",
+    "email": "p5-006@example.test",
+    "password": "password",
+    "otherEmail": "p5-006-other@example.test",
+    "standardSentences": [
+        "Good morning everyone",
+        "Welcome to the weekly meeting",
+        "Thank you for joining"
+    ],
+    "main": 1,
+    "slow": 2,
+    "retryable": {
+        "transcription": 3,
+        "translation": 1
+    },
+    "final": {
+        "transcription": 4,
+        "translation": 2
+    },
+    "liveFinal": 5,
+    "double": 6,
+    "invalid": 7,
+    "processing": 8,
+    "foreign": {
+        "transcription": 9,
+        "translation": 3
+    }
+}

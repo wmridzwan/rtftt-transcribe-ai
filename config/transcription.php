@@ -7,7 +7,51 @@ return [
 
     'contract_version' => '1.0',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Canonical model
+    |--------------------------------------------------------------------------
+    |
+    | Server/config controlled. Users may not select model paths or
+    | filesystem locations. Canonical Phase 3 default: large-v3 (turbo is a
+    | non-default/experimental profile).
+    |
+    */
+
+    'model' => env('RTFTT_WHISPER_MODEL', 'large-v3'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue orchestration
+    |--------------------------------------------------------------------------
+    |
+    | Small identifiers only are placed on the queue. The canonical Phase 3
+    | backend is Redis (without Horizon). The connection defaults to the
+    | application queue connection so tests can use sync/fake safely; set
+    | QUEUE_CONNECTION=redis (or RTFTT_TRANSCRIPTION_QUEUE_CONNECTION=redis)
+    | to exercise the real Redis path.
+    |
+    */
+
+    'queue' => env('RTFTT_TRANSCRIPTION_QUEUE', 'transcription'),
+
+    'queue_connection' => env('RTFTT_TRANSCRIPTION_QUEUE_CONNECTION'),
+
     'timeout_seconds' => 300,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stale attempt recovery
+    |--------------------------------------------------------------------------
+    |
+    | A `running` attempt older than this threshold is considered abandoned and
+    | recoverable (P3-007 / ADR-018). When unset, it is derived from the
+    | canonical provider execution timeout plus an explicit 60-second safety
+    | margin so a legitimately long inference is never mistaken for stale.
+    |
+    */
+
+    'attempt_stale_seconds' => env('RTFTT_TRANSCRIPTION_ATTEMPT_STALE_SECONDS'),
 
     'prepared_audio_retention' => env('RTFTT_PREPARED_AUDIO_RETENTION', 'ephemeral'),
 

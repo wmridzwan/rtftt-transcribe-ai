@@ -41,7 +41,12 @@ class TranscriptionLifecycle
             TranscriptionStatus::Cancelled->value,
         ],
         TranscriptionStatus::Completed->value => [],
-        TranscriptionStatus::Failed->value => [],
+        // P3-007 / ADR-018: the only way out of the terminal `failed` state is
+        // an explicit, authorized retry action (App\Actions\TranscriptionRetry).
+        // A failed processing attempt itself never returns to `queued`.
+        TranscriptionStatus::Failed->value => [
+            TranscriptionStatus::Queued->value,
+        ],
         TranscriptionStatus::Cancelled->value => [],
     ];
 

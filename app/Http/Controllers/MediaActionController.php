@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MediaFile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -57,6 +58,142 @@ class MediaActionController extends Controller
         }
 
         return $storage->download($mediaFile->storage_path, $mediaFile->display_name ?? $mediaFile->original_filename);
+    }
+
+    /**
+     * Authorized private-media byte-range streaming (P4-002, ADR-019).
+     *
+     * Serves the owning user or an admin. Supports a single HTTP byte range.
+     * Files are streamed in bounded chunks and are never loaded wholly into
+     * PHP memory. No filesystem/storage path is exposed.
+     */
+    public function stream(Request $request, MediaFile $mediaFile): StreamedResponse|Response
+    {
+        $this->authorize('view', $mediaFile);
+
+        $storage = MediaFile::storage();
+
+        if (! $mediaFile->storage_path || ! $storage->exists($mediaFile->storage_path)) {
+            abort(404, 'Physical file not found.');
+        }
+
+        $size = (int) $storage->size($mediaFile->storage_path);
+        $range = $this->resolveRange($request->header('Range'), $size);
+
+        if ($range['status'] === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
+            return response('', Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, [
+                'Content-Range' => 'bytes */'.$size,
+                'Accept-Ranges' => 'bytes',
+            ]);
+        }
+
+        $isPartial = $range['status'] === Response::HTTP_PARTIAL_CONTENT;
+        $start = $range['start'] ?? 0;
+        $end = $range['end'] ?? max(0, $size - 1);
+        $length = max(0, $end - $start + 1);
+
+        $headers = [
+            'Content-Type' => $mediaFile->mime_type,
+            'Accept-Ranges' => 'bytes',
+            'Content-Length' => (string) $length,
+        ];
+
+        if ($isPartial) {
+            $headers['Content-Range'] = sprintf('bytes %d-%d/%d', $start, $end, $size);
+        }
+
+        return response()->stream(function () use ($storage, $mediaFile, $start, $length): void {
+            $stream = $storage->readStream((string) $mediaFile->storage_path);
+
+            if ($stream === null) {
+                return;
+            }
+
+            if ($start > 0) {
+                fseek($stream, $start);
+            }
+
+            $remaining = $length;
+            $chunkSize = 8192;
+
+            while ($remaining > 0 && ! feof($stream)) {
+                $buffer = fread($stream, (int) min($chunkSize, $remaining));
+
+                if ($buffer === false || $buffer === '') {
+                    break;
+                }
+
+                echo $buffer;
+                $remaining -= strlen($buffer);
+                flush();
+            }
+
+            fclose($stream);
+        }, $isPartial ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK, $headers);
+    }
+
+    /**
+     * Resolve a single HTTP Range header against a known file size.
+     *
+     * Unsupported/multi/malformed ranges are ignored (200 full response).
+     * Unsatisfiable ranges return 416.
+     *
+     * @return array{status: int, start: int|null, end: int|null}
+     */
+    private function resolveRange(?string $header, int $size): array
+    {
+        $full = ['status' => Response::HTTP_OK, 'start' => null, 'end' => null];
+
+        if ($header === null || $header === '' || ! str_starts_with($header, 'bytes=')) {
+            return $full;
+        }
+
+        $spec = trim(substr($header, 6));
+
+        if (str_contains($spec, ',')) {
+            return $full;
+        }
+
+        if (preg_match('/^(\d*)-(\d*)$/', $spec, $matches) !== 1) {
+            return $full;
+        }
+
+        $startRaw = $matches[1];
+        $endRaw = $matches[2];
+
+        if ($startRaw === '' && $endRaw === '') {
+            return $full;
+        }
+
+        if ($startRaw === '') {
+            $suffix = (int) $endRaw;
+
+            if ($suffix === 0) {
+                return ['status' => Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, 'start' => null, 'end' => null];
+            }
+
+            $start = max(0, $size - min($suffix, $size));
+
+            return ['status' => Response::HTTP_PARTIAL_CONTENT, 'start' => $start, 'end' => max(0, $size - 1)];
+        }
+
+        $start = (int) $startRaw;
+
+        if ($start >= $size) {
+            return ['status' => Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, 'start' => null, 'end' => null];
+        }
+
+        if ($endRaw === '') {
+            return ['status' => Response::HTTP_PARTIAL_CONTENT, 'start' => $start, 'end' => max(0, $size - 1)];
+        }
+
+        $end = (int) $endRaw;
+
+        if ($end < $start) {
+            return $full;
+        }
+
+        return ['status' => Response::HTTP_PARTIAL_CONTENT, 'start' => $start, 'end' => min($end, max(0, $size - 1))];
     }
 
     public function moveToFolder(Request $request, MediaFile $mediaFile): RedirectResponse

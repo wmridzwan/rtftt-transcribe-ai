@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/transcriptions/{transcription}', [TranscriptionController::class, 'show'])->name('transcriptions.show');
 
     Route::patch('/transcriptions/{transcription}/rename', [TranscriptionActionController::class, 'rename'])->name('transcriptions.rename');
+    Route::post('/transcriptions/{transcription}/retry', [TranscriptionActionController::class, 'retry'])->name('transcriptions.retry');
     Route::delete('/transcriptions/{transcription}', [TranscriptionActionController::class, 'destroy'])->name('transcriptions.destroy');
 
     Route::get('/transcriptions/{transcription}/export/txt', [TranscriptionExportController::class, 'exportTxt'])->name('transcriptions.export.txt');
@@ -40,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/media/{mediaFile}/rename', [MediaActionController::class, 'rename'])->name('media.rename');
     Route::delete('/media/{mediaFile}', [MediaActionController::class, 'destroy'])->name('media.destroy');
     Route::get('/media/{mediaFile}/download', [MediaActionController::class, 'download'])->name('media.download');
+    Route::get('/media/{mediaFile:uuid}/stream', [MediaActionController::class, 'stream'])->name('media.stream');
     Route::patch('/media/{mediaFile}/move', [MediaActionController::class, 'moveToFolder'])->name('media.move');
 
     Route::get('/folders', FoldersIndex::class)->name('folders.index');

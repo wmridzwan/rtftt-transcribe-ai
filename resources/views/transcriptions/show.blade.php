@@ -73,28 +73,97 @@
                     </div>
 
                     <div x-show="activeTab === 'transcript'" class="p-4">
-                        @if ($transcription->segments->isEmpty())
-                            <x-empty-state
-                                title="No transcript segments"
-                                description="This transcription does not have any segments yet."
-                                icon="document-text"
-                            />
-                        @else
-                            <div class="space-y-4">
-                                @foreach ($transcription->segments as $segment)
-                                    <div class="flex gap-4">
-                                        <div class="flex-shrink-0 w-16 text-right">
-                                            <span class="inline-block rounded bg-zinc-100 px-2 py-1 font-mono text-xs text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400">
-                                                {{ $segment->formatted_start }}
-                                            </span>
-                                        </div>
-                                        <div class="flex-1 text-sm text-zinc-700 dark:text-zinc-300">
-                                            {{ $segment->text }}
-                                        </div>
+                        <div
+                            class="space-y-4"
+                            x-data="transcriptPlayback({
+                                segments: @js($playbackSegments),
+                                hasPlayer: @js($streamUrl !== null),
+                            })"
+                            x-on:p4-seek="seekTo($event.detail.seconds)"
+                        >
+                            @if ($streamUrl !== null)
+                                <div>
+                                    @if ($mediaElement === 'video')
+                                        <video
+                                            data-media-player
+                                            controls
+                                            preload="metadata"
+                                            src="{{ $streamUrl }}"
+                                            class="max-h-96 w-full rounded-lg bg-black"
+                                        ></video>
+                                    @else
+                                        <audio
+                                            data-media-player
+                                            controls
+                                            preload="metadata"
+                                            src="{{ $streamUrl }}"
+                                            class="w-full"
+                                        ></audio>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @if ($transcription->segments->isEmpty())
+                                <x-empty-state
+                                    title="No transcript segments"
+                                    description="This transcription does not have any segments yet."
+                                    icon="document-text"
+                                />
+                            @else
+                                <div
+                                    class="space-y-4"
+                                    x-data="transcriptSearch({ fullText: @js($fullTranscriptText) })"
+                                >
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <input
+                                            type="search"
+                                            x-model="query"
+                                            placeholder="Search transcript"
+                                            aria-label="Search transcript"
+                                            class="w-full max-w-xs rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                                        />
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-400" x-text="countLabel" aria-live="polite"></span>
+                                        <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="previous()" x-bind:disabled="!hasMatches" aria-label="Previous match">Previous</button>
+                                        <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="next()" x-bind:disabled="!hasMatches" aria-label="Next match">Next</button>
+                                        <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="clear()" x-bind:disabled="query === ''">Clear</button>
+                                        <button type="button" class="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-200" x-on:click="copyFull()">Copy transcript</button>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-400" x-text="copyStatus" aria-live="polite"></span>
                                     </div>
-                                @endforeach
-                            </div>
-                        @endif
+
+                                    <div data-transcript-region class="max-h-[70vh] space-y-3 overflow-y-auto pr-1">
+                                        @foreach ($transcription->segments as $segment)
+                                            <div
+                                                data-segment-row
+                                                data-segment-index="{{ $segment->segment_index }}"
+                                                class="flex gap-4 rounded-md p-1 transition-colors"
+                                            >
+                                                <div class="flex-shrink-0">
+                                                    <button
+                                                        type="button"
+                                                        data-seek-seconds="{{ $segment->seek_seconds }}"
+                                                        x-on:click="$dispatch('p4-seek', { seconds: Number($el.dataset.seekSeconds) })"
+                                                        aria-label="Seek to {{ $segment->formatted_start }}"
+                                                        class="inline-block rounded bg-zinc-100 px-2 py-1 font-mono text-xs text-zinc-600 hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600"
+                                                    >{{ $segment->formatted_start }}</button>
+                                                </div>
+                                                <div
+                                                    class="flex-1 text-sm text-zinc-700 dark:text-zinc-300"
+                                                    data-segment-text
+                                                    data-segment-index="{{ $segment->segment_index }}"
+                                                >{{ $segment->text }}</div>
+                                                <div class="flex flex-shrink-0 items-start gap-2">
+                                                    <span
+                                                        data-segment-language="{{ $segment->language?->value ?? 'und' }}"
+                                                        class="inline-block rounded bg-zinc-100 px-2 py-1 font-mono text-xs uppercase text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
+                                                    >{{ $segment->language?->value ?? 'und' }}</span>
+                                                    <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="copySegment({{ $segment->segment_index }})" aria-label="Copy segment">Copy</button>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     <div x-show="activeTab === 'details'" class="p-4">
@@ -181,6 +250,23 @@
                         <x-metadata-row label="Created" :value="$transcription->created_at->diffForHumans()" />
                         <x-metadata-row label="Segments" :value="$transcription->segments->count()" />
                     </div>
+
+                    @if ($transcription->status === \App\Enums\TranscriptionStatus::Failed)
+                        <div class="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950/40">
+                            <p class="text-sm text-red-700 dark:text-red-300">
+                                {{ $transcription->error_message ?? 'The transcription failed.' }}
+                            </p>
+
+                            @if ($retryEligible && auth()->user()?->can('update', $transcription))
+                                <form method="POST" action="{{ route('transcriptions.retry', $transcription) }}" class="mt-3">
+                                    @csrf
+                                    <flux:button type="submit" size="sm" icon="arrow-path">Retry transcription</flux:button>
+                                </form>
+                            @elseif (! $retryEligible)
+                                <p class="mt-2 text-xs text-red-600 dark:text-red-400">This failure is not retryable.</p>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -212,4 +298,246 @@
             </div>
         </form>
     </flux:modal>
+
+    <script>
+        window.p4ResolveActive = window.p4ResolveActive || function (segments, time) {
+            let match = null;
+            (segments || []).forEach((segment) => {
+                if (segment.start <= time && time < segment.end) {
+                    if (match === null || segment.index < match.index) {
+                        match = segment;
+                    }
+                }
+            });
+            return match === null ? null : match.index;
+        };
+
+        window.transcriptPlayback = window.transcriptPlayback || function (config) {
+            return {
+                segments: config.segments ?? [],
+                activeIndex: null,
+                autoScroll: true,
+                init() {
+                    const player = this.player();
+                    if (player) {
+                        const update = () => this.updateActive();
+                        player.addEventListener('timeupdate', update);
+                        player.addEventListener('seeked', update);
+                        player.addEventListener('loadedmetadata', update);
+                        player.addEventListener('play', () => this.onPlaybackInteraction());
+                        player.addEventListener('pause', () => this.onPlaybackInteraction());
+                        player.addEventListener('seeking', () => this.onPlaybackInteraction());
+                    }
+                    const region = this.region();
+                    if (region) {
+                        ['wheel', 'touchmove'].forEach((event) => {
+                            region.addEventListener(event, () => { this.autoScroll = false; }, { passive: true });
+                        });
+                        region.addEventListener('keydown', () => { this.autoScroll = false; });
+                    }
+                },
+                player() {
+                    return this.$el.querySelector('[data-media-player]');
+                },
+                region() {
+                    return this.$el.querySelector('[data-transcript-region]');
+                },
+                rows() {
+                    return Array.from(this.$el.querySelectorAll('[data-segment-row]'));
+                },
+                onPlaybackInteraction() {
+                    this.autoScroll = true;
+                    this.updateActive();
+                },
+                updateActive() {
+                    const player = this.player();
+                    if (!player) {
+                        return;
+                    }
+                    const index = window.p4ResolveActive(this.segments, player.currentTime);
+                    if (index === this.activeIndex) {
+                        return;
+                    }
+                    this.setActive(index);
+                },
+                setActive(index) {
+                    this.activeIndex = index;
+                    let activeRow = null;
+                    this.rows().forEach((row) => {
+                        const isActive = index !== null && Number(row.dataset.segmentIndex) === index;
+                        row.classList.toggle('bg-indigo-50', isActive);
+                        row.classList.toggle('dark:bg-indigo-950/40', isActive);
+                        row.classList.toggle('ring-2', isActive);
+                        row.classList.toggle('ring-indigo-500', isActive);
+                        if (isActive) {
+                            row.setAttribute('aria-current', 'true');
+                            activeRow = row;
+                        } else {
+                            row.removeAttribute('aria-current');
+                        }
+                    });
+                    if (activeRow && this.autoScroll) {
+                        activeRow.scrollIntoView({ block: 'nearest' });
+                    }
+                },
+                seekTo(seconds) {
+                    const player = this.player();
+                    const target = Number(seconds);
+                    if (!player || !Number.isFinite(target)) {
+                        return;
+                    }
+                    player.currentTime = target;
+                    this.autoScroll = true;
+                    this.updateActive();
+                },
+            };
+        };
+
+        window.transcriptSearch = window.transcriptSearch || function (config) {
+            return {
+                query: '',
+                matchCount: 0,
+                currentIndex: 0,
+                copyStatus: '',
+                fullText: config.fullText ?? '',
+                init() {
+                    this.rootEl = this.$el ?? this.$root;
+                    this.segmentEls().forEach((el) => {
+                        if (el.dataset.rawText === undefined) {
+                            el.dataset.rawText = el.textContent;
+                        }
+                    });
+                    this.$watch('query', () => this.refresh());
+                },
+                segmentEls() {
+                    return Array.from(this.rootEl.querySelectorAll('[data-segment-text]'));
+                },
+                rawText(el) {
+                    return el.dataset.rawText ?? el.textContent;
+                },
+                get hasMatches() {
+                    return this.matchCount > 0;
+                },
+                get countLabel() {
+                    if (this.query.trim() === '') {
+                        return '';
+                    }
+                    if (this.matchCount === 0) {
+                        return 'No matches';
+                    }
+                    return (this.currentIndex + 1) + ' of ' + this.matchCount;
+                },
+                refresh() {
+                    const query = this.query.toLocaleLowerCase();
+                    let total = 0;
+                    const previous = this.currentIndex;
+                    this.segmentEls().forEach((el) => {
+                        const text = this.rawText(el);
+                        const positions = [];
+                        if (query !== '') {
+                            const lower = text.toLocaleLowerCase();
+                            let from = 0;
+                            while (from <= lower.length - query.length) {
+                                const at = lower.indexOf(query, from);
+                                if (at === -1) {
+                                    break;
+                                }
+                                positions.push({ start: at, length: query.length });
+                                from = at + query.length;
+                            }
+                        }
+                        this.render(el, text, positions, total);
+                        total += positions.length;
+                    });
+                    this.matchCount = total;
+                    this.currentIndex = total === 0 ? 0 : Math.min(previous, total - 1);
+                    this.applyCurrent();
+                },
+                render(el, text, positions, offset) {
+                    el.textContent = '';
+                    if (positions.length === 0) {
+                        el.appendChild(document.createTextNode(text));
+                        return;
+                    }
+                    let cursor = 0;
+                    positions.forEach((position, i) => {
+                        if (position.start > cursor) {
+                            el.appendChild(document.createTextNode(text.slice(cursor, position.start)));
+                        }
+                        const mark = document.createElement('mark');
+                        mark.textContent = text.slice(position.start, position.start + position.length);
+                        mark.dataset.matchIndex = String(offset + i);
+                        mark.className = 'rounded bg-yellow-200 text-inherit dark:bg-yellow-700/60';
+                        el.appendChild(mark);
+                        cursor = position.start + position.length;
+                    });
+                    if (cursor < text.length) {
+                        el.appendChild(document.createTextNode(text.slice(cursor)));
+                    }
+                },
+                applyCurrent() {
+                    const marks = Array.from(this.rootEl.querySelectorAll('mark[data-match-index]'));
+                    marks.forEach((mark) => {
+                        mark.classList.remove('bg-orange-400', 'dark:bg-orange-500');
+                    });
+                    const active = marks[this.currentIndex];
+                    if (active) {
+                        active.classList.add('bg-orange-400', 'dark:bg-orange-500');
+                        active.scrollIntoView({ block: 'nearest' });
+                    }
+                },
+                next() {
+                    if (this.matchCount === 0) {
+                        return;
+                    }
+                    this.currentIndex = (this.currentIndex + 1) % this.matchCount;
+                    this.applyCurrent();
+                },
+                previous() {
+                    if (this.matchCount === 0) {
+                        return;
+                    }
+                    this.currentIndex = (this.currentIndex - 1 + this.matchCount) % this.matchCount;
+                    this.applyCurrent();
+                },
+                clear() {
+                    this.query = '';
+                },
+                copyFull() {
+                    this.copyText(this.fullText);
+                },
+                copySegment(index) {
+                    const el = this.rootEl.querySelector('[data-segment-text][data-segment-index="' + index + '"]');
+                    this.copyText(el ? this.rawText(el) : '');
+                },
+                copyText(text) {
+                    if (! text) {
+                        this.copyStatus = 'Nothing to copy';
+                        return;
+                    }
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) {
+                            navigator.clipboard.writeText(text).then(
+                                () => { this.copyStatus = 'Copied'; },
+                                () => { this.copyStatus = 'Copy failed'; }
+                            );
+                        } else {
+                            const helper = document.createElement('textarea');
+                            helper.value = text;
+                            helper.setAttribute('readonly', '');
+                            helper.style.position = 'fixed';
+                            helper.style.opacity = '0';
+                            document.body.appendChild(helper);
+                            helper.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(helper);
+                            this.copyStatus = 'Copied';
+                        }
+                    } catch (error) {
+                        this.copyStatus = 'Copy failed';
+                    }
+                },
+            };
+        };
+    </script>
 </x-layouts::app>

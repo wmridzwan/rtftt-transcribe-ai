@@ -1,0 +1,169 @@
+{
+    "baseUrl": "http://127.0.0.1:8123",
+    "email": "p4-003@example.test",
+    "password": "password",
+    "audio": {
+        "transcriptionId": 1,
+        "uuid": "7f721349-e8ba-4a7a-b5ea-de1f6ce02702",
+        "mime": "audio/wav",
+        "segments": [
+            {
+                "index": 0,
+                "start": 0.5,
+                "end": 4,
+                "language": "en"
+            },
+            {
+                "index": 1,
+                "start": 4,
+                "end": 8.25,
+                "language": "ms"
+            },
+            {
+                "index": 2,
+                "start": 12.345,
+                "end": 16.5,
+                "language": "zh"
+            },
+            {
+                "index": 3,
+                "start": 16.5,
+                "end": 18,
+                "language": "ta"
+            },
+            {
+                "index": 4,
+                "start": 18,
+                "end": 19.5,
+                "language": "en"
+            },
+            {
+                "index": 5,
+                "start": 19.5,
+                "end": 21,
+                "language": "ms"
+            },
+            {
+                "index": 6,
+                "start": 21,
+                "end": 22.5,
+                "language": "zh"
+            },
+            {
+                "index": 7,
+                "start": 22.5,
+                "end": 24,
+                "language": "und"
+            }
+        ]
+    },
+    "video": {
+        "transcriptionId": 2,
+        "uuid": "1b8c049b-64da-436b-bf75-0324fdba7f1e",
+        "mime": "video/webm",
+        "segments": [
+            {
+                "index": 0,
+                "start": 0.5,
+                "end": 4,
+                "language": "en"
+            },
+            {
+                "index": 1,
+                "start": 4,
+                "end": 8.25,
+                "language": "ms"
+            },
+            {
+                "index": 2,
+                "start": 12.345,
+                "end": 16.5,
+                "language": "zh"
+            },
+            {
+                "index": 3,
+                "start": 16.5,
+                "end": 18,
+                "language": "ta"
+            },
+            {
+                "index": 4,
+                "start": 18,
+                "end": 19.5,
+                "language": "en"
+            },
+            {
+                "index": 5,
+                "start": 19.5,
+                "end": 21,
+                "language": "ms"
+            },
+            {
+                "index": 6,
+                "start": 21,
+                "end": 22.5,
+                "language": "zh"
+            },
+            {
+                "index": 7,
+                "start": 22.5,
+                "end": 24,
+                "language": "und"
+            }
+        ]
+    },
+    "noSpeech": {
+        "transcriptionId": 3,
+        "uuid": "d11b61f8-e796-4c10-82f7-9c5db6d9c88b"
+    },
+    "samples": [
+        {
+            "time": 0.5,
+            "expected": 0
+        },
+        {
+            "time": 3.999,
+            "expected": 0
+        },
+        {
+            "time": 4,
+            "expected": 1
+        },
+        {
+            "time": 8.249,
+            "expected": 1
+        },
+        {
+            "time": 8.25,
+            "expected": null
+        },
+        {
+            "time": 10,
+            "expected": null
+        },
+        {
+            "time": 12.344,
+            "expected": null
+        },
+        {
+            "time": 12.345,
+            "expected": 2
+        },
+        {
+            "time": 16.499,
+            "expected": 2
+        },
+        {
+            "time": 16.5,
+            "expected": 3
+        },
+        {
+            "time": 24,
+            "expected": null
+        },
+        {
+            "time": 25,
+            "expected": null
+        }
+    ]
+}

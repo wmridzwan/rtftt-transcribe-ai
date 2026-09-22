@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ProcessingStage;
 use App\Enums\ProcessingStatus;
+use App\Transcription\TranscriptionFailure;
 use Database\Factories\ProcessingJobFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $completed_at
  * @property int|null $processing_seconds
  * @property string|null $error_message
+ * @property TranscriptionFailure|null $failure_code
  * @property list<string|null>|null $logs
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -43,6 +45,7 @@ class ProcessingJob extends Model
         'completed_at',
         'processing_seconds',
         'error_message',
+        'failure_code',
         'logs',
     ];
 
@@ -55,6 +58,7 @@ class ProcessingJob extends Model
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'processing_seconds' => 'integer',
+            'failure_code' => TranscriptionFailure::class,
             'logs' => 'array',
         ];
     }

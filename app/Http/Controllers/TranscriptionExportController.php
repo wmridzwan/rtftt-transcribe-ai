@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\TranscriptionStatus;
 use App\Models\Transcription;
+use App\TranscriptExperience\SegmentTimestamp;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use PhpOffice\PhpWord\IOFactory;
@@ -49,8 +50,8 @@ class TranscriptionExportController extends Controller
 
         foreach ($segments as $index => $segment) {
             $number = $index + 1;
-            $start = $this->formatSrtTime($segment->start_seconds);
-            $end = $this->formatSrtTime($segment->end_seconds);
+            $start = SegmentTimestamp::fromSeconds($segment->start_seconds)->srt();
+            $end = SegmentTimestamp::fromSeconds($segment->end_seconds)->srt();
             $srt .= "{$number}\n{$start} --> {$end}\n{$segment->text}\n\n";
         }
 
@@ -74,8 +75,8 @@ class TranscriptionExportController extends Controller
         $vtt = "WEBVTT\n\n";
 
         foreach ($segments as $segment) {
-            $start = $this->formatVttTime($segment->start_seconds);
-            $end = $this->formatVttTime($segment->end_seconds);
+            $start = SegmentTimestamp::fromSeconds($segment->start_seconds)->vtt();
+            $end = SegmentTimestamp::fromSeconds($segment->end_seconds)->vtt();
             $vtt .= "{$start} --> {$end}\n{$segment->text}\n\n";
         }
 
@@ -143,23 +144,5 @@ class TranscriptionExportController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
-    }
-
-    private function formatSrtTime(int $totalSeconds): string
-    {
-        $hours = intdiv($totalSeconds, 3600);
-        $minutes = intdiv($totalSeconds % 3600, 60);
-        $seconds = $totalSeconds % 60;
-
-        return sprintf('%02d:%02d:%02d,000', $hours, $minutes, $seconds);
-    }
-
-    private function formatVttTime(int $totalSeconds): string
-    {
-        $hours = intdiv($totalSeconds, 3600);
-        $minutes = intdiv($totalSeconds % 3600, 60);
-        $seconds = $totalSeconds % 60;
-
-        return sprintf('%02d:%02d:%02d.000', $hours, $minutes, $seconds);
     }
 }

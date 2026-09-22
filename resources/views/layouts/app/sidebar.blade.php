@@ -139,6 +139,12 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="fixed right-6 top-6 z-50 rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white shadow-lg" role="alert">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @persist('toast')
             <flux:toast.group>
                 <flux:toast />
