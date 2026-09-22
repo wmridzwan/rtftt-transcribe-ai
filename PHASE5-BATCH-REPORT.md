@@ -76,3 +76,54 @@ No unauthorized Phase 6/7 work was performed.
 No frozen contract was changed without authorization.
 No integration gate was over-claimed using mocks.
 ```
+---
+
+# Batch 2 — 2026-09-22 (authorized reviews + P5-004C corrective)
+
+## Repository
+- Starting HEAD: `4cd49f4` · Branch: `phase5-7/parallel-2026-09-21`
+- Working tree: clean
+
+## Work performed
+- Ran the authorized fresh independent review of **P5-004C** (Claude CLI).
+  - Cycle 1: `CHANGES_REQUESTED` — BLOCKER: the retry_after guard did not enforce
+    the invariant against the effective default queue connection.
+  - Corrective cycle 2 (`5487852`): `TranslationQueueConfig::effectiveConnection()`
+    resolves `translation.queue_connection ?? queue.default`; `database`/`redis`
+    retry_after defaults raised 90 ? 420; `.env.example` and runbook updated; new
+    tests added.
+  - Cycle 2 re-review: **VERIFIED**, no BLOCKER/HIGH.
+- Reconciled task statuses from recorded review evidence: P5-002B, P5-003,
+  P5-004, P5-005 (cycle-2 review) and P5-007 (consolidated review) ? VERIFIED.
+
+## Final Phase 5 task states
+- DONE: P5-004B, P5-006.
+- VERIFIED (HPO closure pending): P5-001, P5-001A, P5-002, P5-002A, P5-002B,
+  P5-003, P5-004, P5-004C, P5-005, P5-007.
+- BACKLOG and gated: P5-008 (`DECISION-P5-008-GATE-001`).
+
+## Evidence
+- Translation suite 191 passed / 724 assertions.
+- Full suite 624 tests / 623 passed / 1 skipped / 2 warnings / 0 failures.
+- Concurrency races 3/3 on 3 consecutive runs; Pint clean; PHPStan 0.
+- Real-boot fail-fast reproduced (`DB_QUEUE_RETRY_AFTER=90` ? LogicException).
+
+## Commits
+- `5487852` P5-004C cycle 2 corrective
+- `87e09c7` P5-004C cycle-2 VERIFIED record
+- `2a1075c` P5-002B/P5-003/P5-004/P5-005/P5-007 VERIFIED reconciliation
+- (governance/state update commit for this report)
+
+## Blockers / decisions
+- Open blockers: none. B-003 resolved (reviewer restored).
+- HPO required: promote P5-008 to READY (prerequisites now met) or authorize
+  Phase 6/7 early work.
+
+## Confirmations
+```
+No self-reviewed task was marked VERIFIED.
+No phase was closed automatically.
+No unauthorized Phase 6/7 work was performed.
+No frozen contract was changed without authorization.
+No integration gate was over-claimed using mocks.
+```
