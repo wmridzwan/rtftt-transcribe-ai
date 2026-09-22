@@ -2,10 +2,9 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — corrective cycle 2 (2026-09-21) addresses the
-consolidated independent review (`reviews/P5-001A-P5-002A-P5-003-P5-004-P5-005-P5-007-independent-review.md`)
-P5-003 H-1/M-1/M-2/L-1/L-2 and the worker-dependency INFO. Independent
-re-review pending. Not VERIFIED; not DONE.
+VERIFIED — independent review `reviews/P5-corrective-batch-cycle2-independent-review.md`
+(2026-09-21) returned VERIFIED for cycle 2 with no BLOCKER/HIGH; LOW L-1..L-4
+and INFO retained. Not DONE; HPO closure required.
 
 ## Cycle 2 Notes
 

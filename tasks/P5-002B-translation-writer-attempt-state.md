@@ -2,9 +2,9 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — corrective follow-up (2026-09-21) addressing
-`reviews/P5-001A-P5-002A-P5-003-P5-004-P5-005-P5-007-independent-review.md`
-P5-002A M-1, M-2, L-1, L-2. Independent review pending. Not VERIFIED; not DONE.
+VERIFIED — independent review `reviews/P5-corrective-batch-cycle2-independent-review.md`
+(2026-09-21) returned VERIFIED with no BLOCKER/HIGH; LOW L-1/L-2 retained.
+Not DONE; HPO closure required.
 
 ## Ownership
 

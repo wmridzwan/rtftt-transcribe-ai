@@ -2,9 +2,9 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — controller, routes, tests, and internal
-pre-review complete (2026-09-21). Not VERIFIED; not DONE. Independent review
-pending.
+VERIFIED — independent review `reviews/P5-001A-P5-002A-P5-003-P5-004-P5-005-P5-007-independent-review.md`
+(2026-09-21) returned VERIFIED with no BLOCKER/HIGH; LOW L-1/L-2 and INFO
+retained. Not DONE; HPO closure required.
 
 ## Ownership
 

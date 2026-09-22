@@ -2,10 +2,10 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — corrective cycle 2 (2026-09-21) addresses the
-consolidated independent review X-1, X-2, M-1, M-2 (attempt-token fencing,
-lifecycle enforcement, dedicated queue routing, single identity model).
-Independent re-review pending. Not VERIFIED; not DONE.
+VERIFIED — independent review `reviews/P5-corrective-batch-cycle2-independent-review.md`
+(2026-09-21) returned VERIFIED for cycle 2 with no BLOCKER/HIGH; MEDIUM M-1..M-3
+and LOW retained (subsequently addressed by P5-004B/P5-004C where applicable).
+Not DONE; HPO closure required.
 
 ## Cycle 2 Notes
 

@@ -2,10 +2,9 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — corrective cycle 2 (2026-09-21) addresses the
-consolidated independent review X-1 (AC4), X-2 (AC2), M-1, L-1: attempt-token
-fencing of stale recovery, converging retry, and X-1/X-2 regression tests.
-Independent re-review pending. Not VERIFIED; not DONE.
+VERIFIED — independent review `reviews/P5-corrective-batch-cycle2-independent-review.md`
+(2026-09-21) returned VERIFIED for cycle 2 with no BLOCKER/HIGH; M-1 (shared with
+P5-004) and L-1 retained. Not DONE; HPO closure required.
 
 ## Cycle 2 Notes
 
