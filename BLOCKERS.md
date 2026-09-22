@@ -11,7 +11,20 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 
 ## Open Blockers
 
-None.
+### B-004 — P5-008 real self-hosted translation runtime unavailable
+- Classification: `GLOBAL_BLOCKER` (blocks the Phase 5 integration gate; only
+  remaining Phase 5 work)
+- Task/Source: P5-008 (promoted READY, `DECISION-P5-008-AUTHORIZATION-001`)
+- Detail: the committed worker venv lacks `transformers`, `torch`,
+  `sentencepiece`; no translation model is cached (only faster-whisper ASR
+  models); and no live Redis server is reachable on `127.0.0.1:6379`. The
+  required real self-hosted provider/model + live-queue path cannot be
+  exercised. Evidence: `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`.
+- Impact: P5-008 cannot reach IMPLEMENTED_PENDING_REVIEW with real evidence; it
+  is recorded BLOCKED. Mocks are not substituted (ADR-022 D5-09).
+- Owner decision required: provision the real runtime/model + Redis, or approve
+  a smaller self-hosted model, or explicitly disposition/defer the gate.
+- Blocked work: P5-008 only. Phase 6/7 remain unauthorized regardless.
 
 ## Resolved Blockers
 
