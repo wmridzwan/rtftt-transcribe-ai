@@ -4,6 +4,7 @@ use App\Actions\TranslationDispatcher;
 use App\Actions\TranslationOrchestrator;
 use App\Actions\TranslationRetry;
 use App\Jobs\ProcessTranslation;
+use App\Models\Transcription;
 use App\Models\Translation;
 use App\Models\TranslationSegment;
 use App\Transcription\LanguageIdentifier;
@@ -450,4 +451,152 @@ it('propagates an unrelated database error instead of treating it as a concurren
         ->and($thrown->getMessage())->toContain('unrelated-db-failure');
 
     Queue::assertNothingPushed();
+});
+
+// --- P5-004C: job timeout, failed() fence, persistence taxonomy, refresh -----
+
+it('sets an explicit job timeout safely between provider timeout and retry_after (P5-004C)', function (): void {
+    config()->set('translation.timeout_seconds', 300);
+    config()->set('translation.job_timeout_seconds', 330);
+    config()->set('translation.retry_after_seconds', 420);
+
+    $job = new ProcessTranslation(1, 1, 'token');
+
+    expect($job->timeout)->toBe(330)
+        ->and($job->timeout)->toBeGreaterThan(300)
+        ->and($job->timeout)->toBeLessThan(420);
+});
+
+it('marks the current attempt failed through the token-fenced failed() handler', function (): void {
+    $translation = Translation::factory()->create([
+        'transcription_id' => translationSource()->getKey(),
+        'target_language' => 'ms',
+        'status' => 'translating',
+        'attempt_token' => 'current-token',
+    ]);
+
+    (new ProcessTranslation($translation->getKey(), $translation->transcription_id, 'current-token'))
+        ->failed(new RuntimeException('worker timeout'));
+
+    $fresh = $translation->fresh();
+
+    expect($fresh->status)->toBe(TranslationStatus::Failed)
+        ->and($fresh->failure_code)->toBe(TranslationFailure::ProcessingFailed)
+        ->and(app(TranslationRetry::class)->isEligible($fresh))->toBeTrue();
+});
+
+it('does not let a killed stale job mark a newer attempt failed', function (): void {
+    $translation = Translation::factory()->create([
+        'transcription_id' => translationSource()->getKey(),
+        'target_language' => 'ms',
+        'status' => 'queued',
+        'attempt_token' => 'newer-token',
+    ]);
+
+    (new ProcessTranslation($translation->getKey(), $translation->transcription_id, 'old-token'))
+        ->failed(new RuntimeException('worker timeout'));
+
+    expect($translation->fresh()->status)->toBe(TranslationStatus::Queued)
+        ->and($translation->fresh()->attempt_token)->toBe('newer-token');
+});
+
+it('maps a transient persistence/concurrency failure to a retryable failure', function (): void {
+    $transcription = translationSource();
+    $translation = Translation::factory()->create([
+        'transcription_id' => $transcription->getKey(),
+        'target_language' => 'ms',
+        'status' => 'queued',
+    ]);
+
+    $writer = new class extends TranslationResultWriter
+    {
+        public function persist(
+            Transcription $transcription,
+            TranslationResult $result,
+            int $translationId,
+            string $attemptToken,
+        ): Translation {
+            throw new QueryException('sqlite', 'insert into "translation_segments" values (?)', [], new PDOException('database is locked'));
+        }
+    };
+
+    $provider = new RecordingTranslationProvider(alignedTranslationResult());
+
+    (new ProcessTranslation($translation->getKey(), $transcription->getKey(), (string) $translation->attempt_token))
+        ->handle($provider, $writer);
+
+    $fresh = $translation->fresh();
+
+    expect($fresh->status)->toBe(TranslationStatus::Failed)
+        ->and($fresh->failure_code)->toBe(TranslationFailure::ProcessingFailed)
+        ->and(app(TranslationRetry::class)->isEligible($fresh))->toBeTrue();
+});
+
+it('keeps a deterministic constraint failure non-retryable', function (): void {
+    $transcription = translationSource();
+    $translation = Translation::factory()->create([
+        'transcription_id' => $transcription->getKey(),
+        'target_language' => 'ms',
+        'status' => 'queued',
+    ]);
+
+    $writer = new class extends TranslationResultWriter
+    {
+        public function persist(
+            Transcription $transcription,
+            TranslationResult $result,
+            int $translationId,
+            string $attemptToken,
+        ): Translation {
+            throw new QueryException(
+                'sqlite',
+                'insert into "translation_segments" values (?)',
+                [],
+                new PDOException('UNIQUE constraint failed: translation_segments.translation_id, translation_segments.segment_index'),
+            );
+        }
+    };
+
+    $provider = new RecordingTranslationProvider(alignedTranslationResult());
+
+    (new ProcessTranslation($translation->getKey(), $transcription->getKey(), (string) $translation->attempt_token))
+        ->handle($provider, $writer);
+
+    $fresh = $translation->fresh();
+
+    expect($fresh->status)->toBe(TranslationStatus::Failed)
+        ->and($fresh->failure_code)->toBe(TranslationFailure::PersistenceFailed)
+        ->and(app(TranslationRetry::class)->isEligible($fresh))->toBeFalse();
+});
+
+it('records a post-claim refresh failure through the failure taxonomy (P5-004C)', function (): void {
+    $transcription = translationSource();
+    $translation = Translation::factory()->create([
+        'transcription_id' => $transcription->getKey(),
+        'target_language' => 'ms',
+        'status' => 'queued',
+        'attempt_token' => 'refresh-token',
+    ]);
+
+    // A model whose refresh() fails after the claim succeeded.
+    $stub = new class extends Translation
+    {
+        public function refresh(): static
+        {
+            throw new QueryException('sqlite', 'select * from "translations"', [], new PDOException('refresh failed'));
+        }
+    };
+    $stub->setRawAttributes($translation->getAttributes(), true);
+    $stub->exists = true;
+
+    $job = new ProcessTranslation($translation->getKey(), $transcription->getKey(), 'refresh-token');
+
+    $claimed = (new ReflectionMethod($job, 'claim'))->invoke($job, $stub);
+
+    $fresh = $translation->fresh();
+
+    expect($claimed)->toBeFalse()
+        ->and($fresh->status)->toBe(TranslationStatus::Failed)
+        ->and($fresh->failure_code)->toBe(TranslationFailure::ProcessingFailed)
+        ->and(app(TranslationRetry::class)->isEligible($fresh))->toBeTrue();
 });

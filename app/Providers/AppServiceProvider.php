@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\MediaFile;
 use App\Translation\HttpTranslationProvider;
 use App\Translation\TranslationProvider;
+use App\Translation\TranslationQueueConfig;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         MediaFile::assertPrivateStorageDisk();
+        TranslationQueueConfig::assertConsistent();
         $this->configureDefaults();
     }
 

@@ -64,3 +64,14 @@ Pre-review: `reviews/pre-review/P5-004B-pre-review.md` (initial) and
 `reviews/pre-review/P5-004B-corrective-pre-review.md` (corrective).
 Independent review: `reviews/P5-004B-P5-006-independent-review.md`
 (CHANGES_REQUESTED → corrective pass). Independent re-review pending.
+
+## Provenance Note (additive, 2026-09-22)
+
+Historical records are not rewritten. This task was explicitly reassigned to
+Claude Code as implementation owner because the same agent had authored the
+preceding independent review; the pre-review artifacts are labelled "OpenCode"
+(the repository's Builder role) rather than the individual agent. This additive
+note reconciles the metadata discrepancy: role labels reflect the two-agent
+model (Builder = OpenCode, Reviewer = Claude Code), while the HPO reassignment
+recorded in the Ownership section reflects the actual agent session. No prior
+artifact was altered.

@@ -44,6 +44,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Job timeout and queue retry_after reconciliation
+    |--------------------------------------------------------------------------
+    |
+    | provider timeout  : maximum provider inference time (timeout_seconds).
+    | job timeout       : per-job worker timeout; provider timeout + safety.
+    | required retry_after : minimum queue connection retry_after so a running
+    |                       job is never re-delivered while still executing.
+    | Invariant: timeout_seconds < job_timeout_seconds < retry_after_seconds.
+    |
+    */
+
+    'job_timeout_seconds' => (int) env('RTFTT_TRANSLATION_JOB_TIMEOUT_SECONDS', 330),
+
+    'retry_after_seconds' => (int) env('RTFTT_TRANSLATION_RETRY_AFTER_SECONDS', 420),
+
+    /*
+    |--------------------------------------------------------------------------
     | Stale attempt recovery
     |--------------------------------------------------------------------------
     |

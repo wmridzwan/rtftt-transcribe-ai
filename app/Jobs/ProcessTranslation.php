@@ -10,11 +10,14 @@ use App\Translation\TranslationFailure;
 use App\Translation\TranslationInvocation;
 use App\Translation\TranslationLifecycle;
 use App\Translation\TranslationProvider;
+use App\Translation\TranslationQueueConfig;
 use App\Translation\TranslationResultWriter;
 use App\Translation\TranslationSegmentData;
 use App\Translation\TranslationStatus;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Database\ConcurrencyErrorDetector;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -23,7 +26,7 @@ use InvalidArgumentException;
 use Throwable;
 
 /**
- * Asynchronous translation orchestration (ADR-022; P5-004 cycle 2).
+ * Asynchronous translation orchestration (ADR-022; P5-004 cycle 2, P5-004C).
  *
  * The payload carries only small server-controlled identifiers plus the
  * attempt token. Every state mutation is fenced by that token, so a late or
@@ -34,6 +37,12 @@ class ProcessTranslation implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 1;
+
+    /**
+     * Per-job worker timeout; safely below the queue connection retry_after so
+     * a running translation is never re-delivered mid-execution.
+     */
+    public int $timeout;
 
     public function __construct(
         public readonly int $translationId,
@@ -47,6 +56,8 @@ class ProcessTranslation implements ShouldQueue
         if ($attemptToken === '') {
             throw new InvalidArgumentException('The attempt token must not be empty.');
         }
+
+        $this->timeout = TranslationQueueConfig::jobTimeoutSeconds();
     }
 
     public function handle(
@@ -147,12 +158,26 @@ class ProcessTranslation implements ShouldQueue
         } catch (TranslationException $exception) {
             throw $exception;
         } catch (Throwable $exception) {
+            // P5-004C taxonomy: a transient persistence/concurrency failure
+            // (e.g. a lost SQLite write lock) is recoverable and must keep a
+            // retry path; a deterministic integrity/constraint failure must not
+            // be auto-retryable.
+            $transient = $this->isTransientPersistenceFailure($exception);
+            $failure = $transient
+                ? TranslationFailure::ProcessingFailed
+                : TranslationFailure::PersistenceFailed;
+
             Log::error('Translation result persistence raised an unexpected failure.', [
                 'translation_id' => $translation->getKey(),
                 'exception' => $exception::class,
+                'transient' => $transient,
             ]);
 
-            throw new TranslationException(TranslationFailure::PersistenceFailed, 'Translation persistence failed.', $exception);
+            throw new TranslationException(
+                $failure,
+                $transient ? 'Transient translation persistence failure.' : 'Translation persistence failed.',
+                $exception,
+            );
         }
 
         Log::info('Translation job completed.', [
@@ -248,6 +273,32 @@ class ProcessTranslation implements ShouldQueue
             'failure' => $failure->value,
             'message' => $safeMessage,
         ]);
+    }
+
+    /**
+     * Queue-level failure handler (P5-004C): invoked when the job is killed by
+     * the worker timeout or fails after its attempts. Token-fenced via fail(),
+     * so a killed/stale attempt can never overwrite a newer attempt.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        $translation = Translation::query()->find($this->translationId);
+
+        if ($translation === null) {
+            return;
+        }
+
+        $this->fail(
+            $translation,
+            TranslationFailure::ProcessingFailed,
+            'The translation attempt failed or timed out.',
+        );
+    }
+
+    private function isTransientPersistenceFailure(Throwable $exception): bool
+    {
+        return $exception instanceof QueryException
+            && app(ConcurrencyErrorDetector::class)->causedByConcurrencyError($exception);
     }
 
     private function skip(string $reason): void
