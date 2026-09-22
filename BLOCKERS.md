@@ -11,7 +11,20 @@ Classifications: `LOCAL_BLOCKER`, `TRACK_BLOCKER`, `CONTRACT_BLOCKER`,
 
 ## Open Blockers
 
-None.
+### B-003 — Independent review track unavailable (Claude API 500)
+- Classification: `TRACK_BLOCKER` (review track; non-stopping for safe non-implementation work)
+- Task/Source: P5-004C review; re-review of P5-002B/P5-003/P5-004/P5-005/P5-007
+- Detail: `claude` CLI is installed (2.1.278) but the API returns
+  `API Error: 500 Internal server error` as of 2026-09-22. No fresh independent
+  reviewer can be run in this session.
+- Impact: P5-004C remains `IMPLEMENTED_PENDING_REVIEW`; the corrective cycles for
+  P5-002B/P5-003/P5-004/P5-005/P5-007 remain un-re-reviewed. No task can be
+  promoted to VERIFIED by the implementer.
+- Mitigation: do not self-verify; record the pending state; resume review when
+  the Claude API recovers. Safe allowlisted debt may continue meanwhile.
+- Owner decision required: none to proceed; HPO may authorize review later.
+- Blocked work: independent review only; implementation of already-authorized
+  tasks is unaffected.
 
 ## Resolved Blockers
 
