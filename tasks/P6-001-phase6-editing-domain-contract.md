@@ -2,10 +2,23 @@
 
 ## Status
 
-READY — canonical contract authored 2026-09-23 under
-`DECISION-PHASE6-AUTHORIZATION-001`; dependencies reconciled (Phase 5 CLOSED;
-`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). Not implemented; not
-IMPLEMENTED_PENDING_REVIEW; not VERIFIED/DONE.
+IMPLEMENTED_PENDING_REVIEW — canonical contract authored 2026-09-23 under
+`DECISION-PHASE6-AUTHORIZATION-001` (dependencies reconciled: Phase 5 CLOSED;
+`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025); domain contract implemented and
+unit-tested 2026-09-23. Not VERIFIED; not DONE. Implementation owner must not
+self-verify.
+
+- Canonical specification: `PHASE6-EDITING-DOMAIN-CONTRACT.md`.
+- Domain contract: `app/Editing/` (11 classes/enums/interface).
+- Unit tests: `tests/Unit/Editing/` (30 tests, 122 assertions).
+- Quality: full PHP suite 691/690 (1 skipped, 0 failures); Pint clean; PHPStan 0.
+
+## Review
+
+Review File: pending — fresh independent review required
+(`reviews/P6-001-independent-review.md`). Builder pre-review handoff:
+`reviews/pre-review/P6-001-pre-review.md`. No browser evidence required (this
+task changes no browser behavior).
 
 ## Ownership
 
@@ -102,3 +115,55 @@ No.
 ## Owner Decision Dependencies
 
 D6-01..D6-09 (adopted); DC-01; ADR-025.
+
+## Implementation (2026-09-23)
+
+Canonical specification: `PHASE6-EDITING-DOMAIN-CONTRACT.md` (defines the
+immutable-source + editable-revision model; revision identity/version/durable
+history; active revision + optimistic concurrency; navigation identity over the
+active revision; timing invariants; split/merge identity and language carry;
+translation-invalidation policy; additive schema shape; integration-gate
+checklist; reserved Phase 4 hooks).
+
+Domain contract (`app/Editing/`):
+
+- `EditableField` — editable field vocabulary.
+- `EditKind` — textual/timing/structural edit classification.
+- `TranslationStalenessReason` — explicit staleness reasons.
+- `RevisionSegmentIdentity` — stable navigation/selection identity.
+- `RevisionSegmentData` — validated ordered revision segment.
+- `TimingInvariants` — explicit timing/overlap/zero-length/ordering policy.
+- `TranscriptRevision` — immutable revision value object.
+- `TranslationInvalidationPolicy` — every edit kind invalidates.
+- `RevisionConflictException` — stale-write conflict.
+- `RevisionRepository` — persistence contract (implemented by P6-002).
+- `MachineSegmentSnapshot` — pure machine-source snapshot.
+- `RevisionFactory` — materialize/derive revisions.
+
+Tests (`tests/Unit/Editing/`): `TimingInvariantsTest`,
+`RevisionSegmentIdentityTest`, `RevisionSegmentDataTest`,
+`TranscriptRevisionTest`, `TranslationInvalidationPolicyTest`,
+`RevisionFactoryTest`, `RevisionRepositoryContractTest` (uses the reference
+in-memory `Tests\Support\InMemoryRevisionRepository`). 30 tests, 122 assertions.
+
+### Editing/revision/timing invariants established
+
+- Machine source is immutable in place; edits live in append-only revisions with
+  durable history; exactly one active revision (null = machine source).
+- Optimistic concurrency: base revision id must equal the active revision id;
+  otherwise a stale-write conflict is thrown (no silent merge / last-writer-wins).
+- Revision segments have stable, unique `RevisionSegmentIdentity`; ordering is
+  by unique contiguous `position` (`0..n-1`), never by timestamp.
+- Per segment: finite, non-negative, `start <= end` (ms precision). Zero-length
+  is legal and never active. Overlaps are legal and resolve to the lowest
+  `position`. Cross-segment timestamp monotonicity is not required. Revision
+  timing never mutates machine timestamps.
+- Navigation identity over an edited transcript follows the active revision's
+  identity/position, not machine `segment_index`.
+- Every edit kind (textual/timing/structural) marks affected translations
+  explicitly stale with an explicit reason; translation content is never
+  silently remapped.
+- `data-seek-seconds` / `data-segment-language` remain reserved Phase 4 hooks.
+
+No migration, model, route, view, JavaScript, or frozen Phase 3/4/5 contract was
+changed.
