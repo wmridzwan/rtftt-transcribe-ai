@@ -34,13 +34,29 @@ full suite 626/625, Pint clean, PHPStan 0. Final closure report:
 Phase 6 = AUTHORIZED FOR CONTRACT AUTHORING + IMPLEMENTATION (2026-09-23,
 `DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 + DC-01 adopted via
 `DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket READY; each task is
-promoted only after its contract + dependencies are reconciled. Executed batch
-1: P6-001 = READY (canonical contract authored); P6-006 =
-IMPLEMENTED_PENDING_REVIEW (early-start exception, independence confirmed;
-implementation + feature tests + real-Chromium browser 2/2). Phase 7 remains NOT
-GENERALLY AUTHORIZED; only P7-005 (Observability Foundation) is authorized early
-(`DECISION-P7-005-AUTHORIZATION-001`) and is IMPLEMENTED_PENDING_REVIEW. Eligible
-next work and the next batch recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md`.
+promoted only after its contract + dependencies are reconciled. Current state:
+P6-001 = DONE (independently VERIFIED corrective re-review; closed
+`DECISION-P6-001-CLOSURE-001`; final domain semantics frozen in
+`PHASE6-EDITING-DOMAIN-CONTRACT.md`); P6-006 = DONE
+(`DECISION-P6-006-CLOSURE-001`); P6-002 = DONE (promoted READY
+`DECISION-P6-002-READY-001`; implemented; corrective cycle resolved the original
+MEDIUM strict-ancestor undo finding; fresh independent corrective re-review
+VERIFIED; closed `DECISION-P6-002-CLOSURE-001`). The P6-001/P6-002 foundation is
+now frozen downstream input. P6-003 and P6-007 canonical contracts are authored
+(`tasks/P6-003-text-editing-undo-redo.md`,
+`tasks/P6-007-source-translation-comparison.md`; the latter under
+`DECISION-P6-007-SCOPE-001`, presentation-only) and were explicitly promoted to
+READY by the HPO (`DECISION-P6-003-READY-001`, `DECISION-P6-007-READY-001`;
+batch `DECISION-P6-003-P6-007-READY-BATCH-001`). Both are now
+`IMPLEMENTED_PENDING_REVIEW` (implementation, tests, and real-browser DC-01
+evidence complete; not self-verified, not DONE). The missing
+`reviews/P6-002-corrective-independent-re-review.md` record-completeness gap is
+retained and P6-002 is not reopened. Phase 7 remains NOT
+GENERALLY AUTHORIZED; only P7-005 (Observability Foundation) was authorized early
+(`DECISION-P7-005-AUTHORIZATION-001`) and is DONE
+(`DECISION-P7-005-CLOSURE-001`). P6-004/P6-005/P6-008/P6-009 and all other Phase 7
+work were not started. Remaining Phase 6 candidate eligibility and the next batch
+recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md` §O.
 
 Phase 7 remains NOT GENERALLY AUTHORIZED (ADR-023;
 `PHASE5-7-EXECUTION-CLASSIFICATION.md`); early-hardening runs only where contracts

@@ -2,23 +2,29 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — canonical contract authored 2026-09-23 under
-`DECISION-PHASE6-AUTHORIZATION-001` (dependencies reconciled: Phase 5 CLOSED;
-`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025); domain contract implemented and
-unit-tested 2026-09-23. Not VERIFIED; not DONE. Implementation owner must not
-self-verify.
+DONE — independently VERIFIED and closed by the Human Product Owner
+(`DECISION-P6-001-CLOSURE-001`, 2026-09-23). Canonical contract authored
+2026-09-23 under `DECISION-PHASE6-AUTHORIZATION-001` (dependencies reconciled:
+Phase 5 CLOSED; `DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025); domain contract
+implemented and unit-tested 2026-09-23; corrective cycle applied for the
+independent review BLOCKER/HIGH/MEDIUM findings. The fresh independent
+corrective re-review (`reviews/P6-001-corrective-independent-re-review.md`)
+returned VERIFIED with no remaining BLOCKER/HIGH/MEDIUM. The canonical semantics
+are frozen inputs for downstream Phase 6 work.
 
-- Canonical specification: `PHASE6-EDITING-DOMAIN-CONTRACT.md`.
-- Domain contract: `app/Editing/` (11 classes/enums/interface).
-- Unit tests: `tests/Unit/Editing/` (30 tests, 122 assertions).
-- Quality: full PHP suite 691/690 (1 skipped, 0 failures); Pint clean; PHPStan 0.
+- Canonical specification: `PHASE6-EDITING-DOMAIN-CONTRACT.md` (FROZEN).
+- Domain contract: `app/Editing/` (13 classes/enums/interfaces).
+- Unit tests: `tests/Unit/Editing/` (48 tests, 186 assertions).
+- Quality: full PHP suite 709/708 (1 skipped, 0 failures); Pint clean; PHPStan 0.
 
 ## Review
 
-Review File: pending — fresh independent review required
-(`reviews/P6-001-independent-review.md`). Builder pre-review handoff:
-`reviews/pre-review/P6-001-pre-review.md`. No browser evidence required (this
-task changes no browser behavior).
+Review verdict: **VERIFIED** (`reviews/P6-001-independent-review.md` returned
+CHANGES_REQUESTED; corrective handoff:
+`reviews/pre-review/P6-001-corrective-pre-review.md`; fresh corrective
+independent re-review: `reviews/P6-001-corrective-independent-re-review.md`
+returned VERIFIED). All historical findings and corrective provenance are
+preserved. No browser evidence required (this task changes no browser behavior).
 
 ## Ownership
 
@@ -135,7 +141,8 @@ Domain contract (`app/Editing/`):
 - `TimingInvariants` — explicit timing/overlap/zero-length/ordering policy.
 - `TranscriptRevision` — immutable revision value object.
 - `TranslationInvalidationPolicy` — every edit kind invalidates.
-- `RevisionConflictException` — stale-write conflict.
+- `RevisionConflictException` — stale-write conflict / non-monotonic version.
+- `RevisionVersionAllocator` — transcription-scoped monotonic version contract.
 - `RevisionRepository` — persistence contract (implemented by P6-002).
 - `MachineSegmentSnapshot` — pure machine-source snapshot.
 - `RevisionFactory` — materialize/derive revisions.
@@ -143,8 +150,9 @@ Domain contract (`app/Editing/`):
 Tests (`tests/Unit/Editing/`): `TimingInvariantsTest`,
 `RevisionSegmentIdentityTest`, `RevisionSegmentDataTest`,
 `TranscriptRevisionTest`, `TranslationInvalidationPolicyTest`,
-`RevisionFactoryTest`, `RevisionRepositoryContractTest` (uses the reference
-in-memory `Tests\Support\InMemoryRevisionRepository`). 30 tests, 122 assertions.
+`RevisionFactoryTest`, `RevisionRepositoryContractTest`,
+`RevisionVersioningTest`, `RedoSemanticsTest` (use the reference in-memory
+`Tests\Support\InMemoryRevisionRepository`). 48 tests, 186 assertions.
 
 ### Editing/revision/timing invariants established
 
@@ -164,6 +172,36 @@ in-memory `Tests\Support\InMemoryRevisionRepository`). 30 tests, 122 assertions.
   explicitly stale with an explicit reason; translation content is never
   silently remapped.
 - `data-seek-seconds` / `data-segment-language` remain reserved Phase 4 hooks.
+
+### Corrective cycle (2026-09-23) — review CHANGES_REQUESTED
+
+1. **Version semantics (BLOCKER).** `version` is now a monotonic sequence
+   scoped to the transcription and independent of ancestry. `RevisionFactory::
+   derive()` no longer computes `$base->version + 1`; it obtains the next
+   version from the new `RevisionVersionAllocator` contract (implemented by the
+   repository), and `RevisionRepository::append()` re-validates monotonicity,
+   rejecting a non-monotonic version with `RevisionConflictException`. This
+   prevents duplicate `(transcription_id, version)` after
+   `undo → edit from older active revision`. Regression coverage:
+   `RevisionVersioningTest` (linear, single undo, multiple undos, multiple
+   branches, uniqueness, cross-transcription reuse, non-monotonic rejection).
+2. **Redo semantics (HIGH).** The contract now distinguishes the durable
+   revision graph/history from the user undo/redo navigation path. Redo target
+   is the active revision's unique child (`RevisionRepository::redoTargetFor()`);
+   a new edit from a non-tip active revision invalidates the prior redo path
+   (branch point → redo unavailable, never guessed), while abandoned branches
+   stay durable. `childrenOf()` exposes branch ancestry. Coverage:
+   `RedoSemanticsTest`.
+3. **Mixed-category staleness precedence (MEDIUM).** Added fixed precedence
+   `SegmentStructureChanged` > `TimingChanged` > `SourceTextChanged`
+   (`EditKind::precedence()`, `TranslationInvalidationPolicy::reasonForKinds()`).
+   Every applicable edit kind remains translation-invalidating. Coverage:
+   `TranslationInvalidationPolicyTest`.
+4. **Low test-support PHPStan findings addressed.** Removed the redundant
+   `array_values()` and added the missing `list<RevisionSegmentData>` PHPDoc.
+
+P6-002's authored contract was reconciled against these semantics but remains
+**not READY** and not implemented.
 
 No migration, model, route, view, JavaScript, or frozen Phase 3/4/5 contract was
 changed.

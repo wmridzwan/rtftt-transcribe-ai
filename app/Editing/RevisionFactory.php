@@ -4,6 +4,7 @@ namespace App\Editing;
 
 use DateTimeImmutable;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 /**
  * Constructs immutable revisions for the editable revision layer (D6-01,
@@ -13,6 +14,13 @@ use Illuminate\Support\Str;
  * revision ids, assigns contiguous positions, and links revisions through
  * `parentRevisionId`. Persisting or activating a revision is the repository's
  * responsibility (P6-002).
+ *
+ * Version assignment is **not** derived from the base revision. `version` is a
+ * monotonic sequence scoped to the transcription and independent of ancestry,
+ * so the factory obtains the next version from a
+ * {@see RevisionVersionAllocator} (the repository, in practice) rather than
+ * computing `$base->version + 1`. This keeps `(transcription_id, version)`
+ * unique even when a new revision branches from an older active revision.
  */
 final class RevisionFactory
 {
@@ -71,9 +79,12 @@ final class RevisionFactory
     /**
      * Derive a new revision from a base revision.
      *
-     * The new revision records the base as its parent and increments the
-     * version. Callers are responsible for supplying the edited segment set
-     * (including new identities for structural edits).
+     * The new revision records the base as its parent. Its version is the
+     * next transcription-scoped version supplied by `$allocator` — strictly
+     * greater than every version already allocated for the transcription,
+     * independent of the base revision's own version. Callers are responsible
+     * for supplying the edited segment set (including new identities for
+     * structural edits).
      *
      * @param  list<RevisionSegmentData>  $segments
      */
@@ -81,12 +92,23 @@ final class RevisionFactory
         TranscriptRevision $base,
         int $createdBy,
         array $segments,
+        RevisionVersionAllocator $allocator,
         ?DateTimeImmutable $createdAt = null,
     ): TranscriptRevision {
+        $version = $allocator->nextVersionFor($base->transcriptionId);
+
+        if ($version <= $base->version) {
+            throw new InvalidArgumentException(sprintf(
+                'Allocated revision version [%d] must be strictly greater than the base revision version [%d].',
+                $version,
+                $base->version,
+            ));
+        }
+
         return new TranscriptRevision(
             revisionId: $this->newRevisionId(),
             transcriptionId: $base->transcriptionId,
-            version: $base->version + 1,
+            version: $version,
             parentRevisionId: $base->revisionId,
             createdBy: $createdBy,
             createdAt: $createdAt ?? new DateTimeImmutable('now'),

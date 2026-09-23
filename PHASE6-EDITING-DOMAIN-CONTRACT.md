@@ -1,13 +1,48 @@
 # Phase 6 — Advanced Transcript Editing Domain Contract
 
 Task: `tasks/P6-001-phase6-editing-domain-contract.md`
-Status: Canonical contract base authored 2026-09-23 under
-`DECISION-PHASE6-AUTHORIZATION-001`; adopted D6 decisions (`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025).
+Status: **FROZEN** — canonical contract base authored 2026-09-23 under
+`DECISION-PHASE6-AUTHORIZATION-001`; adopted D6 decisions
+(`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025); corrected for the independent
+review BLOCKER/HIGH/MEDIUM findings; P6-001 independently VERIFIED and closed
+DONE (`DECISION-P6-001-CLOSURE-001`). The semantics in this document are frozen
+inputs for downstream Phase 6 work (P6-002+); downstream tasks must consume them
+without redefining them.
 Owner: OpenCode (implementation), Claude Code (independent review).
 
 This document is the **canonical Phase 6 editing domain contract**. It fixes the
 semantics that P6-002+ implement. It does **not** build the editing UI and does
 not perform any persistence migration.
+
+## 0. Frozen P6-001 inputs (HPO-recorded 2026-09-23)
+
+Recorded by `DECISION-P6-001-CLOSURE-001` as frozen inputs for downstream Phase 6
+work. Downstream tasks consume these; they must not redefine them.
+
+- **Editing model:** immutable machine transcript source; append-only editable
+  revisions; one active revision pointer; `null` active revision means machine
+  source; durable revision graph/history.
+- **Version semantics:** transcription-scoped and monotonic; independent of
+  ancestry; branching never reuses an existing version; `parent_revision_id`
+  represents ancestry; persistence must enforce `(transcription_id, version)`
+  uniqueness transactionally.
+- **Concurrency:** stale base revisions fail; no silent merge; active-pointer CAS
+  and version uniqueness are separate invariants; persistence races surface as
+  domain conflict, not raw database uniqueness failures.
+- **Undo/redo:** durable active-pointer movement; old descendants remain durable;
+  a new edit after undo creates a new branch; the prior redo path is invalidated
+  for automatic redo semantics; `redoTargetFor()` is valid only where a unique
+  deterministic child exists.
+- **Timing:** finite and non-negative; `start <= end`; millisecond precision;
+  overlap legal; zero-length legal but never active; positions unique and
+  contiguous; no cross-segment timestamp monotonicity; active resolution uses the
+  lowest position; revision timing never mutates machine-source timing.
+- **Navigation:** edited transcript navigation follows active revision segment
+  identity/position; do not assume machine `segment_index` after structural
+  editing.
+- **Translation invalidation:** canonical precedence
+  `SegmentStructureChanged > TimingChanged > SourceTextChanged`; all relevant
+  edit kinds remain invalidating.
 
 ## 1. Model: immutable source + editable revision
 
@@ -34,19 +69,57 @@ Ownership is inherited from the transcription: mutations require
 
 - `RevisionId`: opaque, server-generated, globally unique (UUID string). It is
   the stable identity of a revision and is **not** reused.
-- `version`: monotonically increasing integer per transcription, starting at 1.
-  `(transcription_id, version)` is unique.
-- `parent_revision_id`: the revision a new revision was derived from (nullable
-  for the initial materialization).
+- `version`: a **monotonic sequence scoped to the transcription**, independent
+  of revision ancestry. Every newly created revision receives a version
+  strictly greater than every version already allocated for that transcription
+  (starting at 1). `(transcription_id, version)` is unique. Branching from an
+  older active revision never reuses an earlier version number.
+- `parent_revision_id`: **ancestry** — the revision a new revision was derived
+  from (nullable for the initial materialization). Ancestry and version are
+  independent: `parent_revision_id` records provenance; `version` records
+  creation order.
 - `created_by`: the acting user id.
 - `created_at`: server timestamp.
 
-History is **durable**: every revision row and its segments persist; undo/redo
-navigates the active-revision pointer across that durable history (undo =
-activate an ancestor revision; redo = activate a descendant revision) and never
-rewrites revision rows. A new edit always appends a new revision derived from
-the *current* active revision, so undoing and then editing branches rather than
-overwriting history.
+Version allocation is **not** derived from the base revision. A new revision
+obtains the next transcription-scoped version from a
+`RevisionVersionAllocator` (`RevisionVersionAllocator::nextVersionFor()`; the
+repository implements it in P6-002), so an edit made after an undo receives a
+fresh version instead of colliding with the abandoned descendant's version. The
+repository re-validates monotonicity at append time and rejects a
+non-monotonic version (`RevisionConflictException`), so `(transcription_id,
+version)` cannot collide across branches.
+
+### Durable revision graph vs. user undo/redo path
+
+Two distinct structures must not be conflated:
+
+- **Durable revision graph/history.** Every revision row and its ancestry is
+  append-only and never rewritten or deleted. `parent_revision_id` expresses
+  branch ancestry; a revision may have more than one child once an
+  undo-then-edit branch exists.
+- **User undo/redo navigation path.** Undo/redo is *derived* from that graph as
+  active-revision-pointer movement; it is not browser-only state and never
+  rewrites history. Undo activates a strict ancestor. Redo activates the
+  deterministic redo target: the active revision's **unique** child.
+
+A new edit always appends a new revision derived from the *current* active
+revision, so undoing and then editing **branches** rather than overwriting
+history. Creating a new revision from an undone/non-tip active revision
+**invalidates the prior redo path** for user redo semantics:
+
+- historical revisions remain durable and visible in revision history;
+- old descendants are **not** deleted;
+- once a new edit branches from the active historical revision, that revision
+  has more than one child, so automatic redo must not choose among siblings:
+  `RevisionRepository::redoTargetFor()` returns `null`;
+- the new branch becomes the current forward history (the append moves the
+  active pointer onto the new revision);
+- explicit historical revision selection may remain possible later (P6-008),
+  but it is **not** automatic redo.
+
+Branch ancestry is queryable through `RevisionRepository::childrenOf()`; redo
+never guesses among siblings.
 
 ## 3. Active revision and optimistic concurrency (revision token)
 
@@ -59,7 +132,18 @@ overwriting history.
   wins.
 - Activating a revision is itself a compare-and-set against the current active
   revision id.
+- Appending a revision is compare-and-set against the current active revision
+  id **and** enforces branch ancestry: the new revision's `parent_revision_id`
+  must equal the base revision id it was composed against (both `null` for the
+  initial materialization). A new edit therefore always branches from the
+  current active revision.
+- Append additionally re-validates transcription-scoped monotonicity: a version
+  that is not strictly greater than every version already allocated for the
+  transcription is rejected with `RevisionConflictException`.
 - The active revision id is the revision token. No separate token is introduced.
+- Active-pointer movement is deterministic: appending sets the active revision
+  to the newly appended revision (the new branch is the current forward
+  history); activating sets it to the explicitly requested revision.
 
 ## 4. Revision segment: identity and ordering
 
@@ -152,6 +236,22 @@ Every edit kind is invalidating; the policy exposes `reasonFor()` and
 implemented by the P6-005 translation-invalidation contract; P6-001 only fixes
 the policy.
 
+#### Mixed-category edit precedence
+
+When one edit operation spans more than one category (for example a single save
+that changes both segment text and timing), the canonical reason recorded is
+selected by a fixed precedence — **most invasive wins**:
+
+`SegmentStructureChanged` > `TimingChanged` > `SourceTextChanged`
+
+That is: any structural identity/split/merge-style change wins; otherwise a
+timing change wins over a text-only change; otherwise the source-text change is
+used. This precedence selects only the canonical staleness reason (audit/display
+trail); **every applicable edit kind remains translation-invalidating**, and no
+translation is ever silently preserved as current. The rule is implemented by
+`TranslationInvalidationPolicy::reasonForKinds()` (and
+`EditKind::precedence()`).
+
 ## 8. Navigation identity over edited transcripts
 
 Incorporates the P6-006 finding: after split/merge, machine `segment_index` is
@@ -187,7 +287,7 @@ P6-002 will add the following additive shape. No column on
 |---|---|---|
 | `id` | string (uuid), primary | server-generated revision id |
 | `transcription_id` | bigint FK → `transcriptions`, cascade delete | owning transcription |
-| `version` | unsigned integer | monotonic per transcription, starts at 1 |
+| `version` | unsigned integer | monotonic transcription-scoped sequence, independent of ancestry, starts at 1; next value allocated via `RevisionVersionAllocator` and re-validated at append |
 | `parent_revision_id` | string nullable | prior revision |
 | `created_by` | bigint FK → `users` | actor |
 | `created_at` / `updated_at` | timestamps | server time |
@@ -222,7 +322,9 @@ nullable) and `translations.staleness_reason` (string, nullable).
 Recorded here; executed at the Phase 6 terminal gate:
 
 1. edit → persist → reload round-trips (text, timing, language carried);
-2. undo/redo derives from durable history and survives reload;
+2. undo/redo derives from durable history and survives reload; versions remain
+   unique per transcription across undo-then-branch, and automatic redo is
+   unavailable (not guessed) at a branch point;
 3. timing edits validated under §5 (reject invalid; accept overlap/zero-length);
 4. split/merge alignment, identity rotation, and language carry;
 5. source/translation comparison reflects the active revision;

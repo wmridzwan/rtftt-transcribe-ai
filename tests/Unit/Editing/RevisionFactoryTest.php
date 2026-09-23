@@ -6,6 +6,7 @@ use App\Editing\RevisionSegmentData;
 use App\Editing\RevisionSegmentIdentity;
 use App\Transcription\LanguageIdentifier;
 use Illuminate\Support\Str;
+use Tests\Support\InMemoryRevisionRepository;
 
 function editingSnapshot(int $index, float $start, float $end, string $text, LanguageIdentifier $language): MachineSegmentSnapshot
 {
@@ -55,11 +56,13 @@ it('materializes an empty revision when the machine source has no segments', fun
         ->and($revision->version)->toBe(1);
 });
 
-it('derives a new revision linked to its parent with an incremented version', function () {
+it('derives a new revision linked to its parent with a transcription-scoped version', function () {
     $factory = new RevisionFactory;
+    $repository = new InMemoryRevisionRepository;
     $base = $factory->materializeInitial(42, 7, [
         editingSnapshot(0, 0.0, 5.0, 'first', LanguageIdentifier::Malay),
     ]);
+    $repository->append($base, null);
 
     $derived = $factory->derive($base, 9, [
         new RevisionSegmentData(
@@ -70,7 +73,7 @@ it('derives a new revision linked to its parent with an incremented version', fu
             text: 'edited',
             language: LanguageIdentifier::Malay,
         ),
-    ]);
+    ], $repository);
 
     expect($derived->revisionId)->not->toBe($base->revisionId)
         ->and($derived->version)->toBe(2)

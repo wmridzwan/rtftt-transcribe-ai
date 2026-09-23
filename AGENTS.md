@@ -97,16 +97,25 @@ browser-to-real-model proof. LOW/INFO debt carried non-blocking
 IMPLEMENTATION (2026-09-23, `DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 +
 DC-01 adopted via `DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket
 READY: each task is promoted to READY only after its canonical contract exists
-and dependencies are reconciled. Executed batch 1: P6-001 = READY (contract
-authored); P6-006 = IMPLEMENTED_PENDING_REVIEW (early-start exception,
-`DECISION-P6-006-AUTHORIZATION-001`). D6-08/D6-09 remain DEFERRED. Phase 6 may
-not close automatically. Eligibility: `PHASE6-7-ELIGIBILITY-MATRIX.md`.
+and dependencies are reconciled. P6-001 = DONE (independently VERIFIED;
+`DECISION-P6-001-CLOSURE-001`; frozen domain semantics in
+`PHASE6-EDITING-DOMAIN-CONTRACT.md`). P6-006 = DONE
+(`DECISION-P6-006-CLOSURE-001`). P6-002 = DONE (promoted READY
+`DECISION-P6-002-READY-001`; revision persistence/version history implemented;
+corrective strict-ancestor undo fix independently re-verified; closed
+`DECISION-P6-002-CLOSURE-001`). The P6-001/P6-002 foundation is frozen downstream
+input. P6-003/P6-007 canonical contracts are authored and `CONTRACT_AUTHORED —
+PENDING HPO READY PROMOTION` (not READY, not implemented; P6-007 is
+presentation-only under `DECISION-P6-007-SCOPE-001`). D6-08/D6-09 remain DEFERRED.
+Phase 6 may not close automatically. Eligibility:
+`PHASE6-7-ELIGIBILITY-MATRIX.md`.
 
 **Phase 7**: Production Hardening. NOT GENERALLY AUTHORIZED. Only P7-005
-(Observability Foundation) is authorized early
-(`DECISION-P7-005-AUTHORIZATION-001`) and is IMPLEMENTED_PENDING_REVIEW; P7-003,
-P7-008, P7-010, and all other Phase 7 implementation remain not authorized.
-Phase 7 cannot close before Phase 6 is CLOSED; P7-012 remains FINAL_GATE_ONLY.
+(Observability Foundation) was authorized early
+(`DECISION-P7-005-AUTHORIZATION-001`) and is DONE
+(`DECISION-P7-005-CLOSURE-001`); P7-003, P7-008, P7-010, and all other Phase 7
+implementation remain not authorized. Phase 7 cannot close before Phase 6 is
+CLOSED; P7-012 remains FINAL_GATE_ONLY.
 
 Phase 3 boundary (ADR-017):
 - provider-neutral Laravel transcription domain

@@ -146,9 +146,15 @@ report: `PHASE5-CLOSURE-REPORT.md`. Controlled-parallel execution applies
 ### Phase 6 — Advanced Transcript UX
 AUTHORIZED FOR CONTRACT AUTHORING + IMPLEMENTATION (2026-09-23,
 `DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 + DC-01 adopted via
-`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket READY. Batch 1:
-P6-001 = READY (contract); P6-006 = IMPLEMENTED_PENDING_REVIEW (early-start
-exception). D6-08/D6-09 deferred. Eligibility: `PHASE6-7-ELIGIBILITY-MATRIX.md`.
+`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket READY. P6-001 = DONE
+(contract foundation), P6-006 = DONE (early-start), P6-002 = DONE (revision
+persistence; corrective strict-ancestor undo fix independently re-verified;
+`DECISION-P6-002-CLOSURE-001`). The P6-001/P6-002 foundation is frozen downstream
+input. P6-003/P6-007 canonical contracts are authored (`CONTRACT_AUTHORED —
+PENDING HPO READY PROMOTION`; P6-007 presentation-only under
+`DECISION-P6-007-SCOPE-001`). P6-004/P6-005/P6-008 remain not started and require
+their own contracts + HPO READY promotions; P6-009 is FINAL_GATE_ONLY.
+D6-08/D6-09 deferred. Eligibility: `PHASE6-7-ELIGIBILITY-MATRIX.md`.
 
 ### Phase 7 — Production Hardening
 NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023;
@@ -169,7 +175,7 @@ renumbered by an external product roadmap:
 3. Real Transcription Engine (ADR-017) — CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3 closed)
 4. Transcript Experience baseline (ADR-019) — CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE
 5. Translation — CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001); P5-001..P5-008 DONE
-6. Advanced Transcript UX — AUTHORIZED (contract authoring + implementation; DECISION-PHASE6-AUTHORIZATION-001; no blanket READY)
+6. Advanced Transcript UX — AUTHORIZED (contract authoring + implementation; DECISION-PHASE6-AUTHORIZATION-001; no blanket READY); P6-001/P6-006/P6-002 DONE; P6-001/P6-002 foundation frozen downstream input
 7. Production Hardening — not generally authorized; P7-005 early only (cannot close before Phase 6)
 
 Voxora is the long-term product and brand; RTFTT remains the current

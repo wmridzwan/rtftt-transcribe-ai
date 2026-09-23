@@ -10,8 +10,10 @@ use InvalidArgumentException;
 /**
  * Reference in-memory implementation of the P6-001 {@see RevisionRepository}
  * contract. It exists to pin the contract semantics (append-only history,
- * compare-and-set active pointer, stale-base rejection) for unit tests; it is
- * not application code and is not registered in the container.
+ * transcription-scoped monotonic version allocation, compare-and-set active
+ * pointer, stale-base rejection, branch ancestry, deterministic redo target)
+ * for unit tests; it is not application code and is not registered in the
+ * container.
  */
 final class InMemoryRevisionRepository implements RevisionRepository
 {
@@ -47,7 +49,48 @@ final class InMemoryRevisionRepository implements RevisionRepository
 
         usort($revisions, static fn (TranscriptRevision $a, TranscriptRevision $b): int => $a->version <=> $b->version);
 
-        return array_values($revisions);
+        return $revisions;
+    }
+
+    public function childrenOf(string $revisionId): array
+    {
+        $children = [];
+
+        foreach ($this->history as $revisions) {
+            foreach ($revisions as $revision) {
+                if ($revision->parentRevisionId === $revisionId) {
+                    $children[] = $revision;
+                }
+            }
+        }
+
+        usort($children, static fn (TranscriptRevision $a, TranscriptRevision $b): int => $a->version <=> $b->version);
+
+        return $children;
+    }
+
+    public function redoTargetFor(int $transcriptionId): ?TranscriptRevision
+    {
+        $active = $this->activeFor($transcriptionId);
+
+        if ($active === null) {
+            return null;
+        }
+
+        $children = $this->childrenOf($active->revisionId);
+
+        return count($children) === 1 ? $children[0] : null;
+    }
+
+    public function nextVersionFor(int $transcriptionId): int
+    {
+        $max = 0;
+
+        foreach ($this->history[$transcriptionId] ?? [] as $revision) {
+            $max = max($max, $revision->version);
+        }
+
+        return $max + 1;
     }
 
     public function append(TranscriptRevision $revision, ?string $expectedActiveRevisionId): TranscriptRevision
@@ -60,6 +103,20 @@ final class InMemoryRevisionRepository implements RevisionRepository
 
         if ($this->find($revision->revisionId) !== null) {
             throw new InvalidArgumentException('Revision id ['.$revision->revisionId.'] already exists.');
+        }
+
+        if ($revision->parentRevisionId !== $expectedActiveRevisionId) {
+            throw new InvalidArgumentException(sprintf(
+                'Revision parent [%s] must equal the expected active revision [%s].',
+                $revision->parentRevisionId ?? 'machine source',
+                $expectedActiveRevisionId ?? 'machine source',
+            ));
+        }
+
+        $maxExisting = $this->nextVersionFor($revision->transcriptionId) - 1;
+
+        if ($revision->version <= $maxExisting) {
+            throw RevisionConflictException::nonMonotonicVersion($revision->version, $maxExisting);
         }
 
         $this->history[$revision->transcriptionId][] = $revision;
@@ -76,8 +133,10 @@ final class InMemoryRevisionRepository implements RevisionRepository
             throw RevisionConflictException::staleBase($expectedActiveRevisionId, $current);
         }
 
-        if ($this->find($revisionId) === null) {
-            throw new InvalidArgumentException('Unknown revision id ['.$revisionId.'].');
+        $target = $this->find($revisionId);
+
+        if ($target === null || $target->transcriptionId !== $transcriptionId) {
+            throw new InvalidArgumentException('Unknown revision id ['.$revisionId.'] for transcription ['.$transcriptionId.'].');
         }
 
         $this->active[$transcriptionId] = $revisionId;

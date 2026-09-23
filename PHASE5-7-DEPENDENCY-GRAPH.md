@@ -69,6 +69,30 @@ Notes:
 - P6-008 is conditional on D6-02; if D6-02 excludes persistent history, P6-008
   is cancelled and excluded from the P6-009 gate.
 
+### Phase 6 DAG status — 2026-09-23 (reconciliation)
+
+The DAG above is the frozen dependency structure; this note records completion
+state only (no dependency was changed).
+
+```text
+P6-001 = DONE   (DECISION-P6-001-CLOSURE-001)
+P6-002 = DONE   (DECISION-P6-002-CLOSURE-001)
+P6-006 = DONE   (DECISION-P6-006-CLOSURE-001)
+P6-003 = CONTRACT_AUTHORED (gate P6-002 DONE satisfied; pending HPO READY)
+P6-004 = NOT STARTED   (gate P6-002 DONE now satisfied; contract required)
+P6-005 = NOT STARTED   (still gated on P6-004 DONE; contract required)
+P6-007 = CONTRACT_AUTHORED (gate P6-002 DONE + P5 DONE satisfied; presentation-only
+                        under DECISION-P6-007-SCOPE-001; pending HPO READY)
+P6-008 = NOT STARTED   (gate P6-002 DONE satisfied; D6-02 selects persistent
+                        history; contract required)
+P6-009 = FINAL_GATE_ONLY (gated on P6-003..P6-008 DONE)
+```
+
+`P6-002 DONE → P6-003, P6-004, P6-006, P6-007, P6-008` is now satisfied for the
+eligible downstream tasks; each still requires its own canonical contract and an
+explicit HPO READY promotion. No Phase 6/7 implementation was started by this
+status reconciliation.
+
 ## Phase 7 DAG
 
 ```text

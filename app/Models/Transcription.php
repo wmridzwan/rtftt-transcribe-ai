@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property bool|null $speech_detected
  * @property string|null $model
  * @property TranscriptionStatus $status
+ * @property string|null $active_revision_id
  * @property string|null $full_text
  * @property Carbon|null $started_at
  * @property Carbon|null $completed_at
@@ -42,6 +43,7 @@ class Transcription extends Model
         'speech_detected',
         'model',
         'status',
+        'active_revision_id',
         'full_text',
         'started_at',
         'completed_at',
@@ -82,6 +84,18 @@ class Transcription extends Model
     public function translations(): HasMany
     {
         return $this->hasMany(Translation::class);
+    }
+
+    /** @return HasMany<TranscriptRevisionModel, $this> */
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(TranscriptRevisionModel::class)->orderBy('version');
+    }
+
+    /** @return BelongsTo<TranscriptRevisionModel, $this> */
+    public function activeRevision(): BelongsTo
+    {
+        return $this->belongsTo(TranscriptRevisionModel::class, 'active_revision_id');
     }
 
     /** @return HasMany<ProcessingJob, $this> */

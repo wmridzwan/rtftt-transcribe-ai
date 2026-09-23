@@ -1,9 +1,13 @@
 <?php
 
+use App\Editing\RevisionSegmentData;
 use App\Editing\RevisionSegmentIdentity;
 use App\Editing\TranscriptRevision;
 use Tests\Support\EditingFixtures;
 
+/**
+ * @param  list<RevisionSegmentData>  $segments
+ */
 function editingRevision(array $segments = [], ?string $parent = null, int $version = 1): TranscriptRevision
 {
     return new TranscriptRevision(

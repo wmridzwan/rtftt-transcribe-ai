@@ -22,6 +22,15 @@ final class RevisionConflictException extends RuntimeException
         ));
     }
 
+    public static function nonMonotonicVersion(int $version, int $maxExistingVersion): self
+    {
+        return new self(sprintf(
+            'Non-monotonic revision version [%d]: version must be strictly greater than the maximum existing version [%d] for the transcription.',
+            $version,
+            $maxExistingVersion,
+        ));
+    }
+
     private static function describe(?string $revisionId): string
     {
         return $revisionId === null || $revisionId === '' ? 'machine source' : $revisionId;

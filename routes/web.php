@@ -11,6 +11,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TranscriptionActionController;
 use App\Http\Controllers\TranscriptionController;
 use App\Http\Controllers\TranscriptionExportController;
+use App\Http\Controllers\TranscriptRevisionController;
 use App\Livewire\Folders\Index as FoldersIndex;
 use App\Livewire\Media\Show as MediaShow;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/transcriptions/{transcription}/rename', [TranscriptionActionController::class, 'rename'])->name('transcriptions.rename');
     Route::post('/transcriptions/{transcription}/retry', [TranscriptionActionController::class, 'retry'])->name('transcriptions.retry');
     Route::delete('/transcriptions/{transcription}', [TranscriptionActionController::class, 'destroy'])->name('transcriptions.destroy');
+
+    // P6-003 text editing + undo/redo (append-only revision layer).
+    Route::post('/transcriptions/{transcription}/revisions', [TranscriptRevisionController::class, 'store'])->name('transcriptions.revisions.store');
+    Route::post('/transcriptions/{transcription}/revisions/undo', [TranscriptRevisionController::class, 'undo'])->name('transcriptions.revisions.undo');
+    Route::post('/transcriptions/{transcription}/revisions/redo', [TranscriptRevisionController::class, 'redo'])->name('transcriptions.revisions.redo');
 
     Route::get('/transcriptions/{transcription}/export/txt', [TranscriptionExportController::class, 'exportTxt'])->name('transcriptions.export.txt');
     Route::get('/transcriptions/{transcription}/export/srt', [TranscriptionExportController::class, 'exportSrt'])->name('transcriptions.export.srt');

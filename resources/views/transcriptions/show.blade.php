@@ -3,7 +3,7 @@
         $canExport = $transcription->status === \App\Enums\TranscriptionStatus::Completed;
     @endphp
 
-    <div class="flex h-full w-full flex-1 flex-col gap-6" x-data="{ activeTab: 'transcript', showRenameModal: {{ request()->boolean('rename') ? 'true' : 'false' }} }">
+    <div class="flex h-full w-full flex-1 flex-col gap-6" x-data="{ activeTab: 'transcript', transcriptView: 'normal', showRenameModal: {{ request()->boolean('rename') ? 'true' : 'false' }} }">
         <div class="flex items-center gap-4">
             <flux:button href="{{ route('transcriptions.index') }}" icon="arrow-left" variant="subtle" size="sm" wire:navigate>All Transcriptions</flux:button>
             <x-page-header :title="$transcription->title" :description="'Transcription details and transcript'" />
@@ -103,17 +103,20 @@
                                 </div>
                             @endif
 
-                            @if ($transcription->segments->isEmpty())
+                            @if ($displaySegments === [])
                                 <x-empty-state
                                     title="No transcript segments"
                                     description="This transcription does not have any segments yet."
                                     icon="document-text"
                                 />
                             @else
-                                <div
-                                    class="space-y-4"
-                                    x-data="transcriptSearch({ fullText: @js($fullTranscriptText) })"
-                                >
+                                @include('transcriptions.partials.source-translation-comparison')
+                                <div x-data="transcriptEditing({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })" x-show="transcriptView === 'normal'">
+                                    @include('transcriptions.partials.revision-toolbar')
+                                    <div
+                                        class="space-y-4"
+                                        x-data="transcriptSearch({ fullText: @js($fullTranscriptText) })"
+                                    >
                                     <div class="flex flex-wrap items-center gap-2">
                                         <input
                                             type="search"
@@ -147,6 +150,9 @@
                                         <span class="sr-only" data-transcript-nav-status role="status" aria-live="polite" x-text="navStatus"></span>
                                     </div>
 
+                                    <form id="revision-edit-form" method="POST" action="{{ route('transcriptions.revisions.store', $transcription) }}" data-edit-form>
+                                        @csrf
+                                        <input type="hidden" name="expected_base" value="{{ $activeRevisionId ?? '' }}">
                                     <div
                                         data-transcript-region
                                         tabindex="0"
@@ -157,37 +163,51 @@
                                         x-on:keydown="onKeydown($event)"
                                         class="max-h-[70vh] space-y-3 overflow-y-auto pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                                     >
-                                        @foreach ($transcription->segments as $segment)
+                                        @foreach ($displaySegments as $segment)
                                             <div
                                                 data-segment-row
-                                                data-segment-index="{{ $segment->segment_index }}"
-                                                data-filter-language="{{ $segment->language?->value ?? 'und' }}"
-                                                data-nav-seconds="{{ $segment->seek_seconds }}"
+                                                data-segment-index="{{ $segment['nav_index'] }}"
+                                                data-filter-language="{{ $segment['language'] }}"
+                                                data-nav-seconds="{{ $segment['seek'] }}"
                                                 class="flex gap-4 rounded-md p-1 transition-colors"
                                             >
                                                 <div class="flex-shrink-0">
                                                     <button
                                                         type="button"
-                                                        data-seek-seconds="{{ $segment->seek_seconds }}"
+                                                        data-seek-seconds="{{ $segment['seek'] }}"
                                                         x-on:click="$dispatch('p4-seek', { seconds: Number($el.dataset.seekSeconds) })"
-                                                        aria-label="Seek to {{ $segment->formatted_start }}"
+                                                        aria-label="Seek to {{ $segment['formatted_start'] }}"
                                                         class="inline-block rounded bg-zinc-100 px-2 py-1 font-mono text-xs text-zinc-600 hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600"
-                                                    >{{ $segment->formatted_start }}</button>
+                                                    >{{ $segment['formatted_start'] }}</button>
                                                 </div>
-                                                <div
-                                                    class="flex-1 text-sm text-zinc-700 dark:text-zinc-300"
-                                                    data-segment-text
-                                                    data-segment-index="{{ $segment->segment_index }}"
-                                                >{{ $segment->text }}</div>
+                                                <div class="flex-1 text-sm text-zinc-700 dark:text-zinc-300">
+                                                    <div
+                                                        data-segment-text
+                                                        data-segment-index="{{ $segment['nav_index'] }}"
+                                                        x-show="! editMode"
+                                                    >{{ $segment['text'] }}</div>
+                                                    <textarea
+                                                        data-edit-text
+                                                        data-edit-position="{{ $segment['position'] }}"
+                                                        name="segments[{{ $segment['position'] }}]"
+                                                        rows="2"
+                                                        x-show="editMode"
+                                                        style="display: none"
+                                                        aria-label="Edit segment {{ $segment['position'] + 1 }} text"
+                                                        class="w-full rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm text-zinc-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                                                    >{{ $segment['text'] }}</textarea>
+                                                </div>
                                                 <div class="flex flex-shrink-0 items-start gap-2">
                                                     <span
-                                                        data-segment-language="{{ $segment->language?->value ?? 'und' }}"
+                                                        data-segment-language="{{ $segment['language'] }}"
                                                         class="inline-block rounded bg-zinc-100 px-2 py-1 font-mono text-xs uppercase text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
-                                                    >{{ $segment->language?->value ?? 'und' }}</span>
-                                                    <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="copySegment({{ $segment->segment_index }})" aria-label="Copy segment">Copy</button>
+                                                    >{{ $segment['language'] }}</span>
+                                                    <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="copySegment({{ $segment['nav_index'] }})" aria-label="Copy segment">Copy</button>
                                                 </div>
                                             </div>
                                         @endforeach
+                                    </div>
+                                    </form>
                                     </div>
                                 </div>
                             @endif
@@ -417,6 +437,45 @@
                     player.currentTime = target;
                     this.autoScroll = true;
                     this.updateActive();
+                },
+            };
+        };
+
+        window.transcriptEditing = window.transcriptEditing || function (config) {
+            return {
+                editMode: false,
+                canEdit: config.canEdit ?? false,
+                init() {
+                    this.$watch('editMode', (value) => {
+                        if (value && this.$nextTick) {
+                            this.$nextTick(() => {
+                                const first = this.$el.querySelector('[data-edit-text]');
+                                if (first) {
+                                    first.focus();
+                                }
+                            });
+                        }
+                    });
+                },
+                enter() {
+                    if (! this.canEdit) {
+                        return;
+                    }
+                    this.editMode = true;
+                },
+                cancel() {
+                    // Discard local edits: no request is sent and nothing is
+                    // persisted. Restore textareas to their rendered source.
+                    this.$el.querySelectorAll('[data-edit-text]').forEach((el) => {
+                        el.value = el.defaultValue;
+                    });
+                    this.editMode = false;
+                    this.$nextTick(() => {
+                        const trigger = this.$el.querySelector('[data-edit-enter]');
+                        if (trigger) {
+                            trigger.focus();
+                        }
+                    });
                 },
             };
         };

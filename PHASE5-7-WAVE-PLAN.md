@@ -103,6 +103,12 @@ if their dependencies are already satisfied.
 Phase 6 waves assume Phase 5 is CLOSED (except a separately HPO-approved
 no-Phase-5-dependency task such as P6-006).
 
+Status (2026-09-23): WAVE P6-1 (P6-001) = DONE; WAVE P6-2 (P6-002) = DONE
+(`DECISION-P6-002-CLOSURE-001`); P6-006 (part of WAVE P6-4) = DONE
+(`DECISION-P6-006-CLOSURE-001`). WAVE P6-3/P6-4/P6-5/P6-6/P6-7 remain not
+started. The wave structure is unchanged; see `PHASE6-7-ELIGIBILITY-MATRIX.md`
+§M for the remaining-candidate classification and next-batch recommendation.
+
 ### WAVE P6-1 — Phase 6 contract
 - Tasks: **P6-001** (Phase 6 UX + Editing Contract)
 - Parallelizable: none

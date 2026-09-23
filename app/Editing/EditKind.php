@@ -26,4 +26,20 @@ enum EditKind: string
             self::Structural => TranslationStalenessReason::SegmentStructureChanged,
         };
     }
+
+    /**
+     * Precedence of this edit kind when a single edit spans more than one
+     * category (D6-04). Higher wins: `Structural` > `Timing` > `Textual`.
+     *
+     * This selects only the canonical staleness reason recorded for the edit;
+     * every applicable kind remains translation-invalidating regardless.
+     */
+    public function precedence(): int
+    {
+        return match ($this) {
+            self::Structural => 3,
+            self::Timing => 2,
+            self::Textual => 1,
+        };
+    }
 }

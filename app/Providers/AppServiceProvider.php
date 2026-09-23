@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Editing\Persistence\EloquentRevisionRepository;
+use App\Editing\RevisionRepository;
 use App\Models\MediaFile;
 use App\Translation\HttpTranslationProvider;
 use App\Translation\TranslationProvider;
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(RevisionRepository::class, EloquentRevisionRepository::class);
+
         $this->app->singleton(TranslationProvider::class, function () {
             return new HttpTranslationProvider(
                 workerBaseUrl: (string) config('translation.worker_url', 'http://localhost:8000'),

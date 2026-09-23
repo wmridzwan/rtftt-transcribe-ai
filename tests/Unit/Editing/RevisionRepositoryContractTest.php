@@ -21,7 +21,7 @@ it('appends revisions additively and tracks the active revision via compare-and-
         ->and($repository->find($initial->revisionId))->toBe($initial)
         ->and($repository->find('missing'))->toBeNull();
 
-    $derived = $factory->derive($initial, 7, []);
+    $derived = $factory->derive($initial, 7, [], $repository);
     $repository->append($derived, $initial->revisionId);
 
     expect($repository->activeFor(10)?->revisionId)->toBe($derived->revisionId)
@@ -37,7 +37,7 @@ it('rejects a stale append without mutating history', function () {
     $initial = $factory->materializeInitial(10, 7, []);
     $repository->append($initial, null);
 
-    $derived = $factory->derive($initial, 7, []);
+    $derived = $factory->derive($initial, 7, [], $repository);
 
     expect(fn () => $repository->append($derived, 'some-other-revision'))
         ->toThrow(RevisionConflictException::class);
@@ -52,7 +52,7 @@ it('activates a prior revision only against the expected current revision', func
 
     $initial = $factory->materializeInitial(10, 7, []);
     $repository->append($initial, null);
-    $derived = $factory->derive($initial, 7, []);
+    $derived = $factory->derive($initial, 7, [], $repository);
     $repository->append($derived, $initial->revisionId);
 
     // Undo-style activation of the earlier revision (append-only history kept).
@@ -69,6 +69,22 @@ it('rejects activation of an unknown revision', function () {
     $repository = editingRepository();
 
     expect(fn () => $repository->activate(10, 'unknown', null))->toThrow(InvalidArgumentException::class);
+});
+
+it('rejects activation of a revision from another transcription', function () {
+    $repository = editingRepository();
+    $factory = new RevisionFactory;
+
+    $a = $factory->materializeInitial(1, 7, []);
+    $b = $factory->materializeInitial(2, 7, []);
+    $repository->append($a, null);
+    $repository->append($b, null);
+
+    expect(fn () => $repository->activate(1, $b->revisionId, $a->revisionId))
+        ->toThrow(InvalidArgumentException::class);
+
+    expect($repository->activeFor(1)?->revisionId)->toBe($a->revisionId)
+        ->and($repository->activeFor(2)?->revisionId)->toBe($b->revisionId);
 });
 
 it('keeps history independent per transcription', function () {

@@ -3241,3 +3241,286 @@ not gate P6-006/P7-005 closure or Phase 6 mainline.
 Blocks: None.
 
 Does Not Block: P6-001 implementation; P6-002 contract authoring.
+
+### DECISION-P6-001-CLOSURE-001 — Accept the fresh independent P6-001 corrective re-review and close P6-001 DONE
+
+Decision ID: DECISION-P6-001-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Task Closure
+
+Originating Task: P6-001 (Phase 6 Editing Domain / Contract Foundation)
+
+Question:
+
+Should the fresh independent corrective re-review verdict (`VERIFIED`) be
+accepted, P6-001 be closed DONE, and its final domain semantics be recorded as
+frozen inputs for downstream Phase 6 work?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-23. The fresh independent corrective re-review
+(`reviews/P6-001-corrective-independent-re-review.md`) returned **VERIFIED** with
+no remaining BLOCKER/HIGH/MEDIUM. All prior findings were independently confirmed
+resolved:
+
+- BLOCKER — undo→branch version collision: resolved (transcription-scoped
+  monotonic version; append-time re-validation; `RevisionConflictException`);
+- HIGH — undefined redo target under branching: resolved (`redoTargetFor`
+  unique-child rule; branch-point redo unavailable; old branches durable);
+- MEDIUM — mixed-category staleness precedence: resolved
+  (`SegmentStructureChanged > TimingChanged > SourceTextChanged`);
+- LOW — test-support PHPStan findings: resolved.
+
+The reviewer independently reproduced branch-after-undo version uniqueness,
+multiple-undo / multiple-branch scenarios, redo determinism at branch points,
+mixed invalidation precedence, `tests/Unit/Editing`, the full suite, Pint,
+PHPStan (default and extended scope), and scope discipline. One non-blocking INFO
+(unrelated pre-existing flaky test in the full suite) is preserved.
+
+P6-001 is transitioned `VERIFIED → DONE`. All historical artifacts are preserved
+unchanged: `reviews/P6-001-independent-review.md` (original CHANGES_REQUESTED),
+`reviews/pre-review/P6-001-corrective-pre-review.md` (corrective handoff), and
+`reviews/P6-001-corrective-independent-re-review.md` (VERIFIED).
+
+**Recorded frozen P6-001 domain semantics** (`PHASE6-EDITING-DOMAIN-CONTRACT.md`
+§0), as frozen inputs for downstream Phase 6 work: immutable machine source +
+append-only editable revisions + one active pointer (`null` = machine source) +
+durable revision graph/history; transcription-scoped monotonic `version`
+independent of ancestry with transactional `(transcription_id, version)`
+uniqueness and `parent_revision_id` ancestry; stale-base failure with no silent
+merge and separate active-pointer-CAS / version-uniqueness invariants surfacing
+domain conflict (not raw DB errors); durable active-pointer undo/redo with
+branch-after-undo, durable old descendants, prior-redo-path invalidation, and
+`redoTargetFor()` valid only for a unique deterministic child; timing invariants
+(finite/non-negative, `start <= end`, ms precision, overlap legal, zero-length
+legal-but-never-active, unique/contiguous positions, no cross-segment
+monotonicity, lowest-position active resolution, revision timing never mutates
+machine timing); active-revision segment identity/position navigation (not
+machine `segment_index`); translation invalidation precedence
+`SegmentStructureChanged > TimingChanged > SourceTextChanged` with all relevant
+edit kinds invalidating. Downstream tasks consume these without redefining them.
+
+Blocks: None.
+
+Does Not Block: `DECISION-P6-002-READY-001`; Phase 6 mainline.
+
+### DECISION-P6-002-READY-001 — Promote P6-002 to READY and authorize implementation
+
+Decision ID: DECISION-P6-002-READY-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Readiness Promotion / Implementation Authorization
+
+Originating Task: P6-002 (Revision Persistence / Version History)
+
+Question:
+
+May P6-002 proceed from its authored-and-reconciled contract to implementation?
+
+Resolution:
+
+HPO-PROMOTED 2026-09-23. P6-001 is DONE and its semantics are frozen
+(`DECISION-P6-001-CLOSURE-001`); the P6-002 contract was authored and reconciled
+against the corrected P6-001 version-allocation / redo semantics. P6-002 is
+promoted to **READY** and authorized to implement within its canonical contract.
+
+Implementation must consume the frozen P6-001 semantics without redefining them
+and must safely persist `transcript_revisions`, `transcript_revision_segments`,
+`transcriptions.active_revision_id`, transcription-scoped monotonic versions,
+parent ancestry, the active pointer, immutable historical revisions, revision
+segment identity/position, and durable history — with `(transcription_id,
+version)` uniqueness enforced transactionally and DB uniqueness/locking
+conflicts translated into the canonical domain conflict.
+
+Scope restriction: P6-003, P6-004, P6-005, P6-007, P6-008, P6-009, and any new
+Phase 7 task remain not started; split/merge UI and translation-staleness
+persistence are out of P6-002 scope.
+
+Blocks: None.
+
+Does Not Block: Other Phase 6 tasks (each still requires its own contract and an
+HPO READY promotion); Phase 7 remains not generally authorized.
+
+### DECISION-P6-002-CLOSURE-001 — Accept the fresh independent P6-002 corrective re-review and close P6-002 DONE
+
+Decision ID: DECISION-P6-002-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Task Closure
+
+Originating Task: P6-002 (Revision Persistence / Version History)
+
+Question:
+
+Should the fresh independent corrective re-review verdict (`VERIFIED`) be
+accepted and P6-002 be closed DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-23. The fresh independent corrective re-review returned
+**VERIFIED** with no BLOCKER/HIGH/MEDIUM/LOW/INFO findings remaining. The reviewer
+independently confirmed:
+
+- the original strict-ancestor undo defect is resolved;
+- strict ancestry is enforced through `RevisionService::undo()`;
+- sibling, cousin, descendant, abandoned-branch, unrelated, cross-transcription,
+  and unknown targets are rejected;
+- valid parent / grandparent / deep-ancestor undo succeeds;
+- active-pointer CAS still prevents stale writes;
+- rejected calls leave persistence unchanged (active pointer and rows intact);
+- redo semantics remain correct (deterministic unique child; no arbitrary branch
+  selection);
+- Eloquent and in-memory behavior remain aligned;
+- ownership and isolation remain correct;
+- version allocation, transactional rollback, machine-source immutability, schema
+  constraints, and race handling remain intact.
+
+P6-002 is transitioned `VERIFIED → DONE`. All historical artifacts are preserved
+unchanged: `reviews/P6-002-independent-review.md` (original CHANGES_REQUESTED),
+`reviews/pre-review/P6-002-pre-review.md` (original handoff), and
+`reviews/pre-review/P6-002-corrective-pre-review.md` (corrective handoff). The
+original review's single MEDIUM finding and its corrective provenance are retained,
+not rewritten.
+
+Provenance note: the HPO-accepted corrective re-review verdict is recorded here.
+The reviewer-owned artifact `reviews/P6-002-corrective-independent-re-review.md`
+was not present in the working tree at reconciliation time; it is the expected
+durable evidence for the VERIFIED verdict and must be retained/added so the
+verdict remains independently reproducible. This note records a record-completeness
+gap only; it does not alter the accepted verdict or reopen P6-002.
+
+Frozen downstream foundation: P6-001 (editing domain contract,
+`PHASE6-EDITING-DOMAIN-CONTRACT.md`) and P6-002 (durable revision persistence) are
+now a frozen downstream input. Downstream Phase 6 tasks consume, and must not
+redefine: the immutable machine source + append-only editable revisions + one
+active pointer + durable graph/history; branching after undo; the
+`transcript_revisions` / `transcript_revision_segments` /
+`transcriptions.active_revision_id` schema; transcription-scoped monotonic version
+with unique `(transcription_id, version)`; durable `parent_revision_id` ancestry;
+active-pointer CAS; transactional conflict translation; strict-ancestor-only undo;
+deterministic unique-child redo; durable old branches; overlap-legal /
+zero-length-legal-but-never-active timing; active-revision identity/position
+navigation with immutable machine timing; and translation-invalidation precedence
+`SegmentStructureChanged > TimingChanged > SourceTextChanged`.
+
+P6-002 closure does not close Phase 6. No later Phase 6/7 task is promoted or
+authorized by this decision.
+
+Blocks: None.
+
+Does Not Block: P6-003/P6-004/P6-005/P6-007/P6-008 (each still requires its own
+contract and an explicit HPO READY promotion); P6-009 (FINAL_GATE_ONLY); Phase 7
+remains not generally authorized.
+
+### DECISION-P6-007-SCOPE-001 — P6-007 source/translation comparison is presentation-only
+
+Decision ID: DECISION-P6-007-SCOPE-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Product / Architecture (Phase 6 task scope)
+
+Originating Task: P6-007 (Source / Translation Comparison)
+
+Question:
+
+Does P6-007 own translation-invalidation persistence, or is its required Phase 6
+scope presentation-only?
+
+Resolution:
+
+HPO-DECIDED 2026-09-23 — **P6-007 Source/Translation Comparison is
+presentation-only for its required Phase 6 scope.**
+
+P6-007 may display:
+
+- the immutable machine source;
+- the active editable revision;
+- persisted translation content already available from Phase 5;
+- source / revision / translation comparison relationships.
+
+P6-007 must **not** own or persist translation invalidation. Translation-staleness
+display is **optional**. If staleness state is not yet available because P6-005
+has not implemented it, P6-007 must degrade gracefully and must **not** invent or
+infer stale/current state. If a later P6-005 staleness marker exists, P6-007 may
+consume it through an explicit contract without owning it.
+
+This decision preserves P6-007 independence from P6-005.
+
+Constraints (non-scope for P6-007): P6-007 must not mutate the machine source,
+mutate revision history, persist invalidation, silently remap translation content,
+or own the translation lifecycle. It must not silently present a translation as
+aligned with edited revision text when the persisted translation belongs to a
+different source/revision identity.
+
+Blocks: None.
+
+Does Not Block: P6-003 contract authoring/implementation; P6-005 (still owns
+translation-invalidation persistence); P6-009 (FINAL_GATE_ONLY).
+
+### DECISION-P6-003-P6-007-READY-BATCH-001 � HPO promotes P6-003 and P6-007 to READY
+
+Decision ID: DECISION-P6-003-P6-007-READY-BATCH-001
+
+Status: DECIDED - HPO 2026-09-23
+
+Type: Governance / Phase 6 task promotion
+
+Originating Tasks: P6-003 (Text Editing + Undo/Redo); P6-007 (Source / Translation Comparison)
+
+Question:
+
+Are P6-003 and P6-007 promoted to READY and authorized for implementation?
+
+Resolution:
+
+HPO-DECIDED 2026-09-23 - **P6-003 and P6-007 are each promoted to READY and
+authorized for implementation**, since each canonical contract exists and its
+binding dependencies are satisfied:
+
+- P6-003: `DECISION-P6-003-READY-001`; contract
+  `tasks/P6-003-text-editing-undo-redo.md`; P6-001 DONE, P6-002 DONE, Phase 4
+  primitives, P6-006 DONE, DC-01.
+- P6-007: `DECISION-P6-007-READY-001`; contract
+  `tasks/P6-007-source-translation-comparison.md`; Phase 5 CLOSED, P6-001/P6-002
+  DONE, P6-006 DONE, `DECISION-P6-007-SCOPE-001` (presentation-only), DC-01.
+
+Execution order: implement P6-003 first (tests, browser evidence, pre-review),
+then implement P6-007 against the stabilized workspace. If parallel execution is
+attempted instead, explicit file/component ownership of
+`resources/views/transcriptions/show.blade.php` must be established first; the
+two tasks must not independently modify the same workspace surface concurrently.
+
+P6-003 implements only its canonical scope, preserving immutable machine source,
+append-only revisions, expected-base concurrency, no silent merge, strict-ancestor
+undo, unique-child redo, branch-after-undo semantics, P6-006 navigation/filter
+behavior, and reserved Phase 4 hooks. Textual edits map to `EditKind::Textual` ->
+`SourceTextChanged`; P6-003 does not persist translation staleness (P6-005 owns
+that). After implementation P6-003 = `IMPLEMENTED_PENDING_REVIEW`; it must not be
+self-verified.
+
+P6-007 remains presentation-only. It may display machine source, active revision,
+persisted Phase 5 translation, and comparison relationships, but must not mutate
+machine source or revision history, persist staleness, remap translations
+silently, or own the translation lifecycle. Persisted Phase 5 translations align
+to machine `segment_index`, not revision segment identity, so edited-revision vs
+translation comparisons must state that the translation belongs to machine source
+unless an explicit persisted revision linkage exists, and structurally changed
+revisions must never be mapped by index. Where no persisted staleness marker
+exists, only factual state is shown. After implementation P6-007 =
+`IMPLEMENTED_PENDING_REVIEW`; it must not be self-verified.
+
+Record completeness (retained): `reviews/P6-002-corrective-independent-re-review.md`
+is still missing; P6-002 is **not** reopened and no artifact may be fabricated or
+reconstructed from summaries. The accepted reviewer should add the actual artifact
+when available.
+
+Blocks: None.
+
+Does Not Block: P6-004/P6-005/P6-008/P6-009 (each still requires its own contract
+and an explicit HPO READY promotion; P6-005 additionally waits on P6-004 DONE;
+P6-009 is FINAL_GATE_ONLY); Phase 7 remains not generally authorized.
