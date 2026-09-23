@@ -144,16 +144,17 @@ report: `PHASE5-CLOSURE-REPORT.md`. Controlled-parallel execution applies
 (ADR-023).
 
 ### Phase 6 — Advanced Transcript UX
-NOT GENERALLY AUTHORIZED; early-start allowlist only (ADR-023;
-`PHASE5-7-EXECUTION-CLASSIFICATION.md`). Phase 5 is CLOSED, so Phase 6 is the
-primary product-development path and may be authorized by a separate HPO
-decision. No Phase 6 task is authorized by Phase 5 closure.
+AUTHORIZED FOR CONTRACT AUTHORING + IMPLEMENTATION (2026-09-23,
+`DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 + DC-01 adopted via
+`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket READY. Batch 1:
+P6-001 = READY (contract); P6-006 = IMPLEMENTED_PENDING_REVIEW (early-start
+exception). D6-08/D6-09 deferred. Eligibility: `PHASE6-7-ELIGIBILITY-MATRIX.md`.
 
 ### Phase 7 — Production Hardening
 NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023;
-`PHASE5-7-EXECUTION-CLASSIFICATION.md`). May run in parallel with Phase 6 only
-where the existing contracts prove independence. Cannot close before Phase 6;
-P7-012 must not run before Phase 6 is CLOSED.
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`). Only P7-005 (Observability Foundation)
+is authorized early and is IMPLEMENTED_PENDING_REVIEW; all other P7 work remains
+unauthorized. Cannot close before Phase 6; P7-012 remains FINAL_GATE_ONLY.
 
 The earlier Phase 4/5/6/7 decomposition is historical and was reconciled by
 ADR-019.
@@ -168,8 +169,8 @@ renumbered by an external product roadmap:
 3. Real Transcription Engine (ADR-017) — CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3 closed)
 4. Transcript Experience baseline (ADR-019) — CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE
 5. Translation — CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001); P5-001..P5-008 DONE
-6. Advanced Transcript UX — future; not authorized (Phase 5 CLOSED; needs separate HPO authorization)
-7. Production Hardening — future; not authorized (cannot close before Phase 6)
+6. Advanced Transcript UX — AUTHORIZED (contract authoring + implementation; DECISION-PHASE6-AUTHORIZATION-001; no blanket READY)
+7. Production Hardening — not generally authorized; P7-005 early only (cannot close before Phase 6)
 
 Voxora is the long-term product and brand; RTFTT remains the current
 engineering/repository identity. Product evolution beyond Phase 7 may include

@@ -2973,3 +2973,162 @@ Blocks: None.
 
 Does Not Block: Phase 6/7 eligibility reconstruction; no Phase 6/7
 implementation is authorized by this decision.
+
+### DECISION-PHASE6-AUTHORIZATION-001 — Authorize Phase 6 contract authoring and implementation
+
+Decision ID: DECISION-PHASE6-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Phase Authorization
+
+Originating Scope: Phase 6 — Advanced Transcript UX (ADR-019 boundary)
+
+Question:
+
+Should Phase 6 be authorized to proceed through contract authoring and
+implementation?
+
+Resolution:
+
+HPO-AUTHORIZED 2026-09-23. Phase 6 may proceed through contract authoring and
+implementation according to `PHASE6-PLANNING.md`,
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`, `PHASE6-7-ELIGIBILITY-MATRIX.md`, the
+dependency graph, the adopted D6/DC decisions, and the Autonomous Completion
+Controller.
+
+Constraints:
+
+- Do **not** treat all P6 candidates as immediately READY; there is no blanket
+  READY state.
+- Begin with canonical task-contract authoring for P6-001
+  (Advanced Transcript Editing Domain / Contract Foundation).
+- Promote an implementation task to READY only after its canonical contract
+  exists and its dependencies are reconciled.
+- Bounded batches (max 3 dependent tasks deep, or max 5 genuinely independent
+  tasks, or one major integration boundary); internal pre-review; task-scoped
+  commits; fresh independent review before VERIFIED/DONE.
+- D6-08 (speaker labels/annotations/bookmarks) and D6-09 (waveform/timeline) are
+  DEFERRED from required Phase 6 scope and must not be implemented without
+  separate authorization.
+- Phase 6 may not close automatically; Phase 7 remains NOT GENERALLY AUTHORIZED;
+  P7-012 remains FINAL_GATE_ONLY.
+
+Blocks: None (contract authoring/implementation authorized).
+
+Does Not Block: Phase 7 general work (not authorized); allowlisted P7-005 only
+(separately authorized).
+
+### DECISION-PHASE6-OWNER-DECISIONS-001 — Adopt Phase 6 owner decisions (D6-01..D6-09, DC-01)
+
+Decision ID: DECISION-PHASE6-OWNER-DECISIONS-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Owner Decisions / Architecture
+
+Originating Scope: Phase 6 (Advanced Transcript UX) and cross-phase browser
+verification
+
+Resolution:
+
+HPO-DECIDED 2026-09-23. The following decisions are adopted (durable record:
+ADR-025 in `DECISIONS.md`):
+
+- **D6-01 (editing model):** preserve the completed machine transcription as an
+  immutable source layer; introduce an explicit editable revision layer for user
+  edits; never overwrite the machine transcript in place.
+- **D6-02 (undo/redo/versions):** adopt persisted revision/version semantics;
+  undo/redo derives from durable revision history, not browser-only ephemeral
+  state; history must survive reload. Exact storage mechanics are defined by the
+  P6-001/P6-002 contracts.
+- **D6-03 (timestamp editing):** allow explicit timestamp editing subject to
+  canonical timing invariants: non-negative/valid timestamps; start precedes end;
+  ordering/overlap rules explicitly defined; edits never silently mutate the
+  immutable machine source.
+- **D6-04 (split/merge + translation):** allow split/merge within the editable
+  revision model; a structural edit changing segment identity or textual source
+  semantics must not silently preserve a translation as current; translation
+  becomes explicitly stale/invalidated per the later P6 translation-invalidation
+  contract; never silently remap translation content across changed segment
+  structure.
+- **D6-05 (revision history surface):** provide a user-visible revision/history
+  surface; initial scope may be lightweight but must let users understand
+  revisions exist and identify the active/current revision.
+- **D6-06 (comparison):** provide comparison inside the transcript workspace as
+  an explicit source-versus-translation/revision surface; no separate product
+  module; exact visual layout is an implementation detail unless a later contract
+  requires otherwise.
+- **D6-07 (navigation/search/filter):** enhance navigation/search/filtering
+  within the transcript workspace; do not create a standalone search product.
+- **D6-08 (speaker labels/annotations/bookmarks):** DEFER from Phase 6 required
+  scope; do not implement without separate authorization.
+- **D6-09 (waveform/timeline):** DEFER from Phase 6 required scope; do not
+  implement without separate authorization.
+- **DC-01 (cross-phase browser verification):** adopt the Phase 5 cross-phase
+  browser-verification governance as the Phase 6/7 default. Browser verification
+  is required when browser behavior is material to acceptance criteria. Browser
+  evidence does not replace lower-level concurrency, persistence, authorization,
+  queue/provider integration, or real-service evidence. A browser test double
+  must never be represented as proof of a real backend path.
+
+Blocks: None.
+
+Does Not Block: P6-006 early-start (separately authorized); P7-005
+(separately authorized).
+
+### DECISION-P6-006-AUTHORIZATION-001 — Authorize P6-006 early-start exception
+
+Decision ID: DECISION-P6-006-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Task Authorization / Early-Start Exception (ADR-023)
+
+Originating Task: P6-006 (Advanced Navigation + Search/Filter)
+
+Resolution:
+
+HPO-AUTHORIZED 2026-09-23. P6-006 is separately authorized for contract
+authoring and implementation because the eligibility matrix identifies it as
+independent of Phase 5 translation semantics. P6-006 may proceed in parallel
+with early Phase 6 contract work provided its task contract confirms:
+
+- no translation invalidation semantics;
+- no revision ownership assumptions beyond frozen P6 contracts;
+- no dependency on unfinished P6 comparison / split-merge behavior.
+
+If that independence is contradicted during contract authoring, STOP and
+reclassify rather than forcing early execution.
+
+Blocks: None.
+
+Does Not Block: P6-001 contract authoring.
+
+### DECISION-P7-005-AUTHORIZATION-001 — Authorize P7-005 early-hardening only
+
+Decision ID: DECISION-P7-005-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Phase Authorization / Early-Hardening
+
+Originating Task: P7-005 (Observability Foundation)
+
+Resolution:
+
+HPO-AUTHORIZED 2026-09-23. Only P7-005 is authorized for early contract
+authoring and implementation. P7-003, P7-008, P7-010, and all other Phase 7
+implementation remain NOT authorized.
+
+P7-005 must remain product-semantic-neutral and may include structured
+application logging; correlation/request/job identifiers;
+translation/transcription job observability; queue/runtime telemetry;
+health/operational diagnostics; error classification/visibility; and
+documentation/runbook conventions. It must not redesign datastore architecture,
+storage architecture, tenancy, authorization, provider contracts, or retention
+semantics. If any of those become necessary, STOP at a decision boundary.
+
+Blocks: None.
+
+Does Not Block: Phase 6 mainline; Phase 7 general work remains not authorized.

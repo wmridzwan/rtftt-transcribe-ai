@@ -16,11 +16,15 @@ rationale. It does not authorize any task, wave, or phase.
 ## A. Repository state used
 
 - Phase 5 = CLOSED; all P5 tasks DONE; P5-008 independently VERIFIED.
-- Phase 6 / Phase 7 = NOT GENERALLY AUTHORIZED (ADR-023).
-- **No Phase 6 or Phase 7 task contract file exists** under `tasks/`.
-- **All owner decisions are OPEN**: D6-01..D6-09, D7-01..D7-08, DC-01, DC-02
-  (`PHASE5-7-DECISION-REGISTER.md` is `PLANNING ONLY — ALL DECISIONS OPEN`).
-- No P6/P7 task has been promoted to READY.
+- Phase 6 = AUTHORIZED for contract authoring + implementation
+  (`DECISION-PHASE6-AUTHORIZATION-001`); no blanket READY.
+- Phase 7 = NOT GENERALLY AUTHORIZED; P7-005 alone authorized early
+  (`DECISION-P7-005-AUTHORIZATION-001`).
+- **D6-01..D6-09 and DC-01 are ADOPTED** (`DECISION-PHASE6-OWNER-DECISIONS-001`;
+  ADR-025). D7-01..D7-08 and DC-02 remain OPEN.
+- Task contracts: `tasks/P6-001-...md` (READY), `tasks/P6-006-...md`
+  (IMPLEMENTED_PENDING_REVIEW), `tasks/P7-005-...md`
+  (IMPLEMENTED_PENDING_REVIEW).
 - Phase 6 cannot close before Phase 5 (satisfied); Phase 7 cannot close before
   Phase 6; P7-012 must not run before Phase 6 is CLOSED.
 
@@ -115,3 +119,29 @@ without the prerequisite decision/contract and an explicit HPO READY promotion.
   authorized.
 - Phase 6/7 remain NOT GENERALLY AUTHORIZED; the ADR-023 allowlists are the only
   early-start paths and each still requires its own contract and HPO promotion.
+
+## I. Executed batch — 2026-09-23 (post-authorization)
+
+Authorized by `DECISION-PHASE6-AUTHORIZATION-001`,
+`DECISION-PHASE6-OWNER-DECISIONS-001`, `DECISION-P6-006-AUTHORIZATION-001`, and
+`DECISION-P7-005-AUTHORIZATION-001`.
+
+- `tasks/P6-001-phase6-editing-domain-contract.md` — **READY** (contract authored;
+  dependencies reconciled). Implementation is the next Phase 6 mainline step.
+- `tasks/P6-006-advanced-navigation-search-filter.md` —
+  **IMPLEMENTED_PENDING_REVIEW** (independence confirmed; implementation + 6
+  feature tests; real-Chromium browser verification 2/2).
+- `tasks/P7-005-observability-foundation.md` — **IMPLEMENTED_PENDING_REVIEW**
+  (structured logging, request correlation, job observability, diagnostics,
+  runbook; 11 focused tests).
+- No D6-08/D6-09 feature was implemented; no other P7 task was started.
+
+## J. Next batch recommendation
+
+1. **Phase 6 mainline:** implement P6-001 (domain/contract foundation), then
+   reconcile P6-002 against it (`P6-001 DONE → P6-002`).
+2. Maintain P6-006/P7-005 at `IMPLEMENTED_PENDING_REVIEW` until a fresh
+   independent review returns VERIFIED and the HPO closes them.
+3. Do not start P6-003/P6-004/P6-005/P6-007/P6-008 or any other P7 task without a
+   contract and explicit HPO READY promotion; D6-02's history decision and D7-*
+   remain to be resolved where they gate a task.

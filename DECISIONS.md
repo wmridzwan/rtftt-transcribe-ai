@@ -1458,3 +1458,75 @@ Reference:
 `DECISION-PHASE5-CLOSURE-001`, `DECISION-PHASE5-DEBT-CARRYFORWARD-001`);
 `reviews/P5-008-independent-review.md`; `PHASE5-P5-008-INTEGRATION-EVIDENCE.md`;
 `PHASE5-CLOSURE-REPORT.md`; ADR-022; ADR-023; ADR-024.
+
+## ADR-025 — Phase 6 Editing Model and Cross-Phase Browser Verification
+
+Date: 2026-09-23
+
+Status: ACCEPTED — Human Product Owner.
+
+Decision:
+
+Phase 6 (Advanced Transcript UX) is authorized for contract authoring and
+implementation under `DECISION-PHASE6-AUTHORIZATION-001`. The owner decisions
+D6-01..D6-09 and DC-01 are adopted as follows:
+
+- D6-01: the completed machine transcription is an **immutable source layer**;
+  user edits live in an explicit **editable revision layer**; the machine
+  transcript is never overwritten in place.
+- D6-02: **persisted** revision/version semantics; undo/redo derives from durable
+  revision history (survives reload), not browser-only state.
+- D6-03: explicit timestamp editing allowed under canonical timing invariants
+  (valid/non-negative; start precedes end; ordering/overlap explicitly defined;
+  no silent mutation of the immutable machine source).
+- D6-04: split/merge allowed inside the editable revision model; structural edits
+  that change segment identity or textual source semantics must **not** silently
+  keep a translation current; translation becomes explicitly stale per the later
+  translation-invalidation contract; no silent cross-structure remapping.
+- D6-05: a user-visible revision/history surface (lightweight initial scope) that
+  shows revisions exist and identifies the active revision.
+- D6-06: comparison is an explicit source-versus-translation/revision surface
+  inside the transcript workspace; no separate product module.
+- D6-07: enhanced navigation/search/filtering inside the transcript workspace; no
+  standalone search product.
+- D6-08: speaker labels / annotations / bookmarks **deferred** (not Phase 6
+  required scope).
+- D6-09: waveform / timeline **deferred** (not Phase 6 required scope).
+- DC-01: the Phase 5 cross-phase browser-verification governance is the Phase 6/7
+  default. Browser verification is required when browser behavior is material to
+  acceptance; browser evidence never replaces concurrency, persistence,
+  authorization, queue/provider integration, or real-service evidence; a browser
+  double is never proof of a real backend path.
+
+Task authorization discipline:
+
+Phase 6 authoring begins with P6-001 (Advanced Transcript Editing Domain /
+Contract Foundation). There is no blanket READY state; each task is promoted to
+READY only after its canonical contract exists and dependencies are reconciled.
+P6-006 is separately authorized as an early-start exception
+(`DECISION-P6-006-AUTHORIZATION-001`). P7-005 (Observability Foundation) alone is
+authorized early (`DECISION-P7-005-AUTHORIZATION-001`); all other Phase 7
+implementation stays not authorized.
+
+Reason:
+
+The Phase 6 planning package recommended an immutable machine transcript plus an
+editable derived layer to preserve provenance and keep translation alignment
+explicit. The HPO adopted that recommendation and the associated revision,
+timing, split/merge, comparison, and search decisions, and confirmed deferred
+scope boundaries.
+
+Phase consequence:
+
+Phase 6 proceeds in bounded batches with independent review and explicit HPO
+closure. Phase 7 remains NOT GENERALLY AUTHORIZED; P7-012 remains
+FINAL_GATE_ONLY. No frozen Phase 3/4/5 contract is changed by this ADR.
+
+Reference:
+
+`PHASE6-PLANNING.md`; `PHASE5-7-EXECUTION-CLASSIFICATION.md`;
+`PHASE6-7-ELIGIBILITY-MATRIX.md`; `PHASE5-7-DEPENDENCY-GRAPH.md`;
+`PHASE5-7-RISK-REGISTER.md`; `DECISION_QUEUE.md`
+(`DECISION-PHASE6-AUTHORIZATION-001`, `DECISION-PHASE6-OWNER-DECISIONS-001`,
+`DECISION-P6-006-AUTHORIZATION-001`, `DECISION-P7-005-AUTHORIZATION-001`);
+ADR-019; ADR-021; ADR-023.

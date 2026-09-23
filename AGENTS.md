@@ -93,15 +93,20 @@ browser-to-real-model proof. LOW/INFO debt carried non-blocking
 (`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Final report:
 `PHASE5-CLOSURE-REPORT.md`. Phase 3/4 baseline committed; B-001/B-002 resolved.
 
-**Phase 6 / Phase 7**: NOT GENERALLY AUTHORIZED. Controlled Parallel Execution
-Authorization (2026-09-21, ADR-023; `PHASE5-7-CONTROLLED-PARALLEL-EXECUTION.md`)
-allows only the early-start (Phase 6) and early-hardening (Phase 7) allowlists
-in `PHASE5-7-EXECUTION-CLASSIFICATION.md`. Phase 5 is now CLOSED, so Phase 6 is
-the primary product-development path and may be authorized by a separate HPO
-decision; Phase 7 early-hardening may run in parallel only where the existing
-contracts prove independence. Phase 7 cannot close before Phase 6 is CLOSED;
-P7-012 must not run before Phase 6 is CLOSED. No Phase 6/7 task is authorized by
-Phase 5 closure; do not infer authorization from phase numbering.
+**Phase 6**: Advanced Transcript UX. AUTHORIZED FOR CONTRACT AUTHORING +
+IMPLEMENTATION (2026-09-23, `DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 +
+DC-01 adopted via `DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket
+READY: each task is promoted to READY only after its canonical contract exists
+and dependencies are reconciled. Executed batch 1: P6-001 = READY (contract
+authored); P6-006 = IMPLEMENTED_PENDING_REVIEW (early-start exception,
+`DECISION-P6-006-AUTHORIZATION-001`). D6-08/D6-09 remain DEFERRED. Phase 6 may
+not close automatically. Eligibility: `PHASE6-7-ELIGIBILITY-MATRIX.md`.
+
+**Phase 7**: Production Hardening. NOT GENERALLY AUTHORIZED. Only P7-005
+(Observability Foundation) is authorized early
+(`DECISION-P7-005-AUTHORIZATION-001`) and is IMPLEMENTED_PENDING_REVIEW; P7-003,
+P7-008, P7-010, and all other Phase 7 implementation remain not authorized.
+Phase 7 cannot close before Phase 6 is CLOSED; P7-012 remains FINAL_GATE_ONLY.
 
 Phase 3 boundary (ADR-017):
 - provider-neutral Laravel transcription domain

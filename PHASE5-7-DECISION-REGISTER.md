@@ -1,14 +1,19 @@
 # Phase 5–7 — Owner Decision Register
 
 Date: 2026-09-20
-Status: PLANNING ONLY — ALL DECISIONS OPEN / CANDIDATE
+Status: PLANNING ONLY — candidate decisions (D6-01..D6-09 and DC-01 are now
+DECIDED; see the note below)
 Authority: `PHASE5-PLANNING.md`, `PHASE6-PLANNING.md`, `PHASE7-PLANNING.md`
 
-This register lists material unresolved owner decisions for Phases 5–7. Every
-entry is **OPEN** (recorded here as a candidate only). No decision is made on
-behalf of the Human Product Owner. None of these decisions is recorded in
-`DECISION_QUEUE.md`; the HPO must promote and decide them there (and, where
-durable, in an ADR) before implementation authorization.
+> **Status update (2026-09-23):** D6-01..D6-09 and DC-01 have been adopted by the
+> HPO (`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025) and are no longer open.
+> D5-01..D5-09 were frozen under ADR-022. D7-01..D7-08 and DC-02 remain OPEN.
+
+This register lists material unresolved owner decisions for Phases 5–7. Unless
+marked decided above, every entry is **OPEN** (recorded here as a candidate
+only). No decision is made on behalf of the Human Product Owner. None of these
+decisions is recorded in `DECISION_QUEUE.md`; the HPO must promote and decide
+them there (and, where durable, in an ADR) before implementation authorization.
 
 Format per decision: ID, QUESTION, OPTION A/B/C (Pros/Cons), RECOMMENDATION,
 WHY, IMPACT IF DEFERRED.

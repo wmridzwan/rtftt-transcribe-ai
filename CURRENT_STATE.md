@@ -31,14 +31,21 @@ full suite 626/625, Pint clean, PHPStan 0. Final closure report:
 (`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Phase 3/4 baseline committed
 (B-001/B-002 resolved); working tree clean.
 
-Phase 6 / Phase 7 = NOT GENERALLY AUTHORIZED; controlled-parallel early-start /
-early-hardening allowlists only (ADR-023;
-`PHASE5-7-EXECUTION-CLASSIFICATION.md`). Phase 6 is now the primary
-product-development path and requires a separate HPO authorization; Phase 7
-early-hardening may run in parallel only where contracts prove independence.
-Eligibility reconstruction and the recommended next batch are in
-`PHASE5-7-EXECUTION-CLASSIFICATION.md` and `PHASE6-PLANNING.md` /
-`PHASE7-PLANNING.md`.
+Phase 6 = AUTHORIZED FOR CONTRACT AUTHORING + IMPLEMENTATION (2026-09-23,
+`DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 + DC-01 adopted via
+`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket READY; each task is
+promoted only after its contract + dependencies are reconciled. Executed batch
+1: P6-001 = READY (canonical contract authored); P6-006 =
+IMPLEMENTED_PENDING_REVIEW (early-start exception, independence confirmed;
+implementation + feature tests + real-Chromium browser 2/2). Phase 7 remains NOT
+GENERALLY AUTHORIZED; only P7-005 (Observability Foundation) is authorized early
+(`DECISION-P7-005-AUTHORIZATION-001`) and is IMPLEMENTED_PENDING_REVIEW. Eligible
+next work and the next batch recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md`.
+
+Phase 7 remains NOT GENERALLY AUTHORIZED (ADR-023;
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`); early-hardening runs only where contracts
+prove independence; Phase 7 cannot close before Phase 6; P7-012 remains
+FINAL_GATE_ONLY. No phase closes automatically.
 
 Phase 3 Batch 1 = COMPLETE / CLOSED
 
