@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Transcription;
 use App\Models\TranscriptionSegment;
 use App\Models\Translation;
+use App\Observability\LogContext;
 use App\Translation\TranslationException;
 use App\Translation\TranslationFailure;
 use App\Translation\TranslationInvocation;
@@ -133,12 +134,11 @@ class ProcessTranslation implements ShouldQueue
             translationId: $translation->getKey(),
         );
 
-        Log::info('Translation provider invocation started.', [
-            'transcription_id' => $transcription->getKey(),
-            'translation_id' => $translation->getKey(),
-            'target_language' => $translation->target_language->value,
+        Log::info('Translation provider invocation started.', LogContext::forTranslation($translation, [
             'request_id' => $invocation->requestId,
-        ]);
+        ]));
+
+        $startedAt = microtime(true);
 
         try {
             $result = $provider->translate($invocation);
@@ -180,9 +180,9 @@ class ProcessTranslation implements ShouldQueue
             );
         }
 
-        Log::info('Translation job completed.', [
-            'translation_id' => $translation->getKey(),
-        ]);
+        Log::info('Translation job completed.', LogContext::forTranslation($translation, [
+            'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+        ]));
     }
 
     /**

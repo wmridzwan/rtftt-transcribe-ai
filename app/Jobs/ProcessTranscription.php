@@ -7,6 +7,7 @@ use App\Enums\ProcessingStatus;
 use App\Enums\TranscriptionStatus;
 use App\Models\ProcessingJob;
 use App\Models\Transcription;
+use App\Observability\LogContext;
 use App\Transcription\LanguageIdentifier;
 use App\Transcription\TranscriptionException;
 use App\Transcription\TranscriptionFailure;
@@ -143,12 +144,12 @@ class ProcessTranscription implements ShouldQueue
             requestedLanguage: $this->requestedLanguage($transcription),
         );
 
-        Log::info('Transcription provider invocation started.', [
-            'transcription_id' => $transcription->getKey(),
+        Log::info('Transcription provider invocation started.', LogContext::forTranscription($transcription, $attempt, [
             'processing_attempt_id' => $attempt->getKey(),
-            'media_file_id' => $mediaFile->getKey(),
             'request_id' => $invocation->requestId,
-        ]);
+        ]));
+
+        $startedAt = microtime(true);
 
         try {
             $result = $provider->transcribe($invocation);
@@ -191,10 +192,10 @@ class ProcessTranscription implements ShouldQueue
             return;
         }
 
-        Log::info('Transcription job completed.', [
-            'transcription_id' => $transcription->getKey(),
+        Log::info('Transcription job completed.', LogContext::forTranscription($transcription, $attempt, [
             'processing_attempt_id' => $attempt->getKey(),
-        ]);
+            'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+        ]));
     }
 
     private function requestedLanguage(Transcription $transcription): ?LanguageIdentifier
@@ -259,12 +260,12 @@ class ProcessTranscription implements ShouldQueue
     ): void {
         $this->databaseFail($transcription, $attempt, $failure, $safeMessage);
 
-        Log::warning('Transcription job failed.', [
-            'transcription_id' => $transcription->getKey(),
+        Log::warning('Transcription job failed.', LogContext::forTranscription($transcription, $attempt, [
             'processing_attempt_id' => $attempt->getKey(),
             'failure' => $failure->value,
+            'failure_code' => $failure->value,
             'retryable' => $failure->isRetryable(),
-        ]);
+        ]));
     }
 
     private function databaseFail(
