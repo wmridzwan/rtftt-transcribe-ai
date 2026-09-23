@@ -126,7 +126,8 @@
                                         <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="previous()" x-bind:disabled="!hasMatches" aria-label="Previous match">Previous</button>
                                         <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="next()" x-bind:disabled="!hasMatches" aria-label="Next match">Next</button>
                                         <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="clear()" x-bind:disabled="query === ''">Clear</button>
-                                        <button type="button" class="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-200" x-on:click="copyFull()">Copy transcript</button>
+                                        {{-- Copy transcript intentionally copies the full source transcript, not the filtered subset. --}}
+                                        <button type="button" data-transcript-copy-scope="full" title="Copies the full transcript, not the filtered subset" class="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-200" x-on:click="copyFull()">Copy transcript</button>
                                         <span class="text-xs text-zinc-500 dark:text-zinc-400" x-text="copyStatus" aria-live="polite"></span>
                                         <label for="transcript-language-filter" class="sr-only">Filter segments by language</label>
                                         <select
@@ -141,8 +142,9 @@
                                                 <option value="{{ $language }}">{{ strtoupper($language) }}</option>
                                             @endforeach
                                         </select>
-                                        <span class="text-xs text-zinc-500 dark:text-zinc-400" x-text="filterLabel" aria-live="polite"></span>
-                                        <span class="text-xs text-zinc-400 dark:text-zinc-500" data-transcript-nav-hint>Use Arrow Up/Down (or J/K) to move, Home/End to jump</span>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-400" data-transcript-filter-label x-text="filterLabel" aria-live="polite"></span>
+                                        <span id="transcript-nav-hint" class="text-xs text-zinc-400 dark:text-zinc-500" data-transcript-nav-hint>Use Arrow Up/Down (or J/K) to move, Home/End to jump</span>
+                                        <span class="sr-only" data-transcript-nav-status role="status" aria-live="polite" x-text="navStatus"></span>
                                     </div>
 
                                     <div
@@ -150,20 +152,17 @@
                                         tabindex="0"
                                         role="region"
                                         aria-label="Transcript segments"
-                                        x-on:keydown.arrow-down.prevent="navigateNext()"
-                                        x-on:keydown.arrow-up.prevent="navigatePrevious()"
-                                        x-on:keydown.j.prevent="navigateNext()"
-                                        x-on:keydown.k.prevent="navigatePrevious()"
-                                        x-on:keydown.home.prevent="jumpToFirst()"
-                                        x-on:keydown.end.prevent="jumpToLast()"
+                                        aria-describedby="transcript-nav-hint"
+                                        aria-keyshortcuts="ArrowUp ArrowDown Home End"
+                                        x-on:keydown="onKeydown($event)"
                                         class="max-h-[70vh] space-y-3 overflow-y-auto pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                                     >
                                         @foreach ($transcription->segments as $segment)
                                             <div
                                                 data-segment-row
                                                 data-segment-index="{{ $segment->segment_index }}"
-                                                data-segment-language="{{ $segment->language?->value ?? 'und' }}"
-                                                data-seek-seconds="{{ $segment->seek_seconds }}"
+                                                data-filter-language="{{ $segment->language?->value ?? 'und' }}"
+                                                data-nav-seconds="{{ $segment->seek_seconds }}"
                                                 class="flex gap-4 rounded-md p-1 transition-colors"
                                             >
                                                 <div class="flex-shrink-0">
@@ -429,6 +428,8 @@
                 matchCount: 0,
                 currentIndex: 0,
                 navIndex: null,
+                navStatus: '',
+                filteredCount: 0,
                 copyStatus: '',
                 fullText: config.fullText ?? '',
                 init() {
@@ -456,16 +457,24 @@
                     return els;
                 },
                 applyFilter() {
+                    let visible = 0;
                     this.rowEls().forEach((row) => {
-                        const matches = this.languageFilter === '' || (row.dataset.segmentLanguage || 'und') === this.languageFilter;
+                        const matches = this.languageFilter === '' || (row.dataset.filterLanguage || 'und') === this.languageFilter;
                         row.hidden = ! matches;
-                        if (! matches) {
+                        if (matches) {
+                            visible += 1;
+                        } else {
                             row.querySelectorAll('[data-segment-text]').forEach((el) => {
                                 el.textContent = this.rawText(el);
                             });
                         }
                     });
+                    // Reactive count drives the (aria-live) filter label so it is
+                    // never one render behind the DOM hidden state.
+                    this.filteredCount = visible;
+                    this.clearNavHighlight();
                     this.navIndex = null;
+                    this.navStatus = '';
                     this.refresh();
                 },
                 rawText(el) {
@@ -484,35 +493,95 @@
                     return (this.currentIndex + 1) + ' of ' + this.matchCount;
                 },
                 get filterLabel() {
-                    if (this.languageFilter === '') {
-                        return '';
-                    }
-                    const count = this.visibleRows().length;
+                    const count = this.filteredCount;
                     return count + ' segment' + (count === 1 ? '' : 's');
                 },
                 resolveNavIndex(rows) {
-                    const active = rows.findIndex((row) => row.getAttribute('aria-current') === 'true');
-                    if (active !== -1) {
-                        return active;
-                    }
+                    // Prefer the stable navigation identity (segment index) over
+                    // the playback-owned aria-current row. Playback resolves
+                    // overlapping intervals to the lowest index, which would
+                    // otherwise trap navigation on one row.
                     if (this.navIndex !== null) {
                         const tracked = rows.findIndex((row) => Number(row.dataset.segmentIndex) === this.navIndex);
                         if (tracked !== -1) {
                             return tracked;
                         }
                     }
-                    return -1;
+                    return rows.findIndex((row) => row.getAttribute('aria-current') === 'true');
                 },
-                activateRow(row) {
+                activateRow(row, rows) {
                     if (! row) {
                         return;
                     }
+                    const list = rows ?? this.visibleRows();
                     this.navIndex = Number(row.dataset.segmentIndex);
-                    const seconds = row.dataset.seekSeconds;
+                    const seconds = row.dataset.navSeconds;
                     if (seconds !== undefined) {
+                        // Playback owns the active highlight; without a player
+                        // this is a harmless no-op and the nav highlight below
+                        // still gives visible, non-faked feedback.
                         this.$dispatch('p4-seek', { seconds: Number(seconds) });
                     }
+                    this.applyNavHighlight(row);
+                    const position = list.indexOf(row);
+                    if (position !== -1) {
+                        this.navStatus = 'Segment ' + (position + 1) + ' of ' + list.length + ' selected';
+                    }
                     row.scrollIntoView({ block: 'nearest' });
+                },
+                applyNavHighlight(row) {
+                    this.rowEls().forEach((el) => {
+                        const isNav = el === row;
+                        el.classList.toggle('outline', isNav);
+                        el.classList.toggle('outline-2', isNav);
+                        el.classList.toggle('outline-offset-2', isNav);
+                        el.classList.toggle('outline-indigo-500', isNav);
+                        if (isNav) {
+                            el.setAttribute('data-nav-active', 'true');
+                        } else {
+                            el.removeAttribute('data-nav-active');
+                        }
+                    });
+                },
+                clearNavHighlight() {
+                    this.rowEls().forEach((el) => {
+                        el.classList.remove('outline', 'outline-2', 'outline-offset-2', 'outline-indigo-500');
+                        el.removeAttribute('data-nav-active');
+                    });
+                },
+                isTypingTarget(target) {
+                    if (! target || ! target.tagName) {
+                        return false;
+                    }
+                    const tag = target.tagName.toLowerCase();
+                    return tag === 'input' || tag === 'select' || tag === 'textarea' || target.isContentEditable === true;
+                },
+                onKeydown(event) {
+                    if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+                        return;
+                    }
+                    if (this.isTypingTarget(event.target)) {
+                        return;
+                    }
+                    switch (event.key) {
+                        case 'ArrowDown':
+                        case 'j':
+                            this.navigateNext();
+                            break;
+                        case 'ArrowUp':
+                        case 'k':
+                            this.navigatePrevious();
+                            break;
+                        case 'Home':
+                            this.jumpToFirst();
+                            break;
+                        case 'End':
+                            this.jumpToLast();
+                            break;
+                        default:
+                            return;
+                    }
+                    event.preventDefault();
                 },
                 navigateNext() {
                     const rows = this.visibleRows();
@@ -521,7 +590,7 @@
                     }
                     const current = this.resolveNavIndex(rows);
                     const target = current < 0 ? 0 : (current + 1) % rows.length;
-                    this.activateRow(rows[target]);
+                    this.activateRow(rows[target], rows);
                 },
                 navigatePrevious() {
                     const rows = this.visibleRows();
@@ -530,18 +599,18 @@
                     }
                     const current = this.resolveNavIndex(rows);
                     const target = current <= 0 ? rows.length - 1 : current - 1;
-                    this.activateRow(rows[target]);
+                    this.activateRow(rows[target], rows);
                 },
                 jumpToFirst() {
                     const rows = this.visibleRows();
                     if (rows.length > 0) {
-                        this.activateRow(rows[0]);
+                        this.activateRow(rows[0], rows);
                     }
                 },
                 jumpToLast() {
                     const rows = this.visibleRows();
                     if (rows.length > 0) {
-                        this.activateRow(rows[rows.length - 1]);
+                        this.activateRow(rows[rows.length - 1], rows);
                     }
                 },
                 refresh() {

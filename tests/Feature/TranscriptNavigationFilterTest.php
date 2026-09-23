@@ -33,10 +33,10 @@ it('renders keyboard navigation and language filter controls in the workspace', 
     $response->assertSee('data-transcript-region', false);
     $response->assertSee('data-transcript-language-filter', false);
     $response->assertSee('data-transcript-nav-hint', false);
-    $response->assertSee('navigateNext()', false);
-    $response->assertSee('navigatePrevious()', false);
-    $response->assertSee('jumpToFirst()', false);
-    $response->assertSee('jumpToLast()', false);
+    $response->assertSee('data-transcript-nav-status', false);
+    $response->assertSee('onKeydown($event)', false);
+    $response->assertSee('aria-describedby="transcript-nav-hint"', false);
+    $response->assertSee('aria-keyshortcuts="ArrowUp ArrowDown Home End"', false);
     $response->assertSee('x-model="languageFilter"', false);
     $response->assertSee('tabindex="0"', false);
     $response->assertSee('aria-label="Transcript segments"', false);
@@ -52,10 +52,31 @@ it('exposes per-segment language on the row for client-side filtering', function
     $response->assertOk();
     $response->assertSee('data-segment-row', false);
     $response->assertSee('data-segment-index="0"', false);
-    $response->assertSee('data-segment-language="ms"', false);
-    $response->assertSee('data-segment-language="zh"', false);
-    $response->assertSee('data-segment-language="ta"', false);
-    $response->assertSee('data-segment-language="und"', false);
+    $response->assertSee('data-filter-language="ms"', false);
+    $response->assertSee('data-filter-language="zh"', false);
+    $response->assertSee('data-filter-language="ta"', false);
+    $response->assertSee('data-filter-language="und"', false);
+    $response->assertSee('data-nav-seconds=', false);
+})->group('p6-006');
+
+it('keeps the reserved Phase 4 selector hooks unique to their original controls', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $transcription = navigationTranscription($user);
+
+    $response = $this->get(route('transcriptions.show', $transcription));
+
+    $response->assertOk();
+    $html = $response->getContent();
+    $segmentCount = $transcription->segments()->count();
+
+    // `data-seek-seconds` belongs to the timestamp seek button only.
+    expect(substr_count($html, 'data-seek-seconds='))->toBe($segmentCount);
+    // `data-segment-language` belongs to the language badge only.
+    expect(substr_count($html, 'data-segment-language='))->toBe($segmentCount);
+    // P6-006 uses its own dedicated hooks on the row.
+    expect(substr_count($html, 'data-filter-language='))->toBe($segmentCount);
+    expect(substr_count($html, 'data-nav-seconds='))->toBe($segmentCount);
 })->group('p6-006');
 
 it('renders a filter option for each language present in canonical order', function () {

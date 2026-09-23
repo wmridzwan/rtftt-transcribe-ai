@@ -1,0 +1,133 @@
+{
+    "baseUrl": "http://127.0.0.1:8123",
+    "email": "p6-006@example.test",
+    "password": "password",
+    "filter": {
+        "transcriptionId": 1,
+        "segments": [
+            {
+                "index": 0,
+                "start": 0.5,
+                "end": 4,
+                "language": "en",
+                "text": "First segment"
+            },
+            {
+                "index": 1,
+                "start": 4,
+                "end": 8.25,
+                "language": "ms",
+                "text": "Segmen kedua"
+            },
+            {
+                "index": 2,
+                "start": 12.345,
+                "end": 16.5,
+                "language": "zh",
+                "text": "\u7b2c\u4e09\u6bb5"
+            },
+            {
+                "index": 3,
+                "start": 16.5,
+                "end": 18,
+                "language": "ta",
+                "text": "\u0ba8\u0bbe\u0ba9\u0bcd\u0b95\u0bbe\u0bae\u0bcd"
+            },
+            {
+                "index": 4,
+                "start": 18,
+                "end": 19.5,
+                "language": "und",
+                "text": "Undetermined text"
+            },
+            {
+                "index": 5,
+                "start": 19.5,
+                "end": 21,
+                "language": "en",
+                "text": "Sixth segment"
+            },
+            {
+                "index": 6,
+                "start": 21,
+                "end": 22.5,
+                "language": "ms",
+                "text": "Segmen keenam"
+            },
+            {
+                "index": 7,
+                "start": 22.5,
+                "end": 24,
+                "language": "zh",
+                "text": "\u7b2c\u516b\u6bb5"
+            }
+        ]
+    },
+    "overlap": {
+        "transcriptionId": 2,
+        "segments": [
+            {
+                "index": 0,
+                "start": 0.5,
+                "end": 6,
+                "language": "en",
+                "text": "Overlap zero"
+            },
+            {
+                "index": 1,
+                "start": 3,
+                "end": 9,
+                "language": "ms",
+                "text": "Overlap one"
+            },
+            {
+                "index": 2,
+                "start": 9,
+                "end": 12,
+                "language": "zh",
+                "text": "Overlap two"
+            },
+            {
+                "index": 3,
+                "start": 12,
+                "end": 15,
+                "language": "ta",
+                "text": "Overlap three"
+            },
+            {
+                "index": 4,
+                "start": 15,
+                "end": 15,
+                "language": "und",
+                "text": "Zero length"
+            }
+        ]
+    },
+    "noMedia": {
+        "transcriptionId": 3,
+        "segments": [
+            {
+                "index": 0,
+                "start": 0,
+                "end": 5,
+                "language": "en",
+                "text": "No media one"
+            },
+            {
+                "index": 1,
+                "start": 5,
+                "end": 10,
+                "language": "ms",
+                "text": "No media two"
+            },
+            {
+                "index": 2,
+                "start": 10,
+                "end": 15,
+                "language": "zh",
+                "text": "No media three"
+            }
+        ]
+    },
+    "copyFullText": "First segment\nSegmen kedua\n\u7b2c\u4e09\u6bb5\n\u0ba8\u0bbe\u0ba9\u0bcd\u0b95\u0bbe\u0bae\u0bcd\nUndetermined text\nSixth segment\nSegmen keenam\n\u7b2c\u516b\u6bb5"
+}

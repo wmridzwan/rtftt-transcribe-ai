@@ -2,11 +2,17 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — implementation complete 2026-09-23. Contract
-authored and independence confirmed; implementation + 6 feature tests pass
-(full suite 643/642); Pint clean; PHPStan 0; real-Chromium browser verification
-passed (2/2) via `verification/p6-006/advanced-navigation-filter.spec.js`.
-Fresh independent review pending. Not VERIFIED; not DONE.
+IMPLEMENTED_PENDING_REVIEW — implementation complete 2026-09-23; corrective
+cycle applied 2026-09-23 after independent review returned CHANGES_REQUESTED.
+Remains IMPLEMENTED_PENDING_REVIEW. Not VERIFIED; not DONE.
+
+- Corrective cycle: H-1 (reserved Phase 4 selector collision), M-1 (stale filter
+  count), M-2 (overlap navigation trap), M-3 (no-media feedback), M-4 (durable
+  browser evidence) and the LOW items were addressed. See "Corrective Cycle"
+  below. Fresh independent re-review required.
+- Original implementation: contract authored; independence confirmed; 7 feature
+  tests pass; Pint clean; PHPStan 0; real-Chromium browser verification passed
+  (7/7) via `verification/p6-006/advanced-navigation-filter.spec.js`.
 
 ## Ownership
 
@@ -78,8 +84,11 @@ Independence holds; P6-006 proceeds as a bounded early-start task.
    via the existing seek event; disabled while typing in an input.
 2. Language filter shows only matching rows and re-syncs search match
    counts/current index.
-3. `data-segment-language` is present on segment rows; filter controls are
-   accessible and labeled.
+3. Per-segment language is exposed on segment rows via the dedicated
+   `data-filter-language` hook; filter controls are accessible and labeled.
+   (Corrective reconciliation: the original wording named `data-segment-language`,
+   but that attribute is a reserved Phase 4 selector owned by the language badge;
+   P6-006 must not duplicate it. See Corrective Cycle H-1.)
 4. Existing search/copy/playback tests remain green; no `innerHTML` introduced.
 5. No translation/revision/split-merge assumption is introduced.
 6. Pint, PHPStan, and the full regression suite pass.
@@ -101,3 +110,48 @@ Yes (DC-01).
 ## Owner Decision Dependencies
 
 D6-07 (adopted); DC-01; ADR-025.
+
+## Corrective Cycle (2026-09-23)
+
+Responds to `reviews/P6-006-independent-review.md` (CHANGES_REQUESTED).
+
+- **H-1 — reserved selector collision removed.** The row-level
+  `data-seek-seconds` and `data-segment-language` were removed. Rows now expose
+  dedicated hooks: `data-filter-language` (filtering) and `data-nav-seconds`
+  (navigation). The Phase 4 hooks remain unique to the timestamp seek button and
+  the language badge. Re-ran the P4-003 (seek-locator), P4-004 and P4-006 browser
+  suites: the previously failing V4-01/V4-10/V4-11/V4-35 now pass.
+- **M-1 — filter count fixed.** `applyFilter()` maintains a reactive
+  `filteredCount` that drives the `aria-live="polite"` label, so the count is
+  never one render behind the DOM. The label now always reflects the visible
+  set (including "all").
+- **M-2 — stable navigation identity.** Keyboard navigation resolves its
+  position from `navIndex` (stable `segment_index`) instead of the
+  playback-owned `aria-current` row. Overlapping and zero-length intervals can no
+  longer trap navigation or skip valid segments.
+- **M-3 — no-media feedback.** Navigation always applies its own visible
+  selection outline (`outline-*` classes, distinct from playback's `ring`/`bg`)
+  and announces `Segment N of M selected` via a `role="status"` live region.
+  Media playback is not faked.
+- **M-4 — durable browser evidence.** Added a dedicated P6-006 harness:
+  `verification/p6-006-seed.php`, `verification/p6-006-auth.setup.js`,
+  `verification/p6-006/README.md`, the strengthened spec, and the tracked
+  evidence document `verification/p6-006/P6-006-BROWSER-VERIFICATION-EVIDENCE.md`
+  plus tracked results JSON. The spec asserts rendered visibility and computed
+  outline, not only `hidden`.
+- **LOW.** Modifier combinations (`Ctrl/Alt/Meta/Shift`) are ignored; keyboard
+  instructions are associated via `aria-describedby`/`aria-keyshortcuts`; the
+  full-transcript copy scope is documented on the control and in code.
+
+## Cross-Task Contract Notes (for later P6/P7 contracts; not implemented here)
+
+- Phase 4 `data-seek-seconds` / `data-segment-language` are **reserved
+  compatibility hooks**; future workspace DOM additions must not reuse them.
+- **P6-001 / P6-002 revision contracts must define which revision-layer segment
+  identity navigation follows after split/merge** (active revision vs machine
+  source), and whether `data-*` hooks carry revision-segment ids.
+- **D6-03 must explicitly define overlap and zero-length timing semantics**;
+  navigation now depends on ordered segment identity precisely because playback
+  resolves overlaps to the lowest index.
+- **Phase 7 must settle correlation-field naming** (`http_request_id` vs
+  `request_id` vs `queue_job_id`) before metrics/tracing build on it.
