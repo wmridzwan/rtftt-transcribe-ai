@@ -2,17 +2,35 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — implementation complete 2026-09-23; corrective
-cycle applied 2026-09-23 after independent review returned CHANGES_REQUESTED.
-Remains IMPLEMENTED_PENDING_REVIEW. Not VERIFIED; not DONE.
+DONE — closed by the Human Product Owner on 2026-09-23
+(`DECISION-P6-006-CLOSURE-001`) on the basis of the fresh independent corrective
+re-review VERIFIED verdict
+(`reviews/P6-006-P7-005-corrective-independent-re-review.md`; no
+BLOCKER/HIGH/MEDIUM). All original review findings and corrective artifacts are
+preserved unchanged. Residual LOW/INFO debt is carried forward non-blocking
+(`DECISION-PHASE6-7-DEBT-CARRYFORWARD-001`); P6-006 is not reopened for it.
 
 - Corrective cycle: H-1 (reserved Phase 4 selector collision), M-1 (stale filter
   count), M-2 (overlap navigation trap), M-3 (no-media feedback), M-4 (durable
   browser evidence) and the LOW items were addressed. See "Corrective Cycle"
-  below. Fresh independent re-review required.
-- Original implementation: contract authored; independence confirmed; 7 feature
-  tests pass; Pint clean; PHPStan 0; real-Chromium browser verification passed
-  (7/7) via `verification/p6-006/advanced-navigation-filter.spec.js`.
+  below.
+- Original implementation: contract authored; independence confirmed;
+  real-Chromium browser verification passed via
+  `verification/p6-006/advanced-navigation-filter.spec.js`.
+
+## Review
+
+Review Files:
+`reviews/P6-006-independent-review.md` (CHANGES_REQUESTED, original);
+`reviews/P6-006-P7-005-corrective-independent-re-review.md` (VERIFIED,
+corrective re-review).
+
+Review Status: VERIFIED (2026-09-23). No BLOCKER/HIGH/MEDIUM. The reviewer
+independently reproduced the committed browser harness (7/7) and the P4-003/
+P4-004/P4-006 regression suites, confirming Phase 4 selector compatibility.
+Non-blocking carry-forward (INFO): pre-existing order-dependent full-suite
+flakiness; the known Phase 4 audio-playback timing flake; the pre-existing
+`showRenameModal` console error. None attributable to P6-006.
 
 ## Ownership
 

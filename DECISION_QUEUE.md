@@ -3132,3 +3132,112 @@ semantics. If any of those become necessary, STOP at a decision boundary.
 Blocks: None.
 
 Does Not Block: Phase 6 mainline; Phase 7 general work remains not authorized.
+
+### DECISION-P6-006-CLOSURE-001 — Accept the fresh independent P6-006 re-review verdict and close P6-006 DONE
+
+Decision ID: DECISION-P6-006-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Task Closure
+
+Originating Task: P6-006 (Advanced Navigation + Search/Filter)
+
+Question:
+
+Should the fresh independent corrective re-review verdict (`VERIFIED`) be
+accepted and P6-006 be closed DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-23. The fresh independent corrective re-review
+(`reviews/P6-006-P7-005-corrective-independent-re-review.md`) returned
+**VERIFIED** with no BLOCKER, HIGH, or MEDIUM findings. The reviewer
+independently confirmed: the reserved Phase 4 selector hooks remain unique
+(rows use dedicated `data-filter-language`/`data-nav-seconds`); overlapping and
+zero-length segment navigation no longer traps or skips; the language-filter
+count and no-media feedback are correct and accessibility-visible; the committed
+P6-006 browser harness is independently reproducible (7/7, plus P4-003/P4-004/
+P4-006 regression runs); and P6-006 remains independent of
+translation/revision/split-merge semantics.
+
+P6-006 is transitioned `VERIFIED → DONE`. All original review findings, the
+corrective artifacts, and the independent re-review evidence are preserved
+unchanged. This decision does not close Phase 6.
+
+Blocks: None.
+
+Does Not Block: `DECISION-PHASE6-7-DEBT-CARRYFORWARD-001`; P6-001 implementation.
+
+### DECISION-P7-005-CLOSURE-001 — Accept the fresh independent P7-005 re-review verdict and close P7-005 DONE
+
+Decision ID: DECISION-P7-005-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Task Closure
+
+Originating Task: P7-005 (Observability Foundation)
+
+Question:
+
+Should the fresh independent corrective re-review verdict (`VERIFIED`) be
+accepted and P7-005 be closed DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-23. The fresh independent corrective re-review
+(`reviews/P6-006-P7-005-corrective-independent-re-review.md`) returned
+**VERIFIED** with no BLOCKER, HIGH, or MEDIUM findings. The reviewer
+independently confirmed: real emitted failure records carry the required
+`LogContext` fields; observability enrichment is non-fatal to the underlying
+job; HTTP (`http_request_id`), worker-transport (`request_id`), and queue
+(`queue_job_id`) correlation identifiers have distinct semantics; `X-Request-Id`
+covers matched routes, 404, 419, and `/up`; and P7-005 remains within its
+product-semantic-neutral early-hardening authorization.
+
+P7-005 is transitioned `VERIFIED → DONE`. All original review findings, the
+corrective artifacts, and the independent re-review evidence are preserved
+unchanged. This decision does not authorize any other Phase 7 task.
+
+Blocks: None.
+
+Does Not Block: `DECISION-PHASE6-7-DEBT-CARRYFORWARD-001`; Phase 7 remains not
+generally authorized.
+
+### DECISION-PHASE6-7-DEBT-CARRYFORWARD-001 — Carry forward P6-006/P7-005 LOW/INFO debt as non-blocking
+
+Decision ID: DECISION-PHASE6-7-DEBT-CARRYFORWARD-001
+
+Status: DECIDED — HPO 2026-09-23
+
+Type: Debt / Risk Acceptance
+
+Originating Scope: P6-006 and P7-005 residual LOW/INFO findings
+
+Resolution:
+
+HPO-DECIDED 2026-09-23: the following residual items are recorded as
+non-blocking deferred debt. Neither P6-006 nor P7-005 is reopened to clean them.
+
+1. **Pre-existing/order-dependent full-suite flaky tests** (e.g.
+   `MediaManagementTest` file-size/Flysystem-on-Windows; cross-test state leakage
+   observed by the reviewer). Not introduced by P6-006/P7-005. A dedicated
+   suite-hygiene follow-up is recommended.
+2. **Missing ADR-017 `device` / compute-device observability.** `device` is
+   absent everywhere in the app, not only in `LogContext`; P7-005's contract
+   requires only the minimum fields "where available". Carry forward to whichever
+   task next touches provider/worker compute metadata.
+3. **Known Phase 4 playback timing flake** (`V4-08`/P4-003 audio `currentTime`
+   remains `0` after the fixed wait). Environmental; the H-1 selector
+   regression surface is unaffected. P7-010 owns browser-flake elimination.
+4. **Pre-existing `showRenameModal` console error** on the transcript workspace.
+   Present before P6-006; own a separate correction only if separately
+   authorized.
+
+Phase 6/7 ownership of these items is productionization/hardening work; they do
+not gate P6-006/P7-005 closure or Phase 6 mainline.
+
+Blocks: None.
+
+Does Not Block: P6-001 implementation; P6-002 contract authoring.

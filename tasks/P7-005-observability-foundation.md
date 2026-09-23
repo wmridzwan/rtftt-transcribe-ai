@@ -2,16 +2,31 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — implementation complete 2026-09-23; corrective
-cycle applied 2026-09-23 after independent review returned CHANGES_REQUESTED.
-Remains IMPLEMENTED_PENDING_REVIEW. Not VERIFIED; not DONE.
+DONE — closed by the Human Product Owner on 2026-09-23
+(`DECISION-P7-005-CLOSURE-001`) on the basis of the fresh independent corrective
+re-review VERIFIED verdict
+(`reviews/P6-006-P7-005-corrective-independent-re-review.md`; no
+BLOCKER/HIGH/MEDIUM). All original review findings and corrective artifacts are
+preserved unchanged. Residual INFO debt is carried forward non-blocking
+(`DECISION-PHASE6-7-DEBT-CARRYFORWARD-001`); P7-005 is not reopened for it.
 
 - Corrective cycle: H-1 (translation failure log enrichment), M-1 (best-effort
   log context), M-2 (separate correlation fields), M-3 (correlation header
   coverage) and the LOW items were addressed. See "Corrective Cycle" below.
-  Fresh independent re-review required.
 - Original implementation: structured logging, request correlation, job
   observability, health diagnostics, and a runbook added.
+
+## Review
+
+Review Files:
+`reviews/P7-005-independent-review.md` (CHANGES_REQUESTED, original);
+`reviews/P6-006-P7-005-corrective-independent-re-review.md` (VERIFIED,
+corrective re-review).
+
+Review Status: VERIFIED (2026-09-23). No BLOCKER/HIGH/MEDIUM. Non-blocking
+carry-forward (INFO): ADR-017 `device` field is absent across the whole app (not
+a P7-005 defect; out of scope — P7-005 emits the minimum fields "where
+available"); pre-existing full-suite order-dependent flakiness.
 
 ## Ownership
 
