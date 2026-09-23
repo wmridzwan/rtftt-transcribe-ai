@@ -6,6 +6,7 @@ use App\Translation\TranslationQueueConfig;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
@@ -50,7 +51,7 @@ class ObservabilityDiagnostics extends Command
         }
 
         $this->newLine();
-        $this->line('Schedule: translation:recover-stale-attempts (every minute, without overlapping)');
+        $this->line('Schedule: '.$this->scheduleSummary('translation:recover-stale-attempts'));
 
         $probeFailed = false;
 
@@ -69,6 +70,43 @@ class ObservabilityDiagnostics extends Command
         $this->info('Observability diagnostics complete.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Derive the stale-recovery schedule line from the actual scheduler state
+     * instead of a hardcoded string, so it cannot drift from routes/console.php.
+     */
+    private function scheduleSummary(string $command): string
+    {
+        try {
+            $events = app(Schedule::class)->events();
+        } catch (Throwable) {
+            return $command.' (scheduler unavailable)';
+        }
+
+        foreach ($events as $event) {
+            if (! is_string($event->command) || ! str_contains($event->command, $command)) {
+                continue;
+            }
+
+            $parts = [$this->describeExpression((string) $event->expression)];
+
+            if ($event->withoutOverlapping) {
+                $parts[] = 'without overlapping';
+            }
+
+            return $command.' ('.implode(', ', $parts).')';
+        }
+
+        return $command.' (not scheduled)';
+    }
+
+    private function describeExpression(string $expression): string
+    {
+        return match ($expression) {
+            '* * * * *' => 'every minute',
+            default => 'cron "'.$expression.'"',
+        };
     }
 
     private function probeWorker(): bool

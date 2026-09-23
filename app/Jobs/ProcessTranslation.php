@@ -49,6 +49,7 @@ class ProcessTranslation implements ShouldQueue
         public readonly int $translationId,
         public readonly int $transcriptionId,
         public readonly string $attemptToken,
+        public readonly ?string $httpRequestId = null,
     ) {
         if ($translationId <= 0 || $transcriptionId <= 0) {
             throw new InvalidArgumentException('Translation and transcription identifiers must be positive integers.');
@@ -102,10 +103,10 @@ class ProcessTranslation implements ShouldQueue
         } catch (TranslationException $exception) {
             $this->fail($translation, $exception->failure, $exception->getMessage());
         } catch (Throwable $exception) {
-            Log::error('Translation job raised an unexpected failure.', [
-                'translation_id' => $translation->getKey(),
+            Log::error('Translation job raised an unexpected failure.', LogContext::forTranslation($translation, $this->correlationContext([
+                'failure_code' => TranslationFailure::ProcessingFailed->value,
                 'exception' => $exception::class,
-            ]);
+            ])));
 
             $this->fail($translation, TranslationFailure::ProcessingFailed, 'Unexpected translation failure.');
         }
@@ -134,9 +135,9 @@ class ProcessTranslation implements ShouldQueue
             translationId: $translation->getKey(),
         );
 
-        Log::info('Translation provider invocation started.', LogContext::forTranslation($translation, [
+        Log::info('Translation provider invocation started.', LogContext::forTranslation($translation, $this->correlationContext([
             'request_id' => $invocation->requestId,
-        ]));
+        ])));
 
         $startedAt = microtime(true);
 
@@ -145,10 +146,10 @@ class ProcessTranslation implements ShouldQueue
         } catch (TranslationException $exception) {
             throw $exception;
         } catch (Throwable $exception) {
-            Log::error('Translation provider raised an unexpected failure.', [
-                'translation_id' => $translation->getKey(),
+            Log::error('Translation provider raised an unexpected failure.', LogContext::forTranslation($translation, $this->correlationContext([
+                'failure_code' => TranslationFailure::ProcessingFailed->value,
                 'exception' => $exception::class,
-            ]);
+            ])));
 
             throw new TranslationException(TranslationFailure::ProcessingFailed, 'Unexpected translation failure.', $exception);
         }
@@ -167,11 +168,11 @@ class ProcessTranslation implements ShouldQueue
                 ? TranslationFailure::ProcessingFailed
                 : TranslationFailure::PersistenceFailed;
 
-            Log::error('Translation result persistence raised an unexpected failure.', [
-                'translation_id' => $translation->getKey(),
+            Log::error('Translation result persistence raised an unexpected failure.', LogContext::forTranslation($translation, $this->correlationContext([
+                'failure_code' => $failure->value,
                 'exception' => $exception::class,
                 'transient' => $transient,
-            ]);
+            ])));
 
             throw new TranslationException(
                 $failure,
@@ -180,9 +181,9 @@ class ProcessTranslation implements ShouldQueue
             );
         }
 
-        Log::info('Translation job completed.', LogContext::forTranslation($translation, [
+        Log::info('Translation job completed.', LogContext::forTranslation($translation, $this->correlationContext([
             'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
-        ]));
+        ])));
     }
 
     /**
@@ -226,10 +227,10 @@ class ProcessTranslation implements ShouldQueue
         try {
             $translation->refresh();
         } catch (Throwable $exception) {
-            Log::error('Translation claim refresh failed after a successful claim.', [
-                'translation_id' => $translation->getKey(),
+            Log::error('Translation claim refresh failed after a successful claim.', LogContext::forTranslation($translation, $this->correlationContext([
+                'failure_code' => TranslationFailure::ProcessingFailed->value,
                 'exception' => $exception::class,
-            ]);
+            ])));
 
             $this->fail(
                 $translation,
@@ -260,19 +261,19 @@ class ProcessTranslation implements ShouldQueue
             ]);
 
         if ($updated === 0) {
-            Log::warning('Translation failure ignored for a superseded attempt.', [
-                'translation_id' => $translation->getKey(),
+            Log::warning('Translation failure ignored for a superseded attempt.', LogContext::forTranslation($translation, $this->correlationContext([
                 'failure' => $failure->value,
-            ]);
+                'failure_code' => $failure->value,
+            ])));
 
             return;
         }
 
-        Log::warning('Translation job failed.', [
-            'translation_id' => $translation->getKey(),
+        Log::warning('Translation job failed.', LogContext::forTranslation($translation, $this->correlationContext([
             'failure' => $failure->value,
+            'failure_code' => $failure->value,
             'message' => $safeMessage,
-        ]);
+        ])));
     }
 
     /**
@@ -303,10 +304,33 @@ class ProcessTranslation implements ShouldQueue
 
     private function skip(string $reason): void
     {
-        Log::info('Translation job skipped.', [
+        Log::info('Translation job skipped.', $this->correlationContext([
             'translation_id' => $this->translationId,
             'transcription_id' => $this->transcriptionId,
             'reason' => $reason,
-        ]);
+        ]));
+    }
+
+    /**
+     * Cross-layer correlation fields added to every record emitted by this job:
+     * the HTTP correlation id propagated from dispatch time and the framework
+     * queue job id. Distinct from ADR-017 `request_id` (the worker transport id).
+     *
+     * @param  array<string, mixed>  $extra
+     * @return array<string, mixed>
+     */
+    private function correlationContext(array $extra = []): array
+    {
+        if ($this->httpRequestId !== null && $this->httpRequestId !== '') {
+            $extra['http_request_id'] = $this->httpRequestId;
+        }
+
+        $queueJobId = $this->job?->getJobId();
+
+        if (is_string($queueJobId) && $queueJobId !== '') {
+            $extra['queue_job_id'] = $queueJobId;
+        }
+
+        return $extra;
     }
 }

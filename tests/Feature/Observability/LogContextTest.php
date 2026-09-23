@@ -68,3 +68,24 @@ it('builds translation correlation context', function () {
         ->and($context['transcription_id'])->toBe($transcription->getKey())
         ->and($context['target_language'])->toBe('ms');
 })->group('p7-005');
+
+it('returns a partial translation context instead of throwing on a bad model', function () {
+    $translation = new Translation;
+
+    $context = LogContext::forTranslation($translation, ['extra' => 'kept']);
+
+    expect($context)->toBeArray()
+        ->and($context['extra'])->toBe('kept');
+})->group('p7-005');
+
+it('returns a partial transcription context instead of throwing on a bad attempt', function () {
+    $user = User::factory()->create();
+    $transcription = Transcription::factory()->create(['user_id' => $user->id]);
+    $attempt = new ProcessingJob;
+
+    $context = LogContext::forTranscription($transcription, $attempt, ['extra' => 'kept']);
+
+    expect($context)->toBeArray()
+        ->and($context['transcription_id'])->toBe($transcription->getKey())
+        ->and($context['extra'])->toBe('kept');
+})->group('p7-005');

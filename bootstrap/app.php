@@ -21,9 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => AdminMiddleware::class,
         ]);
-        $middleware->web(append: [
-            AssignRequestId::class,
-        ]);
+
+        // P7-005: global (prepended) so every HTTP response carries the
+        // correlation id, including 404/419 and the `/up` health endpoint.
+        $middleware->prepend(AssignRequestId::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -2,11 +2,16 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW — implementation complete 2026-09-23. Contract
-authored and implemented; structured logging, request correlation, job
-observability, health diagnostics, and a runbook added. 11 focused tests pass
-(full suite 643/642); Pint clean; PHPStan 0. Fresh independent review pending.
-Not VERIFIED; not DONE.
+IMPLEMENTED_PENDING_REVIEW — implementation complete 2026-09-23; corrective
+cycle applied 2026-09-23 after independent review returned CHANGES_REQUESTED.
+Remains IMPLEMENTED_PENDING_REVIEW. Not VERIFIED; not DONE.
+
+- Corrective cycle: H-1 (translation failure log enrichment), M-1 (best-effort
+  log context), M-2 (separate correlation fields), M-3 (correlation header
+  coverage) and the LOW items were addressed. See "Corrective Cycle" below.
+  Fresh independent re-review required.
+- Original implementation: structured logging, request correlation, job
+  observability, health diagnostics, and a runbook added.
 
 ## Ownership
 
@@ -93,3 +98,38 @@ No.
 ## Owner Decision Dependencies
 
 DC-01 (browser governance default; not applicable). ADR-017; ADR-025.
+
+## Corrective Cycle (2026-09-23)
+
+Responds to `reviews/P7-005-independent-review.md` (CHANGES_REQUESTED).
+
+- **H-1 — translation failure enrichment.** `ProcessTranslation` failure records
+  (`Translation job failed.`, `Translation failure ignored for a superseded
+  attempt.`) and the unexpected-error records now carry `LogContext` fields
+  (`translation_id`, `transcription_id`, `target_language`, `model`) and
+  `failure_code`; transcription unexpected-error records were enriched the same
+  way. Added `JobLogRecordTest` that inspects the actual emitted log records.
+- **M-1 — best-effort log context.** `LogContext` never throws: model access and
+  the attempt-ordinal lookup are defensive and degrade to a partial context. The
+  transcription job computes the ordinal once after the claim and passes it, so
+  logging paths no longer repeat the query. Added failure-path tests (including
+  an injected ordinal-lookup failure) proving a job still completes.
+- **M-2 — distinct correlation fields.** `http_request_id` (HTTP),
+  `request_id` (ADR-017 worker transport id), and `queue_job_id` (framework
+  queue id) are now separate. The dispatchers propagate `http_request_id` into
+  the queued job payload explicitly. No distributed tracing introduced.
+- **M-3 — correlation header coverage.** `AssignRequestId` is registered as
+  global (prepended) middleware, so `X-Request-Id` is present on matched routes,
+  404s, 419s, and `/up`. Regression tests cover each.
+- **LOW.** Strict `\z` end anchor; inbound-id acceptance/normalization,
+  `duration_ms` semantics, retention, and redundant-key aliases documented in
+  `OBSERVABILITY.md`; diagnostics schedule derived from the live scheduler;
+  `--probe-worker` coverage added (reachable / unreachable / unconfigured /
+  `--strict`).
+
+## Cross-Task Contract Notes (for later P6/P7 contracts; not implemented here)
+
+- **Phase 7 must settle correlation-field naming** (`http_request_id` vs
+  `request_id` vs `queue_job_id`) before metrics/tracing work builds on it.
+- HTTP→job correlation propagation is now explicit; broader distributed tracing
+  remains out of scope and requires separate authorization.

@@ -81,6 +81,7 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/structured.log'),
             'level' => env('LOG_STRUCTURED_LEVEL', 'info'),
+            'days' => (int) env('LOG_STRUCTURED_DAYS', 7),
             'formatter' => JsonFormatter::class,
             'formatter_with' => [
                 'batchMode' => JsonFormatter::BATCH_MODE_NEWLINES,

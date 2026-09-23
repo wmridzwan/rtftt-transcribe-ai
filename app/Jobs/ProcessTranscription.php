@@ -44,9 +44,16 @@ class ProcessTranscription implements ShouldQueue
      */
     public int $tries = 1;
 
+    /**
+     * Best-effort attempt ordinal, computed once after the claim so logging
+     * paths do not repeat the lookup (P7-005 corrective M-1).
+     */
+    private ?int $attemptNumber = null;
+
     public function __construct(
         public readonly int $transcriptionId,
         public readonly int $processingAttemptId,
+        public readonly ?string $httpRequestId = null,
     ) {
         if ($transcriptionId <= 0 || $processingAttemptId <= 0) {
             throw new InvalidArgumentException('Transcription and processing attempt identifiers must be positive integers.');
@@ -107,6 +114,8 @@ class ProcessTranscription implements ShouldQueue
             return;
         }
 
+        $this->attemptNumber = LogContext::attemptNumber($transcription, $attempt);
+
         if ($transcription->status === TranscriptionStatus::Draft) {
             $this->transition($transcription, TranscriptionStatus::Queued);
         }
@@ -144,10 +153,11 @@ class ProcessTranscription implements ShouldQueue
             requestedLanguage: $this->requestedLanguage($transcription),
         );
 
-        Log::info('Transcription provider invocation started.', LogContext::forTranscription($transcription, $attempt, [
+        Log::info('Transcription provider invocation started.', LogContext::forTranscription($transcription, $attempt, $this->correlationContext([
             'processing_attempt_id' => $attempt->getKey(),
+            'attempt_number' => $this->attemptNumber,
             'request_id' => $invocation->requestId,
-        ]));
+        ])));
 
         $startedAt = microtime(true);
 
@@ -158,11 +168,12 @@ class ProcessTranscription implements ShouldQueue
 
             return;
         } catch (Throwable $exception) {
-            Log::error('Transcription provider raised an unexpected failure.', [
-                'transcription_id' => $transcription->getKey(),
+            Log::error('Transcription provider raised an unexpected failure.', LogContext::forTranscription($transcription, $attempt, $this->correlationContext([
                 'processing_attempt_id' => $attempt->getKey(),
+                'attempt_number' => $this->attemptNumber,
+                'failure_code' => TranscriptionFailure::ProcessingFailed->value,
                 'exception' => $exception::class,
-            ]);
+            ])));
 
             $this->fail($transcription, $attempt, TranscriptionFailure::ProcessingFailed, 'Unexpected transcription failure.');
 
@@ -181,21 +192,23 @@ class ProcessTranscription implements ShouldQueue
 
             return;
         } catch (Throwable $exception) {
-            Log::error('Transcription result persistence raised an unexpected failure.', [
-                'transcription_id' => $transcription->getKey(),
+            Log::error('Transcription result persistence raised an unexpected failure.', LogContext::forTranscription($transcription, $attempt, $this->correlationContext([
                 'processing_attempt_id' => $attempt->getKey(),
+                'attempt_number' => $this->attemptNumber,
+                'failure_code' => TranscriptionFailure::PersistenceFailed->value,
                 'exception' => $exception::class,
-            ]);
+            ])));
 
             $this->fail($transcription, $attempt, TranscriptionFailure::PersistenceFailed, 'Result persistence failed.');
 
             return;
         }
 
-        Log::info('Transcription job completed.', LogContext::forTranscription($transcription, $attempt, [
+        Log::info('Transcription job completed.', LogContext::forTranscription($transcription, $attempt, $this->correlationContext([
             'processing_attempt_id' => $attempt->getKey(),
+            'attempt_number' => $this->attemptNumber,
             'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
-        ]));
+        ])));
     }
 
     private function requestedLanguage(Transcription $transcription): ?LanguageIdentifier
@@ -260,12 +273,13 @@ class ProcessTranscription implements ShouldQueue
     ): void {
         $this->databaseFail($transcription, $attempt, $failure, $safeMessage);
 
-        Log::warning('Transcription job failed.', LogContext::forTranscription($transcription, $attempt, [
+        Log::warning('Transcription job failed.', LogContext::forTranscription($transcription, $attempt, $this->correlationContext([
             'processing_attempt_id' => $attempt->getKey(),
+            'attempt_number' => $this->attemptNumber,
             'failure' => $failure->value,
             'failure_code' => $failure->value,
             'retryable' => $failure->isRetryable(),
-        ]));
+        ])));
     }
 
     private function databaseFail(
@@ -300,10 +314,33 @@ class ProcessTranscription implements ShouldQueue
 
     private function skip(string $reason): void
     {
-        Log::info('Transcription job skipped.', [
+        Log::info('Transcription job skipped.', $this->correlationContext([
             'transcription_id' => $this->transcriptionId,
             'processing_attempt_id' => $this->processingAttemptId,
             'reason' => $reason,
-        ]);
+        ]));
+    }
+
+    /**
+     * Cross-layer correlation fields added to every record emitted by this job:
+     * the HTTP correlation id propagated from dispatch time and the framework
+     * queue job id. Distinct from ADR-017 `request_id` (the worker transport id).
+     *
+     * @param  array<string, mixed>  $extra
+     * @return array<string, mixed>
+     */
+    private function correlationContext(array $extra = []): array
+    {
+        if ($this->httpRequestId !== null && $this->httpRequestId !== '') {
+            $extra['http_request_id'] = $this->httpRequestId;
+        }
+
+        $queueJobId = $this->job?->getJobId();
+
+        if (is_string($queueJobId) && $queueJobId !== '') {
+            $extra['queue_job_id'] = $queueJobId;
+        }
+
+        return $extra;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Enums\ProcessingStage;
 use App\Enums\ProcessingStatus;
 use App\Enums\TranscriptionStatus;
+use App\Http\Middleware\AssignRequestId;
 use App\Jobs\ProcessTranscription;
 use App\Models\ProcessingJob;
 use App\Models\Transcription;
@@ -93,21 +94,29 @@ class TranscriptionOrchestrator
     {
         $queue = (string) config('transcription.queue', 'transcription');
         $connection = config('transcription.queue_connection');
+        $httpRequestId = AssignRequestId::currentId();
 
         $pending = ProcessTranscription::dispatch(
             $attempt->transcription_id,
             $attempt->getKey(),
+            $httpRequestId,
         )->onQueue($queue);
 
         if (is_string($connection) && $connection !== '') {
             $pending->onConnection($connection);
         }
 
-        Log::info('Transcription dispatched to queue.', [
+        $context = [
             'transcription_id' => $attempt->transcription_id,
             'processing_attempt_id' => $attempt->getKey(),
             'queue' => $queue,
             'connection' => is_string($connection) && $connection !== '' ? $connection : config('queue.default'),
-        ]);
+        ];
+
+        if ($httpRequestId !== null) {
+            $context['http_request_id'] = $httpRequestId;
+        }
+
+        Log::info('Transcription dispatched to queue.', $context);
     }
 }

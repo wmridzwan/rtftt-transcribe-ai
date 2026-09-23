@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Http\Middleware\AssignRequestId;
 use App\Jobs\ProcessTranslation;
 use App\Models\Translation;
 use App\Translation\TranslationException;
@@ -26,12 +27,14 @@ class TranslationDispatcher
     {
         $queue = (string) config('translation.queue', 'translation');
         $connection = config('translation.queue_connection');
+        $httpRequestId = AssignRequestId::currentId();
 
         try {
             $pending = ProcessTranslation::dispatch(
                 $translation->getKey(),
                 $translation->transcription_id,
                 $attemptToken,
+                $httpRequestId,
             )->onQueue($queue);
 
             if (is_string($connection) && $connection !== '') {
@@ -71,12 +74,18 @@ class TranslationDispatcher
             ]);
         }
 
-        Log::info('Translation dispatched to queue.', [
+        $context = [
             'translation_id' => $translation->getKey(),
             'transcription_id' => $translation->transcription_id,
             'queue' => $queue,
             'connection' => is_string($connection) && $connection !== '' ? $connection : config('queue.default'),
-        ]);
+        ];
+
+        if ($httpRequestId !== null) {
+            $context['http_request_id'] = $httpRequestId;
+        }
+
+        Log::info('Translation dispatched to queue.', $context);
     }
 
     /**
