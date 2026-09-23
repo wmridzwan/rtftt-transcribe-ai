@@ -22,9 +22,10 @@ rationale. It does not authorize any task, wave, or phase.
   (`DECISION-P7-005-AUTHORIZATION-001`).
 - **D6-01..D6-09 and DC-01 are ADOPTED** (`DECISION-PHASE6-OWNER-DECISIONS-001`;
   ADR-025). D7-01..D7-08 and DC-02 remain OPEN.
-- Task contracts: `tasks/P6-001-...md` (READY), `tasks/P6-006-...md`
-  (IMPLEMENTED_PENDING_REVIEW), `tasks/P7-005-...md`
-  (IMPLEMENTED_PENDING_REVIEW).
+- Task contracts (state as of the §K reconciliation, 2026-09-23):
+  `tasks/P6-001-...md` (IMPLEMENTED_PENDING_REVIEW),
+  `tasks/P6-002-...md` (CONTRACT_AUTHORED_PENDING_P6-001_CLOSURE),
+  `tasks/P6-006-...md` (DONE), `tasks/P7-005-...md` (DONE).
 - Phase 6 cannot close before Phase 5 (satisfied); Phase 7 cannot close before
   Phase 6; P7-012 must not run before Phase 6 is CLOSED.
 
@@ -145,3 +146,32 @@ Authorized by `DECISION-PHASE6-AUTHORIZATION-001`,
 3. Do not start P6-003/P6-004/P6-005/P6-007/P6-008 or any other P7 task without a
    contract and explicit HPO READY promotion; D6-02's history decision and D7-*
    remain to be resolved where they gate a task.
+
+## K. Reconciliation — 2026-09-23 (post corrective re-review)
+
+Supersedes the "current eligibility" task-state lines above; historical
+sections are preserved.
+
+- **P6-006 = DONE** (`DECISION-P6-006-CLOSURE-001`), closed on the fresh
+  independent VERIFIED corrective re-review
+  (`reviews/P6-006-P7-005-corrective-independent-re-review.md`).
+- **P7-005 = DONE** (`DECISION-P7-005-CLOSURE-001`), closed on the same VERIFIED
+  re-review. No other Phase 7 task is authorized.
+- **Residual LOW/INFO debt carried forward non-blocking**
+  (`DECISION-PHASE6-7-DEBT-CARRYFORWARD-001`): order-dependent full-suite
+  flakiness; ADR-017 `device` field; Phase 4 playback timing flake; pre-existing
+  `showRenameModal` console error. Tasks are not reopened for these.
+- **P6-001 = IMPLEMENTED_PENDING_REVIEW.** Canonical editing contract
+  (`PHASE6-EDITING-DOMAIN-CONTRACT.md`) authored; domain primitives implemented
+  in `app/Editing/` with 30 unit tests. Awaiting fresh independent review. No
+  self-verification.
+- **P6-002 contract authored** (`tasks/P6-002-revision-persistence-version-history.md`),
+  status `CONTRACT_AUTHORED_PENDING_P6-001_CLOSURE`. **Not READY; not
+  implemented.** Its own READY promotion requires P6-001 VERIFIED + an explicit
+  HPO promotion.
+- Executed batch: governance closure (P6-006/P7-005), P6-001 implementation,
+  P6-002 contract authoring. No P6-003/P6-004/P6-005/P6-007/P6-008/P6-009 and no
+  further P7 work was started.
+
+Recommended next batch: fresh independent review of P6-001; if VERIFIED, HPO
+closes P6-001 DONE and promotes P6-002 to READY for implementation.
