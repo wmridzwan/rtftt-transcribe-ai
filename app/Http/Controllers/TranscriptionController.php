@@ -69,6 +69,18 @@ class TranscriptionController extends Controller
             ->values()
             ->all();
 
+        $languageOrder = ['ms', 'en', 'zh', 'ta', 'und'];
+        $segmentLanguages = $transcription->segments
+            ->map(fn ($segment): string => $segment->language->value)
+            ->unique()
+            ->sortBy(function (string $language) use ($languageOrder): int {
+                $position = array_search($language, $languageOrder, true);
+
+                return $position === false ? count($languageOrder) : $position;
+            })
+            ->values()
+            ->all();
+
         return view('transcriptions.show', compact(
             'transcription',
             'retryEligible',
@@ -76,6 +88,7 @@ class TranscriptionController extends Controller
             'streamUrl',
             'mediaElement',
             'playbackSegments',
+            'segmentLanguages',
         ));
     }
 }

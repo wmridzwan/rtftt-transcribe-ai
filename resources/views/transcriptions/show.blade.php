@@ -128,13 +128,42 @@
                                         <button type="button" class="rounded-md px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 dark:text-zinc-300 dark:hover:bg-zinc-700" x-on:click="clear()" x-bind:disabled="query === ''">Clear</button>
                                         <button type="button" class="rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-200" x-on:click="copyFull()">Copy transcript</button>
                                         <span class="text-xs text-zinc-500 dark:text-zinc-400" x-text="copyStatus" aria-live="polite"></span>
+                                        <label for="transcript-language-filter" class="sr-only">Filter segments by language</label>
+                                        <select
+                                            id="transcript-language-filter"
+                                            data-transcript-language-filter
+                                            x-model="languageFilter"
+                                            aria-label="Filter segments by language"
+                                            class="rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-xs text-zinc-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                                        >
+                                            <option value="">All languages</option>
+                                            @foreach ($segmentLanguages as $language)
+                                                <option value="{{ $language }}">{{ strtoupper($language) }}</option>
+                                            @endforeach
+                                        </select>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-400" x-text="filterLabel" aria-live="polite"></span>
+                                        <span class="text-xs text-zinc-400 dark:text-zinc-500" data-transcript-nav-hint>Use Arrow Up/Down (or J/K) to move, Home/End to jump</span>
                                     </div>
 
-                                    <div data-transcript-region class="max-h-[70vh] space-y-3 overflow-y-auto pr-1">
+                                    <div
+                                        data-transcript-region
+                                        tabindex="0"
+                                        role="region"
+                                        aria-label="Transcript segments"
+                                        x-on:keydown.arrow-down.prevent="navigateNext()"
+                                        x-on:keydown.arrow-up.prevent="navigatePrevious()"
+                                        x-on:keydown.j.prevent="navigateNext()"
+                                        x-on:keydown.k.prevent="navigatePrevious()"
+                                        x-on:keydown.home.prevent="jumpToFirst()"
+                                        x-on:keydown.end.prevent="jumpToLast()"
+                                        class="max-h-[70vh] space-y-3 overflow-y-auto pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                    >
                                         @foreach ($transcription->segments as $segment)
                                             <div
                                                 data-segment-row
                                                 data-segment-index="{{ $segment->segment_index }}"
+                                                data-segment-language="{{ $segment->language?->value ?? 'und' }}"
+                                                data-seek-seconds="{{ $segment->seek_seconds }}"
                                                 class="flex gap-4 rounded-md p-1 transition-colors"
                                             >
                                                 <div class="flex-shrink-0">
@@ -396,8 +425,10 @@
         window.transcriptSearch = window.transcriptSearch || function (config) {
             return {
                 query: '',
+                languageFilter: '',
                 matchCount: 0,
                 currentIndex: 0,
+                navIndex: null,
                 copyStatus: '',
                 fullText: config.fullText ?? '',
                 init() {
@@ -407,10 +438,35 @@
                             el.dataset.rawText = el.textContent;
                         }
                     });
+                    this.applyFilter();
                     this.$watch('query', () => this.refresh());
+                    this.$watch('languageFilter', () => this.applyFilter());
+                },
+                rowEls() {
+                    return Array.from(this.rootEl.querySelectorAll('[data-segment-row]'));
+                },
+                visibleRows() {
+                    return this.rowEls().filter((row) => ! row.hidden);
                 },
                 segmentEls() {
-                    return Array.from(this.rootEl.querySelectorAll('[data-segment-text]'));
+                    const els = [];
+                    this.visibleRows().forEach((row) => {
+                        row.querySelectorAll('[data-segment-text]').forEach((el) => els.push(el));
+                    });
+                    return els;
+                },
+                applyFilter() {
+                    this.rowEls().forEach((row) => {
+                        const matches = this.languageFilter === '' || (row.dataset.segmentLanguage || 'und') === this.languageFilter;
+                        row.hidden = ! matches;
+                        if (! matches) {
+                            row.querySelectorAll('[data-segment-text]').forEach((el) => {
+                                el.textContent = this.rawText(el);
+                            });
+                        }
+                    });
+                    this.navIndex = null;
+                    this.refresh();
                 },
                 rawText(el) {
                     return el.dataset.rawText ?? el.textContent;
@@ -426,6 +482,67 @@
                         return 'No matches';
                     }
                     return (this.currentIndex + 1) + ' of ' + this.matchCount;
+                },
+                get filterLabel() {
+                    if (this.languageFilter === '') {
+                        return '';
+                    }
+                    const count = this.visibleRows().length;
+                    return count + ' segment' + (count === 1 ? '' : 's');
+                },
+                resolveNavIndex(rows) {
+                    const active = rows.findIndex((row) => row.getAttribute('aria-current') === 'true');
+                    if (active !== -1) {
+                        return active;
+                    }
+                    if (this.navIndex !== null) {
+                        const tracked = rows.findIndex((row) => Number(row.dataset.segmentIndex) === this.navIndex);
+                        if (tracked !== -1) {
+                            return tracked;
+                        }
+                    }
+                    return -1;
+                },
+                activateRow(row) {
+                    if (! row) {
+                        return;
+                    }
+                    this.navIndex = Number(row.dataset.segmentIndex);
+                    const seconds = row.dataset.seekSeconds;
+                    if (seconds !== undefined) {
+                        this.$dispatch('p4-seek', { seconds: Number(seconds) });
+                    }
+                    row.scrollIntoView({ block: 'nearest' });
+                },
+                navigateNext() {
+                    const rows = this.visibleRows();
+                    if (rows.length === 0) {
+                        return;
+                    }
+                    const current = this.resolveNavIndex(rows);
+                    const target = current < 0 ? 0 : (current + 1) % rows.length;
+                    this.activateRow(rows[target]);
+                },
+                navigatePrevious() {
+                    const rows = this.visibleRows();
+                    if (rows.length === 0) {
+                        return;
+                    }
+                    const current = this.resolveNavIndex(rows);
+                    const target = current <= 0 ? rows.length - 1 : current - 1;
+                    this.activateRow(rows[target]);
+                },
+                jumpToFirst() {
+                    const rows = this.visibleRows();
+                    if (rows.length > 0) {
+                        this.activateRow(rows[0]);
+                    }
+                },
+                jumpToLast() {
+                    const rows = this.visibleRows();
+                    if (rows.length > 0) {
+                        this.activateRow(rows[rows.length - 1]);
+                    }
                 },
                 refresh() {
                     const query = this.query.toLocaleLowerCase();
