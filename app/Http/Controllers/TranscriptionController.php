@@ -100,6 +100,13 @@ class TranscriptionController extends Controller
 
         $canEdit = $user->can('update', $transcription);
 
+        // P6-005 persisted translation-invalidation presentation: only the
+        // persisted marker is surfaced; no freshness is inferred.
+        $staleTranslations = $transcription->translations()
+            ->whereNotNull('stale_at')
+            ->orderBy('target_language')
+            ->get();
+
         // P6-007 presentation-only source / active-revision / translation
         // comparison; read-only and never writes staleness state.
         $comparisonView = $comparison->build($transcription, $activeRevision);
@@ -119,6 +126,7 @@ class TranscriptionController extends Controller
             'redoRevision',
             'canEdit',
             'comparisonView',
+            'staleTranslations',
         ));
     }
 
@@ -132,7 +140,7 @@ class TranscriptionController extends Controller
      * a machine-source edit composes over the initial materialization's
      * contiguous positions even when machine `segment_index` is sparse.
      *
-     * @return list<array{nav_index: int, position: int, start: float, end: float, seek: string, formatted_start: string, formatted_end: string, text: string, language: string}>
+     * @return list<array{nav_index: int, position: int, segment_key: string, text_length: int, start: float, end: float, seek: string, formatted_start: string, formatted_end: string, text: string, language: string}>
      */
     private function displaySegments(Transcription $transcription, ?TranscriptRevision $activeRevision): array
     {
@@ -140,6 +148,8 @@ class TranscriptionController extends Controller
             return array_map(fn (RevisionSegmentData $segment): array => [
                 'nav_index' => $segment->position,
                 'position' => $segment->position,
+                'segment_key' => $segment->identity->key(),
+                'text_length' => mb_strlen($segment->text),
                 'start' => $segment->startSeconds,
                 'end' => $segment->endSeconds,
                 'seek' => SegmentTimestamp::fromSeconds($segment->startSeconds)->seek(),
@@ -157,6 +167,8 @@ class TranscriptionController extends Controller
             $segments[] = [
                 'nav_index' => $segment->segment_index,
                 'position' => $ordinal,
+                'segment_key' => 'machine:'.$segment->segment_index,
+                'text_length' => mb_strlen($segment->text),
                 'start' => (float) $segment->start_seconds,
                 'end' => (float) $segment->end_seconds,
                 'seek' => $segment->seek_seconds,

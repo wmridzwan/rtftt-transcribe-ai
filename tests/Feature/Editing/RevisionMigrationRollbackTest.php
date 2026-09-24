@@ -7,14 +7,15 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 /*
- * P6-002 migration reversibility.
+ * P6-002 / P6-005 migration reversibility.
  *
- * Runs the real migrations then rolls the three additive P6-002 migrations back
- * on a dedicated SQLite file, proving `down()` is clean (tables dropped, active
- * pointer column removed) without disturbing the default test database.
+ * Runs the real migrations then rolls the three additive P6-002 migrations and
+ * the two additive P6-005 migrations back on a dedicated SQLite file, proving
+ * `down()` is clean (tables dropped, active pointer and P6-005 columns removed)
+ * without disturbing the default test database.
  */
 
-it('rolls the additive P6-002 migrations back cleanly', function () {
+it('rolls the additive P6-002 and P6-005 migrations back cleanly', function () {
     $testId = Str::uuid()->toString();
     $path = storage_path("app/test-revision-rollback-{$testId}.db");
     touch($path);
@@ -29,17 +30,24 @@ it('rolls the additive P6-002 migrations back cleanly', function () {
 
         expect(Schema::connection('revision_rollback')->hasTable('transcript_revisions'))->toBeTrue()
             ->and(Schema::connection('revision_rollback')->hasTable('transcript_revision_segments'))->toBeTrue()
-            ->and(Schema::connection('revision_rollback')->hasColumn('transcriptions', 'active_revision_id'))->toBeTrue();
+            ->and(Schema::connection('revision_rollback')->hasColumn('transcriptions', 'active_revision_id'))->toBeTrue()
+            ->and(Schema::connection('revision_rollback')->hasColumn('transcript_revision_segments', 'language_provenance'))->toBeTrue()
+            ->and(Schema::connection('revision_rollback')->hasColumn('translations', 'stale_at'))->toBeTrue()
+            ->and(Schema::connection('revision_rollback')->hasColumn('translations', 'staleness_reason'))->toBeTrue()
+            ->and(Schema::connection('revision_rollback')->hasColumn('translations', 'stale_caused_by_revision_id'))->toBeTrue();
 
         Artisan::call('migrate:rollback', [
             '--database' => 'revision_rollback',
-            '--step' => 3,
+            '--step' => 5,
             '--force' => true,
         ]);
 
         expect(Schema::connection('revision_rollback')->hasTable('transcript_revisions'))->toBeFalse()
             ->and(Schema::connection('revision_rollback')->hasTable('transcript_revision_segments'))->toBeFalse()
-            ->and(Schema::connection('revision_rollback')->hasColumn('transcriptions', 'active_revision_id'))->toBeFalse();
+            ->and(Schema::connection('revision_rollback')->hasColumn('transcriptions', 'active_revision_id'))->toBeFalse()
+            ->and(Schema::connection('revision_rollback')->hasColumn('translations', 'stale_at'))->toBeFalse()
+            ->and(Schema::connection('revision_rollback')->hasColumn('translations', 'staleness_reason'))->toBeFalse()
+            ->and(Schema::connection('revision_rollback')->hasColumn('translations', 'stale_caused_by_revision_id'))->toBeFalse();
     } finally {
         DB::purge('revision_rollback');
 

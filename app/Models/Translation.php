@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Editing\TranslationStalenessReason;
 use App\Transcription\LanguageIdentifier;
 use App\Translation\TranslationFailure;
 use App\Translation\TranslationStatus;
@@ -27,6 +28,9 @@ use Illuminate\Support\Carbon;
  * @property TranslationFailure|null $failure_code
  * @property Carbon|null $started_at
  * @property Carbon|null $completed_at
+ * @property Carbon|null $stale_at
+ * @property TranslationStalenessReason|null $staleness_reason
+ * @property string|null $stale_caused_by_revision_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -48,6 +52,9 @@ class Translation extends Model
         'failure_code',
         'started_at',
         'completed_at',
+        'stale_at',
+        'staleness_reason',
+        'stale_caused_by_revision_id',
     ];
 
     protected function casts(): array
@@ -60,6 +67,8 @@ class Translation extends Model
             'dispatched_at' => 'datetime',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
+            'stale_at' => 'datetime',
+            'staleness_reason' => TranslationStalenessReason::class,
         ];
     }
 
@@ -78,6 +87,16 @@ class Translation extends Model
     public function isCompleted(): bool
     {
         return $this->status === TranslationStatus::Completed;
+    }
+
+    /**
+     * Whether this translation has been explicitly invalidated by an approved
+     * source revision edit (P6-005). A stale translation is historical evidence
+     * and must never be represented as current for the active revision.
+     */
+    public function isStale(): bool
+    {
+        return $this->stale_at !== null;
     }
 
     /**

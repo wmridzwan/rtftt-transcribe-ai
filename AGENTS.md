@@ -113,15 +113,25 @@ presentation-truthfulness finding, corrected (the per-row "edited after
 the translation was produced" note is now gated on a persisted translation
 existing for that row), confirmed closed by a fresh independent corrective
 re-review (VERIFIED; no remaining BLOCKER/HIGH/MEDIUM/LOW/INFO), and closed
-**DONE** (`DECISION-P6-007-CLOSURE-001`). P6-004's canonical contract is authored
-(`tasks/P6-004-timing-editing-validation.md`), promoted READY by the HPO
-(`DECISION-P6-004-READY-001`), and implemented (timing-only append-only revision
-edits; `EditKind::Timing` → `TimingChanged` with no staleness persistence;
-machine timing immutable; playback/navigation use active-revision timing); it is
-`IMPLEMENTED_PENDING_REVIEW` and must not be self-verified. P6-005 remains
-dependency-blocked until P6-004 is DONE. D6-08/D6-09 remain DEFERRED.
+**DONE** (`DECISION-P6-007-CLOSURE-001`). P6-004 = DONE (contract authored;
+promoted READY `DECISION-P6-004-READY-001`; timing-only append-only revision edits,
+`EditKind::Timing` → `TimingChanged` with no staleness persistence, machine timing
+immutable, playback/navigation on active-revision timing; independently reviewed
+VERIFIED with no remaining BLOCKER/HIGH/MEDIUM; closed `DECISION-P6-004-CLOSURE-001`).
+P6-005 was unblocked and reclassified `CONTRACT_REQUIRED / READY-ELIGIBLE AFTER
+CONTRACT` (`DECISION-P6-005-ELIGIBILITY-001`); its five owner decisions are now
+DECIDED (`DECISION-P6-005-SPLIT-BOUNDARY-001`, `DECISION-P6-005-MERGE-JOIN-001`,
+`DECISION-P6-005-LANGUAGE-PROVENANCE-001`,
+`DECISION-P6-005-STALENESS-LIFECYCLE-001`, `DECISION-P6-005-SCHEMA-001`), its
+canonical contract (`tasks/P6-005-split-merge-translation-invalidation.md`) is
+reconciled to incorporate them, and it is promoted **READY** and authorized for
+implementation (`DECISION-P6-005-READY-001`). P6-005 was implemented (structural
+split/merge, revision-segment language provenance, additive translation-staleness
+schema, atomic invalidation, required UI, tests, real-browser DC-01 evidence) and
+is **IMPLEMENTED_PENDING_REVIEW** (not self-verified/self-closed). D6-08/D6-09
+remain DEFERRED.
 Phase 6 may not close automatically. Eligibility:
-`PHASE6-7-ELIGIBILITY-MATRIX.md` §R.
+`PHASE6-7-ELIGIBILITY-MATRIX.md` §T.
 
 **Phase 7**: Production Hardening. NOT GENERALLY AUTHORIZED. Only P7-005
 (Observability Foundation) was authorized early

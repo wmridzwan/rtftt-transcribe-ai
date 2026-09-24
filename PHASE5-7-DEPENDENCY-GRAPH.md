@@ -104,20 +104,21 @@ P6-002 = DONE   (DECISION-P6-002-CLOSURE-001)
 P6-003 = DONE   (DECISION-P6-003-CLOSURE-001)
 P6-006 = DONE   (DECISION-P6-006-CLOSURE-001)
 P6-007 = DONE   (DECISION-P6-007-CLOSURE-001)
-P6-004 = IMPLEMENTED_PENDING_REVIEW (DECISION-P6-004-READY-001; implemented
-                        2026-09-24 against the P6-002 DONE gate; awaiting
-                        independent review)
-P6-005 = NOT STARTED   (still gated on P6-004 DONE; contract required)
+P6-004 = DONE   (DECISION-P6-004-CLOSURE-001)
+P6-005 = READY + IMPLEMENTED_PENDING_REVIEW (gate P6-004 DONE satisfied;
+                        DECISION-P6-005-ELIGIBILITY-001; five owner decisions
+                        DECIDED; contract reconciled; DECISION-P6-005-READY-001;
+                        implemented, awaiting fresh independent review)
 P6-008 = NOT STARTED   (gate P6-002 DONE satisfied; D6-02 selects persistent
                         history; contract required)
-P6-009 = FINAL_GATE_ONLY (gated on P6-003..P6-008 DONE; P6-003/P6-006/P6-007 DONE)
+P6-009 = FINAL_GATE_ONLY (gated on P6-003..P6-008 DONE; P6-003/P6-004/P6-006/P6-007 DONE)
 ```
 
-P6-003/P6-006/P6-007 are DONE, so only P6-004, P6-005, and P6-008 remain before
-the P6-009 terminal gate (P6-008 is conditional on D6-02). P6-004 is implemented
-and awaiting independent review (not READY-pending); P6-005 remains
-dependency-blocked on P6-004 DONE. No Phase 6/7 implementation was started by
-this status reconciliation.
+P6-003/P6-004/P6-006/P6-007 are DONE and P6-005 is implemented pending review, so
+only P6-008 (and the P6-005 review closure) remain before the P6-009 terminal gate
+(P6-008 is conditional on D6-02). P6-005's owner decisions are DECIDED, its
+contract is reconciled, and it is READY/implemented. No Phase 6/7 implementation
+beyond P6-005 was started by this status reconciliation.
 
 ## Phase 7 DAG
 

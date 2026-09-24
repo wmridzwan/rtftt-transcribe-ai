@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Editing\MergeComposer;
 use App\Editing\Persistence\MachineSourceMaterializer;
 use App\Editing\RedoUnavailableException;
 use App\Editing\RevisionConflictException;
 use App\Editing\RevisionService;
+use App\Editing\SplitComposer;
 use App\Editing\TextEditComposer;
 use App\Editing\TimingEditComposer;
 use App\Editing\UndoUnavailableException;
@@ -136,6 +138,117 @@ class TranscriptRevisionController extends Controller
         return $this->timingNoticeResponse($transcription, 'Timing changes saved as a new revision.');
     }
 
+    /**
+     * Structural split (P6-005): replace one active-revision segment with two
+     * ordered children at a strict interior boundary, appended as a new revision
+     * with every affected translation invalidated atomically.
+     *
+     * A first structural edit from the machine source validates the split
+     * against the pure machine sequence before any write, then materializes the
+     * initial revision and appends the split derived from it. A stale base is the
+     * canonical conflict; a non-interior boundary is a domain validation error.
+     * Both leave persistence unchanged.
+     */
+    public function split(
+        Request $request,
+        Transcription $transcription,
+        RevisionService $revisions,
+        SplitComposer $composer,
+        MachineSourceMaterializer $materializer,
+    ): RedirectResponse {
+        $this->authorize('update', $transcription);
+
+        $validated = $request->validate([
+            'expected_base' => ['nullable', 'string'],
+            'segment' => ['required', 'string'],
+            'boundary' => ['required', 'numeric'],
+            'text_offset' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $user = $request->user();
+        $expectedBase = $this->normalizeRevisionId($validated['expected_base'] ?? null);
+
+        try {
+            if ($expectedBase === null) {
+                $machineSequence = $materializer->materialize($transcription, $user->getKey());
+                $composer->compose($machineSequence->segments, $validated['segment'], $validated['boundary'], $validated['text_offset']);
+
+                $initial = $revisions->materializeInitial($user, $transcription);
+                $revisions->split($user, $transcription, $initial->revisionId, $validated['segment'], $validated['boundary'], $validated['text_offset']);
+            } else {
+                $active = $revisions->active($user, $transcription);
+
+                if ($active === null || $active->revisionId !== $expectedBase) {
+                    throw RevisionConflictException::staleBase($expectedBase, $active?->revisionId);
+                }
+
+                $revisions->split($user, $transcription, $expectedBase, $validated['segment'], $validated['boundary'], $validated['text_offset']);
+            }
+        } catch (RevisionConflictException) {
+            return $this->structuralConflictResponse($transcription);
+        } catch (InvalidArgumentException $exception) {
+            return $this->structuralErrorResponse($transcription, $exception->getMessage());
+        }
+
+        return $this->structuralNoticeResponse($transcription, 'The segment was split into a new revision.');
+    }
+
+    /**
+     * Structural merge (P6-005): replace an ordered run of two or more adjacent
+     * active-revision segments with one, appended as a new revision with every
+     * affected translation invalidated atomically.
+     *
+     * A first structural edit from the machine source validates the merge against
+     * the pure machine sequence before any write. A stale base is the canonical
+     * conflict; a non-adjacent/gapped run is a domain validation error. Both
+     * leave persistence unchanged.
+     */
+    public function merge(
+        Request $request,
+        Transcription $transcription,
+        RevisionService $revisions,
+        MergeComposer $composer,
+        MachineSourceMaterializer $materializer,
+    ): RedirectResponse {
+        $this->authorize('update', $transcription);
+
+        $validated = $request->validate([
+            'expected_base' => ['nullable', 'string'],
+            'segments' => ['required', 'array', 'min:2'],
+            'segments.*' => ['string'],
+        ]);
+
+        $user = $request->user();
+        $expectedBase = $this->normalizeRevisionId($validated['expected_base'] ?? null);
+
+        /** @var list<string> $segmentKeys */
+        $segmentKeys = array_values($validated['segments']);
+
+        try {
+            if ($expectedBase === null) {
+                $machineSequence = $materializer->materialize($transcription, $user->getKey());
+                $composer->compose($machineSequence->segments, $segmentKeys);
+
+                $initial = $revisions->materializeInitial($user, $transcription);
+                $revisions->merge($user, $transcription, $initial->revisionId, $segmentKeys);
+            } else {
+                $active = $revisions->active($user, $transcription);
+
+                if ($active === null || $active->revisionId !== $expectedBase) {
+                    throw RevisionConflictException::staleBase($expectedBase, $active?->revisionId);
+                }
+
+                $revisions->merge($user, $transcription, $expectedBase, $segmentKeys);
+            }
+        } catch (RevisionConflictException) {
+            return $this->structuralConflictResponse($transcription);
+        } catch (InvalidArgumentException $exception) {
+            return $this->structuralErrorResponse($transcription, $exception->getMessage());
+        }
+
+        return $this->structuralNoticeResponse($transcription, 'The selected segments were merged into a new revision.');
+    }
+
     public function undo(Request $request, Transcription $transcription, RevisionService $revisions): RedirectResponse
     {
         $this->authorize('update', $transcription);
@@ -223,6 +336,24 @@ class TranscriptRevisionController extends Controller
     private function timingNoticeResponse(Transcription $transcription, string $message): RedirectResponse
     {
         return $this->redirectToWorkspace($transcription)->with('timing_notice', $message);
+    }
+
+    private function structuralConflictResponse(Transcription $transcription): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with(
+            'structural_conflict',
+            'This transcript changed since you composed your structural edit. Nothing was saved and no merge was attempted. Reload the current version and try again.',
+        );
+    }
+
+    private function structuralErrorResponse(Transcription $transcription, string $message): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with('structural_error', $message);
+    }
+
+    private function structuralNoticeResponse(Transcription $transcription, string $message): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with('structural_notice', $message);
     }
 
     private function redirectToWorkspace(Transcription $transcription): RedirectResponse

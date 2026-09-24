@@ -1909,3 +1909,190 @@ Reference:
 `tasks/P6-004-timing-editing-validation.md`;
 `PHASE6-EDITING-DOMAIN-CONTRACT.md` §5/§6; `PHASE6-7-ELIGIBILITY-MATRIX.md` §Q;
 DC-01; ADR-025.
+
+## P6-004 Closure - Timing Editing + Validation
+
+Date: 2026-09-24
+
+Status: DECIDED - Human Product Owner (`DECISION-P6-004-CLOSURE-001`).
+
+Decision:
+
+The fresh independent review of P6-004 returned **VERIFIED** with no remaining
+BLOCKER/HIGH/MEDIUM finding. The reviewer confirmed the frozen Phase 6 timing
+semantics are implemented exactly; invalid first (machine-source) edits are
+write-free; active-revision timing is the playback/active-resolution source of
+truth; machine-source timing is immutable; overlap/nested/equal/zero-length/
+out-of-time-order timing remain legal; stale-base compare-and-set behavior is
+correct; no P6-003/P6-006/P6-007 regression was found; and no split/merge or
+translation-staleness persistence was introduced.
+
+P6-004 is transitioned `VERIFIED -> DONE`. The independent review and the
+historical implementation/pre-review artifacts are preserved unchanged.
+
+Non-blocking INFO debt is carried forward without reopening P6-004
+(`DECISION-P6-004-INFO-CARRYFORWARD-001`): the pre-existing P6-007/P4-006 V4-13
+locator-scoping issue (hidden comparison content); the shared Laravel validation
+error bag that could theoretically surface unrelated form errors in the timing
+toolbar (no observed failure); and the Phase 4 headless playback-start V4-08/V4-09
+environmental flake.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P6-004-CLOSURE-001`,
+`DECISION-P6-004-INFO-CARRYFORWARD-001`);
+`reviews/pre-review/P6-004-pre-review.md`;
+`PHASE6-P6-004-IMPLEMENTATION-BATCH-REPORT.md`;
+`verification/p6-004/P6-004-BROWSER-VERIFICATION-EVIDENCE.md`.
+
+## P6-005 Eligibility and Contract Authorization - Split / Merge + Translation Invalidation
+
+Date: 2026-09-24
+
+Status: DECIDED - Human Product Owner (`DECISION-P6-005-ELIGIBILITY-001`).
+
+Decision:
+
+With P6-004 = DONE, P6-005 is reclassified from `DEPENDENCY_BLOCKED` to
+**`CONTRACT_REQUIRED / READY-ELIGIBLE AFTER CONTRACT`**, and its canonical
+contract is authorized for authoring. P6-005 is **not** implemented in this batch.
+
+P6-005 owns two high-risk areas: structural segment editing (split/merge) and
+persisted translation invalidation. Its contract consumes, without redefining, the
+frozen P6-001 through P6-004 semantics (revision model, identity/position, D6-03
+timing invariants, expected-base concurrency, and the frozen
+translation-invalidation taxonomy and precedence
+`SegmentStructureChanged > TimingChanged > SourceTextChanged`).
+
+P6-005 must not rewrite Phase 5 translation segments, silently remap translations
+to new revision segment identities, or pretend structurally modified revisions
+remain aligned to machine translation. Structural changes invalidate the
+appropriate translation state. P6-005 does not silently alter P6-007 presentation
+ownership; if persisted staleness becomes available, P6-007 may later consume it
+through an explicit interface.
+
+Before implementation, the following owner decisions must be resolved (recorded
+OPEN in `DECISION_QUEUE.md`):
+
+- `DECISION-P6-005-SPLIT-BOUNDARY-001` (split boundary / degenerate splits);
+- `DECISION-P6-005-MERGE-JOIN-001` (merge text join and resulting timing);
+- `DECISION-P6-005-LANGUAGE-PROVENANCE-001` (mixed-language provenance flag
+  representation);
+- `DECISION-P6-005-STALENESS-LIFECYCLE-001` (persisted staleness lifecycle);
+- `DECISION-P6-005-SCHEMA-001` (exact schema additions).
+
+Implementation additionally requires an explicit HPO READY promotion. P6-008
+remains separately governed; P6-009 remains FINAL_GATE_ONLY.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P6-005-ELIGIBILITY-001` and the five OPEN
+decisions above); `tasks/P6-005-split-merge-translation-invalidation.md`;
+`PHASE6-EDITING-DOMAIN-CONTRACT.md` §7/§8/§10;
+`PHASE6-7-ELIGIBILITY-MATRIX.md` §S; ADR-025; ADR-022.
+
+## P6-005 Owner Decisions - Split / Merge + Translation Invalidation
+
+Date: 2026-09-24
+
+Status: DECIDED - Human Product Owner (five decisions:
+`DECISION-P6-005-SPLIT-BOUNDARY-001`, `DECISION-P6-005-MERGE-JOIN-001`,
+`DECISION-P6-005-LANGUAGE-PROVENANCE-001`,
+`DECISION-P6-005-STALENESS-LIFECYCLE-001`, `DECISION-P6-005-SCHEMA-001`).
+
+Decision:
+
+**Split boundary.** Split is allowed only at a strict interior boundary. For the
+segment being split, split at the beginning is rejected and split at the end is
+rejected; the operation must produce two meaningful child segments; degenerate
+structural splits are not allowed. The split instant must satisfy the strict
+interior rule (`start < t < end`) and the text offset must satisfy
+`0 < k < length(text)`. Zero-duration/empty structural children must not be
+created merely to permit a boundary split. This does not change the general P6
+timing rule that zero-length segments may exist through other valid editing
+operations.
+
+**Merge join.** Merge is adjacent-only and uses one canonical plain-space
+separator between contributor texts. Contributors are ordered by revision
+position; the resulting text is
+`segment1_text + " " + segment2_text [+ ...]`. Contributor text is not trimmed or
+rewritten; no punctuation-aware rewriting; no sentence-structure inference; merge
+is deterministic. Resulting timing is the start of the earliest-position
+contributor and the end of the latest-position contributor.
+
+**Language provenance.** Split: both child segments inherit the source segment's
+language marker. Merge: if every contributor has the same language, the resulting
+segment retains that language; if contributors contain different language markers,
+the resulting segment language becomes `und` and the original contributor-language
+provenance is retained explicitly. The first/earliest language is never silently
+selected as the merged canonical language, and no automatic language redetection
+occurs during split/merge. The implementation uses an explicit persistence
+representation for mixed-language provenance (a typed/JSON ordered list of
+contributor language markers) rather than relying on `und` alone.
+
+**Staleness lifecycle.** Staleness is persisted per translation row / translation
+target identity; existing Phase 5 translations remain historical outputs and are
+never rewritten or remapped. First invalidation sets `stale_at`,
+`staleness_reason`, and the causing revision. Repeated invalidation preserves the
+original `stale_at`, selects the canonical reason by the frozen precedence
+`SegmentStructureChanged > TimingChanged > SourceTextChanged`, upgrades the reason
+only when the new reason outranks the stored reason, and retains/updates
+causing-revision provenance consistently with the stored canonical reason; a
+stronger reason is never downgraded. A stale translation remains viewable as
+historical output and must not be represented as current. Retranslation does not
+clear staleness on the historical row; a later successful retranslation
+creates/uses the canonical new translation identity, and the old translation
+remains stale historical evidence (its translated segment content is not deleted
+or mutated to appear current). A failed retranslation must not make the previous
+stale translation current again.
+
+**Schema.** Minimum additive schema authorized: add to `translations` the nullable
+`stale_at` timestamp, nullable `staleness_reason`, and nullable
+`stale_caused_by_revision_id` (reference to the revision responsible for the
+stored canonical reason). Existing Phase 5 translation rows and translation
+segments are preserved; Phase 5 translation identity is not rewritten. Add an
+explicit nullable representation on revision segments for mixed-language
+provenance that is deterministic, retains contributor language markers in
+contributor order, and is independent of machine `segment_index` (typed/JSON,
+validated at the domain boundary). No generic metadata dumping field is added.
+
+Boundary: these decisions resolve the five OPEN P6-005 decisions only. They do not
+redefine P6-001 through P6-004 semantics, do not authorize P6-008/P6-009, and do
+not authorize new Phase 7 work.
+
+Reference:
+
+`DECISION_QUEUE.md` (the five DECIDED decisions above);
+`tasks/P6-005-split-merge-translation-invalidation.md`;
+`PHASE6-EDITING-DOMAIN-CONTRACT.md` §7/§8/§10; ADR-025; ADR-022.
+
+## P6-005 READY Promotion - Split / Merge + Translation Invalidation
+
+Date: 2026-09-24
+
+Status: DECIDED - Human Product Owner (`DECISION-P6-005-READY-001`).
+
+Decision:
+
+With the five owner decisions recorded and the canonical contract reconciled,
+P6-005 is transitioned `CONTRACT_AUTHORED / READY-ELIGIBLE AFTER CONTRACT` →
+**READY** and authorized for implementation.
+
+Authorized scope: structural split; structural merge; required revision-segment
+language provenance; additive translation-staleness schema; atomic invalidation
+(structural revision append and invalidation committed in one transaction using
+the existing P6-002 CAS/version rules, not a second concurrency model); required
+UI; feature/domain/concurrency tests; and real-browser DC-01 verification.
+
+Not authorized: P6-008 (revision-history UI), P6-009 (Phase 6 final gate),
+rewriting Phase 5 translations or translation segments, and any new Phase 7 work.
+
+Review model: per-task independent review (Claude Code). On completion P6-005
+becomes `IMPLEMENTED_PENDING_REVIEW`; the implementer must not self-mark VERIFIED
+or DONE.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P6-005-READY-001` and the five owner decisions);
+`tasks/P6-005-split-merge-translation-invalidation.md`;
+`PHASE6-7-ELIGIBILITY-MATRIX.md` §S/§T; ADR-025; ADR-022.

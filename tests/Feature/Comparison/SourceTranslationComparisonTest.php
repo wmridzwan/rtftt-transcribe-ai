@@ -232,9 +232,11 @@ it('performs no database writes and does not infer staleness', function () {
 
     expect($fingerprint())->toBe($before);
 
-    // P6-007 must not introduce or read a P6-005 staleness marker.
-    expect(Schema::hasColumn('translations', 'stale_at'))->toBeFalse()
-        ->and(Schema::hasColumn('translations', 'staleness_reason'))->toBeFalse();
+    // P6-005 owns the persisted staleness marker; P6-007 only reads persisted
+    // comparison facts and never writes or infers staleness.
+    expect(Schema::hasColumn('translations', 'stale_at'))->toBeTrue()
+        ->and(Translation::query()->whereNotNull('stale_at')->count())->toBe(0)
+        ->and(Translation::query()->whereNotNull('staleness_reason')->count())->toBe(0);
 });
 
 it('does not expose another user comparison to a non-owner', function () {

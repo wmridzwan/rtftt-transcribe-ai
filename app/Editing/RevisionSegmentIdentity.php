@@ -2,6 +2,7 @@
 
 namespace App\Editing;
 
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Stringable;
 
@@ -38,6 +39,17 @@ final readonly class RevisionSegmentIdentity implements Stringable
         }
 
         return new self('machine:'.$segmentIndex);
+    }
+
+    /**
+     * A new, opaque identity for a structurally created revision segment
+     * (split child or merged output). It is deliberately **not** derived from
+     * machine `segment_index` provenance; machine-style `machine:<index>`
+     * identities are never manufactured for structural edits.
+     */
+    public static function forStructuralEdit(): self
+    {
+        return new self('struct:'.Str::uuid());
     }
 
     public function key(): string

@@ -33,6 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // P6-003 text editing + undo/redo (append-only revision layer).
     Route::post('/transcriptions/{transcription}/revisions', [TranscriptRevisionController::class, 'store'])->name('transcriptions.revisions.store');
     Route::post('/transcriptions/{transcription}/revisions/timing', [TranscriptRevisionController::class, 'timing'])->name('transcriptions.revisions.timing');
+    Route::post('/transcriptions/{transcription}/revisions/split', [TranscriptRevisionController::class, 'split'])->name('transcriptions.revisions.split');
+    Route::post('/transcriptions/{transcription}/revisions/merge', [TranscriptRevisionController::class, 'merge'])->name('transcriptions.revisions.merge');
     Route::post('/transcriptions/{transcription}/revisions/undo', [TranscriptRevisionController::class, 'undo'])->name('transcriptions.revisions.undo');
     Route::post('/transcriptions/{transcription}/revisions/redo', [TranscriptRevisionController::class, 'redo'])->name('transcriptions.revisions.redo');
 

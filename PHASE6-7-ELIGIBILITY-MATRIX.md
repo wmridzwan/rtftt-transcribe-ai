@@ -624,3 +624,119 @@ sections are preserved unchanged.
   authorized.
 - P6-002/P6-007 record-completeness notes are retained; no artifact was
   fabricated. P6-004 was not self-marked VERIFIED or DONE.
+
+## S. Reconciliation — 2026-09-24 (P6-004 closure + P6-005 eligibility/contract)
+
+Supersedes the "current eligibility" task-state lines above; all historical
+sections are preserved unchanged.
+
+### S.1 P6-004 = DONE
+
+- **P6-004 = DONE** (HPO closure `DECISION-P6-004-CLOSURE-001`, 2026-09-24). The
+  fresh independent review returned **VERIFIED** with no remaining
+  BLOCKER/HIGH/MEDIUM finding: frozen timing semantics implemented exactly;
+  invalid first edits write-free; active-revision timing is the
+  playback/active-resolution source of truth; machine timing immutable;
+  overlap/nested/equal/zero-length/out-of-time-order timing legal; stale-base/CAS
+  correct; no P6-003/P6-006/P6-007 regression; no split/merge or
+  translation-staleness persistence introduced.
+- Non-blocking INFO debt carried forward without reopening P6-004
+  (`DECISION-P6-004-INFO-CARRYFORWARD-001`): the pre-existing P6-007/P4-006 V4-13
+  locator-scoping issue; the shared Laravel validation error bag in the timing
+  toolbar (no observed failure); and the Phase 4 headless playback-start
+  V4-08/V4-09 environmental flake.
+- The independent review and the historical implementation/pre-review artifacts
+  are preserved unchanged; P6-004 is no longer eligible for further work.
+
+### S.2 P6-005 = CONTRACT_AUTHORED (READY-eligible after decisions + HPO promotion)
+
+- **P6-005 = CONTRACT_AUTHORED** (`tasks/P6-005-split-merge-translation-invalidation.md`),
+  reclassified from `DEPENDENCY_BLOCKED` to
+  **`CONTRACT_REQUIRED / READY-ELIGIBLE AFTER CONTRACT`**
+  (`DECISION-P6-005-ELIGIBILITY-001`). It is **not** READY and **not**
+  implemented.
+- The contract consumes, without redefining, the frozen P6-001..P6-004 semantics
+  and the Phase 5 translation identity, and owns structural editing (split/merge)
+  plus persisted translation invalidation.
+- **P6-005 is READY-eligible only after** (a) the five surfaced owner decisions are
+  resolved and (b) an explicit HPO READY promotion:
+  `DECISION-P6-005-SPLIT-BOUNDARY-001`, `DECISION-P6-005-MERGE-JOIN-001`,
+  `DECISION-P6-005-LANGUAGE-PROVENANCE-001`,
+  `DECISION-P6-005-STALENESS-LIFECYCLE-001`, `DECISION-P6-005-SCHEMA-001`.
+- No migration, model, route, controller, view, or JavaScript was written; no
+  Phase 5 translation rows are rewritten or remapped.
+
+### S.3 Remaining Phase 6 eligibility
+
+- **P6-005** — contract authored; blocked on the five owner decisions + HPO READY
+  promotion.
+- **P6-008** (Revision History / Audit Surface) — separately governed; requires its
+  own contract + HPO READY promotion (conditional on D6-02, which selects
+  persistent history).
+- **P6-009** (Phase 6 Integration Verification) — FINAL_GATE_ONLY; gated on
+  P6-003..P6-008 DONE (P6-003/P6-004/P6-006/P6-007 DONE; P6-005/P6-008 remain).
+
+### S.4 Explicit non-actions (this batch)
+
+- No P6-005 implementation occurred; P6-005 was not promoted to READY.
+- P6-008 and P6-009 were not authored, implemented, or promoted.
+- No additional Phase 7 task was started; Phase 7 remains not generally
+  authorized.
+- P6-002/P6-007 record-completeness notes are retained; no artifact was
+  fabricated. P6-004 was closed by the HPO; the implementer did not self-verify.
+
+## T. Reconciliation — 2026-09-24 (P6-005 owner decisions + READY promotion + implementation)
+
+Supersedes the "current eligibility" task-state lines above; all historical
+sections are preserved unchanged.
+
+### T.1 P6-005 owner decisions = DECIDED
+
+- The five surfaced P6-005 owner decisions are recorded DECIDED:
+  `DECISION-P6-005-SPLIT-BOUNDARY-001` (strict interior split boundary),
+  `DECISION-P6-005-MERGE-JOIN-001` (plain-space join; earliest/latest-position
+  timing), `DECISION-P6-005-LANGUAGE-PROVENANCE-001` (explicit nullable
+  mixed-language provenance), `DECISION-P6-005-STALENESS-LIFECYCLE-001`
+  (persisted staleness lifecycle), `DECISION-P6-005-SCHEMA-001` (minimum additive
+  schema: `translations.stale_at`, `staleness_reason`,
+  `stale_caused_by_revision_id`; revision-segment language provenance).
+- Durable record: `DECISION_QUEUE.md` and `DECISIONS.md` (P6-005 Owner Decisions).
+
+### T.2 P6-005 = READY (authorized for implementation)
+
+- **P6-005 = READY** (`DECISION-P6-005-READY-001`), with its canonical contract
+  (`tasks/P6-005-split-merge-translation-invalidation.md`) reconciled to
+  incorporate all five decisions.
+- Authorized scope: structural split; structural merge; required revision-segment
+  language provenance; additive translation-staleness schema; atomic invalidation
+  using the existing P6-002 CAS/version rules; required UI; feature/domain/
+  concurrency tests; real-browser DC-01 verification.
+- Not authorized: P6-008, P6-009, rewriting Phase 5 translations, and new Phase 7
+  work.
+
+### T.3 P6-005 = IMPLEMENTED_PENDING_REVIEW
+
+- P6-005 was implemented and is **IMPLEMENTED_PENDING_REVIEW**; the implementer
+  did not self-verify or self-close.
+- Evidence: `reviews/pre-review/P6-005-pre-review.md`,
+  `verification/p6-005/P6-005-BROWSER-VERIFICATION-EVIDENCE.md`,
+  `PHASE6-P6-005-IMPLEMENTATION-BATCH-REPORT.md`.
+- `translation_segments` are never rewritten or remapped; structurally created
+  revision segments carry non-machine identities and remain unaligned in P6-007.
+
+### T.4 Remaining Phase 6 eligibility
+
+- **P6-008** (Revision History / Audit Surface) — separately governed; requires its
+  own contract + HPO READY promotion (conditional on D6-02).
+- **P6-009** (Phase 6 Integration Verification) — FINAL_GATE_ONLY; gated on
+  P6-003..P6-008 DONE (P6-003/P6-004/P6-005/P6-006/P6-007 implemented; P6-005
+  awaits independent review; P6-008 remains).
+- Phase 7 remains NOT GENERALLY AUTHORIZED.
+
+### T.5 Explicit non-actions (this batch)
+
+- P6-008 and P6-009 were not authored, implemented, or promoted.
+- No additional Phase 7 task was started.
+- Phase 5 translation rows and translation segments were not rewritten or remapped.
+- P6-002/P6-004/P6-007 record-completeness notes are retained; no artifact was
+  fabricated.

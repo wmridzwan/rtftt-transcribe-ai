@@ -2,6 +2,7 @@
 
 namespace App\Editing\Persistence;
 
+use App\Editing\LanguageProvenance;
 use App\Editing\RevisionConflictException;
 use App\Editing\RevisionRepository;
 use App\Editing\RevisionSegmentData;
@@ -204,10 +205,18 @@ final class EloquentRevisionRepository implements RevisionRepository
                 'end_seconds' => $segment->endSeconds,
                 'text' => $segment->text,
                 'language' => $segment->language->value,
+                'language_provenance' => $segment->languageProvenance?->toArray(),
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
             ]);
         }
+    }
+
+    private function languageProvenance(TranscriptRevisionSegment $segment): ?LanguageProvenance
+    {
+        $markers = $segment->language_provenance;
+
+        return $markers === null ? null : LanguageProvenance::fromArray($markers);
     }
 
     private function toDomain(TranscriptRevisionModel $model): TranscriptRevision
@@ -222,6 +231,7 @@ final class EloquentRevisionRepository implements RevisionRepository
                     endSeconds: $segment->end_seconds,
                     text: $segment->text,
                     language: $segment->language,
+                    languageProvenance: $this->languageProvenance($segment),
                 ))
                 ->all()
         );

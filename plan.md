@@ -157,15 +157,21 @@ source/translation comparison (presentation-only under
 MEDIUM presentation-truthfulness finding, corrected, confirmed closed by a fresh
 independent corrective re-review (VERIFIED; no remaining
 BLOCKER/HIGH/MEDIUM/LOW/INFO), and closed **DONE**
-(`DECISION-P6-007-CLOSURE-001`). P6-004's canonical contract is authored
-(`tasks/P6-004-timing-editing-validation.md`), promoted READY by the HPO
-(`DECISION-P6-004-READY-001`), and implemented (timing-only append-only revision
-edits; `EditKind::Timing` → `TimingChanged` with no staleness persistence; machine
-timing immutable; playback/navigation use active-revision timing); it is
-`IMPLEMENTED_PENDING_REVIEW` awaiting independent review. P6-005 is
-dependency-blocked until P6-004 is DONE; P6-008 requires its own contract + HPO
-READY promotion; P6-009 is FINAL_GATE_ONLY. D6-08/D6-09 deferred. Eligibility:
-`PHASE6-7-ELIGIBILITY-MATRIX.md` §R.
+(`DECISION-P6-007-CLOSURE-001`). P6-004 = DONE (contract authored; promoted READY
+`DECISION-P6-004-READY-001`; timing-only append-only revision edits;
+`EditKind::Timing` → `TimingChanged` with no staleness persistence; machine timing
+immutable; playback/navigation on active-revision timing; independently reviewed
+VERIFIED with no remaining BLOCKER/HIGH/MEDIUM; `DECISION-P6-004-CLOSURE-001`).
+P6-005 was unblocked and reclassified `CONTRACT_REQUIRED / READY-ELIGIBLE AFTER
+CONTRACT` (`DECISION-P6-005-ELIGIBILITY-001`); its five owner decisions are
+DECIDED, its canonical contract is reconciled to incorporate them, and it is
+promoted **READY** and authorized for implementation (`DECISION-P6-005-READY-001`).
+P6-005 was implemented (structural split/merge, revision-segment language
+provenance, additive translation-staleness schema, atomic invalidation, required
+UI, tests, real-browser DC-01 evidence) and is **IMPLEMENTED_PENDING_REVIEW**.
+P6-008 requires its own contract + HPO READY promotion; P6-009 is
+FINAL_GATE_ONLY. D6-08/D6-09 deferred. Eligibility:
+`PHASE6-7-ELIGIBILITY-MATRIX.md` §T.
 
 ### Phase 7 — Production Hardening
 NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023;
@@ -187,7 +193,7 @@ renumbered by an external product roadmap:
 3. Real Transcription Engine (ADR-017) — CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3 closed)
 4. Transcript Experience baseline (ADR-019) — CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE
 5. Translation — CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001); P5-001..P5-008 DONE
-6. Advanced Transcript UX — AUTHORIZED (contract authoring + implementation; DECISION-PHASE6-AUTHORIZATION-001; no blanket READY); P6-001/P6-006/P6-002 DONE; P6-001/P6-002 foundation frozen downstream input
+6. Advanced Transcript UX — AUTHORIZED (contract authoring + implementation; DECISION-PHASE6-AUTHORIZATION-001; no blanket READY); P6-001/P6-002/P6-003/P6-004/P6-006/P6-007 DONE; P6-005 READY + IMPLEMENTED_PENDING_REVIEW; P6-001/P6-002 foundation frozen downstream input
 7. Production Hardening — not generally authorized; P7-005 early only (cannot close before Phase 6)
 
 Voxora is the long-term product and brand; RTFTT remains the current

@@ -5,6 +5,7 @@ namespace App\Editing;
 use App\Editing\Persistence\MachineSourceMaterializer;
 use App\Models\Transcription;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use InvalidArgumentException;
 
@@ -25,6 +26,9 @@ final class RevisionService
         private readonly RevisionRepository $repository,
         private readonly RevisionFactory $factory,
         private readonly MachineSourceMaterializer $materializer,
+        private readonly SplitComposer $splitComposer,
+        private readonly MergeComposer $mergeComposer,
+        private readonly TranslationStalenessWriter $stalenessWriter,
     ) {}
 
     public function active(User $user, Transcription $transcription): ?TranscriptRevision
@@ -89,6 +93,97 @@ final class RevisionService
         $revision = $this->factory->derive($base, $user->getKey(), $segments, $this->repository);
 
         return $this->repository->append($revision, $baseRevisionId);
+    }
+
+    /**
+     * Structural split (P6-005): replace one base-revision segment with two
+     * ordered child segments, as a new append-only revision derived from the
+     * stated base. The base must be the current active revision; otherwise the
+     * write is a stale-write conflict.
+     *
+     * The structural revision append and the translation invalidation are
+     * committed atomically in a single transaction using the existing P6-002
+     * CAS/version rules. A rejected split (for example a non-interior boundary)
+     * writes nothing.
+     */
+    public function split(
+        User $user,
+        Transcription $transcription,
+        string $baseRevisionId,
+        string $segmentKey,
+        mixed $boundarySeconds,
+        mixed $textOffset,
+    ): TranscriptRevision {
+        Gate::forUser($user)->authorize('update', $transcription);
+
+        $base = $this->requireBase($transcription, $baseRevisionId);
+
+        $segments = $this->splitComposer->compose($base->segments, $segmentKey, $boundarySeconds, $textOffset);
+
+        return $this->appendStructural($user, $transcription, $base, $segments);
+    }
+
+    /**
+     * Structural merge (P6-005): replace an ordered run of two or more adjacent
+     * base-revision segments with one segment, as a new append-only revision
+     * derived from the stated base. Non-adjacent or gapped runs are rejected and
+     * write nothing.
+     *
+     * @param  list<string>  $segmentKeys
+     */
+    public function merge(
+        User $user,
+        Transcription $transcription,
+        string $baseRevisionId,
+        array $segmentKeys,
+    ): TranscriptRevision {
+        Gate::forUser($user)->authorize('update', $transcription);
+
+        $base = $this->requireBase($transcription, $baseRevisionId);
+
+        $segments = $this->mergeComposer->compose($base->segments, $segmentKeys);
+
+        return $this->appendStructural($user, $transcription, $base, $segments);
+    }
+
+    /**
+     * Append a structural revision and invalidate every affected translation in
+     * one transaction. The invalidation is classified as
+     * `EditKind::Structural` → `SegmentStructureChanged` and records the newly
+     * appended revision as the causing revision.
+     *
+     * @param  list<RevisionSegmentData>  $segments
+     */
+    private function appendStructural(
+        User $user,
+        Transcription $transcription,
+        TranscriptRevision $base,
+        array $segments,
+    ): TranscriptRevision {
+        $revision = $this->factory->derive($base, $user->getKey(), $segments, $this->repository);
+
+        return DB::transaction(function () use ($transcription, $revision, $base): TranscriptRevision {
+            $appended = $this->repository->append($revision, $base->revisionId);
+
+            $this->stalenessWriter->invalidate(
+                $transcription,
+                TranslationStalenessReason::SegmentStructureChanged,
+                $appended->revisionId,
+            );
+
+            return $appended;
+        }, 5);
+    }
+
+    private function requireBase(Transcription $transcription, string $baseRevisionId): TranscriptRevision
+    {
+        $base = $this->repository->find($baseRevisionId);
+
+        if ($base === null || $base->transcriptionId !== $transcription->getKey()) {
+            throw new InvalidArgumentException('Unknown base revision id ['.$baseRevisionId.'] for transcription ['.$transcription->getKey().'].');
+        }
+
+        return $base;
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Editing\Persistence\EloquentRevisionRepository;
+use App\Editing\Persistence\EloquentTranslationStalenessWriter;
 use App\Editing\RevisionRepository;
+use App\Editing\TranslationStalenessWriter;
 use App\Models\MediaFile;
 use App\Translation\HttpTranslationProvider;
 use App\Translation\TranslationProvider;
@@ -22,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(RevisionRepository::class, EloquentRevisionRepository::class);
+        $this->app->bind(TranslationStalenessWriter::class, EloquentTranslationStalenessWriter::class);
 
         $this->app->singleton(TranslationProvider::class, function () {
             return new HttpTranslationProvider(

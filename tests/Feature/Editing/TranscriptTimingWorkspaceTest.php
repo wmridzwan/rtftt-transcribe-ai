@@ -10,6 +10,7 @@ use App\Editing\TranslationStalenessReason;
 use App\Models\Transcription;
 use App\Models\TranscriptRevisionModel;
 use App\Models\TranscriptRevisionSegment;
+use App\Models\Translation;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Tests\Support\EditingPersistenceFixtures;
@@ -231,6 +232,10 @@ it('classifies timing edits as TimingChanged and persists no translation stalene
     $transcription = EditingPersistenceFixtures::completedTranscription();
     $owner = $transcription->user;
 
+    $translation = Translation::factory()->completed()->create([
+        'transcription_id' => $transcription->getKey(),
+    ]);
+
     $this->actingAs($owner)->post(timingEditUrl($transcription), timingPayload([
         0 => ['start' => 1.0, 'end' => 3.0],
         1 => ['start' => 4.5, 'end' => 9.25],
@@ -240,8 +245,11 @@ it('classifies timing edits as TimingChanged and persists no translation stalene
         ->and(TranslationInvalidationPolicy::reasonFor(EditKind::Timing))->toBe(TranslationStalenessReason::TimingChanged)
         ->and(TranslationInvalidationPolicy::mustMarkStale(EditKind::Timing))->toBeTrue();
 
-    expect(Schema::hasColumn('translations', 'stale_at'))->toBeFalse()
-        ->and(Schema::hasColumn('translations', 'staleness_reason'))->toBeFalse();
+    // P6-005 owns the persisted marker; the timing path deliberately does not
+    // write staleness (structural split/merge is P6-005's invalidation trigger).
+    expect(Schema::hasColumn('translations', 'stale_at'))->toBeTrue()
+        ->and($translation->fresh()->stale_at)->toBeNull()
+        ->and($translation->fresh()->staleness_reason)->toBeNull();
 });
 
 it('projects playback seek/navigation from active-revision timing and leaves machine timing authoritative without a revision', function () {

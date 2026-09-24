@@ -2,13 +2,20 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW (2026-09-24). Not self-verified and not DONE.
+DONE (2026-09-24; HPO closure `DECISION-P6-004-CLOSURE-001`).
 
 Promoted to READY and authorized for implementation by the Human Product Owner
 (`DECISION-P6-004-READY-001`), then implemented by OpenCode against the frozen
-P6-001/P6-002 foundation and the closed P6-003 workspace. Implementation, unit
-and feature tests, and real-browser (DC-01) evidence are complete. Independent
-review (Claude Code) is required; the implementer has not self-verified.
+P6-001/P6-002 foundation and the closed P6-003 workspace. The fresh independent
+review confirmed the frozen timing semantics are implemented exactly, invalid
+first edits are write-free, active-revision timing is the playback/active
+resolution source of truth, machine timing is immutable, overlap/nested/equal/
+zero-length/out-of-time-order timing remain legal, stale-base/CAS behavior is
+correct, no P6-003/P6-006/P6-007 regression was found, no split/merge or
+translation-staleness persistence was introduced, and no BLOCKER/HIGH/MEDIUM
+finding remains. The HPO accepted the verdict and transitioned the task
+`VERIFIED → DONE` (`DECISION-P6-004-CLOSURE-001`). The independent review and the
+historical implementation/pre-review artifacts are preserved unchanged.
 
 Canonical contract authored under the Phase 6 contract-authoring authorization
 (`DECISION-PHASE6-AUTHORIZATION-001`) and the adopted owner decisions
@@ -367,9 +374,10 @@ Promoted to **READY** by the Human Product Owner
 dependency reconciliation (`PHASE6-7-ELIGIBILITY-MATRIX.md` §Q/§R). The
 dependencies (P6-001 DONE, P6-002 DONE, P6-003 DONE, D6-03 adopted, Phase 4/P6-006
 primitives available) are satisfied and P6-004 does not depend on Phase 5 or
-P6-005. Implementation is complete; the task is `IMPLEMENTED_PENDING_REVIEW` and
-awaits a fresh independent review (Claude Code). It must not be self-verified.
-P6-005 remains dependency-blocked until P6-004 is DONE.
+P6-005. Implementation is complete, independently reviewed VERIFIED with no
+remaining BLOCKER/HIGH/MEDIUM finding, and closed **DONE** by the HPO
+(`DECISION-P6-004-CLOSURE-001`). P6-005 is no longer blocked by P6-004 (it is now
+`CONTRACT_REQUIRED / READY-ELIGIBLE AFTER CONTRACT`).
 
 ## Implementation summary
 

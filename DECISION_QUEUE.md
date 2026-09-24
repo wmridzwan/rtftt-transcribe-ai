@@ -3734,3 +3734,460 @@ Blocks: None.
 Does Not Block: P6-005 (still waits on P6-004 DONE), P6-008/P6-009 (each requires
 its own contract / READY promotion; P6-009 is FINAL_GATE_ONLY); Phase 7 remains
 not generally authorized.
+
+### DECISION-P6-004-CLOSURE-001 - Accept the P6-004 independent review verdict and close P6-004 DONE
+
+Decision ID: DECISION-P6-004-CLOSURE-001
+
+Status: DECIDED - HPO 2026-09-24
+
+Type: Task Closure
+
+Originating Task: P6-004 (Timing Editing + Validation)
+
+Question:
+
+Should the fresh independent review verdict (`VERIFIED`) be accepted and P6-004 be
+closed DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-24. The fresh independent review of P6-004 returned
+**VERIFIED** with no remaining BLOCKER/HIGH/MEDIUM finding. Independently
+confirmed:
+
+- the frozen Phase 6 timing semantics are implemented exactly (finite,
+  non-negative, `start <= end`, millisecond precision without silent rounding,
+  overlap/nested/equal-bounds/zero-length legality, no cross-segment
+  monotonicity, ordering by revision `position`, immutable machine timing);
+- invalid first (machine-source) edits are write-free;
+- active-revision timing is the playback / active-segment-resolution source of
+  truth (half-open, lowest-`position` tie resolution preserved);
+- machine-source timing remains immutable;
+- stale-base compare-and-set behavior remains correct (no silent merge);
+- no P6-003/P6-006/P6-007 regression was found;
+- no split/merge or translation-staleness persistence was introduced.
+
+P6-004 is transitioned `VERIFIED -> DONE`. The independent review and the
+historical implementation/pre-review artifacts
+(`reviews/pre-review/P6-004-pre-review.md`,
+`PHASE6-P6-004-IMPLEMENTATION-BATCH-REPORT.md`,
+`verification/p6-004/P6-004-BROWSER-VERIFICATION-EVIDENCE.md`) are preserved
+unchanged.
+
+Phase consequence:
+
+P6-004 closure does not close Phase 6. P6-005 is unblocked by P6-004 DONE and is
+reclassified to `CONTRACT_REQUIRED / READY-ELIGIBLE AFTER CONTRACT`
+(`DECISION-P6-005-ELIGIBILITY-001`); P6-008 remains separately contract-gated;
+P6-009 remains FINAL_GATE_ONLY. No further Phase 7 work is authorized.
+
+Blocks: None.
+
+Does Not Block: P6-005 (now eligible for contract authoring / READY promotion
+after its contract and unresolved owner decisions), P6-008/P6-009 (each requires
+its own contract / READY promotion; P6-009 is FINAL_GATE_ONLY); Phase 7 remains
+not generally authorized.
+
+### DECISION-P6-004-INFO-CARRYFORWARD-001 - Carry forward P6-004 non-blocking INFO debt without reopening P6-004
+
+Decision ID: DECISION-P6-004-INFO-CARRYFORWARD-001
+
+Status: DECIDED - HPO 2026-09-24
+
+Type: Debt Carry-Forward (non-blocking)
+
+Originating Task: P6-004 (Timing Editing + Validation)
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-24. The following non-blocking INFO items are carried forward
+without reopening P6-004 and without changing its DONE state:
+
+1. **Pre-existing P6-007 / P4-006 V4-13 locator-scoping issue.** The older
+   P4-006 V4-13 spec's `getByText('Segmen kedua').first()` can match hidden P6-007
+   comparison-table content rendered before the transcript rows. This was
+   introduced by P6-007 (`985d2c5`) and is independent of P6-004. Recommended
+   future fix: scope the older spec's locator to `[data-transcript-region]`
+   (separate, scoped change; not P6-004/P6-005 scope).
+2. **Shared Laravel validation error bag.** The timing toolbar renders
+   `$errors->first()`; in principle an unrelated form error in the same request
+   could surface there. No observed failure exists and no P6-004 acceptance
+   criterion depends on it. Future hardening (optional): scope the toolbar to
+   `$errors->getBag(...)` or an error-bag key.
+3. **Phase 4 headless playback-start flake (V4-08/V4-09).** In this headless
+   environment `<audio>/<video>.currentTime` does not advance after `play()`
+   (`currentTimeAfterPlay: 0`); the same value exists in the pre-existing
+   `verification/artifacts/p4-003-browser-results.json`. This is environmental
+   and pre-dates P6-004; P6-004 does not touch the media element, stream route, or
+   player component.
+
+These are not P6-004 blockers. P6-004 remains DONE; no code, test, or contract
+change is authorized by this carry-forward.
+
+Blocks: None.
+
+Does Not Block: P6-005 contract authoring; P6-008/P6-009; Phase 7 remains not
+generally authorized.
+
+### DECISION-P6-005-ELIGIBILITY-001 - Reclassify P6-005 and authorize its canonical contract
+
+Decision ID: DECISION-P6-005-ELIGIBILITY-001
+
+Status: DECIDED - HPO 2026-09-24
+
+Type: Task Eligibility / Contract Authorization
+
+Originating Task: P6-005 (Split / Merge + Translation Invalidation)
+
+Question:
+
+With P6-004 DONE, is P6-005 eligible, and is its canonical contract authorized?
+
+Resolution:
+
+HPO-APPROVED 2026-09-24. With P6-004 = DONE, P6-005 is reclassified from
+`DEPENDENCY_BLOCKED` to **`CONTRACT_REQUIRED / READY-ELIGIBLE AFTER CONTRACT`**.
+Its canonical contract is authorized for authoring in this batch.
+
+The contract must consume, without redefining, the frozen P6-001 through P6-004
+semantics: the revision model (immutable machine source, append-only revisions,
+one active pointer, durable graph), `RevisionSegmentIdentity` / contiguous
+`position`, the D6-03 timing invariants, expected-base concurrency, and the frozen
+translation-invalidation taxonomy and precedence
+`SegmentStructureChanged > TimingChanged > SourceTextChanged`.
+
+P6-005 owns two high-risk areas: structural segment editing (split/merge) and
+persisted translation invalidation. It must not implement yet. Implementation
+requires, in addition to this contract:
+
+- resolution of the surfaced owner decisions
+  (`DECISION-P6-005-SPLIT-BOUNDARY-001`, `DECISION-P6-005-MERGE-JOIN-001`,
+  `DECISION-P6-005-LANGUAGE-PROVENANCE-001`,
+  `DECISION-P6-005-STALENESS-LIFECYCLE-001`, `DECISION-P6-005-SCHEMA-001`); and
+- an explicit HPO READY promotion.
+
+P6-005 must not rewrite Phase 5 translation segments, silently remap translations
+to new revision segment identities, or pretend structurally modified revisions
+remain aligned to machine translation. Structural changes invalidate the
+appropriate translation state.
+
+Blocks: P6-005 implementation (pending contract, owner decisions, and HPO READY
+promotion).
+
+Does Not Block: P6-004 (DONE); P6-008/P6-009 (each separately governed; P6-009 is
+FINAL_GATE_ONLY); Phase 7 remains not generally authorized.
+
+### DECISION-P6-005-SPLIT-BOUNDARY-001 - DECIDED: split boundary and degenerate-split policy
+
+Decision ID: DECISION-P6-005-SPLIT-BOUNDARY-001
+
+Status: DECIDED - HPO 2026-09-24 (strict interior boundary; option 1)
+
+Type: Product / Domain Decision
+
+Question:
+
+D6-04 and the frozen P6-001 contract define split's identity/position/language
+rules but not the split boundary. Should a split be allowed exactly at a segment
+start or end (producing a zero-length child), and what text-boundary degeneracy is
+allowed?
+
+Context:
+
+- Frozen timing semantics make zero-length segments legal but never active.
+- P6-004 established that no hidden monotonicity/restriction is added.
+
+Candidate options:
+
+1. Require a strictly interior boundary (`start < t < end`) and a strictly
+   interior text offset (`0 < k < length`); reject splits that would produce a
+   zero-length or empty-text child.
+2. Allow `t` anywhere in `[start, end]` and `k` anywhere in `[0, length]`;
+   zero-length / empty-text children are legal per the frozen semantics.
+
+The contract records option 1 as the default and must be confirmed or overridden.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-24 — Adopt option 1. **Split is allowed only at a strict
+interior boundary.** For the segment being split:
+
+- split at the beginning is rejected;
+- split at the end is rejected;
+- the operation must produce two meaningful child segments;
+- degenerate structural splits are not allowed.
+
+For timing, the split instant must satisfy the corresponding strict interior rule
+required by the canonical split operation (`start < t < end`); for text, the
+offset must satisfy `0 < k < length(text)` (Unicode code points). Do not create
+zero-duration/empty structural children merely to permit a boundary split. This
+does **not** change the general P6 timing rule that zero-length segments may exist
+through other valid editing operations. Durable record: `DECISIONS.md` (P6-005
+Owner Decisions).
+
+### DECISION-P6-005-MERGE-JOIN-001 - DECIDED: merge text-join and resulting-timing rule
+
+Decision ID: DECISION-P6-005-MERGE-JOIN-001
+
+Status: DECIDED - HPO 2026-09-24 (plain-space join; option 1)
+
+Type: Product / Domain Decision
+
+Question:
+
+D6-04 defines merge adjacency and identity but not the text-join separator or the
+resulting start/end timing rule. What are the canonical rules?
+
+Context:
+
+- Merge is limited to adjacent revision segments (frozen P6-001 §7).
+- Text joining and resulting timing must be explicit and deterministic.
+- Frozen timing permits overlap / out-of-time-order positions, so "first start to
+  last end" is not the only candidate.
+
+Candidate options (to be confirmed/overridden):
+
+1. Text: concatenate contributing texts in `position` order separated by a single
+   space. Timing: `start` = start of the earliest-position contributing segment,
+   `end` = end of the latest-position contributing segment.
+2. Text: concatenate with no separator. Timing: `start` = minimum contributing
+   start, `end` = maximum contributing end.
+
+The contract records option 1 as the default.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-24 — Adopt option 1. **Merge is adjacent-only and uses one
+canonical plain-space separator between contributor texts.** Contributors are
+ordered by revision position; the resulting text is
+`segment1_text + " " + segment2_text [+ ...]`. Do not trim or rewrite the internal
+content of contributor text; do not perform punctuation-aware rewriting; do not
+infer sentence structure; merge remains deterministic. Resulting timing is the
+start of the earliest-position contributor and the end of the latest-position
+contributor. Durable record: `DECISIONS.md` (P6-005 Owner Decisions).
+
+### DECISION-P6-005-LANGUAGE-PROVENANCE-001 - DECIDED: representation of mixed-language merge provenance
+
+Decision ID: DECISION-P6-005-LANGUAGE-PROVENANCE-001
+
+Status: DECIDED - HPO 2026-09-24 (explicit nullable provenance representation)
+
+Type: Product / Schema Decision
+
+Question:
+
+The frozen P6-001 §7 rule fixes the merge language value ("carries the language of
+the earliest contributing segment") and requires it to be "flagged as
+mixed-language provenance", but no representation for that flag is frozen. How is
+the mixed-language provenance flag represented?
+
+Context:
+
+- Split: both children carry the split source segment's language marker (frozen;
+  no new decision).
+- Merge: value = earliest contributing segment's language (frozen); the
+  mixed-language *flag* representation is not frozen.
+- `transcript_revision_segments` (P6-001 §10) has only a `language` column.
+
+Candidate options:
+
+1. Add an explicit revision-segment provenance marker (for example a nullable
+   `language_provenance` string or `mixed_language` boolean) — schema addition.
+2. Represent mixed-language provenance without a new column (for example via a
+   reserved language value) — to be assessed against the BCP 47 vocabulary
+   `ms/en/zh/ta/und`.
+
+No language value may be silently chosen or inferred beyond the frozen rule.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-24 — Adopt an explicit nullable provenance representation
+(option 1). **Split:** both child segments inherit the source segment's language
+marker (unchanged frozen rule). **Merge:** if every contributor has the same
+language, the resulting segment retains that language; if contributors contain
+different language markers, the resulting segment language becomes `und` and the
+original contributor-language provenance must be retained explicitly. Do not
+silently select the first/earliest language as the merged segment's canonical
+language. Do not attempt automatic language redetection during split/merge. The
+implementation must use an explicit persistence representation for mixed-language
+provenance (a typed/JSON ordered list of the contributor language markers) rather
+than relying on `und` alone. Durable record: `DECISIONS.md` (P6-005 Owner
+Decisions).
+
+### DECISION-P6-005-STALENESS-LIFECYCLE-001 - DECIDED: persisted translation staleness lifecycle
+
+Decision ID: DECISION-P6-005-STALENESS-LIFECYCLE-001
+
+Status: DECIDED - HPO 2026-09-24 (canonical lifecycle frozen)
+
+Type: Product / Domain Decision
+
+Question:
+
+D6-04 fixes the invalidation policy (every edit invalidates; never silently
+preserve/remap) and P6-001 names the marker shape, but the staleness lifecycle
+semantics are not fully frozen. The following must be decided:
+
+- Scope/identity: staleness is per `translations` row (= per
+  `(transcription_id, target_language)`), which is the only authorized Phase 5
+  identity. Confirm.
+- Repeated edits: on a second invalidation, is `staleness_reason` replaced by the
+  new reason, or does it accumulate the highest-severity reason per the frozen
+  precedence? Is `stale_at` refreshed?
+- Retranslation: does a newly completed translation for the target clear
+  `stale_at`/`staleness_reason`?
+- Historical viewability: after invalidation, may the previous (now stale)
+  translation output remain viewable as historical/stale content, and how is that
+  distinguished from current content?
+- Caused-by identity: must the causing revision/source identity be recorded (see
+  `DECISION-P6-005-SCHEMA-001`)?
+
+The contract records the following defaults pending confirmation: per-translation
+scope; `staleness_reason` replaced using frozen precedence and `stale_at`
+refreshed; retranslation clears staleness; stale output remains viewable but is
+clearly marked stale.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-24 — Adopt the following canonical translation-invalidation
+lifecycle (it supersedes the contract defaults above where they differ).
+
+Scope: staleness is persisted per translation row / translation target identity.
+Existing Phase 5 translations remain historical outputs. Structural or other
+approved source revision changes do not rewrite or remap existing translation
+segments.
+
+First invalidation: when a currently non-stale translation becomes invalidated,
+set `stale_at`, set `staleness_reason`, and record the causing revision.
+
+Repeated invalidation: if an already-stale translation is affected by another
+edit, preserve the original `stale_at`; choose the canonical reason using the
+frozen precedence `SegmentStructureChanged > TimingChanged > SourceTextChanged`;
+upgrade `staleness_reason` only when the new reason outranks the stored reason;
+retain/update causing-revision provenance consistently with the canonical stored
+reason. Do not downgrade a stronger reason to a weaker reason. (`stale_at` is
+**preserved**, not refreshed, on repeated invalidation.)
+
+Historical translation: a stale translation remains viewable as historical output
+where existing product surfaces permit it, and must not be represented as current
+for the active revision.
+
+Retranslation: do not clear staleness on the historical translation row. A later
+successful retranslation creates/uses the canonical new translation identity for
+that source/revision/target lifecycle. The old translation remains stale
+historical evidence; do not delete or mutate its translated segment content to
+make it appear current.
+
+Failed retranslation: a failed retranslation must not make the previous stale
+translation current again.
+
+Durable record: `DECISIONS.md` (P6-005 Owner Decisions).
+
+### DECISION-P6-005-SCHEMA-001 - DECIDED: exact schema additions for persisted invalidation
+
+Decision ID: DECISION-P6-005-SCHEMA-001
+
+Status: DECIDED - HPO 2026-09-24 (minimum additive schema authorized)
+
+Type: Schema Decision
+
+Question:
+
+Which schema additions does P6-005 require? P6-001 §10 already names
+`translations.stale_at` (timestamp, nullable) and `translations.staleness_reason`
+(string, nullable) as owned by P6-005. Does P6-005 also need to record the causing
+revision/source identity, and (per `DECISION-P6-005-LANGUAGE-PROVENANCE-001`) a
+mixed-language provenance marker on revision segments?
+
+Context:
+
+- Phase 5 translation identity is `(transcription_id, target_language)` with one
+  active translation per target (partial unique index on active statuses);
+  `translation_segments` align to machine `segment_index`.
+- No `stale_at`/`staleness_reason` columns exist yet.
+
+Candidate additions (name-only; not implemented in this batch):
+
+- `translations.stale_at` (timestamp, nullable) — named by P6-001.
+- `translations.staleness_reason` (string, nullable) — named by P6-001.
+- optionally `translations.stale_revision_id` (string, nullable) or equivalent
+  causing-revision provenance — new, requires a decision.
+- optionally a revision-segment mixed-language provenance marker — new, requires
+  `DECISION-P6-005-LANGUAGE-PROVENANCE-001`.
+
+No final schema may be invented without tracing the Phase 5 translation identity
+contract.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-24 — Authorize the minimum additive schema required by the
+P6-005 contract.
+
+Translation invalidation — add to `translations`:
+
+- `stale_at` (nullable timestamp);
+- `staleness_reason` (nullable canonical reason);
+- `stale_caused_by_revision_id` (nullable reference to the revision responsible
+  for the stored canonical invalidation reason).
+
+The schema must preserve existing Phase 5 translation rows and translation
+segments; do not rewrite Phase 5 translation identity.
+
+Revision-segment language provenance — add an explicit representation on revision
+segments for mixed-language provenance. It must be nullable when unnecessary,
+deterministic, capable of retaining the contributor language markers in
+contributor order, and independent of machine `segment_index`. A simple typed/JSON
+representation is acceptable if consistent with repository conventions and
+validated at the domain boundary. Do not add a generic metadata dumping field.
+
+Durable record: `DECISIONS.md` (P6-005 Owner Decisions).
+
+### DECISION-P6-005-READY-001 - Promote P6-005 to READY and authorize implementation
+
+Decision ID: DECISION-P6-005-READY-001
+
+Status: DECIDED - HPO 2026-09-24
+
+Type: Phase Authorization / Task Authorization
+
+Originating Task: P6-005 (Split / Merge + Translation Invalidation)
+
+Question:
+
+Are the five P6-005 owner decisions and the reconciled canonical contract
+sufficient to promote P6-005 to READY and authorize implementation?
+
+Resolution:
+
+HPO-AUTHORIZED on 2026-09-24. The five owner decisions
+(`DECISION-P6-005-SPLIT-BOUNDARY-001`, `DECISION-P6-005-MERGE-JOIN-001`,
+`DECISION-P6-005-LANGUAGE-PROVENANCE-001`,
+`DECISION-P6-005-STALENESS-LIFECYCLE-001`, `DECISION-P6-005-SCHEMA-001`) are
+recorded DECIDED, and the canonical contract
+(`tasks/P6-005-split-merge-translation-invalidation.md`) is reconciled to
+incorporate all five.
+
+Transition applied: P6-005: `CONTRACT_AUTHORED / READY-ELIGIBLE AFTER CONTRACT`
+→ **READY**, authorized for implementation.
+
+Scope: implement only P6-005 — structural split; structural merge; required
+revision-segment language provenance; additive translation-staleness schema;
+atomic invalidation (structural revision append and invalidation in one
+transaction using the existing P6-002 CAS/version rules); required UI;
+feature/domain/concurrency tests; and real-browser DC-01 verification.
+
+Not authorized: P6-008 (arbitrary revision-history UI), P6-009 (Phase 6 final
+gate), rewriting Phase 5 translations/translation segments, and any new Phase 7
+work. P6-005 must not redefine P6-001..P6-004 semantics.
+
+Review model: per-task independent review (Claude Code). P6-005 moves to
+`IMPLEMENTED_PENDING_REVIEW` after implementation; the implementer must not
+self-mark VERIFIED or DONE.
+
+Blocks: none.
+
+Does Not Block: P6-008/P6-009 (separately governed; P6-009 is FINAL_GATE_ONLY);
+Phase 7 remains not generally authorized.
+
+Durable record: `DECISIONS.md` (P6-005 Owner Decisions; P6-005 READY Promotion).

@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property float $end_seconds
  * @property string $text
  * @property LanguageIdentifier $language
+ * @property list<string>|null $language_provenance
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -41,6 +42,7 @@ class TranscriptRevisionSegment extends Model
         'end_seconds',
         'text',
         'language',
+        'language_provenance',
     ];
 
     protected function casts(): array
@@ -50,6 +52,7 @@ class TranscriptRevisionSegment extends Model
             'start_seconds' => 'float',
             'end_seconds' => 'float',
             'language' => LanguageIdentifier::class,
+            'language_provenance' => 'array',
         ];
     }
 

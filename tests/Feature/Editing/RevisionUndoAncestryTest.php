@@ -1,11 +1,14 @@
 <?php
 
+use App\Editing\MergeComposer;
 use App\Editing\Persistence\MachineSourceMaterializer;
 use App\Editing\RevisionConflictException;
 use App\Editing\RevisionFactory;
 use App\Editing\RevisionRepository;
 use App\Editing\RevisionService;
+use App\Editing\SplitComposer;
 use App\Editing\TranscriptRevision;
+use App\Editing\TranslationStalenessWriter;
 use App\Editing\UndoUnavailableException;
 use App\Models\Transcription;
 use App\Models\User;
@@ -36,7 +39,14 @@ function undoBackend(string $backend): array
         ? app(RevisionRepository::class)
         : new InMemoryRevisionRepository;
 
-    $service = new RevisionService($repository, new RevisionFactory, app(MachineSourceMaterializer::class));
+    $service = new RevisionService(
+        $repository,
+        new RevisionFactory,
+        app(MachineSourceMaterializer::class),
+        new SplitComposer,
+        new MergeComposer,
+        app(TranslationStalenessWriter::class),
+    );
 
     return [$repository, $service, $transcription, $owner, $foreign];
 }

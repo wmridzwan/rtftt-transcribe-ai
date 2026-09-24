@@ -7,6 +7,7 @@ use App\Editing\TranslationStalenessReason;
 use App\Models\Transcription;
 use App\Models\TranscriptRevisionModel;
 use App\Models\TranscriptRevisionSegment;
+use App\Models\Translation;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Tests\Support\EditingPersistenceFixtures;
@@ -188,15 +189,21 @@ it('classifies text edits as SourceTextChanged and persists no translation stale
     $transcription = EditingPersistenceFixtures::completedTranscription();
     $owner = $transcription->user;
 
+    $translation = Translation::factory()->completed()->create([
+        'transcription_id' => $transcription->getKey(),
+    ]);
+
     $this->actingAs($owner)->post(editUrl($transcription), payload([0 => 'edited', 1 => 'edited'], null));
 
     expect(EditKind::Textual->stalenessReason())->toBe(TranslationStalenessReason::SourceTextChanged)
         ->and(TranslationInvalidationPolicy::reasonFor(EditKind::Textual))->toBe(TranslationStalenessReason::SourceTextChanged)
         ->and(TranslationInvalidationPolicy::mustMarkStale(EditKind::Textual))->toBeTrue();
 
-    // P6-003 must not introduce the P6-005 staleness marker schema.
-    expect(Schema::hasColumn('translations', 'stale_at'))->toBeFalse()
-        ->and(Schema::hasColumn('translations', 'staleness_reason'))->toBeFalse();
+    // P6-005 owns the persisted marker; the textual path deliberately does not
+    // write staleness (structural split/merge is P6-005's invalidation trigger).
+    expect(Schema::hasColumn('translations', 'stale_at'))->toBeTrue()
+        ->and($translation->fresh()->stale_at)->toBeNull()
+        ->and($translation->fresh()->staleness_reason)->toBeNull();
 });
 
 it('surfaces the active-revision indicator and edit controls while keeping P6-006 and Phase 4 hooks', function () {

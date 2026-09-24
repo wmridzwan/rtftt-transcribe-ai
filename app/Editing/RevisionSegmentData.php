@@ -12,6 +12,9 @@ use InvalidArgumentException;
  * contiguous `position`, validated timing, text, and carried language. Timing
  * is validated per segment only; overlaps and zero-length timings are legal at
  * the sequence level (see {@see TimingInvariants}).
+ *
+ * `languageProvenance` is populated only by a merge of contributors with
+ * differing language markers (P6-005); it is null for every other segment.
  */
 final readonly class RevisionSegmentData
 {
@@ -22,6 +25,7 @@ final readonly class RevisionSegmentData
         public float $endSeconds,
         public string $text,
         public LanguageIdentifier $language,
+        public ?LanguageProvenance $languageProvenance = null,
     ) {
         if ($position < 0) {
             throw new InvalidArgumentException('Revision segment position must be non-negative.');

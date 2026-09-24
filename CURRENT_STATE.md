@@ -56,21 +56,33 @@ the translation was produced" note is now gated on a persisted translation
 existing for that row), confirmed closed by a fresh independent corrective
 re-review (VERIFIED; no remaining BLOCKER/HIGH/MEDIUM/LOW/INFO), and closed
 **DONE** by the HPO (`DECISION-P6-007-CLOSURE-001`). P6-004's canonical contract
-is authored (`tasks/P6-004-timing-editing-validation.md`) and was promoted READY
-by the HPO (`DECISION-P6-004-READY-001`); it is now implemented against the
-frozen P6-001 D6-03 timing invariants (timing-only, append-only revision edits;
-`EditKind::Timing` → `TimingChanged` with no staleness persistence; machine
-timing immutable; playback/navigation driven by active-revision timing) with unit
-and feature tests, a 10/10 real-browser (DC-01) suite, and a durable pre-review
-artifact, and is `IMPLEMENTED_PENDING_REVIEW` awaiting a fresh independent review.
-P6-005 remains dependency-blocked until P6-004 is DONE. The missing
+is authored (`tasks/P6-004-timing-editing-validation.md`), promoted READY
+(`DECISION-P6-004-READY-001`), implemented against the frozen P6-001 D6-03 timing
+invariants (timing-only, append-only revision edits; `EditKind::Timing` →
+`TimingChanged` with no staleness persistence; machine timing immutable;
+playback/navigation driven by active-revision timing), independently reviewed
+VERIFIED with no remaining BLOCKER/HIGH/MEDIUM finding, and closed **DONE**
+(`DECISION-P6-004-CLOSURE-001`); non-blocking INFO debt is carried forward
+(`DECISION-P6-004-INFO-CARRYFORWARD-001`). P6-005 was unblocked by P6-004 DONE,
+reclassified to `CONTRACT_REQUIRED / READY-ELIGIBLE AFTER CONTRACT`
+(`DECISION-P6-005-ELIGIBILITY-001`), and its canonical contract is authored
+(`tasks/P6-005-split-merge-translation-invalidation.md`). The five surfaced owner
+decisions are now DECIDED (`DECISION-P6-005-SPLIT-BOUNDARY-001`,
+`DECISION-P6-005-MERGE-JOIN-001`, `DECISION-P6-005-LANGUAGE-PROVENANCE-001`,
+`DECISION-P6-005-STALENESS-LIFECYCLE-001`, `DECISION-P6-005-SCHEMA-001`), the
+contract is reconciled to incorporate them, and P6-005 is promoted **READY** and
+authorized for implementation (`DECISION-P6-005-READY-001`). It was implemented in
+this batch (structural split/merge, revision-segment language provenance, additive
+translation-staleness schema, atomic invalidation, required UI, tests, real-browser
+DC-01 evidence) and now stands at **IMPLEMENTED_PENDING_REVIEW**; it must not be
+self-marked VERIFIED or DONE. The missing
 `reviews/P6-002-corrective-independent-re-review.md` record-completeness gap is
 retained and P6-002 is not reopened. Phase 7 remains NOT
 GENERALLY AUTHORIZED; only P7-005 (Observability Foundation) was authorized early
 (`DECISION-P7-005-AUTHORIZATION-001`) and is DONE
-(`DECISION-P7-005-CLOSURE-001`). P6-005/P6-008/P6-009 and all other Phase 7
+(`DECISION-P7-005-CLOSURE-001`). P6-008/P6-009 and all other Phase 7
 work were not started. Remaining Phase 6 candidate eligibility and the next batch
-recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md` §R.
+recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md` §T.
 
 Phase 7 remains NOT GENERALLY AUTHORIZED (ADR-023;
 `PHASE5-7-EXECUTION-CLASSIFICATION.md`); early-hardening runs only where contracts

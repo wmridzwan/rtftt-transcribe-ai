@@ -111,11 +111,18 @@
                                 />
                             @else
                                 @include('transcriptions.partials.source-translation-comparison')
-                                <div x-data="transcriptEditing({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })" x-show="transcriptView === 'normal'" x-on:p6-timing-enter.window="forceExit()">
+                                <div x-data="transcriptEditing({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })" x-show="transcriptView === 'normal'" x-on:p6-timing-enter.window="forceExit()" x-on:p6-struct-enter.window="forceExit()">
                                     @include('transcriptions.partials.revision-toolbar')
+                                    <div
+                                        x-data="transcriptStructural({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })"
+                                        x-on:p6-text-enter.window="forceExit()"
+                                        x-on:p6-timing-enter.window="forceExit()"
+                                    >
+                                    @include('transcriptions.partials.structural-toolbar')
                                     <div
                                         x-data="transcriptTiming({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })"
                                         x-on:p6-text-enter.window="forceExit()"
+                                        x-on:p6-struct-enter.window="forceExit()"
                                     >
                                     @include('transcriptions.partials.timing-toolbar')
                                     <div
@@ -174,6 +181,10 @@
                                                 data-segment-index="{{ $segment['nav_index'] }}"
                                                 data-filter-language="{{ $segment['language'] }}"
                                                 data-nav-seconds="{{ $segment['seek'] }}"
+                                                data-struct-key="{{ $segment['segment_key'] }}"
+                                                data-struct-text-length="{{ $segment['text_length'] }}"
+                                                data-struct-start="{{ $segment['start'] }}"
+                                                data-struct-end="{{ $segment['end'] }}"
                                                 class="flex gap-4 rounded-md p-1 transition-colors"
                                             >
                                                 <div class="flex-shrink-0">
@@ -242,6 +253,28 @@
                                                     >{{ $segment['formatted_start'] }}-{{ $segment['formatted_end'] }}</span>
                                                 </div>
                                                 <div class="flex flex-shrink-0 items-start gap-2">
+                                                    <div x-show="structMode" style="display: none" class="flex items-center gap-1" data-struct-row-controls>
+                                                        <input
+                                                            type="checkbox"
+                                                            data-struct-select
+                                                            form="structural-merge-form"
+                                                            name="segments[]"
+                                                            value="{{ $segment['segment_key'] }}"
+                                                            aria-label="Select segment {{ $segment['position'] + 1 }} for merge"
+                                                            class="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 dark:border-zinc-600"
+                                                        >
+                                                        <button
+                                                            type="button"
+                                                            data-struct-split
+                                                            data-struct-segment-key="{{ $segment['segment_key'] }}"
+                                                            data-struct-segment-start="{{ $segment['start'] }}"
+                                                            data-struct-segment-end="{{ $segment['end'] }}"
+                                                            data-struct-segment-text-length="{{ $segment['text_length'] }}"
+                                                            x-on:click="chooseSplit($el)"
+                                                            class="rounded-md px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-950/40"
+                                                            aria-label="Split segment {{ $segment['position'] + 1 }}"
+                                                        >Split</button>
+                                                    </div>
                                                     <span
                                                         data-segment-language="{{ $segment['language'] }}"
                                                         class="inline-block rounded bg-zinc-100 px-2 py-1 font-mono text-xs uppercase text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
@@ -252,6 +285,7 @@
                                         @endforeach
                                     </div>
                                     </form>
+                                    </div>
                                     </div>
                                     </div>
                                 </div>
@@ -584,6 +618,52 @@
                 restoreTiming() {
                     this.$el.querySelectorAll('[data-timing-start-input], [data-timing-end-input]').forEach((el) => {
                         el.value = el.defaultValue;
+                    });
+                },
+            };
+        };
+
+        window.transcriptStructural = window.transcriptStructural || function (config) {
+            return {
+                structMode: false,
+                canEdit: config.canEdit ?? false,
+                splitKey: '',
+                enter() {
+                    if (! this.canEdit) {
+                        return;
+                    }
+                    this.$dispatch('p6-struct-enter');
+                    this.structMode = true;
+                },
+                cancel() {
+                    this.structMode = false;
+                    this.splitKey = '';
+                    this.$el.querySelectorAll('[data-struct-select]').forEach((el) => {
+                        el.checked = false;
+                    });
+                    this.$nextTick(() => {
+                        const trigger = this.$el.querySelector('[data-struct-enter]');
+                        if (trigger) {
+                            trigger.focus();
+                        }
+                    });
+                },
+                forceExit() {
+                    // Entering P6-003 text or P6-004 timing mode: leave structural
+                    // mode without stealing focus or submitting anything.
+                    if (! this.structMode) {
+                        return;
+                    }
+                    this.structMode = false;
+                    this.splitKey = '';
+                },
+                chooseSplit(el) {
+                    this.splitKey = el.dataset.structSegmentKey;
+                    this.$nextTick(() => {
+                        const input = this.$el.querySelector('[data-struct-boundary-input]');
+                        if (input) {
+                            input.focus();
+                        }
                     });
                 },
             };

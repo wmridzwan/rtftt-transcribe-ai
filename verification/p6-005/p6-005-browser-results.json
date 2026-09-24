@@ -5,14 +5,14 @@
       "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\node_modules\\@playwright\\test\\cli.js",
       "test",
       "-c",
-      "verification/playwright.p6-003.config.js"
+      "verification/playwright.p6-005.config.js"
     ],
-    "configFile": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\playwright.p6-003.config.js",
-    "rootDir": "C:/Users/Admin/Herd/rtftt-transcribe-ai/verification/p6-003",
+    "configFile": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\playwright.p6-005.config.js",
+    "rootDir": "C:/Users/Admin/Herd/rtftt-transcribe-ai/verification/p6-005",
     "failOnFlakyTests": false,
     "forbidOnly": false,
     "fullyParallel": false,
-    "globalSetup": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\p6-003-auth.setup.js",
+    "globalSetup": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\p6-005-auth.setup.js",
     "globalTeardown": null,
     "globalTimeout": 0,
     "grep": {},
@@ -32,7 +32,7 @@
         },
         "id": "chromium",
         "name": "chromium",
-        "testDir": "C:/Users/Admin/Herd/rtftt-transcribe-ai/verification/p6-003",
+        "testDir": "C:/Users/Admin/Herd/rtftt-transcribe-ai/verification/p6-005",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -49,7 +49,7 @@
       [
         "json",
         {
-          "outputFile": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\p6-003\\p6-003-browser-results.json"
+          "outputFile": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\p6-005\\p6-005-browser-results.json"
         }
       ]
     ],
@@ -67,13 +67,13 @@
   },
   "suites": [
     {
-      "title": "transcript-editing.spec.js",
-      "file": "transcript-editing.spec.js",
+      "title": "split-merge.spec.js",
+      "file": "split-merge.spec.js",
       "column": 0,
       "line": 0,
       "specs": [
         {
-          "title": "P6-003: entering edit mode is explicit, focuses the first field, and persists nothing",
+          "title": "P6-005: a valid interior split persists, survives reload, invalidates the translation, and keeps navigation position-based",
           "ok": true,
           "tags": [],
           "tests": [
@@ -88,12 +88,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1121,
+                  "duration": 1879,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-24T04:10:56.295Z",
+                  "startTime": "2026-09-24T04:09:44.476Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -101,13 +101,13 @@
               "status": "expected"
             }
           ],
-          "id": "a19143f3299dbd1b4ddf-2766357d365806b93e28",
-          "file": "transcript-editing.spec.js",
-          "line": 42,
+          "id": "7c3a89c87d1152ba13b2-5ed240d7acbb04a7e5f7",
+          "file": "split-merge.spec.js",
+          "line": 60,
           "column": 1
         },
         {
-          "title": "P6-003: save persists the edit as a new revision and survives reload",
+          "title": "P6-005: split at the beginning/end is rejected with an accessible error and no write",
           "ok": true,
           "tags": [],
           "tests": [
@@ -122,12 +122,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1835,
+                  "duration": 2469,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-24T04:10:57.570Z",
+                  "startTime": "2026-09-24T04:09:46.490Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -135,13 +135,13 @@
               "status": "expected"
             }
           ],
-          "id": "a19143f3299dbd1b4ddf-6c1e09a1a5d17e17a6a8",
-          "file": "transcript-editing.spec.js",
-          "line": 62,
+          "id": "7c3a89c87d1152ba13b2-b6588fe9476c64fe292d",
+          "file": "split-merge.spec.js",
+          "line": 101,
           "column": 1
         },
         {
-          "title": "P6-003: cancel discards local edits and persists nothing",
+          "title": "P6-005: a valid adjacent merge persists a plain-space join and mixed-language und provenance",
           "ok": true,
           "tags": [],
           "tests": [
@@ -156,12 +156,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1195,
+                  "duration": 1576,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-24T04:10:59.429Z",
+                  "startTime": "2026-09-24T04:09:48.978Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -169,13 +169,13 @@
               "status": "expected"
             }
           ],
-          "id": "a19143f3299dbd1b4ddf-3a3542c0aca23a2f2b03",
-          "file": "transcript-editing.spec.js",
-          "line": 80,
+          "id": "7c3a89c87d1152ba13b2-be92a50bc5c9252d3d37",
+          "file": "split-merge.spec.js",
+          "line": 120,
           "column": 1
         },
         {
-          "title": "P6-003: a stale save is rejected with a visible conflict and no silent merge",
+          "title": "P6-005: a non-adjacent merge is rejected with no write",
           "ok": true,
           "tags": [],
           "tests": [
@@ -190,12 +190,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2316,
+                  "duration": 1647,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-24T04:11:00.643Z",
+                  "startTime": "2026-09-24T04:09:50.570Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -203,13 +203,13 @@
               "status": "expected"
             }
           ],
-          "id": "a19143f3299dbd1b4ddf-62ec4de50783ba10184a",
-          "file": "transcript-editing.spec.js",
-          "line": 98,
+          "id": "7c3a89c87d1152ba13b2-8fe80f7ab8e1af7ddaa6",
+          "file": "split-merge.spec.js",
+          "line": 138,
           "column": 1
         },
         {
-          "title": "P6-003: undo and redo move the active pointer and render the expected text",
+          "title": "P6-005: a stale structural save is rejected with a visible conflict and no silent merge",
           "ok": true,
           "tags": [],
           "tests": [
@@ -224,12 +224,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2283,
+                  "duration": 2492,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-24T04:11:02.981Z",
+                  "startTime": "2026-09-24T04:09:52.238Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -237,13 +237,13 @@
               "status": "expected"
             }
           ],
-          "id": "a19143f3299dbd1b4ddf-f819235e48b4769902b0",
-          "file": "transcript-editing.spec.js",
-          "line": 121,
+          "id": "7c3a89c87d1152ba13b2-3a634d81266d16a77ba1",
+          "file": "split-merge.spec.js",
+          "line": 151,
           "column": 1
         },
         {
-          "title": "P6-003: a new edit after undo branches and disables automatic redo",
+          "title": "P6-005: cancel discards the structural selection and persists nothing",
           "ok": true,
           "tags": [],
           "tests": [
@@ -258,12 +258,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2306,
+                  "duration": 1406,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-24T04:11:05.280Z",
+                  "startTime": "2026-09-24T04:09:54.751Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -271,13 +271,13 @@
               "status": "expected"
             }
           ],
-          "id": "a19143f3299dbd1b4ddf-aa17c829ee6dfa45cfff",
-          "file": "transcript-editing.spec.js",
-          "line": 143,
+          "id": "7c3a89c87d1152ba13b2-68ffd9d235b9c1ce3dad",
+          "file": "split-merge.spec.js",
+          "line": 168,
           "column": 1
         },
         {
-          "title": "P6-003: a non-owner cannot view or edit the transcript workspace",
+          "title": "P6-005: a non-owner cannot view the transcript workspace",
           "ok": true,
           "tags": [],
           "tests": [
@@ -292,12 +292,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 240,
+                  "duration": 281,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-24T04:11:07.612Z",
+                  "startTime": "2026-09-24T04:09:56.180Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -305,13 +305,13 @@
               "status": "expected"
             }
           ],
-          "id": "a19143f3299dbd1b4ddf-8d3de8f8c6fe75aed514",
-          "file": "transcript-editing.spec.js",
-          "line": 165,
+          "id": "7c3a89c87d1152ba13b2-4c3d932c7aa5371fa6ec",
+          "file": "split-merge.spec.js",
+          "line": 182,
           "column": 1
         },
         {
-          "title": "P6-003: the immutable machine source is unchanged after an edit",
+          "title": "P6-005: the immutable machine source is unchanged and a structurally changed revision is not aligned in the comparison",
           "ok": true,
           "tags": [],
           "tests": [
@@ -326,12 +326,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2210,
+                  "duration": 2384,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-09-24T04:11:07.869Z",
+                  "startTime": "2026-09-24T04:09:56.477Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -339,9 +339,9 @@
               "status": "expected"
             }
           ],
-          "id": "a19143f3299dbd1b4ddf-5ea5d33ead371c1587a1",
-          "file": "transcript-editing.spec.js",
-          "line": 172,
+          "id": "7c3a89c87d1152ba13b2-44f09ecc329fe6ec4491",
+          "file": "split-merge.spec.js",
+          "line": 189,
           "column": 1
         }
       ]
@@ -349,8 +349,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-24T04:10:52.514Z",
-    "duration": 17757.509000000002,
+    "startTime": "2026-09-24T04:09:40.913Z",
+    "duration": 18116.93,
     "expected": 8,
     "skipped": 0,
     "unexpected": 0,
