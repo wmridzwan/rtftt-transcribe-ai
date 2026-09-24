@@ -129,3 +129,4 @@ Browser → Laravel → Queue → Transcription Worker → faster-whisper → Da
 ```
 
 The transcription worker will eventually be independently deployable on CPU or GPU infrastructure.
+"# rtftt-transcribe-ai" 
