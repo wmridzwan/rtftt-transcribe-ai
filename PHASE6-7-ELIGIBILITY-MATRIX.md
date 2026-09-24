@@ -452,3 +452,175 @@ sections are preserved unchanged.
   artifact was fabricated.
 - P6-003/P6-007 redefine no P6-001/P6-002 semantics and persist no translation
   staleness.
+
+## P. Reconciliation — 2026-09-24 (P6-003 closure + P6-007 corrective)
+
+Supersedes the "current eligibility" task-state lines above; all historical
+sections are preserved unchanged.
+
+### P.1 Independent review outcome
+
+- The fresh independent review of the P6-003/P6-007 batch
+  (`reviews/P6-003-P6-007-independent-review.md`) returned **P6-003 = VERIFIED**
+  (no BLOCKER/HIGH/MEDIUM) and **P6-007 = CHANGES_REQUESTED** (one MEDIUM
+  presentation-truthfulness finding: the per-row "edited after the translation
+  was produced" note could render when no translation was ever persisted).
+- The review also recorded a non-blocking governance/evidence-trail MEDIUM: the
+  `reviews/P6-002-corrective-independent-re-review.md` record-completeness gap
+  remains (P6-002 is **not** reopened; no artifact was fabricated).
+
+### P.2 P6-003 = DONE
+
+- **P6-003 = DONE** (HPO closure `DECISION-P6-003-CLOSURE-001`, 2026-09-24).
+  Append-only text editing, expected-base concurrency, stale-conflict handling,
+  strict-ancestor undo, unique-child redo, branch-after-undo, machine-source
+  immutability, ownership/isolation, reload durability, and real-browser behavior
+  were independently confirmed; no translation-staleness persistence and no
+  later-task scope leakage.
+- The historical review artifact is preserved unchanged; P6-003 is no longer
+  eligible for further work.
+
+### P.3 P6-007 = IMPLEMENTED_PENDING_REVIEW (corrected, awaiting fresh re-review)
+
+- **P6-007 = IMPLEMENTED_PENDING_REVIEW.** The per-row note is now gated on
+  `ComparisonRow::hasEditedRevisionWithPersistedTranslation()` — the revision is
+  machine-aligned and edited **and** a persisted translation exists for that row
+  — so no chronology/provenance claim is rendered in the no-translation state.
+  Regression coverage added at feature and unit level, plus a browser assertion
+  that the note is absent for the `none` fixture.
+- The comparison remains presentation-only under `DECISION-P6-007-SCOPE-001`:
+  no `ComparisonBuilder` redesign, no machine `segment_index` alignment change,
+  no staleness persistence/inference, no translation lifecycle writes, no P6-005
+  behavior.
+- P6-007 is **not** self-verified; it requires a fresh independent corrective
+  re-review before HPO closure.
+
+### P.4 Explicit non-actions (this corrective)
+
+- P6-004, P6-005, P6-008, P6-009 were not started or promoted.
+- No additional Phase 7 task was started; Phase 7 remains not generally
+  authorized.
+- P6-002 is **not** reopened; the record-completeness gap remains open and no
+  artifact was fabricated.
+
+## Q. Reconciliation — 2026-09-24 (P6-007 closure + P6-004 contract)
+
+Supersedes the "current eligibility" task-state lines above; all historical
+sections are preserved unchanged.
+
+### Q.1 P6-007 = DONE
+
+- **P6-007 = DONE** (HPO closure `DECISION-P6-007-CLOSURE-001`, 2026-09-24).
+  The fresh independent corrective re-review confirmed the original MEDIUM
+  presentation-truthfulness finding is closed and returned **VERIFIED** with no
+  remaining BLOCKER/HIGH/MEDIUM/LOW/INFO finding: the no-translation state is
+  factual, no false "edited after the translation was produced" claim remains,
+  machine-source provenance is preserved when a translation exists,
+  structurally incompatible revisions are never silently index-remapped, no
+  staleness is inferred or persisted, the comparison remains presentation-only,
+  P6-003 shared-workspace behavior remains green, and the real-browser (DC-01)
+  evidence was independently reproduced.
+- The historical review artifact (`reviews/P6-003-P6-007-independent-review.md`)
+  and the corrective provenance are preserved unchanged; P6-007 is no longer
+  eligible for further work.
+- Frozen downstream semantics: Phase 5 translations align to the machine
+  `segment_index`; P6-007 does not own the translation lifecycle and does not
+  persist or infer staleness; edited-revision ↔ machine-translation provenance
+  must remain explicit; structurally incompatible revisions must not be silently
+  aligned.
+
+### Q.2 P6-004 = CONTRACT_AUTHORED (READY-eligible; awaiting explicit HPO promotion)
+
+- **P6-004 = CONTRACT_AUTHORED** (`tasks/P6-004-timing-editing-validation.md`).
+  Implementation has **not** occurred and the task is **not** READY.
+- Dependency reconciliation: P6-001 = DONE (frozen D6-03 timing invariants);
+  P6-002 = DONE (revision service / append-only layer); P6-003 = DONE (so the
+  shared `show.blade.php` edit-workspace surface is no longer actively owned by
+  another task); Phase 4 primitives (`SegmentTimestamp`,
+  `ActiveSegmentResolver`, reserved hooks) available; D6-03 adopted. P6-004 does
+  **not** depend on Phase 5 or P6-005.
+- **P6-004 is READY-eligible**: its canonical contract exists and its
+  dependencies are satisfied. It still requires an explicit HPO READY promotion
+  (`DECISION-P6-004-READY-001`); this reconciliation does **not** promote it.
+- The contract fixes timing-only editing as `EditKind::Timing` →
+  `TranslationStalenessReason::TimingChanged` and explicitly does **not** persist
+  translation staleness (P6-005 owns that).
+
+### Q.3 P6-005 = DEPENDENCY_BLOCKED (unchanged)
+
+- **P6-005 = DEPENDENCY_BLOCKED** on P6-004 DONE. It additionally requires its
+  own canonical contract and an explicit HPO READY promotion, and owns the
+  persisted translation-staleness marker. Not started.
+- P6-008 remains independently contract-gated (own contract + HPO READY
+  promotion); P6-009 remains FINAL_GATE_ONLY.
+
+### Q.4 Explicit non-actions (this batch)
+
+- No P6-004 implementation occurred; P6-004 was not promoted to READY.
+- P6-005, P6-008, P6-009 were not authored, implemented, or promoted.
+- No additional Phase 7 task was started; Phase 7 remains not generally
+  authorized.
+- P6-002 is **not** reopened; the record-completeness gap remains open and no
+  artifact was fabricated.
+
+## R. Reconciliation — 2026-09-24 (P6-004 implementation)
+
+Supersedes the "current eligibility" task-state lines above; all historical
+sections are preserved unchanged.
+
+### R.1 P6-004 = IMPLEMENTED_PENDING_REVIEW
+
+- **P6-004 = IMPLEMENTED_PENDING_REVIEW** (promoted READY
+  `DECISION-P6-004-READY-001`; implemented 2026-09-24). Not self-verified and not
+  DONE; a fresh independent review (Claude Code) is required.
+- Implemented against the frozen P6-001 D6-03 timing invariants without
+  redefining them: timing-only append-only revision edits, expected-base
+  concurrency, no in-place mutation; `EditKind::Timing` →
+  `TranslationStalenessReason::TimingChanged` with **no** staleness persistence
+  (P6-005 owns it); machine timing immutable; a narrow `TimingEditComposer` that
+  rejects non-finite/negative/`start > end`/sub-millisecond input and accepts
+  overlap/nested/equal/zero-length/out-of-time-order/extend-past (no monotonicity
+  added).
+- Playback source of truth: when an active revision exists, seek controls and
+  active-segment resolution use active-revision timing; P6-006 navigation stays
+  ordered by revision `position`; machine timing is used only when no revision
+  exists. Dedicated `data-timing-*` hooks; no reserved Phase 4 hook is reused.
+- Evidence: `reviews/pre-review/P6-004-pre-review.md`,
+  `verification/p6-004/P6-004-BROWSER-VERIFICATION-EVIDENCE.md`. PHP unit +
+  feature targeted 29 passed; full suite 832 tests / 831 passed / 1 skipped / 0
+  failures; Pint clean; PHPStan 0; P6-004 browser 10/10; P6-003 8/8, P6-006 7/7,
+  P6-007 8/8, P4-004 3/3 regressions green.
+
+### R.2 Regression notes (distinguished, not P6-004 regressions)
+
+- **Known environmental Phase 4 playback flake**: the P4-003 audio `play()`
+  assertion (`currentTimeAfterPlay: 0`) fails in this headless environment; the
+  same value exists in the pre-existing artifact
+  `verification/artifacts/p4-003-browser-results.json`. It likewise affects the
+  P4-006 V4-08/V4-09 `play()` gates. P6-004 does not touch the media element,
+  stream route, or player component. The non-`play()` P4-006 gates (V4-10/V4-11/
+  V4-12) pass.
+- **Pre-existing P6-007/P4-006 V4-13 spec interaction**: the older V4-13
+  `getByText('Segmen kedua').first()` now matches the hidden P6-007 comparison
+  table cell (rendered before the transcript rows). Introduced by P6-007
+  (`985d2c5`), independent of P6-004; a scoped fix to the older spec is
+  recommended separately.
+
+### R.3 Eligibility after this batch
+
+- **P6-004 = IMPLEMENTED_PENDING_REVIEW**; not eligible for further work until
+  the independent review returns, then HPO closure.
+- **P6-005 = DEPENDENCY_BLOCKED** on P6-004 DONE (unchanged); it additionally
+  requires its own canonical contract and an explicit HPO READY promotion, and
+  owns the persisted translation-staleness marker.
+- P6-008 remains independently contract-gated; P6-009 remains FINAL_GATE_ONLY.
+
+### R.4 Explicit non-actions (this batch)
+
+- No split/merge, structural segment-identity change, persisted translation
+  staleness, or translation remapping was implemented (all P6-005).
+- P6-005, P6-008, P6-009 were not authored, implemented, or promoted.
+- No additional Phase 7 task was started; Phase 7 remains not generally
+  authorized.
+- P6-002/P6-007 record-completeness notes are retained; no artifact was
+  fabricated. P6-004 was not self-marked VERIFIED or DONE.

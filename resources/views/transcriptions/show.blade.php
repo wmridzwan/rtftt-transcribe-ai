@@ -111,8 +111,13 @@
                                 />
                             @else
                                 @include('transcriptions.partials.source-translation-comparison')
-                                <div x-data="transcriptEditing({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })" x-show="transcriptView === 'normal'">
+                                <div x-data="transcriptEditing({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })" x-show="transcriptView === 'normal'" x-on:p6-timing-enter.window="forceExit()">
                                     @include('transcriptions.partials.revision-toolbar')
+                                    <div
+                                        x-data="transcriptTiming({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })"
+                                        x-on:p6-text-enter.window="forceExit()"
+                                    >
+                                    @include('transcriptions.partials.timing-toolbar')
                                     <div
                                         class="space-y-4"
                                         x-data="transcriptSearch({ fullText: @js($fullTranscriptText) })"
@@ -196,6 +201,45 @@
                                                         aria-label="Edit segment {{ $segment['position'] + 1 }} text"
                                                         class="w-full rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm text-zinc-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
                                                     >{{ $segment['text'] }}</textarea>
+                                                    <div
+                                                        data-timing-fields
+                                                        x-show="timingEditMode"
+                                                        style="display: none"
+                                                        class="mt-1 flex flex-wrap items-center gap-2"
+                                                    >
+                                                        <label for="timing-start-{{ $segment['position'] }}" class="text-xs text-zinc-500 dark:text-zinc-400">Start (s)</label>
+                                                        <input
+                                                            id="timing-start-{{ $segment['position'] }}"
+                                                            type="number"
+                                                            step="0.001"
+                                                            form="timing-edit-form"
+                                                            name="timings[{{ $segment['position'] }}][start]"
+                                                            value="{{ $segment['start'] }}"
+                                                            data-timing-start-input
+                                                            data-timing-position="{{ $segment['position'] }}"
+                                                            aria-label="Segment {{ $segment['position'] + 1 }} start time in seconds"
+                                                            class="w-28 rounded-md border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                                                        >
+                                                        <label for="timing-end-{{ $segment['position'] }}" class="text-xs text-zinc-500 dark:text-zinc-400">End (s)</label>
+                                                        <input
+                                                            id="timing-end-{{ $segment['position'] }}"
+                                                            type="number"
+                                                            step="0.001"
+                                                            form="timing-edit-form"
+                                                            name="timings[{{ $segment['position'] }}][end]"
+                                                            value="{{ $segment['end'] }}"
+                                                            data-timing-end-input
+                                                            data-timing-position="{{ $segment['position'] }}"
+                                                            aria-label="Segment {{ $segment['position'] + 1 }} end time in seconds"
+                                                            class="w-28 rounded-md border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                                                        >
+                                                    </div>
+                                                    <span
+                                                        data-timing-current
+                                                        data-timing-current-start="{{ $segment['start'] }}"
+                                                        data-timing-current-end="{{ $segment['end'] }}"
+                                                        class="mt-1 inline-block text-xs text-zinc-400 dark:text-zinc-500"
+                                                    >{{ $segment['formatted_start'] }}-{{ $segment['formatted_end'] }}</span>
                                                 </div>
                                                 <div class="flex flex-shrink-0 items-start gap-2">
                                                     <span
@@ -208,6 +252,7 @@
                                         @endforeach
                                     </div>
                                     </form>
+                                    </div>
                                     </div>
                                 </div>
                             @endif
@@ -461,6 +506,7 @@
                     if (! this.canEdit) {
                         return;
                     }
+                    this.$dispatch('p6-text-enter');
                     this.editMode = true;
                 },
                 cancel() {
@@ -475,6 +521,69 @@
                         if (trigger) {
                             trigger.focus();
                         }
+                    });
+                },
+                forceExit() {
+                    // Entering P6-004 timing mode: leave text edit mode without
+                    // stealing focus, discarding uncommitted text drafts.
+                    if (! this.editMode) {
+                        return;
+                    }
+                    this.$el.querySelectorAll('[data-edit-text]').forEach((el) => {
+                        el.value = el.defaultValue;
+                    });
+                    this.editMode = false;
+                },
+            };
+        };
+
+        window.transcriptTiming = window.transcriptTiming || function (config) {
+            return {
+                timingEditMode: false,
+                canEdit: config.canEdit ?? false,
+                init() {
+                    this.$watch('timingEditMode', (value) => {
+                        if (value && this.$nextTick) {
+                            this.$nextTick(() => {
+                                const first = this.$el.querySelector('[data-timing-start-input]');
+                                if (first) {
+                                    first.focus();
+                                }
+                            });
+                        }
+                    });
+                },
+                enter() {
+                    if (! this.canEdit) {
+                        return;
+                    }
+                    this.$dispatch('p6-timing-enter');
+                    this.timingEditMode = true;
+                },
+                cancelTiming() {
+                    // Discard local timing edits: no request is sent and nothing
+                    // is persisted. Restore inputs to their rendered source.
+                    this.restoreTiming();
+                    this.timingEditMode = false;
+                    this.$nextTick(() => {
+                        const trigger = this.$el.querySelector('[data-timing-enter]');
+                        if (trigger) {
+                            trigger.focus();
+                        }
+                    });
+                },
+                forceExit() {
+                    // Entering P6-003 text edit mode: leave timing mode without
+                    // stealing focus, discarding uncommitted timing drafts.
+                    if (! this.timingEditMode) {
+                        return;
+                    }
+                    this.restoreTiming();
+                    this.timingEditMode = false;
+                },
+                restoreTiming() {
+                    this.$el.querySelectorAll('[data-timing-start-input], [data-timing-end-input]').forEach((el) => {
+                        el.value = el.defaultValue;
                     });
                 },
             };

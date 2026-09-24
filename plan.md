@@ -150,17 +150,29 @@ AUTHORIZED FOR CONTRACT AUTHORING + IMPLEMENTATION (2026-09-23,
 (contract foundation), P6-006 = DONE (early-start), P6-002 = DONE (revision
 persistence; corrective strict-ancestor undo fix independently re-verified;
 `DECISION-P6-002-CLOSURE-001`). The P6-001/P6-002 foundation is frozen downstream
-input. P6-003/P6-007 canonical contracts are authored (`CONTRACT_AUTHORED —
-PENDING HPO READY PROMOTION`; P6-007 presentation-only under
-`DECISION-P6-007-SCOPE-001`). P6-004/P6-005/P6-008 remain not started and require
-their own contracts + HPO READY promotions; P6-009 is FINAL_GATE_ONLY.
-D6-08/D6-09 deferred. Eligibility: `PHASE6-7-ELIGIBILITY-MATRIX.md`.
+input. P6-003 = DONE (text editing/undo-redo; independently VERIFIED with no
+remaining BLOCKER/HIGH/MEDIUM; `DECISION-P6-003-CLOSURE-001`). P6-007
+source/translation comparison (presentation-only under
+`DECISION-P6-007-SCOPE-001`) was implemented, reviewed CHANGES_REQUESTED for one
+MEDIUM presentation-truthfulness finding, corrected, confirmed closed by a fresh
+independent corrective re-review (VERIFIED; no remaining
+BLOCKER/HIGH/MEDIUM/LOW/INFO), and closed **DONE**
+(`DECISION-P6-007-CLOSURE-001`). P6-004's canonical contract is authored
+(`tasks/P6-004-timing-editing-validation.md`), promoted READY by the HPO
+(`DECISION-P6-004-READY-001`), and implemented (timing-only append-only revision
+edits; `EditKind::Timing` → `TimingChanged` with no staleness persistence; machine
+timing immutable; playback/navigation use active-revision timing); it is
+`IMPLEMENTED_PENDING_REVIEW` awaiting independent review. P6-005 is
+dependency-blocked until P6-004 is DONE; P6-008 requires its own contract + HPO
+READY promotion; P6-009 is FINAL_GATE_ONLY. D6-08/D6-09 deferred. Eligibility:
+`PHASE6-7-ELIGIBILITY-MATRIX.md` §R.
 
 ### Phase 7 — Production Hardening
 NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023;
 `PHASE5-7-EXECUTION-CLASSIFICATION.md`). Only P7-005 (Observability Foundation)
-is authorized early and is IMPLEMENTED_PENDING_REVIEW; all other P7 work remains
-unauthorized. Cannot close before Phase 6; P7-012 remains FINAL_GATE_ONLY.
+was authorized early and is DONE (`DECISION-P7-005-CLOSURE-001`); all other P7
+work remains unauthorized. Cannot close before Phase 6; P7-012 remains
+FINAL_GATE_ONLY.
 
 The earlier Phase 4/5/6/7 decomposition is historical and was reconciled by
 ADR-019.

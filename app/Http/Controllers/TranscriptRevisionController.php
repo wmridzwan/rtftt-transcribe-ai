@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Editing\Persistence\MachineSourceMaterializer;
 use App\Editing\RedoUnavailableException;
 use App\Editing\RevisionConflictException;
 use App\Editing\RevisionService;
 use App\Editing\TextEditComposer;
+use App\Editing\TimingEditComposer;
 use App\Editing\UndoUnavailableException;
 use App\Models\Transcription;
 use Illuminate\Http\RedirectResponse;
@@ -67,6 +69,71 @@ class TranscriptRevisionController extends Controller
         }
 
         return $this->noticeResponse($transcription, 'Your edits were saved as a new revision.');
+    }
+
+    /**
+     * Timing-only edit (P6-004): replace the active revision segment timing and
+     * append the result as a new revision. Text, language, identity, and
+     * position are preserved; the immutable machine source is never written.
+     *
+     * A first edit from the machine source materializes the initial (machine
+     * copy) revision and appends the timing edit derived from it. A stale
+     * expected base is the canonical conflict; invalid timing is a domain
+     * validation error. Both leave persistence unchanged.
+     */
+    public function timing(
+        Request $request,
+        Transcription $transcription,
+        RevisionService $revisions,
+        TimingEditComposer $composer,
+        MachineSourceMaterializer $materializer,
+    ): RedirectResponse {
+        $this->authorize('update', $transcription);
+
+        $validated = $request->validate([
+            'expected_base' => ['nullable', 'string'],
+            'timings' => ['required', 'array', 'min:1'],
+            'timings.*' => ['array'],
+            'timings.*.start' => ['required', 'numeric'],
+            'timings.*.end' => ['required', 'numeric'],
+        ]);
+
+        $user = $request->user();
+        $expectedBase = $this->normalizeRevisionId($validated['expected_base'] ?? null);
+
+        /** @var array<int, mixed> $timings */
+        $timings = $validated['timings'];
+
+        try {
+            if ($expectedBase === null) {
+                // Editing from the machine source. Compose (and therefore
+                // validate) against the pure machine-source sequence *before*
+                // any write, so an invalid first timing edit never leaves a
+                // materialized revision behind. The machine timing is copied
+                // verbatim into the initial revision; only then is the durable
+                // initial revision materialized and the edit appended.
+                $machineSequence = $materializer->materialize($transcription, $user->getKey());
+                $segments = $composer->compose($machineSequence->segments, $timings);
+
+                $initial = $revisions->materializeInitial($user, $transcription);
+                $revisions->edit($user, $transcription, $initial->revisionId, $segments);
+            } else {
+                $active = $revisions->active($user, $transcription);
+
+                if ($active === null || $active->revisionId !== $expectedBase) {
+                    throw RevisionConflictException::staleBase($expectedBase, $active?->revisionId);
+                }
+
+                $segments = $composer->compose($active->segments, $timings);
+                $revisions->edit($user, $transcription, $expectedBase, $segments);
+            }
+        } catch (RevisionConflictException) {
+            return $this->timingConflictResponse($transcription);
+        } catch (InvalidArgumentException $exception) {
+            return $this->timingErrorResponse($transcription, $exception->getMessage());
+        }
+
+        return $this->timingNoticeResponse($transcription, 'Timing changes saved as a new revision.');
     }
 
     public function undo(Request $request, Transcription $transcription, RevisionService $revisions): RedirectResponse
@@ -138,6 +205,24 @@ class TranscriptRevisionController extends Controller
     private function noticeResponse(Transcription $transcription, string $message): RedirectResponse
     {
         return $this->redirectToWorkspace($transcription)->with('revision_notice', $message);
+    }
+
+    private function timingConflictResponse(Transcription $transcription): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with(
+            'timing_conflict',
+            'This transcript changed since you composed your timing edit. Nothing was saved and no merge was attempted. Reload the current version and edit again.',
+        );
+    }
+
+    private function timingErrorResponse(Transcription $transcription, string $message): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with('timing_error', $message);
+    }
+
+    private function timingNoticeResponse(Transcription $transcription, string $message): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with('timing_notice', $message);
     }
 
     private function redirectToWorkspace(Transcription $transcription): RedirectResponse

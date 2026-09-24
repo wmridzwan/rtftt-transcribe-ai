@@ -76,6 +76,11 @@ test('P6-007: machine source is authoritative and no-translation state is factua
     // Machine source vs active revision is still available without a translation.
     await expect(nonePage.locator('[data-comparison-state]')).toHaveAttribute('data-comparison-state', 'revision');
     await expect(nonePage.locator('[data-comparison-revision-text]').first()).toHaveText(fixtures.editedTexts[0]);
+    // No translation was ever persisted: no chronology/provenance note may be
+    // shown at any level (the P6-007 MEDIUM truthfulness corrective).
+    await expect(nonePage.locator('[data-comparison-revision-edited-note]')).toHaveCount(0);
+    await expect(nonePage.locator('[data-comparison-mismatch-note]')).toHaveCount(0);
+    await expect(nonePage.getByText('Edited after the translation was produced')).toHaveCount(0);
     await nonePage.close();
 });
 

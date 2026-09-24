@@ -1,6 +1,6 @@
 # RTFTT Transcribe AI — Current State
 
-Last Updated: 2026-09-23
+Last Updated: 2026-09-24
 
 ## Current Branch
 
@@ -42,21 +42,35 @@ P6-001 = DONE (independently VERIFIED corrective re-review; closed
 `DECISION-P6-002-READY-001`; implemented; corrective cycle resolved the original
 MEDIUM strict-ancestor undo finding; fresh independent corrective re-review
 VERIFIED; closed `DECISION-P6-002-CLOSURE-001`). The P6-001/P6-002 foundation is
-now frozen downstream input. P6-003 and P6-007 canonical contracts are authored
-(`tasks/P6-003-text-editing-undo-redo.md`,
-`tasks/P6-007-source-translation-comparison.md`; the latter under
-`DECISION-P6-007-SCOPE-001`, presentation-only) and were explicitly promoted to
-READY by the HPO (`DECISION-P6-003-READY-001`, `DECISION-P6-007-READY-001`;
-batch `DECISION-P6-003-P6-007-READY-BATCH-001`). Both are now
-`IMPLEMENTED_PENDING_REVIEW` (implementation, tests, and real-browser DC-01
-evidence complete; not self-verified, not DONE). The missing
+now frozen downstream input. P6-003 canonical contract is authored
+(`tasks/P6-003-text-editing-undo-redo.md`) and was explicitly promoted to READY
+by the HPO (batch `DECISION-P6-003-P6-007-READY-BATCH-001`); it was implemented,
+independently reviewed VERIFIED with no remaining BLOCKER/HIGH/MEDIUM finding
+(`reviews/P6-003-P6-007-independent-review.md`), and closed **DONE**
+(`DECISION-P6-003-CLOSURE-001`). P6-007 canonical contract is authored
+(`tasks/P6-007-source-translation-comparison.md`; under
+`DECISION-P6-007-SCOPE-001`, presentation-only) and was promoted READY by the
+same batch decision; it was implemented, reviewed CHANGES_REQUESTED for one
+MEDIUM presentation-truthfulness finding, corrected (the per-row "edited after
+the translation was produced" note is now gated on a persisted translation
+existing for that row), confirmed closed by a fresh independent corrective
+re-review (VERIFIED; no remaining BLOCKER/HIGH/MEDIUM/LOW/INFO), and closed
+**DONE** by the HPO (`DECISION-P6-007-CLOSURE-001`). P6-004's canonical contract
+is authored (`tasks/P6-004-timing-editing-validation.md`) and was promoted READY
+by the HPO (`DECISION-P6-004-READY-001`); it is now implemented against the
+frozen P6-001 D6-03 timing invariants (timing-only, append-only revision edits;
+`EditKind::Timing` → `TimingChanged` with no staleness persistence; machine
+timing immutable; playback/navigation driven by active-revision timing) with unit
+and feature tests, a 10/10 real-browser (DC-01) suite, and a durable pre-review
+artifact, and is `IMPLEMENTED_PENDING_REVIEW` awaiting a fresh independent review.
+P6-005 remains dependency-blocked until P6-004 is DONE. The missing
 `reviews/P6-002-corrective-independent-re-review.md` record-completeness gap is
 retained and P6-002 is not reopened. Phase 7 remains NOT
 GENERALLY AUTHORIZED; only P7-005 (Observability Foundation) was authorized early
 (`DECISION-P7-005-AUTHORIZATION-001`) and is DONE
-(`DECISION-P7-005-CLOSURE-001`). P6-004/P6-005/P6-008/P6-009 and all other Phase 7
+(`DECISION-P7-005-CLOSURE-001`). P6-005/P6-008/P6-009 and all other Phase 7
 work were not started. Remaining Phase 6 candidate eligibility and the next batch
-recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md` §O.
+recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md` §R.
 
 Phase 7 remains NOT GENERALLY AUTHORIZED (ADR-023;
 `PHASE5-7-EXECUTION-CLASSIFICATION.md`); early-hardening runs only where contracts

@@ -1697,7 +1697,7 @@ Reference:
 `PHASE6-EDITING-DOMAIN-CONTRACT.md`; `PHASE6-7-ELIGIBILITY-MATRIX.md` §N; ADR-025;
 `DECISION-PHASE6-OWNER-DECISIONS-001` (D6-04, D6-06).
 
-### DECISION-P6-003-P6-007-READY-BATCH-001 � HPO promotes P6-003 and P6-007 to READY
+### DECISION-P6-003-P6-007-READY-BATCH-001 � HPO promotes P6-003 and P6-007 to READY
 
 Decision ID: DECISION-P6-003-P6-007-READY-BATCH-001
 
@@ -1759,3 +1759,153 @@ Blocks: None.
 Does Not Block: P6-004/P6-005/P6-008/P6-009 (each still requires its own contract
 and an explicit HPO READY promotion; P6-005 additionally waits on P6-004 DONE;
 P6-009 is FINAL_GATE_ONLY); Phase 7 remains not generally authorized.
+
+## P6-003 Closure — Text Editing + Undo/Redo
+
+Date: 2026-09-24
+
+Status: DECIDED — Human Product Owner (`DECISION-P6-003-CLOSURE-001`).
+
+Decision:
+
+The fresh independent review
+(`reviews/P6-003-P6-007-independent-review.md`) returned **VERIFIED** for P6-003
+with no remaining BLOCKER/HIGH/MEDIUM finding. The reviewer independently
+confirmed and reproduced: append-only text editing; expected-base concurrency;
+stale conflict handling; strict-ancestor undo; unique-child redo;
+branch-after-undo semantics; machine-source immutability; ownership/isolation;
+reload durability; real-browser behavior; no translation-staleness persistence;
+and no P6-004/P6-005/P6-008 scope leakage. P6-003 is transitioned
+`VERIFIED → DONE`, with the historical review artifact preserved unchanged.
+
+The P6-003-corrected P6-001/P6-002 foundation remains the frozen downstream input
+for the remaining Phase 6 work, and P6-003 consumes it without redefinition:
+immutable machine source + append-only revisions + one active pointer + durable
+graph/history; text edits preserve identity/position/timing/language; textual
+edits classify as `EditKind::Textual` → `SourceTextChanged` with no
+translation-staleness persistence (P6-005 retains sole ownership).
+
+Phase consequence:
+
+P6-003 closure does not close Phase 6. P6-007 remains open:
+`IMPLEMENTED_PENDING_REVIEW` after a corrective cycle for one MEDIUM
+presentation-truthfulness finding (the per-row "edited after the translation was
+produced" note rendered when no translation existed; the note is now gated on
+persisted translation existence). P6-007 requires a fresh independent corrective
+re-review before HPO closure. P6-004/P6-005/P6-008/P6-009 remain not started and
+each still requires a canonical contract and an explicit HPO READY promotion;
+P6-009 remains FINAL_GATE_ONLY. No further Phase 7 work is authorized.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P6-003-CLOSURE-001`,
+`DECISION-P6-003-P6-007-READY-BATCH-001`, `DECISION-P6-007-SCOPE-001`);
+`tasks/P6-003-text-editing-undo-redo.md`;
+`tasks/P6-007-source-translation-comparison.md`;
+`reviews/P6-003-P6-007-independent-review.md`;
+`PHASE6-EDITING-DOMAIN-CONTRACT.md`; ADR-025.
+
+## P6-007 Closure - Source / Translation Comparison
+
+Date: 2026-09-24
+
+Status: DECIDED - Human Product Owner (`DECISION-P6-007-CLOSURE-001`).
+
+Decision:
+
+The fresh independent corrective re-review of P6-007 confirmed the original
+MEDIUM presentation-truthfulness finding is closed and returned **VERIFIED** with
+no remaining BLOCKER/HIGH/MEDIUM/LOW/INFO finding. The reviewer independently
+confirmed that: an edited revision with no translation shows only the factual
+no-translation state; no false "Edited after the translation was produced" claim
+remains; an edited revision with a persisted translation preserves machine-source
+provenance; structurally incompatible revisions are never silently
+index-remapped; no staleness is inferred or persisted; P6-007 remains
+presentation-only (no database writes); P6-003 shared-workspace behavior remains
+green; and the real-browser (DC-01) evidence was independently reproduced.
+
+P6-007 is transitioned `VERIFIED -> DONE`. The historical independent review
+artifact (`reviews/P6-003-P6-007-independent-review.md`, which returned the
+original CHANGES_REQUESTED MEDIUM finding) and the corrective provenance (task
+file corrective cycle; `PHASE6-P6-003-CLOSURE-P6-007-CORRECTIVE-BATCH-REPORT.md`)
+are preserved unchanged; no historical finding was rewritten.
+
+Frozen downstream semantics: Phase 5 translations align to the machine
+`segment_index`; P6-007 does not own the translation lifecycle and does not
+persist or infer staleness; the edited revision <-> machine translation
+provenance relationship must remain explicit; structurally incompatible
+revisions must not be silently aligned or index-remapped.
+
+Phase consequence:
+
+P6-007 closure does not close Phase 6. P6-004/P6-005/P6-008/P6-009 remain not
+implemented. This batch also authors the canonical P6-004 (Timing Editing +
+Validation) contract, which awaits an explicit HPO READY promotion; P6-005
+additionally waits on P6-004 DONE; P6-008 requires its own contract and READY
+promotion; P6-009 remains FINAL_GATE_ONLY. No further Phase 7 work is authorized.
+
+Record completeness (retained): `reviews/P6-002-corrective-independent-re-review.md`
+is still missing; P6-002 is **not** reopened and no artifact was fabricated or
+reconstructed from summaries.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P6-007-CLOSURE-001`,
+`DECISION-P6-007-SCOPE-001`, `DECISION-P6-003-P6-007-READY-BATCH-001`);
+`tasks/P6-007-source-translation-comparison.md`;
+`tasks/P6-004-timing-editing-validation.md`;
+`reviews/P6-003-P6-007-independent-review.md`;
+`PHASE6-EDITING-DOMAIN-CONTRACT.md`; `PHASE6-7-ELIGIBILITY-MATRIX.md` §Q; DC-01;
+ADR-025.
+
+## P6-004 Ready - Timing Editing + Validation
+
+Date: 2026-09-24
+
+Status: DECIDED - Human Product Owner (`DECISION-P6-004-READY-001`).
+
+Decision:
+
+P6-004 is promoted to **READY** and authorized for implementation. Its canonical
+contract (`tasks/P6-004-timing-editing-validation.md`) exists and its dependencies
+are satisfied: P6-001 DONE (frozen D6-03 timing invariants), P6-002 DONE (revision
+service), P6-003 DONE (shared workspace surface now free), D6-03 adopted, and
+Phase 4 primitives / P6-006 available. P6-004 does not depend on Phase 5 or
+P6-005.
+
+The implementation must consume, not redefine, the frozen Phase 6 timing
+contract: finite, non-negative, `start <= end`, millisecond precision with no
+silent rounding, overlaps/nested overlaps/equal starts/equal ends legal,
+zero-length legal but never active, no cross-segment timestamp monotonicity,
+ordering by revision `position` not time, and immutable machine-source timing.
+
+It must implement timing-only, append-only revision editing with expected-base
+concurrency and no in-place mutation; preserve text/language/identity/position;
+classify as `EditKind::Timing` -> `TimingChanged` without persisting translation
+staleness (P6-005 owns it); provide a narrow `TimingEditComposer` that rejects
+NaN/infinite/negative/`start > end`/out-of-contract precision and accepts overlap,
+nested overlap, equal starts/ends, zero-length, out-of-time-order positions, and
+extending past a neighbor; keep playback/active-segment resolution and P6-006
+navigation on active-revision timing (machine timing only when no revision is
+active, half-open semantics and lowest-position tie resolution preserved); and
+deliver the workspace UX with dedicated `data-timing-*` hooks without repurposing
+reserved Phase 4 hooks or interfering with P6-003/P6-007.
+
+Real-browser DC-01 verification is mandatory, with P6-003/P6-006/P6-007 and
+Phase 4 playback regressions re-run. On completion P6-004 becomes
+`IMPLEMENTED_PENDING_REVIEW`; it must not be self-marked VERIFIED or DONE.
+
+Boundary:
+
+P6-004 must not implement split/merge, structural segment-identity change,
+persisted translation staleness, or translation remapping (all P6-005). P6-005
+remains dependency-blocked until P6-004 is DONE. P6-008/P6-009 and all further
+Phase 7 work remain not started. Missing independent-review artifacts for P6-002
+and P6-007 must not be fabricated; their record-completeness notes are retained.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P6-004-READY-001`);
+`tasks/P6-004-timing-editing-validation.md`;
+`PHASE6-EDITING-DOMAIN-CONTRACT.md` §5/§6; `PHASE6-7-ELIGIBILITY-MATRIX.md` §Q;
+DC-01; ADR-025.

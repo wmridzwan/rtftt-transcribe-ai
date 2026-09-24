@@ -132,7 +132,7 @@ class TranscriptionController extends Controller
      * a machine-source edit composes over the initial materialization's
      * contiguous positions even when machine `segment_index` is sparse.
      *
-     * @return list<array{nav_index: int, position: int, start: float, end: float, seek: string, formatted_start: string, text: string, language: string}>
+     * @return list<array{nav_index: int, position: int, start: float, end: float, seek: string, formatted_start: string, formatted_end: string, text: string, language: string}>
      */
     private function displaySegments(Transcription $transcription, ?TranscriptRevision $activeRevision): array
     {
@@ -144,6 +144,7 @@ class TranscriptionController extends Controller
                 'end' => $segment->endSeconds,
                 'seek' => SegmentTimestamp::fromSeconds($segment->startSeconds)->seek(),
                 'formatted_start' => $this->formatStart($segment->startSeconds),
+                'formatted_end' => $this->formatStart($segment->endSeconds),
                 'text' => $segment->text,
                 'language' => $segment->language->value,
             ], $activeRevision->orderedSegments());
@@ -160,6 +161,7 @@ class TranscriptionController extends Controller
                 'end' => (float) $segment->end_seconds,
                 'seek' => $segment->seek_seconds,
                 'formatted_start' => $segment->formatted_start,
+                'formatted_end' => $segment->formatted_end,
                 'text' => $segment->text,
                 'language' => $segment->language->value,
             ];

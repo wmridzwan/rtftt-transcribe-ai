@@ -2,14 +2,16 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW (2026-09-23).
+DONE (2026-09-24; HPO closure `DECISION-P6-003-CLOSURE-001`).
 
 Promoted to READY by the Human Product Owner
 (`DECISION-P6-003-READY-001`, `DECISION-P6-003-P6-007-READY-BATCH-001`), then
-implemented by OpenCode against the frozen P6-001/P6-002 foundation. Implementation,
-feature/unit tests, and real-browser (DC-01) evidence are complete. Independent
-review (Claude Code) is pending; this task is **not** self-verified and **not**
-DONE.
+implemented by OpenCode against the frozen P6-001/P6-002 foundation. Independent
+review (Claude Code, `reviews/P6-003-P6-007-independent-review.md`) returned
+**VERIFIED** with no remaining BLOCKER/HIGH/MEDIUM finding. The HPO accepted the
+verdict and transitioned the task `VERIFIED → DONE`
+(`DECISION-P6-003-CLOSURE-001`). The independent review artifact is preserved
+unchanged.
 
 Contract authored 2026-09-23 under the contract-authoring authorization
 (`DECISION-PHASE6-AUTHORIZATION-001`) and the adopted owner decisions
@@ -263,6 +265,6 @@ P6-003 and P6-007 both target `resources/views/transcriptions/show.blade.php`
 
 Promoted to **READY** by the Human Product Owner
 (`DECISION-P6-003-READY-001`) after this contract and its dependency
-reconciliation (`PHASE6-7-ELIGIBILITY-MATRIX.md` §N). Implementation is
-authorized and complete; the task is `IMPLEMENTED_PENDING_REVIEW` and awaits
-independent review.
+reconciliation (`PHASE6-7-ELIGIBILITY-MATRIX.md` §N). Implementation is complete,
+independently reviewed VERIFIED with no remaining BLOCKER/HIGH/MEDIUM finding, and
+closed **DONE** by the HPO (`DECISION-P6-003-CLOSURE-001`).

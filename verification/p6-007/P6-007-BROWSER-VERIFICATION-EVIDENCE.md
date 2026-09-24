@@ -1,11 +1,17 @@
 # P6-007 Browser Verification Evidence (DC-01)
 
-Date: 2026-09-23
+Date: 2026-09-23 (corrective re-run 2026-09-24)
 Task: P6-007 — Source / Translation Comparison (presentation-only)
 Harness: `verification/playwright.p6-007.config.js` +
 `verification/p6-007/source-translation-comparison.spec.js`
 Result JSON: `verification/p6-007/p6-007-browser-results.json`
 Outcome: **8 passed / 8** (real Chromium; dedicated P6-007 verification DB).
+
+The 2026-09-24 corrective re-run re-seeded a fresh verification DB and re-executed
+the committed spec end-to-end; the only spec change is an added assertion that the
+per-row "Edited after the translation was produced" note is **absent** for the
+`none` fixture (edited revision, no translation), closing the MEDIUM
+presentation-truthfulness finding.
 
 ## Environment
 
@@ -43,7 +49,10 @@ Edited revision texts used by `edited`/`none`:
 3. **No active revision** — `plain` shows `Machine source is authoritative`; the
    no-translation status is hidden. `none` shows the `revision` state, the
    no-translation status visible, and the machine-vs-revision comparison still
-   works (edited text shown) without a translation. Observed: pass.
+   works (edited text shown) without a translation. On `none` the per-row
+   `[data-comparison-revision-edited-note]` and `[data-comparison-mismatch-note]`
+   are asserted **absent** (count 0), so no false chronology/provenance claim is
+   rendered when no translation was ever persisted. Observed: pass.
 4. **Edited revision vs translation** — `edited` shows `Active revision v2`, the
    explicit `data-comparison-mismatch-note` ("translation is of the original
    machine source …"), the per-row "Edited after the translation was produced"

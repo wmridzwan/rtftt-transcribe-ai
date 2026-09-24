@@ -93,6 +93,32 @@ eligible downstream tasks; each still requires its own canonical contract and an
 explicit HPO READY promotion. No Phase 6/7 implementation was started by this
 status reconciliation.
 
+### Phase 6 DAG status — 2026-09-24 (reconciliation)
+
+The DAG above is the frozen dependency structure; this note records completion
+state only (no dependency was changed).
+
+```text
+P6-001 = DONE   (DECISION-P6-001-CLOSURE-001)
+P6-002 = DONE   (DECISION-P6-002-CLOSURE-001)
+P6-003 = DONE   (DECISION-P6-003-CLOSURE-001)
+P6-006 = DONE   (DECISION-P6-006-CLOSURE-001)
+P6-007 = DONE   (DECISION-P6-007-CLOSURE-001)
+P6-004 = IMPLEMENTED_PENDING_REVIEW (DECISION-P6-004-READY-001; implemented
+                        2026-09-24 against the P6-002 DONE gate; awaiting
+                        independent review)
+P6-005 = NOT STARTED   (still gated on P6-004 DONE; contract required)
+P6-008 = NOT STARTED   (gate P6-002 DONE satisfied; D6-02 selects persistent
+                        history; contract required)
+P6-009 = FINAL_GATE_ONLY (gated on P6-003..P6-008 DONE; P6-003/P6-006/P6-007 DONE)
+```
+
+P6-003/P6-006/P6-007 are DONE, so only P6-004, P6-005, and P6-008 remain before
+the P6-009 terminal gate (P6-008 is conditional on D6-02). P6-004 is implemented
+and awaiting independent review (not READY-pending); P6-005 remains
+dependency-blocked on P6-004 DONE. No Phase 6/7 implementation was started by
+this status reconciliation.
+
 ## Phase 7 DAG
 
 ```text

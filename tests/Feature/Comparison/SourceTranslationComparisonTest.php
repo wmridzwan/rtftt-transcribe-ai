@@ -113,7 +113,40 @@ it('shows the active revision next to the machine source when the revision is te
         ->assertSee('data-comparison-state="revision"', false)
         ->assertSee('Active revision v2')
         ->assertSee('data-comparison-revision-text', false)
+        ->assertDontSee('data-comparison-revision-edited-note', false)
         ->assertDontSee('data-comparison-mismatch-note', false);
+});
+
+it('shows only the factual no-translation state and never a false edited-after-translation note when an edited revision has no translation', function () {
+    $transcription = EditingPersistenceFixtures::completedTranscription();
+    $owner = $transcription->user;
+
+    editActiveRevision($transcription, ['Edited without translation one', 'Edited without translation two']);
+
+    $response = $this->actingAs($owner)->get(showUrl($transcription));
+
+    $response->assertOk()
+        ->assertSee('data-comparison-state="revision"', false)
+        ->assertSee('data-comparison-no-translation', false)
+        ->assertSee('data-comparison-revision-text', false)
+        ->assertSee('Edited without translation one')
+        // No translation was ever persisted, so no provenance/chronology note
+        // may be rendered at any level.
+        ->assertDontSee('data-comparison-revision-edited-note', false)
+        ->assertDontSee('data-comparison-mismatch-note', false)
+        ->assertDontSee('Edited after the translation was produced');
+
+    $comparison = app(ComparisonBuilder::class)->build(
+        $transcription->fresh(),
+        app(RevisionService::class)->active($owner, $transcription),
+    );
+
+    expect($comparison->hasTranslation)->toBeFalse();
+
+    foreach ($comparison->rows as $row) {
+        expect($row->hasTranslation())->toBeFalse()
+            ->and($row->hasEditedRevisionWithPersistedTranslation())->toBeFalse();
+    }
 });
 
 it('labels the translation as belonging to the machine source when the active revision has been edited', function () {
@@ -128,6 +161,7 @@ it('labels the translation as belonging to the machine source when the active re
     $response->assertOk()
         ->assertSee('data-comparison-mismatch-note', false)
         ->assertSee('data-comparison-revision-edited-note', false)
+        ->assertSee('Edited after the translation was produced')
         // The translation is still shown as the translation of the machine source.
         ->assertSee('Terjemahan satu')
         ->assertSee('Translation two')
@@ -154,7 +188,11 @@ it('presents alignment as unavailable for a structurally changed revision and do
     $response->assertOk()
         ->assertSee('data-comparison-revision-state="alignment-unavailable"', false)
         ->assertSee('Restructured A')
-        ->assertSee('Restructured B');
+        ->assertSee('Restructured B')
+        // A structurally incompatible revision is never aligned to the machine
+        // translation, so no provenance/edited note is silently attached.
+        ->assertDontSee('data-comparison-revision-edited-note', false)
+        ->assertDontSee('data-comparison-mismatch-note', false);
 
     // The machine-aligned translation is not mapped onto the unaligned revision.
     $builder = app(ComparisonBuilder::class);

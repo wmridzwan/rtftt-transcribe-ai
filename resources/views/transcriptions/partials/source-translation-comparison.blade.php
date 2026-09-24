@@ -90,7 +90,7 @@
                                         <span data-comparison-revision-state="no-revision-segment" class="text-zinc-400 dark:text-zinc-500">No matching revision segment</span>
                                     @else
                                         <span data-comparison-revision-text>{{ $row->revisionText }}</span>
-                                        @if ($row->revisionEdited())
+                                        @if ($row->hasEditedRevisionWithPersistedTranslation())
                                             <span data-comparison-revision-edited-note class="mt-1 block text-xs text-zinc-500 dark:text-zinc-400">Edited after the translation was produced</span>
                                         @endif
                                     @endif

@@ -104,11 +104,24 @@ and dependencies are reconciled. P6-001 = DONE (independently VERIFIED;
 `DECISION-P6-002-READY-001`; revision persistence/version history implemented;
 corrective strict-ancestor undo fix independently re-verified; closed
 `DECISION-P6-002-CLOSURE-001`). The P6-001/P6-002 foundation is frozen downstream
-input. P6-003/P6-007 canonical contracts are authored and `CONTRACT_AUTHORED —
-PENDING HPO READY PROMOTION` (not READY, not implemented; P6-007 is
-presentation-only under `DECISION-P6-007-SCOPE-001`). D6-08/D6-09 remain DEFERRED.
+input. P6-003 = DONE (promoted READY `DECISION-P6-003-READY-001`; text
+editing/undo-redo implemented; independently reviewed VERIFIED with no remaining
+BLOCKER/HIGH/MEDIUM; closed `DECISION-P6-003-CLOSURE-001`). P6-007
+source/translation comparison (presentation-only under `DECISION-P6-007-SCOPE-001`)
+was implemented, reviewed CHANGES_REQUESTED for one MEDIUM
+presentation-truthfulness finding, corrected (the per-row "edited after
+the translation was produced" note is now gated on a persisted translation
+existing for that row), confirmed closed by a fresh independent corrective
+re-review (VERIFIED; no remaining BLOCKER/HIGH/MEDIUM/LOW/INFO), and closed
+**DONE** (`DECISION-P6-007-CLOSURE-001`). P6-004's canonical contract is authored
+(`tasks/P6-004-timing-editing-validation.md`), promoted READY by the HPO
+(`DECISION-P6-004-READY-001`), and implemented (timing-only append-only revision
+edits; `EditKind::Timing` → `TimingChanged` with no staleness persistence;
+machine timing immutable; playback/navigation use active-revision timing); it is
+`IMPLEMENTED_PENDING_REVIEW` and must not be self-verified. P6-005 remains
+dependency-blocked until P6-004 is DONE. D6-08/D6-09 remain DEFERRED.
 Phase 6 may not close automatically. Eligibility:
-`PHASE6-7-ELIGIBILITY-MATRIX.md`.
+`PHASE6-7-ELIGIBILITY-MATRIX.md` §R.
 
 **Phase 7**: Production Hardening. NOT GENERALLY AUTHORIZED. Only P7-005
 (Observability Foundation) was authorized early

@@ -2,14 +2,36 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW (2026-09-23).
+DONE (2026-09-24; HPO closure `DECISION-P6-007-CLOSURE-001`).
 
 Promoted to READY by the Human Product Owner
 (`DECISION-P6-007-READY-001`, `DECISION-P6-003-P6-007-READY-BATCH-001`), then
 implemented by OpenCode against the frozen P6-001/P6-002 foundation and the
 closed Phase 5 translation data. Implementation, feature tests, and real-browser
-(DC-01) evidence are complete. Independent review (Claude Code) is pending; this
-task is **not** self-verified and **not** DONE.
+(DC-01) evidence are complete.
+
+The fresh independent corrective re-review confirmed the original MEDIUM
+presentation-truthfulness finding is closed and returned P6-007 = **VERIFIED**
+with no remaining BLOCKER/HIGH/MEDIUM/LOW/INFO finding. The HPO accepted the
+verdict and transitioned the task `VERIFIED → DONE`
+(`DECISION-P6-007-CLOSURE-001`). The historical independent review artifact and
+the corrective provenance are preserved unchanged.
+
+Corrective cycle (2026-09-24): the fresh independent review
+(`reviews/P6-003-P6-007-independent-review.md`) returned P6-007 =
+**CHANGES_REQUESTED** with one MEDIUM truthfulness finding — the per-row
+"Edited after the translation was produced" note rendered even when no
+translation was ever persisted, asserting a false chronology. The note is now
+gated on `ComparisonRow::hasEditedRevisionWithPersistedTranslation()` (the
+revision is machine-aligned and edited **and** a persisted translation actually
+exists for that row), with added feature/unit regression coverage and a browser
+assertion that the note is absent in the no-translation case. No verified P6-007
+behavior was redesigned; the comparison remains presentation-only with no
+staleness inference or persistence. The fresh independent corrective re-review
+confirmed the finding is closed and returned **VERIFIED** with no remaining
+BLOCKER/HIGH/MEDIUM/LOW/INFO finding; the HPO closed the task DONE
+(`DECISION-P6-007-CLOSURE-001`). The historical review artifact and this
+corrective record are preserved unchanged.
 
 Contract authored 2026-09-23 under the contract-authoring authorization
 (`DECISION-PHASE6-AUTHORIZATION-001`) and the P6-007 owner decision
@@ -248,5 +270,22 @@ P6-007 and P6-003 both target `resources/views/transcriptions/show.blade.php`.
 Promoted to **READY** by the Human Product Owner
 (`DECISION-P6-007-READY-001`) after this contract, `DECISION-P6-007-SCOPE-001`,
 and its dependency reconciliation (`PHASE6-7-ELIGIBILITY-MATRIX.md` §N).
-Implementation is authorized and complete; the task is
-`IMPLEMENTED_PENDING_REVIEW` and awaits independent review.
+Implementation is complete; the single MEDIUM review finding was corrected and a
+fresh independent corrective re-review returned **VERIFIED**; the task is closed
+**DONE** by the HPO (`DECISION-P6-007-CLOSURE-001`).
+
+## Frozen downstream semantics (settled)
+
+Downstream work (P6-004/P6-005/P6-008) must treat the following as settled and
+must not redefine them:
+
+- Phase 5 translations align to the machine `segment_index`; P6-007 does not own
+  the translation lifecycle.
+- P6-007 does not persist or infer translation staleness; no
+  `translations.stale_at` / `staleness_reason` state is read as if it existed.
+- An edited revision ↔ machine-translation provenance relationship must remain
+  explicit: a persisted translation is presented as corresponding to the machine
+  source it was produced from, never silently as the translation of edited text.
+- Structurally incompatible revisions must not be silently aligned or
+  index-remapped; alignment is presented as unavailable rather than guessed.
+- The comparison is presentation-only and performs no database writes.

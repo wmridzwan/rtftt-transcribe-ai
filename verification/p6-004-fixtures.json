@@ -1,0 +1,56 @@
+{
+    "baseUrl": "http://127.0.0.1:8126",
+    "email": "p6-004@example.test",
+    "intruderEmail": "p6-004-intruder@example.test",
+    "password": "password",
+    "segments": [
+        {
+            "index": 0,
+            "start": 0.5,
+            "end": 4,
+            "language": "en",
+            "text": "Original first"
+        },
+        {
+            "index": 1,
+            "start": 4,
+            "end": 8,
+            "language": "ms",
+            "text": "Original kedua"
+        },
+        {
+            "index": 2,
+            "start": 8,
+            "end": 12,
+            "language": "zh",
+            "text": "\u539f\u59cb\u7b2c\u4e09\u6bb5"
+        }
+    ],
+    "main": {
+        "transcriptionId": 1
+    },
+    "negative": {
+        "transcriptionId": 2
+    },
+    "inverted": {
+        "transcriptionId": 3
+    },
+    "zero": {
+        "transcriptionId": 4
+    },
+    "overlap": {
+        "transcriptionId": 5
+    },
+    "conflict": {
+        "transcriptionId": 6
+    },
+    "cancel": {
+        "transcriptionId": 7
+    },
+    "immutable": {
+        "transcriptionId": 8
+    },
+    "nav": {
+        "transcriptionId": 9
+    }
+}

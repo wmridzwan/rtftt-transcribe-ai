@@ -42,4 +42,20 @@ final readonly class ComparisonRow
     {
         return $this->translatedText !== null;
     }
+
+    /**
+     * Whether the per-row provenance note is factually supportable: the active
+     * revision segment is machine-aligned, its text differs from the machine
+     * source it was derived from, and a persisted translation of that machine
+     * source exists for this row.
+     *
+     * Both conditions are persisted facts. Gating the note on translation
+     * existence prevents a false chronology claim ("edited after the
+     * translation was produced") when no translation was ever persisted, and
+     * derives no freshness/staleness state.
+     */
+    public function hasEditedRevisionWithPersistedTranslation(): bool
+    {
+        return $this->revisionEdited() && $this->hasTranslation();
+    }
 }
