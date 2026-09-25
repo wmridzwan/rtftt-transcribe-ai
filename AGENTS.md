@@ -93,8 +93,9 @@ browser-to-real-model proof. LOW/INFO debt carried non-blocking
 (`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Final report:
 `PHASE5-CLOSURE-REPORT.md`. Phase 3/4 baseline committed; B-001/B-002 resolved.
 
-**Phase 6**: Advanced Transcript UX. AUTHORIZED FOR CONTRACT AUTHORING +
-IMPLEMENTATION (2026-09-23, `DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 +
+**Phase 6**: Advanced Transcript UX. CLOSED (2026-09-25,
+`DECISION-PHASE6-CLOSURE-001`; authorized 2026-09-23 for contract authoring
++ implementation via `DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 +
 DC-01 adopted via `DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket
 READY: each task is promoted to READY only after its canonical contract exists
 and dependencies are reconciled. P6-001 = DONE (independently VERIFIED;
@@ -124,21 +125,49 @@ DECIDED (`DECISION-P6-005-SPLIT-BOUNDARY-001`, `DECISION-P6-005-MERGE-JOIN-001`,
 `DECISION-P6-005-LANGUAGE-PROVENANCE-001`,
 `DECISION-P6-005-STALENESS-LIFECYCLE-001`, `DECISION-P6-005-SCHEMA-001`), its
 canonical contract (`tasks/P6-005-split-merge-translation-invalidation.md`) is
-reconciled to incorporate them, and it is promoted **READY** and authorized for
+reconciled to incorporate them, and it was promoted **READY** and authorized for
 implementation (`DECISION-P6-005-READY-001`). P6-005 was implemented (structural
 split/merge, revision-segment language provenance, additive translation-staleness
-schema, atomic invalidation, required UI, tests, real-browser DC-01 evidence) and
-is **IMPLEMENTED_PENDING_REVIEW** (not self-verified/self-closed). D6-08/D6-09
-remain DEFERRED.
-Phase 6 may not close automatically. Eligibility:
+schema, atomic invalidation, required UI, tests, real-browser DC-01 evidence),
+independently reviewed VERIFIED with no BLOCKER/MAJOR finding (all 14 acceptance
+criteria PASS; MINOR-1/OPTIONAL-1 non-blocking, preserved), and closed **DONE**
+(`DECISION-P6-005-CLOSURE-001`, 2026-09-25). P6-008 = DONE (promoted READY
+`DECISION-P6-008-READY-001`; implemented; independently reviewed VERIFIED with
+no BLOCKER/MAJOR/MINOR and all AC1–AC10 PASS; closed
+`DECISION-P6-008-CLOSURE-001`, 2026-09-25; OPTIONAL-1 non-blocking,
+preserved). P6-009 (Phase 6 Final Integration Verification Gate,
+FINAL_GATE_ONLY) contract accepted and promoted `DRAFT` → **READY**
+(`DECISION-P6-009-READY-001`, 2026-09-25; HPO-009-A/B/C DECIDED); EXECUTED
+2026-09-25 with verdict FAIL (F-001 MAJOR: AC6 — exports render the machine
+source, not the active revision; AC1–AC5 and AC7–AC11 PASS;
+`verification/p6-009/P6-009-FINAL-GATE-EVIDENCE.md`). HPO decided REMEDIATE
+(HPO-F001-A, `DECISION-HPO-F001-A`); bounded remediation P6-010 closed **DONE** (`DECISION-P6-010-CLOSURE-001`, 2026-09-25;
+independently reviewed VERIFIED, all AC1–AC11 PASS, no findings; F-001
+remediation RESOLVED, historical P6-009 FAIL preserved); full rerun
+`P6-009-RERUN-01` executed 2026-09-25 under direct HPO rerun authorization
+(late-persisted `DECISION-P6-009-RERUN-01-AUTHORIZATION-001`): verdict PASS
+(AC1–AC11 fresh), independently reviewed VERIFIED with one MAJOR procedural
+finding (authorization-record gap) reconciled in
+`reviews/P6-009-RERUN-01-GOVERNANCE-RECONCILIATION.md` and HPO-accepted for
+closure. P6-009 is DONE (`DECISION-P6-009-CLOSURE-001`, 2026-09-25;
+rerun PASS independently VERIFIED; historical FAIL preserved). Phase 6
+terminal gate completed; Phase 6 is CLOSED (`DECISION-PHASE6-CLOSURE-001`,
+2026-09-25; P6-001..P6-010 DONE; closure review
+`reviews/PHASE6-CLOSURE-REVIEW.md`).
+D6-08/D6-09 remain DEFERRED.
+Phase 6 closure does not authorize Phase 7; Phase 7 entry requires its own
+HPO entry review and authorization. Eligibility:
 `PHASE6-7-ELIGIBILITY-MATRIX.md` §T.
 
-**Phase 7**: Production Hardening. NOT GENERALLY AUTHORIZED. Only P7-005
+**Phase 7**: Production Hardening. NOT GENERALLY AUTHORIZED (Phase 6
+closure grants entry-review eligibility only, not implementation
+authorization). Only P7-005
 (Observability Foundation) was authorized early
 (`DECISION-P7-005-AUTHORIZATION-001`) and is DONE
 (`DECISION-P7-005-CLOSURE-001`); P7-003, P7-008, P7-010, and all other Phase 7
-implementation remain not authorized. Phase 7 cannot close before Phase 6 is
-CLOSED; P7-012 remains FINAL_GATE_ONLY.
+implementation remain not authorized. Phase 6 is CLOSED; Phase 7 entry
+requires its own HPO entry review and authorization (D7-01..D7-08, Phase 7
+execution authorization). P7-012 remains FINAL_GATE_ONLY.
 
 Phase 3 boundary (ADR-017):
 - provider-neutral Laravel transcription domain

@@ -15,6 +15,35 @@ None. B-005 is resolved; the fresh independent P5-008 review completed and
 returned VERIFIED (`reviews/P5-008-independent-review.md`), and Phase 5 is
 CLOSED (`DECISION-PHASE5-CLOSURE-001`).
 
+Governance note: P6-005 was `IMPLEMENTED_PENDING_REVIEW` awaiting fresh
+independent review; that review is complete (`reviews/P6-005-INDEPENDENT-REVIEW.md`,
+VERIFIED, no BLOCKER/MAJOR) and the HPO has closed P6-005 DONE
+(`DECISION-P6-005-CLOSURE-001`, 2026-09-25). P6-008 was independently reviewed
+VERIFIED (`reviews/P6-008-INDEPENDENT-REVIEW.md`; all AC1–AC10 PASS; no
+BLOCKER/MAJOR/MINOR) and the HPO has closed P6-008 DONE
+(`DECISION-P6-008-CLOSURE-001`, 2026-09-25). P6-009 executed 2026-09-25 with
+verdict FAIL (F-001 MAJOR: AC6 — exports render the machine source, not the
+active revision; AC1–AC5 and AC7–AC11 PASS; evidence
+`verification/p6-009/P6-009-FINAL-GATE-EVIDENCE.md`). F-001 blocks the Phase 6
+closure recommendation until resolved through a separately authorized path
+with a gate re-run; general Phase 7 work is not started/authorized. P6-010 was
+implemented, independently reviewed VERIFIED (all AC1–AC11 PASS, no findings),
+and closed DONE (`DECISION-P6-010-CLOSURE-001`, 2026-09-25); the bounded F-001
+remediation is RESOLVED while the historical P6-009 FAIL is preserved, and a
+full P6-009 rerun was executed 2026-09-25 as `P6-009-RERUN-01` under direct
+HPO rerun authorization (late-persisted
+`DECISION-P6-009-RERUN-01-AUTHORIZATION-001`): verdict PASS (AC1–AC11 fresh;
+`verification/p6-009-rerun-01/P6-009-FINAL-GATE-RERUN-EVIDENCE.md`),
+independently reviewed VERIFIED
+(`reviews/P6-009-RERUN-01-INDEPENDENT-REVIEW.md`) with one MAJOR procedural
+finding (authorization-record gap) reconciled in
+`reviews/P6-009-RERUN-01-GOVERNANCE-RECONCILIATION.md` and HPO-accepted for
+closure (`DECISION-P6-009-CLOSURE-001`, 2026-09-25). P6-009 is DONE; Phase 6
+terminal gate completed; Phase 6 is CLOSED (`DECISION-PHASE6-CLOSURE-001`,
+2026-09-25; P6-001..P6-010 DONE; closure review
+`reviews/PHASE6-CLOSURE-REVIEW.md`). D6-08/D6-09 remain DEFERRED. These remain authorization boundaries
+rather than blockers. There is no P3-010 task file, so no P3-010 blocker exists.
+
 ## Resolved Blockers
 
 | # | Classification | Resolution | Date |

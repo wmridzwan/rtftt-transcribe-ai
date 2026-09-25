@@ -8,11 +8,13 @@ Phase 3 — CLOSED (2026-09-19)
 
 Phase 4 — CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE.
 
-Phase 5 — AUTHORIZED FOR IMPLEMENTATION (2026-09-21,
-DECISION-PHASE5-AUTHORIZATION-001; ADR-022 freezes D5-01..D5-09; ADR-021
-authorizes cross-phase Playwright). P5-001/P5-002 = VERIFIED (HPO closure
-pending); P5-003..P5-008 = BACKLOG. Phase 6/7 = not generally authorized;
-controlled-parallel allowlists only (ADR-023).
+Phase 5 — CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001). All P5 tasks DONE.
+Phase 6 — CLOSED (2026-09-25, `DECISION-PHASE6-CLOSURE-001`); P6-001..P6-010
+DONE (terminal gate P6-009 DONE via independently VERIFIED rerun
+`P6-009-RERUN-01`; `DECISION-P6-009-CLOSURE-001`); D6-08/D6-09 remain
+DEFERRED. Phase 7 = not generally authorized (Phase 6 closure grants
+entry-review eligibility only); only early-authorized P7-005 is DONE
+(`DECISION-P7-005-CLOSURE-001`).
 
 Status:
 Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product Owner
@@ -168,9 +170,33 @@ DECIDED, its canonical contract is reconciled to incorporate them, and it is
 promoted **READY** and authorized for implementation (`DECISION-P6-005-READY-001`).
 P6-005 was implemented (structural split/merge, revision-segment language
 provenance, additive translation-staleness schema, atomic invalidation, required
-UI, tests, real-browser DC-01 evidence) and is **IMPLEMENTED_PENDING_REVIEW**.
-P6-008 requires its own contract + HPO READY promotion; P6-009 is
-FINAL_GATE_ONLY. D6-08/D6-09 deferred. Eligibility:
+UI, tests, real-browser DC-01 evidence), independently reviewed VERIFIED with no
+BLOCKER/MAJOR finding (all 14 acceptance criteria PASS), and closed **DONE**
+(`DECISION-P6-005-CLOSURE-001`, 2026-09-25).
+P6-008 implemented, independently reviewed VERIFIED (all AC1–AC10 PASS, no
+BLOCKER/MAJOR/MINOR), and closed **DONE** (`DECISION-P6-008-CLOSURE-001`,
+2026-09-25); P6-009 EXECUTED 2026-09-25, verdict FAIL
+(F-001 MAJOR: AC6 — exports render machine source, not the active revision;
+AC1–AC5 and AC7–AC11 PASS; evidence
+`verification/p6-009/P6-009-FINAL-GATE-EVIDENCE.md`; F-001 routed for separate
+HPO authorization, re-run required). HPO decided REMEDIATE (HPO-F001-A,
+`DECISION-HPO-F001-A`, 2026-09-25); P6-010 remediation contract approved and
+promoted `DRAFT` → READY (`DECISION-P6-010-READY-001`, HPO-P6-010-A APPROVED;
+DONE `DECISION-P6-010-CLOSURE-001`, 2026-09-25 — independently VERIFIED, all
+AC1–AC11 PASS, no findings; F-001 remediation RESOLVED, historical P6-009
+FAIL preserved). Full rerun `P6-009-RERUN-01` executed 2026-09-25 under
+direct HPO rerun authorization (late-persisted
+`DECISION-P6-009-RERUN-01-AUTHORIZATION-001`): verdict PASS (AC1–AC11 fresh);
+independently reviewed VERIFIED with one MAJOR procedural finding
+(authorization-record gap) reconciled in
+`reviews/P6-009-RERUN-01-GOVERNANCE-RECONCILIATION.md` and HPO-accepted for
+closure (`DECISION-P6-009-CLOSURE-001`, 2026-09-25). P6-009 is DONE
+(rerun PASS independently VERIFIED; historical FAIL preserved). Phase 6
+terminal gate completed; Phase 6 is CLOSED
+(`DECISION-PHASE6-CLOSURE-001`, 2026-09-25; P6-001..P6-010 DONE; closure
+review `reviews/PHASE6-CLOSURE-REVIEW.md`). D6-08/D6-09 remain DEFERRED.
+Phase 7 entry requires its own HPO entry review and authorization.
+Eligibility:
 `PHASE6-7-ELIGIBILITY-MATRIX.md` §T.
 
 ### Phase 7 — Production Hardening
@@ -193,7 +219,7 @@ renumbered by an external product roadmap:
 3. Real Transcription Engine (ADR-017) — CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3 closed)
 4. Transcript Experience baseline (ADR-019) — CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE
 5. Translation — CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001); P5-001..P5-008 DONE
-6. Advanced Transcript UX — AUTHORIZED (contract authoring + implementation; DECISION-PHASE6-AUTHORIZATION-001; no blanket READY); P6-001/P6-002/P6-003/P6-004/P6-006/P6-007 DONE; P6-005 READY + IMPLEMENTED_PENDING_REVIEW; P6-001/P6-002 foundation frozen downstream input
+6. Advanced Transcript UX — AUTHORIZED (contract authoring + implementation; DECISION-PHASE6-AUTHORIZATION-001; no blanket READY); P6-001/P6-002/P6-003/P6-004/P6-005/P6-006/P6-007/P6-008 DONE; P6-009 = READY (FINAL_GATE_ONLY; DECISION-P6-009-READY-001, 2026-09-25; NOT EXECUTED; prerequisite satisfied); P6-001/P6-002 foundation frozen downstream input
 7. Production Hardening — not generally authorized; P7-005 early only (cannot close before Phase 6)
 
 Voxora is the long-term product and brand; RTFTT remains the current
@@ -223,6 +249,7 @@ reconciled under ADR-017; Phase 3 Batch 3 closed on 2026-09-19
 (DECISION-P3-BATCH3-CLOSURE-001) with P3-007 DONE and P3-008 DONE. Phase 3 =
 CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 is CLOSED
 (DECISION-PHASE4-CLOSURE-001, 2026-09-20); Phase 5 is CLOSED
-(DECISION-PHASE5-CLOSURE-001, 2026-09-23). Phase 6/7 implementation is NOT
-authorized beyond the ADR-023 early-start/early-hardening allowlists.
+(DECISION-PHASE5-CLOSURE-001, 2026-09-23). Phase 6 is authorized for contract
+authoring + implementation (`DECISION-PHASE6-AUTHORIZATION-001`); Phase 7
+remains not generally authorized apart from early-authorized P7-005.
 Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT.

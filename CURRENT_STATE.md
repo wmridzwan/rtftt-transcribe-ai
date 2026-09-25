@@ -6,6 +6,36 @@ Last Updated: 2026-09-24
 
 setup/ai-development-os
 
+## Governance Reconciliation — Step A (2026-09-24)
+
+`AGENTS.md` is the canonical truth for phase/task status. Where older narrative
+below disagrees with `AGENTS.md`, `AGENTS.md` controls. The reconciled status is:
+
+| Phase | Task files | Canonical status |
+|---|---|---|
+| Phase 2 | 14 | `COMPLETE_WITH_DEFERRED_DEBT` (closed 2026-09-17); P2-004A and P2-004A1 remain `BLOCKED`/deferred under ADR-013/Option D; P2-004A2, P2-006, and P2-007 are DONE/closed as recorded in their task files. |
+| Phase 3 | 8 | CLOSED (2026-09-19); P3-001..P3-008 DONE. No P3-009/P3-010 task contract exists in `tasks/`. |
+| Phase 4 | 6 | CLOSED (2026-09-20); P4-001..P4-006 DONE. Only one P4-001 contract file exists: `tasks/P4-001-transcript-experience-contract.md`. |
+| Phase 5 | 13 | CLOSED (2026-09-23); all listed P5 tasks DONE. |
+| Phase 6 | 7 | AUTHORIZED; P6-001, P6-002, P6-003, P6-004, P6-005, P6-006, and P6-007 DONE (P6-005 closed 2026-09-25, `DECISION-P6-005-CLOSURE-001`); P6-008 DONE (`DECISION-P6-008-CLOSURE-001`, 2026-09-25); P6-009 = READY (contract accepted, promoted `DRAFT` → READY by the HPO on 2026-09-25, `DECISION-P6-009-READY-001`; not executed; P6-003..P6-008 DONE prerequisite satisfied). D6-08/D6-09 remain DEFERRED. |
+| Phase 7 | 1 | NOT GENERALLY AUTHORIZED; only early-authorized P7-005 exists and is DONE. |
+
+Resolved Step A checks:
+
+- P3-010 is not legitimate: there is no `tasks/*P3-010*` file and no `P3-010`
+  reference was found in repository Markdown.
+- There is no duplicate P4-001 task file.
+- P6-006 and P7-005 are both DONE through HPO closure decisions
+  (`DECISION-P6-006-CLOSURE-001`, `DECISION-P7-005-CLOSURE-001`).
+- Deferred/non-blocking debt remains owned without reopening closed work:
+  Phase 2 Option D (`P2-004A`/`P2-004A1`); Phase 5
+  (`DECISION-PHASE5-DEBT-CARRYFORWARD-001`); P6-006/P7-005
+  (`DECISION-PHASE6-7-DEBT-CARRYFORWARD-001`); P6-004
+  (`DECISION-P6-004-INFO-CARRYFORWARD-001`); and deferred D6-08/D6-09.
+- Canonical debt tracking: `docs/TECHNICAL_DEBT_REGISTER.md` (TD-001..TD-007).
+- Production gate conditions: `docs/PRODUCTION_READINESS_GATE.md` (G-01..G-13).
+- Full reconciliation record: `docs/GOVERNANCE-RECONCILIATION-REPORT.md`.
+
 ## Current Authorized Phase
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
@@ -29,7 +59,7 @@ runbook `verification/p5-008/README.md`. Quality: worker 46, translation 193,
 full suite 626/625, Pint clean, PHPStan 0. Final closure report:
 `PHASE5-CLOSURE-REPORT.md`. LOW/INFO debt carried non-blocking
 (`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Phase 3/4 baseline committed
-(B-001/B-002 resolved); working tree clean.
+(B-001/B-002 resolved); the working tree was recorded clean at that closure.
 
 Phase 6 = AUTHORIZED FOR CONTRACT AUTHORING + IMPLEMENTATION (2026-09-23,
 `DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 + DC-01 adopted via
@@ -70,17 +100,21 @@ reclassified to `CONTRACT_REQUIRED / READY-ELIGIBLE AFTER CONTRACT`
 decisions are now DECIDED (`DECISION-P6-005-SPLIT-BOUNDARY-001`,
 `DECISION-P6-005-MERGE-JOIN-001`, `DECISION-P6-005-LANGUAGE-PROVENANCE-001`,
 `DECISION-P6-005-STALENESS-LIFECYCLE-001`, `DECISION-P6-005-SCHEMA-001`), the
-contract is reconciled to incorporate them, and P6-005 is promoted **READY** and
-authorized for implementation (`DECISION-P6-005-READY-001`). It was implemented in
-this batch (structural split/merge, revision-segment language provenance, additive
+contract is reconciled to incorporate them, and P6-005 was promoted **READY** and
+authorized for implementation (`DECISION-P6-005-READY-001`). It was implemented
+(structural split/merge, revision-segment language provenance, additive
 translation-staleness schema, atomic invalidation, required UI, tests, real-browser
-DC-01 evidence) and now stands at **IMPLEMENTED_PENDING_REVIEW**; it must not be
-self-marked VERIFIED or DONE. The missing
+DC-01 evidence), independently reviewed VERIFIED with no BLOCKER/MAJOR finding
+(all 14 acceptance criteria PASS; `reviews/P6-005-INDEPENDENT-REVIEW.md`), and
+closed **DONE** by the HPO on 2026-09-25 (`DECISION-P6-005-CLOSURE-001`).
+MINOR-1/OPTIONAL-1 are non-blocking and preserved in the review artifact. The missing
 `reviews/P6-002-corrective-independent-re-review.md` record-completeness gap is
 retained and P6-002 is not reopened. Phase 7 remains NOT
 GENERALLY AUTHORIZED; only P7-005 (Observability Foundation) was authorized early
 (`DECISION-P7-005-AUTHORIZATION-001`) and is DONE
-(`DECISION-P7-005-CLOSURE-001`). P6-008/P6-009 and all other Phase 7
+(`DECISION-P7-005-CLOSURE-001`). P6-008 is DONE
+(`DECISION-P6-008-CLOSURE-001`, 2026-09-25); P6-009 = READY (`DECISION-P6-009-READY-001`,
+2026-09-25; not executed) and all other Phase 7
 work were not started. Remaining Phase 6 candidate eligibility and the next batch
 recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md` §T.
 
@@ -119,7 +153,7 @@ P3-007 = DONE
 P3-008 = DONE
 
 Phase 3 = CLOSED (2026-09-19)
-Phase 4 = NOT AUTHORIZED
+Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001)
 
 Status: Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product
 Owner on 2026-09-17. Phase 3 Batch 1 was authorized by HPO on 2026-09-17
@@ -238,10 +272,8 @@ P2-003's earlier regression re-review remains preserved as historical VERIFIED
 evidence. The cycle-2 independent re-review verified the changed claim-upsert
 surface, and P2-003 is now DONE. P2-005 is DONE after its independent VERIFIED
 verdict in the cycle-2 re-review. P2-004A2 is DONE after independent
-VERIFIED verdict (round 2, 2026-09-15). P2-004A and P2-004A1 are BLOCKED
-after the third consecutive CHANGES_REQUESTED cycle because the SQLite
-concurrency safety contract is not explicitly defined, repository-controlled,
-or proven with genuine independent connections/processes. P2-007 is
+VERIFIED verdict (round 2, 2026-09-15). P2-004A and P2-004A1 remain BLOCKED and
+deferred out of the current Phase 2 gate under ADR-013/Option D. P2-007 is
 DONE (closed 2026-09-17). Phase 3 = CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3
 closed, P3-007 DONE; P3-008 DONE).
 
@@ -280,13 +312,13 @@ P2-001A, P2-002A,
 P2-002B, and P2-002C completed the authorized follow-up batch and were closed
 as DONE after independent verification.
 
-## Tasks In Review
+## Completed Review Trail
 
-P2-001A, P2-002A, P2-002B, and P2-002C are DONE after independent verification recorded in `reviews/P2-001A-P2-002A-P2-002B-P2-002C-independent-review.md` and `reviews/P2-002A-independent-re-review.md`. P2-001 and P2-002 remain DONE. P2-003, P2-005, and P2-004A2 are DONE. P2-004A and P2-004A1 are BLOCKED after escalation at the three-cycle threshold.
+P2-001A, P2-002A, P2-002B, and P2-002C are DONE after independent verification recorded in `reviews/P2-001A-P2-002A-P2-002B-P2-002C-independent-review.md` and `reviews/P2-002A-independent-re-review.md`. P2-001 and P2-002 remain DONE. P2-003, P2-005, and P2-004A2 are DONE. P2-004A and P2-004A1 remain BLOCKED and deferred under ADR-013/Option D.
 
 TASK-P1-STATIC-001/002/003/004, TASK-004C and TASK-P1-CREATE-001 are DONE after independent Claude verification.
 
-## Ready Tasks
+## Phase 3 Historical Batch Record
 
 Phase 3 Batch 1 tasks are DONE (closed by HPO 2026-09-18):
 - P3-001 (Transcription Domain Contract) — DONE
@@ -312,14 +344,15 @@ P3-008 is DONE (HPO closure 2026-09-19, DECISION-P3-008-CLOSURE-001).
 Phase 3 Batch 3 = CLOSED (DECISION-P3-BATCH3-CLOSURE-001).
 Option D remains in force.
 
-## P2-003 Active Task
+## P2-003 Historical Task Record
 
 P2-003 is DONE. The canonical contract is recorded at
 `tasks/P2-003-implement-real-upload-ingestion-workflow.md`. The independent
 third-pass review returned VERIFIED for the earlier revision on 2026-09-13.
 The cycle-2 regression re-review returned VERIFIED and Work closed the task as
 DONE. P2-004A2 is also DONE after independent VERIFIED verdict (round 2,
-2026-09-15). No Phase 3 or later work is authorized.
+2026-09-15). At that historical checkpoint, no Phase 3 or later work was yet
+authorized.
 
 ## Latest Completed Follow-Ups
 
@@ -430,10 +463,10 @@ closed, P3-007 DONE; P3-008 DONE).
 
 ## Blocked Tasks
 
-- P2-004A — BLOCKED: SQLite cleanup/ingestion concurrency contract unresolved;
-  third consecutive CHANGES_REQUESTED cycle.
-- P2-004A1 — BLOCKED: SQLite cleanup/ingestion concurrency contract unresolved;
-  third consecutive CHANGES_REQUESTED cycle.
+- P2-004A — BLOCKED and deferred out of the current Phase 2 completion scope
+  under ADR-013/Option D.
+- P2-004A1 — BLOCKED and deferred out of the current Phase 2 completion scope
+  under ADR-013/Option D.
 
 ## Governance Setup
 
@@ -503,11 +536,47 @@ Phase 3 Batch 2 authorized (P3-004/P3-005/P3-006); Batch 3 authorized 2026-09-19
 DECISION-P1-001 resolved as Title REQUIRED. DECISION-P2-CONCURRENCY-001
 is DECIDED as Option D. DECISION-P2-PHASE2-ACCEPTANCE-001 is DECIDED.
 DECISION-P2-CONCURRENCY-002 is DECIDED. Option D remains in force.
-P2-004A/P2-004A1 remain BLOCKED.
+P2-004A/P2-004A1 remain BLOCKED and deferred under ADR-013/Option D.
 
 ## Known Issues
 
-Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 are BLOCKED under the three-cycle escalation policy. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 Batch 1 is COMPLETE / CLOSED (P3-001/P3-002/P3-003 DONE); canonical model large-v3. Phase 3 Batch 2 is CLOSED (P3-004/P3-005/P3-006 DONE; independent review VERIFIED, P3-006 HIGH-1 resolved via Correction Cycle 1). Batch 3 is CLOSED (2026-09-19, DECISION-P3-BATCH3-CLOSURE-001); P3-007 and P3-008 are DONE (DECISION-P3-007-CLOSURE-001, DECISION-P3-008-CLOSURE-001). Phase 3 = CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).
+Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 remain BLOCKED and deferred under ADR-013/Option D. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 Batch 1 is COMPLETE / CLOSED (P3-001/P3-002/P3-003 DONE); canonical model large-v3. Phase 3 Batch 2 is CLOSED (P3-004/P3-005/P3-006 DONE; independent review VERIFIED, P3-006 HIGH-1 resolved via Correction Cycle 1). Batch 3 is CLOSED (2026-09-19, DECISION-P3-BATCH3-CLOSURE-001); P3-007 and P3-008 are DONE (DECISION-P3-007-CLOSURE-001, DECISION-P3-008-CLOSURE-001). Phase 3 = CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).
+
+## Next Action — Step A (2026-09-24; P6-005 closed DONE 2026-09-25)
+
+All authored Phase 6 tasks P6-001..P6-007 are DONE. P6-008 is DONE
+(`DECISION-P6-008-CLOSURE-001`, 2026-09-25; independently reviewed VERIFIED,
+all AC1–AC10 PASS);
+P6-009 remains FINAL_GATE_ONLY (P6-003..P6-008 DONE prerequisite satisfied;
+contract accepted and promoted `DRAFT` → **READY** by the HPO on 2026-09-25
+(`DECISION-P6-009-READY-001`; HPO-009-A/B/C DECIDED) at
+`tasks/P6-009-phase6-integration-verification.md`; P6-009 EXECUTED 2026-09-25
+(IN_PROGRESS; verdict FAIL — AC6 fails, finding F-001 MAJOR: exports render the
+machine source, not the active revision; AC1–AC5 and AC7–AC11 PASS with fresh
+evidence in `verification/p6-009/P6-009-FINAL-GATE-EVIDENCE.md`). F-001 is routed
+for separate HPO authorization; gate re-run required after resolution. HPO
+decided REMEDIATE (HPO-F001-A, `DECISION-HPO-F001-A`, 2026-09-25): bounded
+remediation contract P6-010 approved and promoted `DRAFT` → **READY** by the
+HPO on 2026-09-25 (`DECISION-P6-010-READY-001`; HPO-P6-010-A APPROVED) at
+`tasks/P6-010-revision-aware-export-remediation.md` (DONE
+`DECISION-P6-010-CLOSURE-001`, 2026-09-25 — independently reviewed VERIFIED,
+all AC1–AC11 PASS, no findings); bounded F-001 remediation RESOLVED;
+P6-009 historical FAIL preserved. Full rerun `P6-009-RERUN-01` executed
+2026-09-25 under direct HPO rerun authorization (late-persisted
+`DECISION-P6-009-RERUN-01-AUTHORIZATION-001`): verdict PASS (AC1–AC11 fresh;
+`verification/p6-009-rerun-01/P6-009-FINAL-GATE-RERUN-EVIDENCE.md`),
+independently reviewed VERIFIED
+(`reviews/P6-009-RERUN-01-INDEPENDENT-REVIEW.md`) with one MAJOR procedural
+finding (authorization-record gap) reconciled in
+`reviews/P6-009-RERUN-01-GOVERNANCE-RECONCILIATION.md` and HPO-accepted for
+closure (`DECISION-P6-009-CLOSURE-001`, 2026-09-25). P6-009 is DONE
+(rerun PASS independently VERIFIED; historical FAIL preserved). Phase 6
+terminal gate completed; Phase 6 is CLOSED
+(`DECISION-PHASE6-CLOSURE-001`, 2026-09-25; P6-001..P6-010 DONE; closure
+review `reviews/PHASE6-CLOSURE-REVIEW.md`). D6-08/D6-09 remain DEFERRED.
+Phase 7 remains not generally authorized (Phase 6 closure grants
+entry-review eligibility only); Phase 7 entry requires its own HPO entry
+review and authorization, and no phase work starts automatically.
 
 Non-blocking Wave 1 suite observation: the full PHP suite repeatedly passed at 422 total / 421 passed / 1 pre-existing skip / 0 failures, while the assertion count varied between 1400 and 1402 across independent runs. This variation is not attributed to Wave 1 and does not warrant a correction cycle.
 
@@ -581,7 +650,7 @@ Future browser/E2E verification should cover:
 - CURRENT_STATE.md baseline test counts updated to current values (229/230, 688 assertions).
 - Stale P2-007 "in REVIEW" references corrected to DONE.
 
-## Next Action
+## Next Action — historical trail (superseded by the Step A reconciliation above)
 
 Phase 3 Batch 3 = AUTHORIZED (2026-09-19). The HPO resolved owner decisions
 B3-01 through B3-07 and recorded them in `DECISION_QUEUE.md` and ADR-018
@@ -628,7 +697,9 @@ executed against the canonical self-hosted NLLB stack, independently VERIFIED
 (`DECISION-PHASE5-CLOSURE-001`); LOW/INFO debt carried non-blocking
 (`DECISION-PHASE5-DEBT-CARRYFORWARD-001`). Final report:
 `PHASE5-CLOSURE-REPORT.md`. Phase 6/7 eligibility is reconstructed from
-`PHASE5-7-EXECUTION-CLASSIFICATION.md`; no Phase 6/7 task is authorized yet.
+`PHASE5-7-EXECUTION-CLASSIFICATION.md`; Phase 6 is authorized for contract
+authoring + implementation under `DECISION-PHASE6-AUTHORIZATION-001`, while
+Phase 7 remains not generally authorized apart from early-authorized P7-005.
 
 Canonical Phase 3
 model:

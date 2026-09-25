@@ -4191,3 +4191,617 @@ Does Not Block: P6-008/P6-009 (separately governed; P6-009 is FINAL_GATE_ONLY);
 Phase 7 remains not generally authorized.
 
 Durable record: `DECISIONS.md` (P6-005 Owner Decisions; P6-005 READY Promotion).
+
+### DECISION-P6-005-CLOSURE-001 - Accept the P6-005 independent review verdict and close P6-005 DONE
+
+Decision ID: DECISION-P6-005-CLOSURE-001
+
+Status: DECIDED - HPO 2026-09-25
+
+Type: Task Closure
+
+Originating Task: P6-005 (Split / Merge + Translation Invalidation)
+
+Question:
+
+Should the fresh independent review verdict (`VERIFIED`) be accepted and P6-005 be
+closed DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-25. The fresh independent review of P6-005
+(`reviews/P6-005-INDEPENDENT-REVIEW.md`, first review for this task) returned
+**VERIFIED** with no BLOCKER or MAJOR finding and all 14 acceptance criteria
+PASS. Independently confirmed:
+
+- structural split/merge composers enforce the decided boundary/adjacency
+  policies with write-free rejection;
+- revision-segment language provenance and the additive translation-staleness
+  schema implement the five decided owner semantics;
+- structural append + invalidation are atomically coherent under the reused
+  P6-002 CAS/version rules; machine source immutable;
+  `translation_segments` never rewritten;
+- ownership enforcement, reload durability, navigation/comparison compatibility
+  verified; full suite 870/869 + Pint clean + PHPStan 0, independently
+  reproduced by the reviewer.
+
+MINOR-1 (browser-suite re-execution not reproduced in the review session) and
+OPTIONAL-1 (P6-003/P6-004 staleness non-persistence by design, scoped-out
+follow-up) are non-blocking and preserved unchanged in the review artifact.
+
+P6-005 is transitioned `VERIFIED -> DONE`. The independent review and the
+historical implementation/pre-review artifacts
+(`reviews/pre-review/P6-005-pre-review.md`,
+`PHASE6-P6-005-IMPLEMENTATION-BATCH-REPORT.md`,
+`verification/p6-005/P6-005-BROWSER-VERIFICATION-EVIDENCE.md`) are preserved
+unchanged.
+
+Phase consequence:
+
+P6-005 closure does not close Phase 6. P6-001..P6-007 are now DONE. P6-008
+remains separately contract-gated (requires its own contract + HPO READY
+promotion); P6-009 remains FINAL_GATE_ONLY (gated on P6-003..P6-008 DONE).
+No Phase 7 work is authorized beyond DONE P7-005.
+
+Blocks: None.
+
+Does Not Block: P6-008/P6-009 (separately governed); Phase 7 remains not
+generally authorized.
+
+### DECISION-P6-008-READY-001 - Record HPO-008-A/B/C/D and promote P6-008 to READY
+
+Decision ID: DECISION-P6-008-READY-001
+
+Status: DECIDED - HPO 2026-09-25
+
+Type: Phase Authorization / Task Authorization
+
+Originating Task: P6-008 (Revision History / Audit Surface)
+
+Question:
+
+Are the four P6-008 scope decisions (HPO-008-A/B/C/D) and the reconciled
+canonical contract sufficient to promote P6-008 to READY and authorize
+implementation?
+
+Resolution:
+
+HPO-DECIDED on 2026-09-25:
+
+- HPO-008-A (selection scope): APPROVED arbitrary eligible historical
+  revision selection - any eligible persisted historical revision valid for
+  the same transcription under the existing domain constraints; no artificial
+  recent-only or bounded-history restriction; reuse existing durable history
+  and activation primitives.
+- HPO-008-B (audit depth): APPROVED lightweight audit/history surface only -
+  revision history list, deterministic ordering, active-revision marker,
+  machine-source/original state where supported by persisted data, limited
+  persisted metadata, explicit historical activation,
+  translation-staleness consistency, authorization/ownership fencing, CAS
+  protection. No audit explorer, activity timeline, forensic, or analytics
+  expansion.
+- HPO-008-C (retro-wire): APPROVED EXCLUDE - the P6-003/P6-004 staleness
+  non-persistence boundary stands as historical truth; any future work is
+  tracked separately, not inside P6-008.
+- HPO-008-D (proceed/cancel): APPROVED PROCEED - durable persisted revision
+  history exists (P6-002 DONE), D6-02 is adopted, D6-05 requires the surface,
+  historical selection was reserved for P6-008, the activation primitive
+  exists, and no other task owns the required UI/service-layer integration;
+  the cancellation condition is therefore not satisfied.
+
+The canonical contract
+(`tasks/P6-008-revision-history-audit-surface.md`) is reconciled to
+incorporate all four decisions; resolved decisions are no longer described
+as candidates.
+
+Transition applied: P6-008: `DRAFT` → **READY**, authorized for
+implementation. Implementation not started.
+
+Scope: implement only P6-008 - revision-history/audit surface listing
+durable revisions in version order with active marker and machine-source
+state; persisted-metadata-only entries; `update`-authorized, CAS-fenced
+explicit activation of any eligible same-transcription historical revision
+via the existing `activate()` primitive through a thin controller/route
+pair; presentation consistent with persisted P6-005 staleness markers;
+feature/domain tests + real-browser DC-01 evidence.
+
+Not authorized: P6-009 execution (P6-008 DONE is an input to it, not the
+gate itself); Phase 5 translation/translation-segment writes of any kind;
+redefining P6-001..P6-007 domain semantics; D6-08/D6-09; metadata probe
+wiring, upload-progress evidence, staging cleanup; and any new Phase 7 work.
+
+Review model: per-task independent review (Claude Code). P6-008 moves to
+REVIEW after implementation; the implementer must not self-mark VERIFIED or
+DONE.
+
+Blocks: none.
+
+Does Not Block: P6-009 (FINAL_GATE_ONLY, gated on P6-003..P6-008 DONE);
+Phase 7 remains not generally authorized.
+
+Durable record: `DECISIONS.md` (P6-008 READY Promotion).
+
+### DECISION-P6-008-CLOSURE-001 - Accept the P6-008 independent review verdict and close P6-008 DONE
+
+Decision ID: DECISION-P6-008-CLOSURE-001
+
+Status: DECIDED - HPO 2026-09-25
+
+Type: Task Closure
+
+Originating Task: P6-008 (Revision History / Audit Surface)
+
+Question:
+
+Should the fresh independent review verdict (`VERIFIED`) be accepted and P6-008 be
+closed DONE?
+
+Resolution:
+
+HPO-ACCEPTED 2026-09-25. The fresh independent review of P6-008
+(`reviews/P6-008-INDEPENDENT-REVIEW.md`, first review for this task) returned
+**VERIFIED** with no BLOCKER, MAJOR, or MINOR finding and all 10 acceptance
+criteria PASS. Independently confirmed (fresh re-execution in the review
+session, not a re-read of Builder claims):
+
+- version-ordered history surface with unambiguous active marker and
+  persisted-metadata-only entries;
+- arbitrary eligible same-transcription activation (linear, sibling-branch,
+  and reload-durable) through the `update`-authorized, double-checked
+  CAS-fenced operation with no revision created, appended, or rewritten;
+- stale-base conflict failing closed with pointer and row counts unchanged;
+- unknown/cross-transcription/non-owner rejection at HTTP and service
+  boundaries (403 / `AuthorizationException` / `InvalidArgumentException`);
+- `view`-fenced read path with provably no mutation;
+- undo/redo and all P6-001..P6-007 semantics byte-identical (zero diff on
+  repository, interface, value object, and exception types);
+- machine-source authoritative state and persisted P6-005 staleness-cause
+  agreement;
+- targeted tests 12/12, full suite 882/881 + 1 pre-existing skip / 3340
+  assertions, Pint clean, PHPStan 0 errors, fresh Playwright 9/9, diff audit
+  PASS, authorization and CAS reviews PASS, already-active no-op semantics
+  accepted.
+
+OPTIONAL-1 (one extra users lookup + one extra translations lookup per
+workspace `show()` render; negligible at current scale; future optimization
+candidate only) is non-blocking and preserved unchanged in the review
+artifact.
+
+P6-008 is transitioned `VERIFIED -> DONE`. The independent review
+(`reviews/P6-008-INDEPENDENT-REVIEW.md`), the Builder report
+(`reviews/P6-008-BUILDER-REPORT.md`), and the `verification/p6-008/`
+evidence are preserved unchanged.
+
+Phase consequence:
+
+P6-008 closure does not close Phase 6. P6-001..P6-008 are now DONE. The
+P6-003..P6-008 DONE prerequisite for P6-009 is satisfied; P6-009 itself
+remains FINAL_GATE_ONLY with no canonical contract yet and requires a
+separate HPO authorization to open. No Phase 7 work is authorized beyond
+DONE P7-005.
+
+Blocks: None.
+
+Does Not Block: P6-009 opening (separately authorized; FINAL_GATE_ONLY);
+Phase 7 remains not generally authorized.
+
+Durable record: `DECISIONS.md` (P6-008 Closure).
+
+### DECISION-P6-009-READY-001 - Accept the P6-009 contract, resolve HPO-009-A/B/C, and promote P6-009 to READY
+
+Decision ID: DECISION-P6-009-READY-001
+
+Status: DECIDED - HPO 2026-09-25
+
+Type: Phase Authorization / Task Authorization
+
+Originating Task: P6-009 (Phase 6 Final Integration Verification Gate)
+
+Raised By: Human Product Owner
+
+Priority: HIGH
+
+Question:
+
+Should the DRAFT P6-009 contract be accepted as canonical, should HPO-009-A/B/C
+be resolved, and should P6-009 be promoted to READY (gate execution not yet
+authorized to start)?
+
+Options:
+
+1. Accept the contract, resolve HPO-009-A/B/C, and promote P6-009 `DRAFT` →
+   READY. Gate execution is a separate later step. (recommended, selected)
+2. Return the contract for further reconciliation.
+3. Do not promote; leave P6-009 in DRAFT.
+
+Resolution:
+
+HPO-DECIDED 2026-09-25 - Option 1.
+
+- **HPO-009-A** - APPROVED. The P6-009 contract
+  (`tasks/P6-009-phase6-integration-verification.md`) is accepted as the
+  canonical Phase 6 FINAL_GATE_ONLY integration verification contract.
+  Transition applied: P6-009 `DRAFT` → **READY**. This decision does not
+  execute the gate.
+- **HPO-009-B** - CONFIRMED: D6-08 and D6-09 remain DEFERRED and non-blocking
+  for Phase 6 closure under existing authority
+  (`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). P6-009 must verify (AC10)
+  that neither was accidentally introduced. Not reactivated by this decision.
+- **HPO-009-C** - CONFIRMED: the prior exclusion is preserved. P6-009 must not
+  retro-wire P6-003/P6-004 translation-staleness persistence behavior
+  (HPO-008-C boundary). P6-009 verifies the existing approved Phase 6 state
+  only; no remediation or semantic expansion is authorized.
+
+The canonical contract is reconciled so HPO-009-A/B/C are recorded DECIDED and
+unresolved DRAFT decision language is removed/converted to decided wording.
+Acceptance criteria are unchanged; scope remains verification-only; Phase 7
+remains explicitly out of scope; D6-08/D6-09 remain explicitly deferred;
+P6-003/P6-004 retro-wire remains excluded.
+
+Not authorized by this decision: gate execution (`IN_PROGRESS`); any finding
+remediation; D6-08/D6-09 activation; P6-003/P6-004 retro-wire; Phase 6
+closure; Phase 7 work of any kind. A separate implementation-owner assignment
+and gate execution remain required before P6-009 can move to REVIEW.
+
+Phase consequence:
+
+P6-001..P6-008 remain DONE. P6-009 = READY (open, not started; not executed).
+Phase 6 remains OPEN. No phase closes automatically.
+
+Blocks:
+
+- None. This is a promotion, not a block.
+
+Does Not Block:
+
+- Unrelated runnable work; closed Phase 1-5 records; Phase 4/5 debt
+  carryforward; Phase 7 remains not generally authorized.
+
+Durable record: `DECISIONS.md` (P6-009 READY Promotion).
+
+### DECISION-HPO-F001-A — Remediate gate finding F-001 via a dedicated bounded Phase 6 task
+
+Decision ID: DECISION-HPO-F001-A
+
+Status: DECIDED — HPO 2026-09-25
+
+Type: Architecture / Task Authorization (remediation contract authoring)
+
+Originating Task: P6-009 (finding F-001, MAJOR) → P6-010 (Revision-Aware Export Remediation)
+
+Raised By: Human Product Owner
+
+Priority: HIGH
+
+Question:
+
+P6-009 executed with verdict FAIL on AC6 (finding F-001, MAJOR):
+TXT/SRT/VTT/DOCX exports succeed but render machine-source segments instead
+of the authoritative active revision, contradicting frozen P6-001 §9. Should
+F-001 be remediated through a dedicated bounded Phase 6 task, or should
+P6-009 AC6 be narrowed to accept machine-source exports?
+
+Options:
+
+1. REMEDIATE via a dedicated bounded task (recommended, selected): author a
+   canonical P6-010 contract limited to revision-aware export derivation with
+   machine-source fallback; implement only after a separate READY promotion;
+   rerun P6-009 after P6-010 DONE.
+2. Narrow P6-009 AC6 to accept machine-source exports (rejected: contradicts
+   the frozen P6-001 §9 export clause).
+3. Defer F-001 to Phase 7 (rejected: F-001 contradicts a Phase 6 DONE-claim
+   foundation — the frozen editing-domain export semantics — and blocks the
+   Phase 6 closure recommendation).
+
+Resolution:
+
+HPO-DECIDED 2026-09-25 — Option 1 (HPO-F001-A: REMEDIATE).
+
+- F-001 is a genuine Phase 6 integration gap owned by new bounded task
+  P6-010 (`tasks/P6-010-revision-aware-export-remediation.md`, DRAFT).
+- P6-009 AC6 is not narrowed or superseded. P6-009 remains IN_PROGRESS with
+  execution verdict FAIL until the remediation is DONE and the gate is rerun.
+- No fallback/semantics ambiguity is open: fallback applies if and only if
+  no valid active revision exists (frozen P6-001 §9).
+- This decision authorizes remediation contract authoring only. It does not
+  promote P6-010 to READY, does not implement the remediation, does not pass
+  P6-009, does not close Phase 6, and does not authorize Phase 7 work.
+
+Phase consequence:
+
+P6-001..P6-008 remain DONE. P6-009 remains IN_PROGRESS (verdict FAIL).
+P6-010 exists as DRAFT (not READY, not started). Phase 6 remains OPEN.
+No phase closes automatically.
+
+Blocks:
+
+- P6-009 PASS / Phase 6 closure recommendation (until P6-010 DONE + gate rerun).
+
+Does Not Block:
+
+- Unrelated runnable work; closed Phase 1-5 records; Phase 4/5 debt
+  carryforward; P6-010 contract review itself.
+
+Durable record: `DECISIONS.md` (HPO-F001-A: Remediate F-001 via P6-010).
+
+### DECISION-P6-010-READY-001 — Approve the P6-010 contract and promote P6-010 to READY
+
+Decision ID: DECISION-P6-010-READY-001
+
+Status: DECIDED — HPO 2026-09-25
+
+Type: Phase Authorization / Task Authorization
+
+Originating Task: P6-010 (Revision-Aware Export Remediation, F-001)
+
+Raised By: Human Product Owner
+
+Priority: HIGH
+
+Question:
+
+Should the DRAFT P6-010 contract be approved as the canonical bounded
+remediation for F-001 (HPO-P6-010-A) and should P6-010 be promoted to READY?
+
+Options:
+
+1. Approve the contract and promote P6-010 `DRAFT` → READY. Implementation
+   is a separate later step. (recommended, selected)
+2. Return the contract for further reconciliation.
+3. Do not promote; leave P6-010 in DRAFT.
+
+Resolution:
+
+HPO-DECIDED 2026-09-25 — Option 1.
+
+- **HPO-P6-010-A** — APPROVED. P6-010
+  (`tasks/P6-010-revision-aware-export-remediation.md`) is accepted as the
+  canonical bounded remediation for F-001. Approved behaviour: exports use
+  the current active revision when a valid active revision exists;
+  machine-source export is fallback only when no valid active revision
+  exists; machine-source/original data remains unchanged and recoverable;
+  supported formats remain TXT, SRT, VTT, DOCX with no new formats; no
+  translation-export redesign; no Phase 7 scope; no P6-003/P6-004 retro-wire;
+  no weakening of P6-009 AC6. Transition applied: P6-010 `DRAFT` → **READY**.
+- HPO-F001-A remains DECIDED (REMEDIATE). No unresolved HPO scope/fallback
+  decisions remain; fallback semantics are accepted as
+  frozen-contract-derived (P6-001 §9).
+
+The DRAFT contract required no scope change for approval; lifecycle,
+approval-record, and flow-marker edits only. Acceptance criteria unchanged;
+scope remains bounded; the P6-009 relationship remains explicit
+(IN_PROGRESS, verdict FAIL, rerun required after P6-010 DONE).
+
+Not authorized by this decision: export implementation (`IN_PROGRESS`);
+P6-009 rerun or verdict change; Phase 6 closure; Phase 7 work of any kind.
+A separate Builder-execution authorization remains required before P6-010
+implementation may start.
+
+Phase consequence:
+
+P6-001..P6-008 remain DONE. P6-009 remains IN_PROGRESS (verdict FAIL).
+P6-010 = READY (open, not started; not implemented). Phase 6 remains OPEN.
+No phase closes automatically.
+
+Blocks:
+
+- None. This is a promotion, not a block.
+
+Does Not Block:
+
+- Unrelated runnable work; closed Phase 1-5 records; Phase 4/5 debt
+  carryforward; Phase 7 remains not generally authorized.
+
+Durable record: `DECISIONS.md` (P6-010 READY Promotion).
+
+### DECISION-P6-010-CLOSURE-001 — Close P6-010 (Revision-Aware Export Remediation, F-001)
+
+Decision ID: DECISION-P6-010-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-25
+
+Type: Task Closure
+
+Originating Task: P6-010
+
+Raised By: Human Product Owner
+
+Priority: HIGH
+
+Question:
+
+Is the independently VERIFIED P6-010 eligible for closure as DONE under the
+State-to-Action Contract?
+
+Options:
+
+1. Close P6-010: transition VERIFIED → DONE.
+2. Do not close yet (return for further work).
+3. Close only part of the task.
+
+Resolution:
+
+HPO-CLOSED on 2026-09-25. Closure is based on the completed independent
+review (`reviews/P6-010-INDEPENDENT-REVIEW.md`):
+
+- P6-010 = VERIFIED
+- All AC1–AC11 PASS, each against its own distinct evidence
+- No BLOCKER, no MAJOR, no MINOR, no OPTIONAL findings
+- Fresh independent verification: targeted P6-010 tests 8/8; export-related
+  suites 37/37; editing/revision suite 126 passed / 1 documented skip;
+  full PHP suite 900 / 898 passed / 2 skipped / 0 failures; Pint clean;
+  PHPStan 0 errors — all independently reproduced, not copied
+- Bounded F-001 reproduction confirmed fixed at HTTP level per format;
+  full P6-009 gate rerun explicitly not performed by the reviewer
+- Scope audit: only `TranscriptionExportController.php` Builder-owned;
+  translation exports, revision domain, workspace, routes, D6-08/D6-09,
+  Phase 7 untouched; P6-009 evidence/lifecycle unmodified
+
+Canonical transition applied: VERIFIED → (HPO closure decision) → DONE.
+History preserved, not rewritten.
+
+F-001 state distinction: the bounded remediation implementation is RESOLVED
+(independently VERIFIED and now DONE). The historical P6-009 gate result
+remains FAIL pending a full rerun — no P6-009 evidence was rewritten and
+AC6 was not retroactively modified by this closure.
+
+This closure is governance/state reconciliation only; it authorizes no
+further implementation. It does not rerun P6-009, does not close Phase 6,
+and does not authorize Phase 7 work. A full P6-009 rerun (AC1–AC11, fresh
+integrated evidence) remains required before Phase 6 closure can be
+recommended.
+
+Blocks:
+
+- None. This is a closure, not a block.
+
+Does Not Block:
+
+- P6-009 full rerun (now unblocked/eligible for explicit authorization);
+  unrelated runnable work; closed Phase 1-5 records.
+
+Durable record: `DECISIONS.md` (P6-010 Closure).
+
+## P6-009-RERUN-01 Execution Authorization (late-persisted reconciliation)
+
+Status: DECIDED - Human Product Owner
+(`DECISION-P6-009-RERUN-01-AUTHORIZATION-001`; late-persisted 2026-09-25 by
+governance reconciliation `reviews/P6-009-RERUN-01-GOVERNANCE-RECONCILIATION.md`).
+
+Record:
+
+- HPO authorization for the full P6-009 final-gate rerun
+  (`P6-009-RERUN-01`, AC1–AC11 with fresh integrated evidence, against
+  `tasks/P6-009-phase6-integration-verification.md`) was given by direct HPO
+  instruction before rerun execution on 2026-09-25 (after P6-010 DONE).
+- Repository decision recording was omitted at execution time, and the rerun
+  task record miscited `DECISION-P6-009-READY-001` +
+  `DECISION-P6-010-CLOSURE-001` as the authorizing decisions (both disclaim
+  rerun coverage; they are context/eligibility only).
+- This record reconciles persistence only. It does not retroactively invent
+  authority: the authority genuinely existed before execution and is recorded
+  here truthfully, with its original timing preserved.
+- Permitted scope: full gate rerun only (verification, no feature
+  implementation, no silent remediation, historical FAIL preserved). No
+  Phase 6 closure authority and no Phase 7 authority are included.
+- Technical rerun evidence (`verification/p6-009-rerun-01/`) is unchanged by
+  this record.
+
+Blocks:
+
+- None. This is a persistence reconciliation, not a block.
+
+Does Not Block:
+
+- HPO closure review of P6-009 on the independently reviewed rerun verdict;
+  unrelated runnable work; closed Phase 1-5 records.
+
+Durable record: `DECISIONS.md`
+(`DECISION-P6-009-RERUN-01-AUTHORIZATION-001`).
+
+## P6-009 Closure - Phase 6 Final Integration Verification Gate (RERUN-01)
+
+Status: DECIDED - Human Product Owner (`DECISION-P6-009-CLOSURE-001`,
+2026-09-25).
+
+Decision:
+
+The HPO reviewed the P6-009 final-gate rerun result
+(`verification/p6-009-rerun-01/P6-009-FINAL-GATE-RERUN-EVIDENCE.md`;
+`P6-009-RERUN-01`, verdict PASS, AC1–AC11 fresh), the independent review
+(`reviews/P6-009-RERUN-01-INDEPENDENT-REVIEW.md`; VERIFIED, technical
+evidence independently reproduced with zero discrepancies), the governance
+reconciliation
+(`reviews/P6-009-RERUN-01-GOVERNANCE-RECONCILIATION.md`; A2/B1
+determinations), and the late-persisted rerun authorization record
+(`DECISION-P6-009-RERUN-01-AUTHORIZATION-001`), and concurs with the
+canonical state.
+
+The HPO explicitly accepts the remaining procedural finding as
+RECONCILED / ACCEPTED FOR CLOSURE: rerun authorization existed before
+execution through explicit HPO instruction; repository persistence was
+omitted at execution time and later reconciled truthfully; no authority
+was fabricated or backdated; technical verification remains valid. The
+finding remains part of the permanent audit trail and does not block DONE
+closure. It is not deleted, downgraded, or rewritten.
+
+Canonical transition applied: VERIFIED → (HPO closure decision) → DONE.
+
+Full history preserved, not flattened: original gate execution FAIL
+(F-001, MAJOR, AC6;
+`verification/p6-009/P6-009-FINAL-GATE-EVIDENCE.md`) → HPO-F001-A
+REMEDIATE → P6-010 DONE (`DECISION-P6-010-CLOSURE-001`) → direct HPO rerun
+authorization (late-persisted `DECISION-P6-009-RERUN-01-AUTHORIZATION-001`)
+→ rerun PASS → independent VERIFIED → governance reconciliation →
+this HPO closure. The historical FAIL remains valid history.
+
+Phase consequence:
+
+P6-001..P6-008 remain DONE. P6-010 = DONE. P6-009 = DONE (this decision).
+Phase 6 terminal gate completed. Phase 6 remains OPEN pending a separate
+HPO Phase 6 closure decision — this closure does not itself close
+Phase 6. No Phase 7 work is authorized.
+
+Blocks:
+
+- None. This is a closure, not a block.
+
+Does Not Block:
+
+- Separate HPO Phase 6 closure review; unrelated runnable work; closed
+  Phase 1-5 records.
+
+Durable record: `DECISIONS.md` (`DECISION-P6-009-CLOSURE-001`).
+
+## Phase 6 Closure - Advanced Transcript UX
+
+Status: DECIDED - Human Product Owner (`DECISION-PHASE6-CLOSURE-001`,
+2026-09-25).
+
+Decision:
+
+The HPO reviewed the Phase 6 closure review (task matrix P6-001..P6-010
+all DONE with HPO closure decisions; terminal gate P6-009 DONE on the
+independently VERIFIED rerun `P6-009-RERUN-01`; findings ledger with no
+unresolved closure-blocking finding; D6-08/D6-09 DEFERRED and non-blocking;
+audit history intact; debt boundary respected) and concurs that every
+mandatory Phase 6 closure criterion passes. Formal closure is recorded:
+
+**Phase 6 = CLOSED.**
+
+Completed range: P6-001 (editing domain contract) through P6-010
+(revision-aware export remediation), including terminal gate P6-009
+(first execution FAIL/F-001 → P6-010 REMEDIATE/DONE → authorized rerun
+PASS → independent VERIFIED → governance reconciliation → HPO DONE;
+historical FAIL preserved).
+
+Deferred scope: D6-08 (speaker/annotations/bookmarks) and D6-09
+(waveform/timeline) remain DEFERRED and non-blocking under standing
+authority (`DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025; HPO-009-B).
+They are not closed, not implemented, not reactivated.
+
+Carry-forward (non-blocking, owned outside Phase 6): Phase 5 LOW/INFO
+(`DECISION-PHASE5-DEBT-CARRYFORWARD-001`); P6-004 INFO
+(`DECISION-P6-004-INFO-CARRYFORWARD-001`); P6-005 MINOR-1/OPTIONAL-1;
+P6-008 OPTIONAL-1; P6-002 record-completeness gap (retained; P6-002 stays
+DONE, not reopened); reconciled P6-009 procedural finding (HPO-accepted
+for closure, preserved in the audit trail); Technical Debt Register
+TD-001..TD-013 (Phase 7-owned production-readiness items; none defined as
+a Phase 6 closure prerequisite).
+
+This decision authorizes no Phase 7 implementation and resolves no D7-*
+decision. Phase 7 entry requires its own HPO entry review and
+authorization (D7-01..D7-08, Phase 7 execution authorization). Only
+early-authorized P7-005 exists and is DONE; that status is unchanged.
+
+Blocks:
+
+- None. This is a phase closure, not a block.
+
+Does Not Block:
+
+- HPO Phase 7 entry review/authorization; unrelated runnable work; closed
+  Phase 1-6 records.
+
+Durable record: `DECISIONS.md` (`DECISION-PHASE6-CLOSURE-001`);
+`reviews/PHASE6-CLOSURE-REVIEW.md`.
