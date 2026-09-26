@@ -1,0 +1,8 @@
+{
+    "baseUrl": "http://127.0.0.1:8127",
+    "email": "p7-010@example.test",
+    "password": "password",
+    "workspace": {
+        "transcriptionId": 1
+    }
+}

@@ -1,0 +1,220 @@
+{
+    "run_id": "p7-009-20260926-165451-1d8e17a7",
+    "classification": "REHEARSAL / SUBSTITUTE EVIDENCE \u2014 NOT TARGET CAPACITY EVIDENCE",
+    "verdict": "NONE \u2014 Phase A rehearsal states no capacity verdict, no production capacity, no release fitness.",
+    "phase_b": "NOT AUTHORIZED",
+    "options": {
+        "repeat": 3,
+        "concurrency": 3,
+        "seed": 909,
+        "blob_bytes": 262144,
+        "segments": 60
+    },
+    "summaries": {
+        "upload": {
+            "count": 3,
+            "min": 9.4766,
+            "max": 19.0519,
+            "mean": 12.726666666666667,
+            "median": 9.6515,
+            "stddev": 4.47318529635824,
+            "values": [
+                9.4766,
+                9.6515,
+                19.0519
+            ],
+            "exclusion_notes": []
+        },
+        "probe": {
+            "count": 3,
+            "min": 226.3514,
+            "max": 243.8842,
+            "mean": 237.54283333333333,
+            "median": 242.3929,
+            "stddev": 7.936923373840905,
+            "values": [
+                226.3514,
+                242.3929,
+                243.8842
+            ],
+            "exclusion_notes": []
+        },
+        "transcription": {
+            "count": 3,
+            "min": 6.7482,
+            "max": 315.6778,
+            "mean": 110.37196666666667,
+            "median": 8.6899,
+            "stddev": 145.175311147691,
+            "values": [
+                6.7482,
+                8.6899,
+                315.6778
+            ],
+            "exclusion_notes": []
+        },
+        "translation": {
+            "count": 3,
+            "min": 0.2046,
+            "max": 0.2271,
+            "mean": 0.21589999999999998,
+            "median": 0.216,
+            "stddev": 0.009185858696931927,
+            "values": [
+                0.2046,
+                0.216,
+                0.2271
+            ],
+            "exclusion_notes": []
+        },
+        "queue": {
+            "count": 3,
+            "min": 162.4256,
+            "max": 179.1958,
+            "mean": 168.3974333333333,
+            "median": 163.5709,
+            "stddev": 7.649900653966396,
+            "values": [
+                162.4256,
+                163.5709,
+                179.1958
+            ],
+            "exclusion_notes": []
+        },
+        "saturation": {
+            "count": 3,
+            "min": 190.1877,
+            "max": 266.8243,
+            "mean": 218.44246666666666,
+            "median": 198.3154,
+            "stddev": 34.37165716442674,
+            "values": [
+                190.1877,
+                198.3154,
+                266.8243
+            ],
+            "exclusion_notes": []
+        },
+        "streaming": {
+            "count": 3,
+            "min": 12.7819,
+            "max": 14.2466,
+            "mean": 13.727666666666666,
+            "median": 14.1545,
+            "stddev": 0.6698141748939694,
+            "values": [
+                12.7819,
+                14.1545,
+                14.2466
+            ],
+            "exclusion_notes": []
+        },
+        "render": {
+            "count": 3,
+            "min": 3.9547,
+            "max": 6.7965,
+            "mean": 4.980099999999999,
+            "median": 4.1891,
+            "stddev": 1.2879486428684441,
+            "values": [
+                3.9547,
+                4.1891,
+                6.7965
+            ],
+            "exclusion_notes": []
+        },
+        "export": {
+            "count": 3,
+            "min": 0.4674,
+            "max": 0.9965,
+            "mean": 0.6440333333333333,
+            "median": 0.4682,
+            "stddev": 0.24923178413320848,
+            "values": [
+                0.4674,
+                0.4682,
+                0.9965
+            ],
+            "exclusion_notes": []
+        }
+    },
+    "completion_accounting": {
+        "upload": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        },
+        "probe": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        },
+        "transcription": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        },
+        "translation": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        },
+        "queue": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        },
+        "saturation": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        },
+        "streaming": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        },
+        "render": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        },
+        "export": {
+            "dispatched": 3,
+            "completed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "reconciled": true
+        }
+    },
+    "accounting_reconciled": true,
+    "accounting_mismatches": [],
+    "failure_count": 0,
+    "envelope_keys": [
+        "upload",
+        "probe",
+        "transcription",
+        "translation",
+        "queue",
+        "saturation",
+        "streaming",
+        "render",
+        "export"
+    ]
+}

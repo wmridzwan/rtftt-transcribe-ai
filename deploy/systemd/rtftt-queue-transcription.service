@@ -1,0 +1,34 @@
+# P7-008 deployment unit: transcription queue worker.
+# Installs the P7-003 supervision specification
+# (docs/QUEUE-WORKER-SUPERVISION.md; spec revision consumed: 2026-09-26,
+# pre-implementation — reconcile explicitly if the spec changes).
+# Copy to /etc/systemd/system/, adjust User/WorkingDirectory/ExecStart
+# paths, then: systemctl daemon-reload && systemctl enable --now
+#   rtftt-queue-transcription.service
+[Unit]
+Description=RTFTT transcription queue worker
+After=network.target redis-server.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=rtftt
+WorkingDirectory=/srv/rtftt-transcribe-ai
+# --timeout equals the transcription job timeout (330s default); --tries=1
+# is frozen (P3-007); --max-time recycles the worker hourly.
+ExecStart=/usr/bin/php artisan queue:work redis --queue=transcription --sleep=3 --tries=1 --timeout=330 --max-time=3600
+# Graceful stop: SIGTERM drains the current job (P7-003 §3); budget covers
+# the job timeout plus margin. Never shorten below the job timeout.
+TimeoutStopSec=420
+KillMode=mixed
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=300
+StartLimitBurst=5
+# Structured logs flow to the P7-005 channel via the application log
+# configuration; journald captures supervisor-level output.
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

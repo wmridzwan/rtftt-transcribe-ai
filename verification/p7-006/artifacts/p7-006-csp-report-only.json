@@ -1,0 +1,11 @@
+{
+  "cspMode": "report-only",
+  "cspHeader": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; media-src 'self'; connect-src 'self' ws: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; report-uri /csp-report",
+  "seek": {
+    "currentTime": 0.5,
+    "target": "0.5"
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "verdict": "PASS"
+}

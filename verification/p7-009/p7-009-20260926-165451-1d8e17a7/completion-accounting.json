@@ -1,0 +1,65 @@
+{
+    "upload": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    },
+    "probe": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    },
+    "transcription": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    },
+    "translation": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    },
+    "queue": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    },
+    "saturation": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    },
+    "streaming": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    },
+    "render": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    },
+    "export": {
+        "dispatched": 3,
+        "completed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "reconciled": true
+    }
+}

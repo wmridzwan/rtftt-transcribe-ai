@@ -1,0 +1,14 @@
+{
+    "run_id": "p7-009-20260926-165338-a5dbaf19",
+    "command": "capacity:validate",
+    "options": {
+        "repeat": 3,
+        "concurrency": 3,
+        "seed": 909,
+        "blob_bytes": 262144,
+        "segments": 60
+    },
+    "classification": "REHEARSAL / SUBSTITUTE EVIDENCE \u2014 NOT TARGET CAPACITY EVIDENCE",
+    "started_at": "2026-09-26T16:53:38+00:00",
+    "finished_at": "2026-09-26T16:53:41+00:00"
+}

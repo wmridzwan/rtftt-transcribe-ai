@@ -1,0 +1,13 @@
+# P7-008 deployment unit: Laravel scheduler (one-shot; driven by the
+# companion rtftt-scheduler.timer every minute). Runs the stale-recovery
+# schedules owned by P7-003 (transcription) and P5-004C (translation).
+[Unit]
+Description=RTFTT scheduler run (one-shot)
+
+[Service]
+Type=oneshot
+User=rtftt
+WorkingDirectory=/srv/rtftt-transcribe-ai
+ExecStart=/usr/bin/php artisan schedule:run
+StandardOutput=journal
+StandardError=journal

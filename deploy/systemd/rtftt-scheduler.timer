@@ -1,0 +1,13 @@
+# P7-008 deployment timer: drives rtftt-scheduler.service every minute.
+# Copy both files to /etc/systemd/system/, then:
+#   systemctl daemon-reload && systemctl enable --now rtftt-scheduler.timer
+[Unit]
+Description=RTFTT scheduler (every minute)
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

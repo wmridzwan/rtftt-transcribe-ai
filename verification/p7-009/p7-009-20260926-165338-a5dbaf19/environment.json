@@ -1,0 +1,57 @@
+{
+    "run_id": "p7-009-20260926-165338-a5dbaf19",
+    "environment_classification": "REHEARSAL / SUBSTITUTE",
+    "classification_notice": "REHEARSAL / SUBSTITUTE EVIDENCE \u2014 NOT TARGET CAPACITY EVIDENCE",
+    "collected_at": "2026-09-26T16:53:38+00:00",
+    "commit": "4d90d5b914c0928574cff7e0f1d1d4a463bb4350 (refs/heads/main)",
+    "os": "Windows / Windows NT DESKTOP-V7TOPE7 10.0 build 26200 (Windows 11) AMD64",
+    "cpu": {
+        "name": "unknown",
+        "cores": "unknown"
+    },
+    "memory": {
+        "total_bytes": null,
+        "php_usage_bytes": 39845888,
+        "php_peak_bytes": 41943040
+    },
+    "php": {
+        "version": "8.4.24",
+        "memory_limit": "128M",
+        "max_execution_time": "0",
+        "upload_max_filesize": "512M",
+        "post_max_size": "520M"
+    },
+    "database": {
+        "default_connection": "sqlite",
+        "driver": "sqlite",
+        "note": "Phase A substitute infrastructure expects sqlite; the target run requires the pg production store (P7-002)."
+    },
+    "redis": {
+        "client": "phpredis",
+        "default_host": "127.0.0.1:6379",
+        "queue_connection": "default",
+        "note": "Phase A rehearsal uses loopback/local Redis or the database queue; supervised target Redis belongs to the target run."
+    },
+    "queue": {
+        "default_connection": "database",
+        "database_queue_table": "jobs",
+        "queue_depth_jobs": 0
+    },
+    "storage": {
+        "media_disk": "local",
+        "driver": "local",
+        "root": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\storage\\app/private",
+        "free_bytes": 7652737024
+    },
+    "models": {
+        "transcription": "unknown (unknown)",
+        "translation": "self-hosted / self-hosted-default",
+        "note": "Phase A rehearsal does not invoke real inference; model identifiers are recorded for target-run comparability only."
+    },
+    "application": {
+        "app_env": "local",
+        "app_debug": true,
+        "media_max_upload_bytes": 524288000,
+        "deployment_min_free_bytes": 1073741824
+    }
+}
