@@ -39,13 +39,17 @@ it('flags a connection whose retry_after is too low', function (): void {
     expect(TranslationQueueConfig::consistencyViolation())->not->toBeNull();
 });
 
-it('exempts connections without a retry_after setting', function (): void {
+it('prohibits connections without retry_after protection (sync) — P7-003 closes the exemption', function (): void {
     config()->set('translation.queue_connection', 'sync');
     config()->set('queue.connections.sync.retry_after', null);
 
-    expect(TranslationQueueConfig::consistencyViolation())->toBeNull()
+    // The historical exemption is closed: sync has no retry_after, so it
+    // voids the invariant and is now a boot-guard violation outside tests.
+    expect(TranslationQueueConfig::consistencyViolation())->not->toBeNull()
         ->and(TranslationQueueConfig::connectionRetryAfterSeconds())->toBeNull();
 
+    // The boot guard itself still skips under the test runner so test-env
+    // sync usage keeps working.
     TranslationQueueConfig::assertConsistent();
 });
 

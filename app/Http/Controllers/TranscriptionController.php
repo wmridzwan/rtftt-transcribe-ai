@@ -9,6 +9,7 @@ use App\Editing\RevisionService;
 use App\Editing\TranscriptRevision;
 use App\Enums\MediaType;
 use App\Models\Transcription;
+use App\Models\User;
 use App\TranscriptExperience\SegmentTimestamp;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -71,6 +72,10 @@ class TranscriptionController extends Controller
         $streamUrl = $mediaAvailable
             ? route('media.stream', ['mediaFile' => $mediaFile->uuid])
             : null;
+        // P7-011: explicit purged-source state for the disclosure notice.
+        // hasPhysicalFile() is already false for tombstoned rows (so no
+        // player renders); this flag drives the visible notice.
+        $mediaPurged = $mediaFile !== null && $mediaFile->purged_at !== null;
         $mediaElement = $mediaFile?->media_type === MediaType::Video ? 'video' : 'audio';
 
         $playbackSegments = array_map(fn (array $segment): array => [
@@ -107,6 +112,13 @@ class TranscriptionController extends Controller
             ->orderBy('target_language')
             ->get();
 
+        // P6-008 revision-history surface: the durable revision graph in
+        // version order (read-only; never mutates history or the pointer),
+        // persisted author names, and persisted staleness-cause markers only.
+        $revisionHistory = $revisions->history($user, $transcription);
+        $historyAuthors = $this->historyAuthors($revisionHistory);
+        $historyStalenessCauses = $this->historyStalenessCauses($transcription);
+
         // P6-007 presentation-only source / active-revision / translation
         // comparison; read-only and never writes staleness state.
         $comparisonView = $comparison->build($transcription, $activeRevision);
@@ -116,6 +128,7 @@ class TranscriptionController extends Controller
             'retryEligible',
             'fullTranscriptText',
             'streamUrl',
+            'mediaPurged',
             'mediaElement',
             'playbackSegments',
             'segmentLanguages',
@@ -127,7 +140,64 @@ class TranscriptionController extends Controller
             'canEdit',
             'comparisonView',
             'staleTranslations',
+            'revisionHistory',
+            'historyAuthors',
+            'historyStalenessCauses',
         ));
+    }
+
+    /**
+     * Persisted author display names for the history surface (P6-008 AC2).
+     * Names are read from the persisted users table, never fabricated; an
+     * author row that no longer resolves renders as the persisted id.
+     *
+     * @param  list<TranscriptRevision>  $revisionHistory
+     * @return array<int, string>
+     */
+    private function historyAuthors(array $revisionHistory): array
+    {
+        $authorIds = array_values(array_unique(array_map(
+            static fn (TranscriptRevision $revision): int => $revision->createdBy,
+            $revisionHistory
+        )));
+
+        if ($authorIds === []) {
+            return [];
+        }
+
+        return User::query()
+            ->whereKey($authorIds)
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    /**
+     * Persisted staleness-cause markers for the history surface (P6-008 AC8).
+     * Maps revision id → sorted target languages whose translation row names
+     * that revision as the persisted staleness cause. Only persisted
+     * `stale_caused_by_revision_id` links are surfaced; no freshness is
+     * inferred.
+     *
+     * @return array<string, list<string>>
+     */
+    private function historyStalenessCauses(Transcription $transcription): array
+    {
+        $causes = [];
+
+        $translations = $transcription->translations()
+            ->whereNotNull('stale_caused_by_revision_id')
+            ->get(['stale_caused_by_revision_id', 'target_language']);
+
+        foreach ($translations as $translation) {
+            $causes[$translation->stale_caused_by_revision_id][] = $translation->target_language->value;
+        }
+
+        return array_map(function (array $languages): array {
+            $languages = array_values(array_unique($languages));
+            sort($languages);
+
+            return $languages;
+        }, $causes);
     }
 
     /**

@@ -2496,3 +2496,812 @@ Reference:
 `tasks/P6-009-phase6-integration-verification.md`;
 `PHASE5-7-DEPENDENCY-GRAPH.md` (closure rule);
 `docs/TECHNICAL_DEBT_REGISTER.md`.
+
+## ADR-026 — Phase 7 Production Topology Owner Decisions (D7-01..D7-08)
+
+Date: 2026-09-26
+
+Status: ACCEPTED — Human Product Owner (`DECISION-PHASE7-OWNER-DECISIONS-001`).
+
+Decision:
+
+The HPO resolves the eight Phase 7 owner-policy questions as follows.
+These are owner-policy resolutions only; they do not by themselves
+authorize Phase 7 implementation.
+
+- D7-01 — Production data store: **OPTION B — self-hosted PostgreSQL.**
+  PostgreSQL is the production persistence target. P7-002 must define and
+  verify the SQLite/development → PostgreSQL production migration path.
+  Existing Phase 6 revision/history/editing/export invariants must survive
+  the driver transition. PostgreSQL-specific backup tooling must be
+  reconciled with D7-07. Dual-driver or otherwise appropriate compatibility
+  verification must be defined by the eventual task contract.
+  Status: `D7-01 = RESOLVED — OPTION B`.
+- D7-02 — Queue / worker supervision model: **OPTION A — Redis queue +
+  OS-level worker supervision (systemd/supervisord), without Laravel
+  Horizon.** Redis is the production queue backbone; worker
+  lifecycle/restart stays with the OS supervisor; Horizon is not part of
+  the initial production architecture. This decision drives disposition of
+  TD-003; TD-004 is resolved per the final Redis deployment/security
+  topology. Status: `D7-02 = RESOLVED — OPTION A`.
+- D7-03 — Production storage strategy: **OPTION A — local private
+  storage** for the initial production deployment. Media and derived
+  artifacts remain on private application storage. Capacity, filesystem
+  durability, backup interaction, permissions, and deployment topology must
+  be explicitly validated. Existing streaming/range-request/revision/export
+  behavior remains canonical. TD-011 remains a Phase 7 verification
+  concern. Object storage is **deferred, not rejected**: it may be reopened
+  when deployment scale, multi-instance requirements, or
+  durability/capacity evidence justifies it; object-storage migration is
+  not authorized by this decision.
+  Status: `D7-03 = RESOLVED — OPTION A`.
+- D7-04 — Malware scanning: **OPTION A — self-hosted ClamAV** for
+  production uploads. Uploaded user media must pass the approved
+  malware-scanning contract before becoming normally usable. Failure,
+  timeout, scanner-unavailable, infected-file, quarantine/rejection, and
+  recovery behavior must be explicitly defined. Signature-update and
+  service-health requirements belong in the production operations contract.
+  User media must not be sent to a third-party cloud scanning provider
+  under this decision. Status: `D7-04 = RESOLVED — OPTION A`.
+- D7-05 — Production browser support matrix: **OPTION A — Chromium-based
+  browsers only** for the initial release. Firefox and Safari/WebKit are
+  best-effort / unsupported unless later promoted by a new HPO decision.
+  P7-010 must align its browser verification contract to this matrix.
+  TD-005 is dispositioned against this narrowed support boundary. Existing
+  non-Chromium evidence must not be misrepresented as a current production
+  support guarantee. Status: `D7-05 = RESOLVED — OPTION A`.
+- D7-06 — Retention / deletion policy: **MODIFIED OPTION A — time-based
+  automatic purge with a 30-day retention period.** Source media and
+  purge-eligible derived artifacts are retained for 30 days after
+  successful processing/completion, then automatically deleted per the
+  approved lifecycle contract. The implementation contract must define:
+  what starts the 30-day clock; which source and derived artifacts are
+  purge eligible; what records remain for audit/history; treatment of
+  failed/incomplete processing; retry behavior; user-triggered deletion
+  interaction; P6 revision/history invariants; export behavior before and
+  after purge; deletion idempotency and partial-failure recovery; and
+  user-facing disclosure of the retention policy. The purge mechanism must
+  not orphan canonical Phase 6 revision/history records. This resolves the
+  owner-policy portion of TD-007; implementation remains subject to its
+  future authorized task. Status:
+  `D7-06 = RESOLVED — MODIFIED OPTION A — 30-DAY RETENTION`.
+- D7-07 — Backup / restore objectives: **OPTION A — daily backups,
+  documented backup and restore procedures, at least one successfully
+  executed restore drill before production-readiness closure, no strict
+  numeric production RPO/RTO SLA for the initial release.** The final
+  backup mechanism must match the D7-01 datastore. A backup job existing
+  without demonstrated restore evidence is insufficient for the production
+  gate. Status: `D7-07 = RESOLVED — OPTION A`.
+- D7-08 — Concurrency / performance target: **OPTION A — single-admin,
+  low-concurrency operation.** Phase 7 is not required to prove
+  multi-tenant or large-team horizontal scale. P7-009 must nevertheless
+  define and execute a concrete measurable capacity envelope appropriate to
+  this operating model (covering the primary production workflow and the
+  tested worker/job/storage/database limits), not an informal "low
+  concurrency" statement. Any later transition to small-team or
+  multi-tenant concurrency requires a fresh capacity/scaling decision.
+  Status: `D7-08 = RESOLVED — OPTION A`.
+
+Deferred alternatives: D7-01 Options A/C; D7-02 Options B/C (Horizon
+excluded from initial architecture; may be reopened on
+observability/scale evidence); D7-03 Options B/C (object storage deferred,
+not rejected); D7-04 Options B/C (third-party cloud scanning excluded —
+user media must not be sent off-site under this decision); D7-05 Options
+B/C (Firefox/Safari promotion requires a new HPO decision); D7-06 Options
+B/C; D7-07 Options B/C; D7-08 Options B/C (scale-up requires a fresh
+decision).
+
+Task dependencies: P7-002 (gated on D7-01); P7-003 (full scope gated on
+D7-02); P7-004 (gated on D7-03; TD-011 verification concern preserved);
+P7-006 (gated on D7-04); P7-010 (gated on D7-05); P7-011 (gated on D7-06
+and P7-004, must not start before P7-004 VERIFIED); P7-007 (mechanism
+reconciled with D7-01); P7-009 (measurable envelope per D7-08); P7-012
+terminal gate consumes all of the above.
+
+TD implications: TD-003 → D7-02 (policy direction set; implementation open
+in P7-003); TD-004 → D7-02 / final Redis security topology (posture
+decision still to be certified in P7-001/P7-003); TD-005 → D7-05 (narrowed
+boundary; elimination work open in P7-010); TD-007 → D7-06 (owner-policy
+portion resolved; implementation open in P7-011). No TD item is marked
+implemented or VERIFIED by this ADR; the register preserves
+implementation/verification state.
+
+Implementation constraints: P6 revision/history invariants intact through
+any migration; revision-aware export behavior canonical; no non-Chromium
+support claims; no third-party upload-data egress for scanning; purge must
+not orphan revision records; backup without restore evidence fails the
+gate; capacity envelope must be measurable.
+
+Reopening conditions: D7-03 (object storage) on scale/multi-instance/
+durability evidence; D7-05 (Firefox/Safari) by new HPO decision;
+D7-08 (higher concurrency) by fresh capacity/scaling decision; TD-009/
+TD-012 remain resolved and need a fresh HPO decision to reopen.
+
+Phase consequence:
+
+D7-01..D7-08 are RESOLVED. This ADR grants no implementation
+authorization. Phase 7 remains NOT ELIGIBLE / NOT AUTHORIZED until the
+remaining entry-gate requirements are satisfied (TD reconciliation, scope
+contract adoption, Wave 1 contracts READY-promoted, no entry-blocking
+BLOCKER/HIGH, separate explicit HPO execution authorization).
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-PHASE7-OWNER-DECISIONS-001`);
+`reviews/PHASE7-ENTRY-REVIEW.md` (§C/§K option tables);
+`PHASE5-7-DECISION-REGISTER.md` (D7-01..D7-08);
+`docs/TECHNICAL_DEBT_REGISTER.md` (TD-003/004/005/007/011);
+`docs/PRODUCTION_READINESS_GATE.md`; `PHASE7-PLANNING.md`;
+`PHASE6-7-ELIGIBILITY-MATRIX.md`.
+
+## Phase 7 Scope Contract Adoption
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-SCOPE-ADOPTION-001`).
+
+Decision:
+
+The HPO adopts the reconciled Phase 7 scope contract as
+`PHASE7-SCOPE-CONTRACT.md` (Status: ADOPTED — NOT AUTHORIZED FOR
+IMPLEMENTATION). The contract takes the Entry Review §G proposal as its
+baseline and applies the binding D7-01..D7-08 resolutions
+(`DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) without expanding scope:
+PostgreSQL production target, Redis + OS-supervisor queue model without
+Horizon, local private storage (object storage deferred, not rejected),
+self-hosted ClamAV, Chromium-only matrix, 30-day retention auto-purge,
+daily backups with an executed restore drill, single-admin capacity with a
+measurable P7-009 envelope.
+
+Phase consequence:
+
+Scope authority moves from `PHASE7-PLANNING.md` (planning draft, preserved
+as history) to `PHASE7-SCOPE-CONTRACT.md`. Entry-gate criterion 5 is
+satisfied. Criteria 7 (Wave 1 contracts + READY promotion) and 9 (explicit
+execution authorization) remain outstanding and require separate HPO acts.
+No task is created, promoted, or authorized; Phase 7 remains NOT ELIGIBLE
+/ NOT AUTHORIZED FOR EXECUTION.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-PHASE7-SCOPE-ADOPTION-001`);
+`PHASE7-SCOPE-CONTRACT.md`; ADR-026;
+`reviews/PHASE7-ENTRY-REVIEW.md` (§G/§H);
+`reviews/PHASE7-ELIGIBILITY-REVIEW.md`.
+
+## Phase 7 Wave 1 READY Promotion — P7-003, P7-008, P7-010
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-WAVE1-READY-PROMOTION-001`).
+
+Decision:
+
+The HPO promotes the three authored Wave 1 task contracts to READY:
+`P7-003: BACKLOG → READY`; `P7-008: BACKLOG → READY`;
+`P7-010: BACKLOG → READY`. Historical BACKLOG states are preserved in
+each task file's Status history.
+
+Wave 1 remains `P7-003 + P7-008 + P7-010` with parallel start permitted at
+planning level; P7-008 acceptance evidence involving worker
+supervision/restart consumes the final authoritative P7-003 supervision
+specification (finish-order preference, not a start gate).
+
+Phase consequence:
+
+Entry-gate criterion 7 (Wave 1 contracts authored + READY-promoted) is
+satisfied. Criterion 9 (explicit execution authorization) remains
+outstanding. No task moves to IN_PROGRESS; Phase 7 remains NOT AUTHORIZED
+FOR EXECUTION. `READY != EXECUTION AUTHORIZATION.`
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-PHASE7-WAVE1-READY-PROMOTION-001`);
+`tasks/P7-003-queue-worker-supervision-recovery.md`;
+`tasks/P7-008-deployment-migration-safety-rollback.md`;
+`tasks/P7-010-browser-support-matrix-flake-elimination.md`;
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§W/§X).
+
+## Phase 7 Wave 1 Execution Authorization — P7-003, P7-008, P7-010
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-WAVE1-EXECUTION-AUTHORIZATION-001`).
+
+Decision:
+
+The HPO authorizes execution of Phase 7 Wave 1 (P7-003 + P7-008 +
+P7-010), scoped strictly to their adopted contracts, on the basis of the
+independent readiness confirmation
+(`reviews/PHASE7-WAVE1-READINESS-CONFIRMATION.md`:
+`WAVE 1 READY FOR HPO EXECUTION AUTHORIZATION`; no BLOCKER/HIGH/MEDIUM/
+LOW blocking finding; no unauthorized implementation begun).
+
+Parallel implementation is authorized with the recorded constraints
+(P7-008 supervised-worker acceptance reconciles against the final P7-003
+spec). Prohibited: all non-Wave-1 P7 tasks, D7 reopening, scope changes
+without a new HPO decision, object storage, Horizon, browser-matrix
+expansion. Debt boundary as authorized (TD-003 → P7-003; TD-005/006/013
+→ P7-010 as assigned; P7-008 TD-002 share as scoped; TD-004 stays
+conditional; nothing marked closed by authorization).
+
+Phase consequence:
+
+Entry-gate criterion 9 is satisfied for Wave 1 scope. Final authorized
+state: `PHASE 7 WAVE 1 — AUTHORIZED FOR EXECUTION` (P7-003, P7-008,
+P7-010 only). No later Phase 7 wave is authorized. Tasks transition to
+IN_PROGRESS only when actual work begins, per the State-to-Action
+Contract; independent review required before any later wave.
+
+Reference:
+
+`DECISION_QUEUE.md`
+(`DECISION-PHASE7-WAVE1-EXECUTION-AUTHORIZATION-001`);
+`reviews/PHASE7-WAVE1-READINESS-CONFIRMATION.md`;
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§X/§Y).
+
+## P7-008 AC2 Environmental Gap — HPO Disposition (Option A)
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-008-AC2-DISPOSITION-001`).
+
+Decision:
+
+The HPO accepts the missing P7-008 AC2 real-host reboot-cycle/systemd
+evidence as a NON-BLOCKING ENVIRONMENTAL CLOSURE EXCEPTION (Option A).
+The independent reviewer (`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md`
+§C) reproduced all other load-bearing evidence and demonstrated no code
+defect; the gap is environmental (no Linux/systemd host available),
+and repository precedent permits accept-with-limitation closure
+(`DECISION-P3-ESCALATION-001`).
+
+AC2 is NOT rewritten as PASS. Carry-forward obligation (non-blocking):
+real-host reboot-cycle verification (P7-008 AC2) and real-host
+SIGTERM-drain re-confirmation (P7-003 AC8, reviewer INFO-1) must be
+performed during P7-001 environment certification on the Linux
+production/staging target, before P7-012. No P7-008 rework is implied
+unless that verification reveals a defect.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P7-008-AC2-DISPOSITION-001`);
+`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md` (§C);
+`reviews/P7-008-BUILDER-REPORT.md`.
+
+## P7-003 Closure — Queue / Worker Supervision + Recovery
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner (`DECISION-P7-003-CLOSURE-001`).
+
+Decision:
+
+The HPO reviewed the independent review
+(`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md` §B: VERIFIED, no
+BLOCKER/HIGH; LOW-1 housekeeping + INFO-1 environmental note, neither
+blocking) and concurs: AC1–AC10 satisfied (AC8 by specified mechanism +
+budget on this host class; real-host re-confirmation carried forward per
+the AC2 disposition record). Canonical transition VERIFIED → DONE;
+history preserved, not rewritten. LOW-1 stray file (P7-003 demo marker
+residue at repo root, provenance established from demo PID/timestamp)
+deleted during this closure and recorded here — no unrelated residue
+touched. TD-003 remediation stands implemented + VERIFIED; register
+status follows the debt lifecycle (evidence noted, production-gate proof
+still owed at P7-012 — not closed by this decision).
+
+Phase consequence: P7-003 = DONE. Authorizes no further work.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P7-003-CLOSURE-001`); task file;
+`reviews/P7-003-BUILDER-REPORT.md`; `docs/QUEUE-WORKER-SUPERVISION.md`.
+
+## P7-010 Closure — Browser Support Matrix + Flake Elimination
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner (`DECISION-P7-010-CLOSURE-001`).
+
+Decision:
+
+The HPO reviewed the independent review
+(`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md` §D: VERIFIED, no
+BLOCKER/HIGH) and concurs: AC1–AC9 satisfied on real Chromium with
+retries 0 and no silent skips; TD-005 eliminated inside the supported
+matrix with gate sensitivity strengthened; TD-006 evidenced; TD-013
+fixed with console-clean regression; Chromium-only boundary intact with
+Firefox/WebKit history preserved and no fixed-by-exclusion claims.
+Canonical transition VERIFIED → DONE; history preserved. TD-005/006/013
+implementation evidence stands VERIFIED; register statuses follow the
+debt lifecycle (evidence noted — not closed by this decision).
+
+Phase consequence: P7-010 = DONE. Authorizes no further work.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P7-010-CLOSURE-001`); task file;
+`reviews/P7-010-BUILDER-REPORT.md`; `docs/BROWSER-SUPPORT-MATRIX.md`.
+
+## P7-008 Closure — Deployment, Migration Safety, Rollback
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner (`DECISION-P7-008-CLOSURE-001`,
+under environmental exception `DECISION-P7-008-AC2-DISPOSITION-001`).
+
+Decision:
+
+The HPO reviewed the independent review
+(`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md` §C: VERIFIED, 8/9 ACs
+independently satisfied, AC2 environmentally blocked without defect) and
+the Option A disposition above, and closes P7-008 DONE. Canonical
+transition VERIFIED → DONE; history preserved. AC2 remains explicitly
+NOT PASS; its real-host verification carries forward to P7-001
+certification (pre-P7-012). LOW-2 (pg_dump hook as forward reference)
+preserved as documented scope.
+
+Phase consequence: P7-008 = DONE. Wave 1 terminal state: P7-003 DONE,
+P7-008 DONE (under AC2 exception), P7-010 DONE.
+`PHASE 7 WAVE 1 = CLOSED.` Wave 2 remains unauthorized; Wave 2 contracts
+remain preparation artifacts.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P7-008-CLOSURE-001`,
+`DECISION-P7-008-AC2-DISPOSITION-001`); task file;
+`reviews/P7-008-BUILDER-REPORT.md`; `docs/DEPLOYMENT-RUNBOOK.md`.
+
+## Phase 7 Wave 2 READY Promotion — P7-001, P7-006, P7-007
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-WAVE2-READY-PROMOTION-001`).
+
+Decision:
+
+The HPO promotes the three reconciled Wave 2 task contracts to READY:
+`P7-001: BACKLOG → READY`; `P7-006: BACKLOG → READY`;
+`P7-007: BACKLOG → READY`. Historical BACKLOG/CONTRACT_AUTHORED states
+are preserved in each task file's Status history.
+
+Reconciliation basis: P7-001 amended for the final Wave 1 DONE
+interfaces (extension through `ProductionConfigGuard::violations()`,
+`deployment:verify` sub-check composition, supervision-spec §8
+"TD-004 definition; P7-001 certifies" split) and for the binding AC2
+carry-forward (P7-008 AC2 reboot-cycle + P7-003 AC8 SIGTERM-drain
+re-confirmation during P7-001 certification on the Linux target,
+pre-P7-012; §§6.7/9.8/AC8). P7-006 reconfirmed with no semantic
+reconciliation required. P7-007 hook wording verified verbatim against
+the final runbook; foundation-only boundary, Wave 3 drill deferral,
+and P7-002 dependency preserved; G-08 not claimed; AC2 not treated as
+PASS.
+
+Phase consequence:
+
+Wave 2 tasks are READY. Entry state:
+`PHASE 7 WAVE 2 TASKS READY — EXECUTION NOT AUTHORIZED`. No task moves
+to IN_PROGRESS under this decision; Wave 2 execution requires a
+separate explicit HPO execution authorization after a readiness
+confirmation. P7-008 AC2 remains NOT PASS with the carry-forward
+obligation unchanged. No debt item is closed, remediated, or VERIFIED
+by this promotion. No later wave is authorized.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-PHASE7-WAVE2-READY-PROMOTION-001`);
+`tasks/P7-001-production-configuration-env-validation.md`;
+`tasks/P7-006-security-hardening-baseline.md`;
+`tasks/P7-007-backup-restore-foundation.md`;
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§AA).
+
+## Phase 7 Wave 2 Execution Authorization — P7-001, P7-006, P7-007
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-WAVE2-EXECUTION-AUTHORIZATION-001`).
+
+Decision:
+
+The HPO authorizes execution of Phase 7 Wave 2 (P7-001 + P7-006 +
+P7-007), scoped strictly to their adopted contracts, on the basis of
+the independent readiness confirmation
+(`WAVE 2 READY FOR HPO EXECUTION AUTHORIZATION`; no BLOCKER/HIGH
+finding; no unauthorized implementation begun).
+
+Execution shape `PARALLEL-SAFE WITH FILE-OWNERSHIP SEQUENCING`
+(P7-001 owns guard-extension/runbook deltas; P7-007 hook content only,
+preferably after). Boundaries: single config verdict, AC2 never PASS
+(new evidence preserves history; failures route via governance);
+D7-04 ClamAV binding, Chromium-only, no third-party egress; P7-007
+foundation only (no drill, no G-08 claim, no P7-002 work). Debt
+boundary as authorized (TD-004 → P7-001; TD-002 contracted portions;
+nothing marked closed by authorization). Prohibited: all non-Wave-2 P7
+tasks, Wave 3, D7 reopening, object storage, Horizon, matrix
+expansion.
+
+Phase consequence:
+
+Final authorized state: `PHASE 7 WAVE 2 — AUTHORIZED FOR EXECUTION`
+(P7-001, P7-006, P7-007 only). Tasks transition to IN_PROGRESS only
+when actual work begins, per the State-to-Action Contract;
+independent review required before any later wave. No later Phase 7
+wave is authorized.
+
+Reference:
+
+`DECISION_QUEUE.md`
+(`DECISION-PHASE7-WAVE2-EXECUTION-AUTHORIZATION-001`);
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§AB).
+
+## P7-001 AC8 Environmental Disposition (Option A)
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-001-AC8-DISPOSITION-001`).
+
+Decision:
+
+HPO accepts the missing P7-001 AC8 real-host evidence as a
+non-blocking environmental closure exception (Option A): AC8 =
+`ENVIRONMENT-BLOCKED — ACCEPTED AS NON-BLOCKING FOR P7-001 CLOSURE`.
+AC8 is NOT rewritten as PASS. P7-008 AC2 stays NOT PASS. Both
+real-host checks (P7-008 AC2 reboot-cycle; P7-003 AC8 SIGTERM-drain
+re-confirmation) remain pre-P7-012 obligations via the P7-001
+evidence mechanism; a later failure opens fresh remediation against
+the originating task/surface. Basis: AC1–AC7 independently VERIFIED,
+no defect, no suitable Linux host; precedent
+(`DECISION-P3-ESCALATION-001`, `DECISION-P7-008-AC2-DISPOSITION-001`);
+the contract's non-automatic-precedent language satisfied by this
+affirmative act.
+
+Reference: `DECISION_QUEUE.md` (`DECISION-P7-001-AC8-DISPOSITION-001`).
+
+## P7-001 Closure — Production Configuration + Env Validation
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner (`DECISION-P7-001-CLOSURE-001`).
+
+Decision: HPO closes P7-001 VERIFIED → DONE under
+`DECISION-P7-001-AC8-DISPOSITION-001`. AC8 NOT PASS, carried forward.
+Authorizes no further work and no Wave 3 execution.
+
+Phase consequence: P7-001 = DONE.
+
+Reference: `DECISION_QUEUE.md` (`DECISION-P7-001-CLOSURE-001`); task
+file; `reviews/P7-001-BUILDER-REPORT.md` (corrected for F1).
+
+## P7-006 Closure — Security Hardening Baseline
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner (`DECISION-P7-006-CLOSURE-001`).
+
+Decision: HPO closes P7-006 VERIFIED → DONE. F4: CSP `unsafe-eval`
+narrative justification accepted as sufficient; preserved as a
+non-blocking evidence gap (missing artifact not represented as
+existing); implementation not reopened. F5 reconciled with evidence
+(`guardRefusal` call sites at `ProductionConfigGuard.php:95`,
+`ProductionPostureChecks.php:74`); the independent review is
+preserved unchanged. AC4 real-daemon proof stays target-only.
+Authorizes no further work and no Wave 3 execution.
+
+Phase consequence: P7-006 = DONE.
+
+Reference: `DECISION_QUEUE.md` (`DECISION-P7-006-CLOSURE-001`); task
+file; `reviews/P7-006-BUILDER-REPORT.md`.
+
+## P7-007 Closure — Backup / Restore Foundation
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner (`DECISION-P7-007-CLOSURE-001`).
+
+Decision: HPO closes P7-007 VERIFIED → DONE. F6 reconciled by
+correcting the builder report in place (false test claim removed;
+path real but untested); follow-up (add the unwritable-target test
+in a later wave) recorded, non-blocking, no code in this closure.
+Drill deferred to Wave 3; G-08 not claimed. Authorizes no further
+work and no Wave 3 execution.
+
+Phase consequence: P7-007 = DONE.
+
+Reference: `DECISION_QUEUE.md` (`DECISION-P7-007-CLOSURE-001`); task
+file; `reviews/P7-007-BUILDER-REPORT.md` (corrected for F6).
+
+## TD-008 Reprioritization — Full-Suite Flakiness Frequency
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-TD-008-REPRIORITIZATION-001`).
+
+Decision: `TD-008 — REPRIORITIZATION REQUIRED`. Status stays OPEN
+(unresolved, unattributed to Wave 2); severity LOW → MEDIUM; moved to
+the must-resolve-before-production-launch set with an explicit
+prerequisite: a dedicated suite-hygiene remediation task must land
+before the P7-012 terminal gate. No remediation implemented here;
+scoping belongs to Wave 3/4 planning. Wave 2 closure not blocked
+("no regression attributable to the task diff" holds).
+
+Reference: `DECISION_QUEUE.md`
+(`DECISION-TD-008-REPRIORITIZATION-001`);
+`docs/TECHNICAL_DEBT_REGISTER.md` (TD-008 entry updated).
+
+## Phase 7 Wave 2 Closure
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-WAVE2-CLOSURE-001`).
+
+Decision: HPO closes Phase 7 Wave 2. P7-001 DONE (under AC8
+exception), P7-006 DONE, P7-007 DONE; all independently VERIFIED; no
+BLOCKER/HIGH; evidence gaps preserved honestly; TD-008
+reprioritization recorded; no Wave 3 work started or authorized.
+
+Phase consequence:
+
+Wave 2 terminal state: P7-001 DONE, P7-006 DONE, P7-007 DONE.
+`PHASE 7 WAVE 2 = CLOSED` (carry-forwards: P7-001 AC8 + P7-008 AC2
+real-host evidence pre-P7-012; F4 gap preserved; unwritable-target
+test follow-up open; TD-008 reprioritized). Wave 2 closure authorizes
+no Wave 3 promotion, IN_PROGRESS, or execution.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-PHASE7-WAVE2-CLOSURE-001`);
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§AC).
+
+## Phase 7 Wave 3A READY Promotion — P7-002, P7-004
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-WAVE3A-READY-PROMOTION-001`).
+
+Decision: HPO promotes the reconciled Wave 3A contracts to READY.
+P7-002 BACKLOG → READY (reconciled against final P7-001 + P7-007 DONE
+interfaces; D7-01/B binding; drill downstream); P7-004 BACKLOG → READY
+(reconciled against final P7-001 + P7-006 + P7-007 DONE interfaces;
+D7-03/A binding; TD-011 intact). No stale preparation-stage assumption
+survives in either contract; histories preserved in each task file.
+
+Phase consequence:
+
+Wave 3A tasks READY; execution NOT AUTHORIZED. P7-009/P7-011 remain
+BACKLOG under their Wave 3 internal gates (P7-004 VERIFIED;
+P7-002 DONE + P7-004 DONE); P7-007 drill deferred (P7-002 DONE +
+separate authorization); P7-012 FINAL_GATE_ONLY. TD-008 OPEN/MEDIUM
+pre-P7-012 prerequisite preserved, non-blocking for Wave 3A. No debt
+item closed by this promotion.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-PHASE7-WAVE3A-READY-PROMOTION-001`);
+task files (`tasks/P7-002-*`, `tasks/P7-004-*` Status histories);
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§AD).
+
+## Phase 7 Wave 3A Execution Authorization — P7-002, P7-004
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-WAVE3A-EXECUTION-AUTHORIZATION-001`).
+
+Decision: HPO authorizes Wave 3A execution for P7-002 + P7-004,
+scoped strictly to their adopted contracts, shape PARALLEL-SAFE WITH
+FILE-OWNERSHIP SEQUENCING (P7-002 owns DB env/inventory deltas;
+P7-004 owns storage deltas; additive verify checks; P7-008 canonical
+runbook; P7-007 hooks consumed, not redefined). P7-002 absorbs no
+drill and claims no restore readiness; P7-004 introduces no object
+storage. TD-008 OPEN/MEDIUM/pre-P7-012 preserved.
+
+Phase consequence:
+
+`PHASE 7 WAVE 3A — AUTHORIZED FOR EXECUTION.` P7-002/P7-004 stay
+READY until actual work begins (then READY → IN_PROGRESS); REVIEW →
+VERIFIED → DONE only via independent review + HPO closure. P7-009 /
+P7-011 BACKLOG under internal gates; P7-007 drill deferred (P7-002
+DONE + separate authorization); P7-012 FINAL_GATE_ONLY.
+
+Reference:
+
+`DECISION_QUEUE.md`
+(`DECISION-PHASE7-WAVE3A-EXECUTION-AUTHORIZATION-001`);
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§AE).
+
+## P7-002 PG Environmental Disposition (Option A)
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-002-PG-ENV-DISPOSITION-001`).
+
+Decision: HPO accepts the unavailable live-PostgreSQL execution
+evidence (AC1/AC2/AC5/AC6 pg-halves) as
+`ENVIRONMENT-BLOCKED — ACCEPTED AS NON-BLOCKING FOR P7-002 CLOSURE`,
+following the Wave 1/2 environmental-limitation precedent. The
+blocked halves are NOT rewritten as PASS; real pg rehearsal/proof is
+carried forward pre-P7-012 (consumed by the P7-007 drill and P7-009's
+final run); later target failure opens fresh remediation. G-02/G-08
+unclaimed.
+
+Reference: `DECISION_QUEUE.md`
+(`DECISION-P7-002-PG-ENV-DISPOSITION-001`).
+
+## P7-002 Closure
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-002-CLOSURE-001`, under
+`DECISION-P7-002-PG-ENV-DISPOSITION-001`).
+
+Decision: HPO closes independently VERIFIED P7-002 as DONE.
+Canonical transition VERIFIED → DONE; history preserved. Authorizes
+no drill, no Wave 3B.
+
+Reference: `DECISION_QUEUE.md` (`DECISION-P7-002-CLOSURE-001`); task
+file (`tasks/P7-002-*` Status history).
+
+## P7-004 Closure
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-004-CLOSURE-001`).
+
+Decision: HPO closes independently VERIFIED P7-004 as DONE (no
+environment-blocked AC). D7-03 binding preserved; object storage
+deferred-not-rejected; TD-011 evidence retained for G-05; zero-byte
+remediation history preserved. Authorizes no Wave 3B.
+
+Reference: `DECISION_QUEUE.md` (`DECISION-P7-004-CLOSURE-001`); task
+file (`tasks/P7-004-*` Status history).
+
+## Phase 7 Wave 3A Closure
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-PHASE7-WAVE3A-CLOSURE-001`).
+
+Decision: HPO closes Phase 7 Wave 3A. P7-002 DONE (under pg
+exception), P7-004 DONE; both independently VERIFIED; no
+BLOCKER/HIGH; gaps preserved honestly; no Wave 3B started or
+authorized.
+
+Phase consequence:
+
+Wave 3A terminal state: P7-002 DONE, P7-004 DONE.
+`PHASE 7 WAVE 3A = CLOSED` (carry-forwards: live-pg evidence
+pre-P7-012; P7-007 drill deferred with P7-002 DONE dependency now
+satisfied but still requiring separate authorization; TD-008
+OPEN/MEDIUM; prior Wave 1/2 real-host obligations). Wave 3A closure
+authorizes no P7-009/P7-011 promotion, no drill, no P7-012.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-PHASE7-WAVE3A-CLOSURE-001`);
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§AF).
+
+## P7-011 READY Promotion
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-011-READY-PROMOTION-001`).
+
+Decision: HPO promotes the reconciled P7-011 contract (clock table
+§6.10, physical/history boundary §8.4, failure semantics §10) to
+READY. P7-004-VERIFIED gate satisfied; D7-06 resolved; TD-007 stays
+OPEN (implementation owned here, closes at G-09).
+
+Phase consequence: `P7-011 READY — EXECUTION NOT AUTHORIZED.`
+Implementation needs readiness confirmation + separate HPO execution
+authorization. P7-009 BACKLOG; drill deferred; P7-012 FINAL_GATE_ONLY.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P7-011-READY-PROMOTION-001`);
+task file (`tasks/P7-011-*` Status history).
+
+## P7-011 Execution Authorization
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-011-EXECUTION-AUTHORIZATION-001`).
+
+Decision: HPO authorizes P7-011 execution under the reconciled
+contract (readiness `READY_CONFIRMED`). Strictly P7-011 scope;
+TD-007 stays OPEN during execution; P7-009/drill/P7-012/ unrelated
+TD work prohibited. Clerical BACKLOG staleness in CURRENT_STATE.md
+and plan.md reconciled under this authorization.
+
+Phase consequence: `P7-011 READY → IN_PROGRESS` on work start, then
+`→ REVIEW → VERIFIED → DONE` only via independent review + HPO
+closure.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P7-011-EXECUTION-AUTHORIZATION-001`).
+
+## P7-011 Closure
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-011-CLOSURE-001`).
+
+Decision: HPO closes independently VERIFIED P7-011 as DONE (both
+cycle-1 MEDIUMs resolved; no BLOCKER/HIGH/MEDIUM; new LOW carried as
+TD-014). Full history preserved. TD-007 stays OPEN (evidence
+available; closure at authorized G-09 consumption). Authorizes no
+P7-009/drill/P7-012/TD-014/later work.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P7-011-CLOSURE-001`);
+task file (`tasks/P7-011-*` Status history);
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§AH).
+
+## P7-009 READY Promotion
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-009-READY-PROMOTION-001`).
+
+Decision: HPO promotes the reconciled P7-009 contract to READY
+(prerequisites P7-002/P7-004 DONE satisfied; no hidden dependency;
+target-environment rule explicit; measure-and-report needs no new
+thresholds). TD-001/TD-002 stay OPEN.
+
+Phase consequence: `P7-009 READY — EXECUTION NOT AUTHORIZED.`
+Execution needs readiness confirmation + separate HPO execution
+authorization. Drill deferred; P7-012 FINAL_GATE_ONLY.
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-P7-009-READY-PROMOTION-001`);
+task file (`tasks/P7-009-*` Status history);
+`PHASE6-7-ELIGIBILITY-MATRIX.md` (§AI).
+
+## P7-009 Phase A Execution Authorization
+
+Date: 2026-09-26
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-009-PHASE-A-EXECUTION-AUTHORIZATION-001`).
+
+Decision: HPO authorizes P7-009 Phase A only (harness preparation +
+rehearsal on currently available infrastructure) under the reconciled
+P7-009 contract (readiness `READY_CONFIRMED — phased authorization
+only`; no BLOCKER/HIGH; production-shaped target NOT available).
+Current environment classified rehearsal/substitute only; all Phase A
+artifacts labeled `REHEARSAL / SUBSTITUTE EVIDENCE — NOT TARGET
+CAPACITY EVIDENCE`. Phase B (final production-shaped capacity run)
+explicitly withheld pending target host + readiness confirmation +
+explicit HPO Phase B authorization.
+
+Phase consequence: `P7-009 READY → IN_PROGRESS` on work start.
+P7-009 remains IN_PROGRESS after Phase A. No VERIFIED/DONE claim, no
+final capacity evidence, no production capacity claim, no
+product/release verdict; no P7-007 drill; TD-007/TD-008 untouched;
+TD-014 not implemented; P7-012 not begun.
+
+Reference:
+
+`DECISION_QUEUE.md`
+(`DECISION-P7-009-PHASE-A-EXECUTION-AUTHORIZATION-001`);
+task file (`tasks/P7-009-*` Status history).

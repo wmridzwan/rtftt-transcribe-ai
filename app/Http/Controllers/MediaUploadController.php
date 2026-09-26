@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\MediaIngestionService;
 use App\Models\Folder;
 use App\Models\MediaFile;
+use App\Security\UploadAbuseGuard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class MediaUploadController extends Controller
@@ -78,6 +80,11 @@ class MediaUploadController extends Controller
             ]);
         }
 
+        // P7-006: abuse caps before any ingestion work, so rejection leaves
+        // no partial state. Scanner-unavailable fail-closed responses keep
+        // their status codes via the HttpException rethrow below.
+        UploadAbuseGuard::check($request->user(), (int) $file->getSize());
+
         try {
             $mediaFile = $ingestion->ingest(
                 $request->user(),
@@ -86,6 +93,8 @@ class MediaUploadController extends Controller
                 isset($validated['folder_id']) ? (int) $validated['folder_id'] : null,
             );
         } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
             throw $exception;
         } catch (Throwable $exception) {
             report($exception);

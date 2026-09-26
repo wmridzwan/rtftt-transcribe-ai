@@ -51,6 +51,14 @@ class MediaActionController extends Controller
     public function download(MediaFile $mediaFile): StreamedResponse
     {
         $this->authorize('view', $mediaFile);
+
+        // P7-011: purged sources report their retention state (410 Gone),
+        // never a bare 404. History/exports remain available from
+        // retained rows; only the bytes are gone.
+        if ($mediaFile->purged_at !== null) {
+            abort(Response::HTTP_GONE, 'Source media was purged under the 30-day retention policy. Transcript history and text exports remain available.');
+        }
+
         $storage = MediaFile::storage();
 
         if (! $mediaFile->storage_path || ! $storage->exists($mediaFile->storage_path)) {
@@ -71,6 +79,11 @@ class MediaActionController extends Controller
     {
         $this->authorize('view', $mediaFile);
 
+        // P7-011: see download() — purged sources are 410 Gone.
+        if ($mediaFile->purged_at !== null) {
+            abort(Response::HTTP_GONE, 'Source media was purged under the 30-day retention policy. Transcript history and text exports remain available.');
+        }
+
         $storage = MediaFile::storage();
 
         if (! $mediaFile->storage_path || ! $storage->exists($mediaFile->storage_path)) {
@@ -78,6 +91,29 @@ class MediaActionController extends Controller
         }
 
         $size = (int) $storage->size($mediaFile->storage_path);
+
+        // P7-004 / TD-011 zero-byte disposition (explicit): an empty object
+        // has no satisfiable range. Without a Range header it is served as
+        // an empty 200 (Content-Length 0, never 1); any Range header on an
+        // empty object is 416 with the RFC-mandated `bytes */0` marker.
+        // Empty uploads are accepted by ingestion (size 0 passes the byte
+        // ceiling and carries a detected MIME type), so this edge is
+        // reachable and must not lie about its length.
+        if ($size === 0) {
+            if ($request->header('Range') !== null && trim((string) $request->header('Range')) !== '') {
+                return response('', Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, [
+                    'Content-Range' => 'bytes */0',
+                    'Accept-Ranges' => 'bytes',
+                ]);
+            }
+
+            return response('', Response::HTTP_OK, [
+                'Content-Type' => $mediaFile->mime_type,
+                'Accept-Ranges' => 'bytes',
+                'Content-Length' => '0',
+            ]);
+        }
+
         $range = $this->resolveRange($request->header('Range'), $size);
 
         if ($range['status'] === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {

@@ -187,6 +187,62 @@ final class RevisionService
     }
 
     /**
+     * Explicit historical revision activation (P6-008): compare-and-set the
+     * active pointer onto any eligible persisted revision of the same
+     * transcription.
+     *
+     * Eligibility is the existing domain rule enforced by
+     * {@see RevisionRepository::activate()}: the target must be a persisted
+     * revision of this transcription. No ancestry restriction is added here
+     * (HPO-008-A: arbitrary eligible historical selection — ancestors,
+     * descendants, and sibling-branch revisions are all activatable). The
+     * machine source (`null`) is not a revision and cannot be a target.
+     *
+     * The expected active token defaults to the current persisted pointer. A
+     * stale expected token is rejected as a {@see RevisionConflictException}
+     * before any write, and the pointer move itself is re-checked under the
+     * repository's compare-and-set. Unknown or cross-transcription targets are
+     * rejected with {@see InvalidArgumentException}; nothing is written.
+     *
+     * Activating the already-active revision is a no-op success: the pointer
+     * is unchanged and no revision row is created, appended, or rewritten.
+     *
+     * @return bool true when the pointer moved, false when the target was already active.
+     */
+    public function activateHistorical(
+        User $user,
+        Transcription $transcription,
+        string $targetRevisionId,
+        ?string $expectedActiveRevisionId = null,
+    ): bool {
+        Gate::forUser($user)->authorize('update', $transcription);
+
+        $transcriptionId = $transcription->getKey();
+
+        $target = $this->repository->find($targetRevisionId);
+
+        if ($target === null || $target->transcriptionId !== $transcriptionId) {
+            throw new InvalidArgumentException('Unknown revision id ['.$targetRevisionId.'] for transcription ['.$transcriptionId.'].');
+        }
+
+        $current = $this->repository->activeFor($transcriptionId);
+        $currentRevisionId = $current?->revisionId;
+        $expected = $expectedActiveRevisionId ?? $currentRevisionId;
+
+        if ($currentRevisionId !== $expected) {
+            throw RevisionConflictException::staleBase($expected, $currentRevisionId);
+        }
+
+        if ($targetRevisionId === $currentRevisionId) {
+            return false;
+        }
+
+        $this->repository->activate($transcriptionId, $targetRevisionId, $currentRevisionId);
+
+        return true;
+    }
+
+    /**
      * Undo: compare-and-set the active pointer onto a strict ancestor of the
      * current active revision.
      *

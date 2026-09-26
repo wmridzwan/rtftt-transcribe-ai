@@ -7,6 +7,8 @@ use App\Enums\MediaType;
 use App\Models\MediaFile;
 use App\Models\StagingClaim;
 use App\Models\User;
+use App\Security\ClamavScanner;
+use App\Security\SecurityAuditLog;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
@@ -15,6 +17,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Throwable;
 
 class MediaIngestionService
@@ -106,6 +110,7 @@ class MediaIngestionService
             }
 
             $checksum = $this->checksum($storage, $stagingPath);
+            $scan = $this->gateMalwareScan($storage, $stagingPath, $metadata, $checksum);
             $mediaUuid = (string) Str::uuid();
             $storageFilename = Str::random(40).'.'.$metadata['extension'];
             $durablePath = sprintf(
@@ -118,7 +123,7 @@ class MediaIngestionService
             $this->copy($storage, $stagingPath, $durablePath);
 
             try {
-                $mediaFile = $this->database->transaction(function () use ($owner, $folderId, $attemptId, $metadata, $checksum, $mediaUuid, $storageFilename, $durablePath): MediaFile {
+                $mediaFile = $this->database->transaction(function () use ($owner, $folderId, $attemptId, $metadata, $checksum, $scan, $mediaUuid, $storageFilename, $durablePath): MediaFile {
                     $mediaFile = new MediaFile([
                         'user_id' => $owner->id,
                         'folder_id' => $folderId,
@@ -131,6 +136,10 @@ class MediaIngestionService
                         'mime_type' => $metadata['mime_type'],
                         'extension' => $metadata['extension'],
                         'file_size_bytes' => $metadata['size'],
+                        'scan_verdict' => $scan['verdict'],
+                        'scan_engine' => $scan['engine'],
+                        'scan_signature_date' => $scan['signature_date'],
+                        'scanned_at' => $scan['scanned_at'],
                         'duration_seconds' => null,
                         'audio_codec' => null,
                         'video_codec' => null,
@@ -179,6 +188,74 @@ class MediaIngestionService
             ->where('user_id', $owner->id)
             ->where('upload_attempt_id', $attemptId)
             ->first();
+    }
+
+    /**
+     * Malware-scan gate (P7-006, D7-04): scan the staged file before durable
+     * promotion. Clean verdicts flow into the MediaFile row; anything else
+     * fails closed. Infected artifacts are moved to quarantine (which
+     * survives the compensation path, since the staging path no longer
+     * exists for cleanup) and recorded; unavailable/timeout/error paths
+     * reject with a retryable message per the unavailable mode.
+     *
+     * @param  array{extension: string, size: int}  $metadata
+     * @return array{verdict: string, engine: string|null, signature_date: string|null, scanned_at: string|null}
+     *
+     * @throws ValidationException on infected verdict
+     * @throws HttpException on unavailable/timeout/error
+     */
+    private function gateMalwareScan(FilesystemAdapter $storage, string $stagingPath, array $metadata, string $checksum): array
+    {
+        $scanner = app(ClamavScanner::class);
+
+        if (! $scanner->isEnabled() && ! app()->isProduction()) {
+            Log::debug('Malware scan skipped: scanner disabled in a non-production environment.');
+            SecurityAuditLog::scanVerdict(['verdict' => 'skipped', 'sha256' => $checksum, 'size_bytes' => $metadata['size']]);
+
+            return ['verdict' => 'skipped', 'engine' => null, 'signature_date' => null, 'scanned_at' => null];
+        }
+
+        $result = $scanner->scanStagedFile($storage, $stagingPath);
+
+        SecurityAuditLog::scanVerdict([
+            'verdict' => $result['verdict'],
+            'engine' => $result['engine'],
+            'signature_date' => $result['signature_date'],
+            'sha256' => $checksum,
+            'size_bytes' => $metadata['size'],
+        ]);
+
+        if ($result['verdict'] === 'clean') {
+            return [
+                'verdict' => 'clean',
+                'engine' => $result['engine'],
+                'signature_date' => $result['signature_date'],
+                'scanned_at' => now()->toDateTimeString(),
+            ];
+        }
+
+        if ($result['verdict'] === 'infected') {
+            $quarantinePath = trim((string) config('security.clamav.quarantine_directory', 'quarantine'), '/')
+                .'/'.$checksum.'.'.$metadata['extension'];
+
+            if ($storage->exists($stagingPath)) {
+                $storage->move($stagingPath, $quarantinePath);
+            }
+
+            Log::warning('Upload quarantined by malware scanning.', ['sha256' => $checksum]);
+
+            throw ValidationException::withMessages([
+                'media_file' => 'The upload was rejected by malware scanning.',
+            ]);
+        }
+
+        $mode = (string) config('security.clamav.unavailable_mode', 'reject');
+
+        $message = $mode === 'hold'
+            ? 'Uploads are temporarily held: the malware scanner is unavailable. Please retry later.'
+            : 'The malware scanner is unavailable. Please retry later.';
+
+        throw new ServiceUnavailableHttpException(null, $message);
     }
 
     public function findActiveClaim(User $owner, string $attemptId): ?StagingClaim

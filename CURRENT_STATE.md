@@ -760,3 +760,130 @@ P3-004/P3-005/P3-006 = DONE (HPO closure 2026-09-19). Batch 3 = CLOSED
 and P3-008 = DONE (DECISION-P3-008-CLOSURE-001; independent review VERIFIED,
 no BLOCKER/HIGH/MEDIUM; mandatory B3-06/B3-07 gates accepted). Phase 3 = CLOSED
 (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).
+
+## Phase 7 Wave 1 READY promotion (2026-09-26)
+
+Historical narrative above preserved; `AGENTS.md` remains canonical where
+records disagree. D7-01..D7-08 RESOLVED (ADR-026); scope contract ADOPTED
+(`PHASE7-SCOPE-CONTRACT.md`). Wave 1 contracts authored and promoted:
+P7-003 = READY, P7-008 = READY, P7-010 = READY
+(`DECISION-PHASE7-WAVE1-READY-PROMOTION-001`). P7-005 remains DONE. No
+other P7 task file exists. Phase 7 remains NOT AUTHORIZED FOR EXECUTION;
+READY != EXECUTION AUTHORIZATION. Next: Wave 1 readiness confirmation,
+then explicit HPO execution authorization.
+
+## Phase 7 Wave 1 execution authorization (2026-09-26)
+
+Readiness confirmed (`reviews/PHASE7-WAVE1-READINESS-CONFIRMATION.md`:
+`WAVE 1 READY FOR HPO EXECUTION AUTHORIZATION`; no blocking finding; no
+unauthorized implementation). HPO authorized Wave 1 execution
+(`DECISION-PHASE7-WAVE1-EXECUTION-AUTHORIZATION-001`): P7-003, P7-008,
+P7-010 may transition READY → IN_PROGRESS when actual work begins, scoped
+strictly to adopted contracts. Final authorized state:
+`PHASE 7 WAVE 1 — AUTHORIZED FOR EXECUTION`. No later Phase 7 wave
+authorized. Task files remain READY until work begins.
+
+## Phase 7 Wave 1 closure (2026-09-26)
+
+Independently reviewed (`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md`:
+P7-003/P7-010 VERIFIED; P7-008 VERIFIED with environmental AC2 gap, no
+defect). HPO closed all three DONE (`DECISION-P7-003-CLOSURE-001`,
+`DECISION-P7-010-CLOSURE-001`, `DECISION-P7-008-CLOSURE-001` under
+environmental exception `DECISION-P7-008-AC2-DISPOSITION-001` (Option A;
+AC2 NOT PASS).
+Carry-forward (non-blocking, pre-P7-012): real-host AC2 + P7-003 AC8
+re-confirmation during P7-001 certification. LOW-1 stray file removed
+with provenance. Final state: `PHASE 7 WAVE 1 = CLOSED.` Wave 2 not
+authorized.
+
+## Phase 7 Wave 2 READY promotion (2026-09-26)
+
+Wave 2 contracts reconciled against final Wave 1 DONE interfaces:
+P7-001 amended (guard extension via `violations()`, verify sub-check
+composition, binding AC2/AC8 real-host carry-forward in §§6.7/9.8/AC8
+per `DECISION-P7-008-AC2-DISPOSITION-001`); P7-006 reconfirmed with no
+semantic reconciliation (NO_WAVE1_DEPENDENCY holds); P7-007 hook
+wording verified verbatim against the final runbook (foundation-only,
+drill deferred to Wave 3, no G-08 claim, AC2 not PASS). HPO promoted
+all three BACKLOG → READY (`DECISION-PHASE7-WAVE2-READY-PROMOTION-001`).
+Final state: `PHASE 7 WAVE 2 TASKS READY — EXECUTION NOT AUTHORIZED.`
+No implementation authorized; readiness confirmation + separate HPO
+execution authorization still required.
+
+## Phase 7 Wave 2 execution authorization (2026-09-26)
+
+HPO authorized Wave 2 execution
+(`DECISION-PHASE7-WAVE2-EXECUTION-AUTHORIZATION-001`; readiness
+confirmed, no BLOCKER/HIGH, no premature implementation): P7-001,
+P7-006, P7-007 may move READY → IN_PROGRESS when work begins, strictly
+within adopted contracts (`PARALLEL-SAFE WITH FILE-OWNERSHIP
+SEQUENCING`; task/debt/prohibition boundaries as decided). Final
+state: `PHASE 7 WAVE 2 — AUTHORIZED FOR EXECUTION`. No later wave
+authorized. Tasks remain READY until work begins.
+
+## Phase 7 Wave 2 closure (2026-09-26)
+
+Independently reviewed (`reviews/PHASE7-WAVE2-INDEPENDENT-REVIEW.md`:
+P7-001/P7-006/P7-007 VERIFIED; AC8 + AC4 target-only environmental,
+no defect; no BLOCKER/HIGH). HPO closed all three DONE
+(`DECISION-P7-001-CLOSURE-001` under environmental exception
+`DECISION-P7-001-AC8-DISPOSITION-001` (Option A; AC8 NOT PASS),
+`DECISION-P7-006-CLOSURE-001` (F4 narrative accepted, F5 reconciled),
+`DECISION-P7-007-CLOSURE-001` (F6 corrected in-report)). TD-008
+reprioritized (`DECISION-TD-008-REPRIORITIZATION-001`: OPEN, MEDIUM,
+pre-P7-012 prerequisite). Final state: `PHASE 7 WAVE 2 = CLOSED.`
+Wave 3 not authorized; carry-forwards (AC8/AC2 real-host evidence,
+F4 gap, unwritable-target test follow-up) preserved.
+
+## Phase 7 Wave 3A closure (2026-09-26)
+
+Wave 3A contracts reconciled, promoted READY
+(`DECISION-PHASE7-WAVE3A-READY-PROMOTION-001`), readiness-confirmed,
+execution-authorized (`DECISION-PHASE7-WAVE3A-EXECUTION-AUTHORIZATION-001`,
+PARALLEL-SAFE WITH FILE-OWNERSHIP SEQUENCING), implemented, and
+independently reviewed (`reviews/PHASE7-WAVE3A-INDEPENDENT-REVIEW.md`:
+P7-002/P7-004 VERIFIED; no BLOCKER/HIGH; P7-002 pg-halves
+BLOCKED-ENVIRONMENT, no defect). HPO closed both DONE
+(`DECISION-P7-002-CLOSURE-001` under environmental exception
+`DECISION-P7-002-PG-ENV-DISPOSITION-001` (Option A; AC1/AC2/AC5/AC6
+pg-halves NOT PASS, carried forward pre-P7-012, consumed by the
+P7-007 drill + P7-009 final run) plus `DECISION-P7-004-CLOSURE-001`;
+zero-byte streaming defect fixed explicitly; TD-011 evidenced for
+G-05). Independent review observed `LogContextTest` flaking in 2 of 4
+runs (untouched by Wave 3A; TD-008 stays OPEN/MEDIUM/pre-P7-012).
+Final state: `PHASE 7 WAVE 3A = CLOSED.` P7-009 is READY
+(`DECISION-P7-009-READY-PROMOTION-001`, 2026-09-26; prerequisites
+satisfied, no hidden dependency, target rule explicit) with execution
+NOT AUTHORIZED; P7-011 READY (`DECISION-P7-011-READY-PROMOTION-001`;
+P7-004-VERIFIED dependency satisfied) with execution AUTHORIZED
+(`DECISION-P7-011-EXECUTION-AUTHORIZATION-001`, readiness
+`READY_CONFIRMED`); P7-007 drill deferred (P7-002 DONE dependency now
+satisfied; separate HPO drill authorization still required); P7-012
+FINAL_GATE_ONLY. P7-011 was subsequently implemented, independently
+reviewed CHANGES_REQUESTED (cycle 1, two MEDIUMs), corrected,
+re-reviewed VERIFIED
+(`reviews/P7-011-INDEPENDENT-REVIEW-CYCLE2.md`), and closed DONE
+(`DECISION-P7-011-CLOSURE-001`, 2026-09-26; TD-007 stays OPEN with
+implementation evidence; new LOW carried as TD-014 OPEN, pre-P7-012
+follow-up).
+
+## P7-011 independent review cycle 1 (2026-09-26)
+
+Builder (OpenCode) submitted P7-011 REVIEW (`reviews/P7-011-BUILDER-REPORT.md`).
+Independent review (`reviews/P7-011-INDEPENDENT-REVIEW.md`) independently
+reproduced all gate claims (23/23 new Retention tests; full suite 1073/1072
+passed + 1 pre-existing skip; Pint clean; PHPStan 0 - all matched the
+Builder's numbers exactly) and found the core eligibility/audit/idempotency/
+adversarial-protection/backup-generation work sound (AC1-AC6, AC8-AC11
+PASS). Two MEDIUM findings returned the task for one corrective cycle
+(CHANGES_REQUESTED, cycle 1 of 3): (1) section 8.4's required "source purged"
+transcript-surface state is not implemented and `docs/RETENTION-POLICY.md`
+inaccurately claims it is (fails AC7 as written); (2)
+`RetentionPurge::purgeStaging()` deletes the `StagingClaim` row
+unconditionally even when the file deletion failed, violating the section 6
+item 2 row/file atomicity discipline (self-healing via the orphan sweep, no
+data loss, but untested and contract-deviating). No BLOCKER/HIGH finding.
+TD-007 stays OPEN. P7-011 state: `REVIEW -> CHANGES_REQUESTED`. Next legal
+action: OpenCode (unchanged implementation owner) fixes both findings under
+this task and resubmits for cycle-2 independent review; no VERIFIED/DONE
+transition is authorized yet.

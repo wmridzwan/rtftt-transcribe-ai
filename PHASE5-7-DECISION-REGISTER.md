@@ -690,14 +690,14 @@ incomplete.
 | D6-07 | 6 | Navigation + search/filter | OPEN / CANDIDATE |
 | D6-08 | 6 | Speaker labels / annotations / bookmarks | OPEN / CANDIDATE |
 | D6-09 | 6 | Waveform / timeline | OPEN / CANDIDATE |
-| D7-01 | 7 | Production data store | OPEN / CANDIDATE |
-| D7-02 | 7 | Queue/worker supervision + Horizon | OPEN / CANDIDATE |
-| D7-03 | 7 | Storage strategy | OPEN / CANDIDATE |
-| D7-04 | 7 | Malware scanning | OPEN / CANDIDATE |
-| D7-05 | 7 | Browser support matrix | OPEN / CANDIDATE |
-| D7-06 | 7 | Retention / deletion policy | OPEN / CANDIDATE |
-| D7-07 | 7 | Backup/restore objectives | OPEN / CANDIDATE |
-| D7-08 | 7 | Concurrency / performance targets | OPEN / CANDIDATE |
+| D7-01 | 7 | Production data store | RESOLVED — OPTION B (self-hosted PostgreSQL; `DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) |
+| D7-02 | 7 | Queue/worker supervision + Horizon | RESOLVED — OPTION A (Redis + systemd/supervisord, no Horizon; `DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) |
+| D7-03 | 7 | Storage strategy | RESOLVED — OPTION A (local private storage; object storage deferred, not rejected; `DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) |
+| D7-04 | 7 | Malware scanning | RESOLVED — OPTION A (self-hosted ClamAV; `DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) |
+| D7-05 | 7 | Browser support matrix | RESOLVED — OPTION A (Chromium-only; `DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) |
+| D7-06 | 7 | Retention / deletion policy | RESOLVED — MODIFIED OPTION A — 30-DAY RETENTION (`DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) |
+| D7-07 | 7 | Backup/restore objectives | RESOLVED — OPTION A (daily + drill, no strict RPO/RTO; `DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) |
+| D7-08 | 7 | Concurrency / performance targets | RESOLVED — OPTION A (single-admin low-concurrency; `DECISION-PHASE7-OWNER-DECISIONS-001`; ADR-026) |
 | DC-01 | X | Browser verification governance | OPEN / CANDIDATE |
 | DC-02 | X | Actor-vs-owner / tenancy | OPEN / CANDIDATE |
 
@@ -707,3 +707,25 @@ incomplete.
 - No task is blocked solely by this register; each phase's authorization gate
   depends on the relevant decisions being RESOLVED by the HPO.
 - No DECISION_QUEUE/DECISIONS entry is created by this planning package.
+
+## HPO Resolution — D7-01..D7-08 (2026-09-26)
+
+Historical option text above is preserved unchanged. The HPO resolved all
+eight Phase 7 decisions via `DECISION-PHASE7-OWNER-DECISIONS-001` (durable
+record: ADR-026 in `DECISIONS.md`):
+
+- D7-01 = OPTION B (self-hosted PostgreSQL).
+- D7-02 = OPTION A (Redis + systemd/supervisord, no Horizon).
+- D7-03 = OPTION A (local private storage; object storage deferred, not
+  rejected; migration not authorized).
+- D7-04 = OPTION A (self-hosted ClamAV; no third-party cloud scanning).
+- D7-05 = OPTION A (Chromium-only initial support).
+- D7-06 = MODIFIED OPTION A — 30-day retention auto-purge (owner-policy
+  portion of TD-007 resolved; implementation open).
+- D7-07 = OPTION A (daily backups + executed restore drill, no strict
+  RPO/RTO SLA).
+- D7-08 = OPTION A (single-admin low-concurrency; P7-009 still owes a
+  measurable capacity envelope).
+
+Owner-policy only: no implementation authorization is granted by these
+resolutions. Index rows above updated to RESOLVED accordingly.

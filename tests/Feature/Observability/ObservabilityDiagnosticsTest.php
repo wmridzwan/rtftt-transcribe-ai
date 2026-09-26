@@ -11,6 +11,11 @@ it('configures a structured JSON log channel without changing the default', func
 })->group('p7-005');
 
 it('runs observability diagnostics successfully', function () {
+    // P7-003 closed the sync exemption: the prohibited `sync` test default
+    // must be overridden with an allowed driver for the ok-path assertion.
+    config()->set('queue.default', 'database');
+    config()->set('queue.connections.database.retry_after', 420);
+
     $this->artisan('observability:diagnostics')
         ->expectsOutputToContain('Structured channel configured: yes')
         ->expectsOutputToContain('Translation queue:')

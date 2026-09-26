@@ -164,8 +164,64 @@ closure grants entry-review eligibility only, not implementation
 authorization). Only P7-005
 (Observability Foundation) was authorized early
 (`DECISION-P7-005-AUTHORIZATION-001`) and is DONE
-(`DECISION-P7-005-CLOSURE-001`); P7-003, P7-008, P7-010, and all other Phase 7
-implementation remain not authorized. Phase 6 is CLOSED; Phase 7 entry
+(`DECISION-P7-005-CLOSURE-001`). Wave 1 (P7-003, P7-008, P7-010) was
+subsequently authorized for execution
+(`DECISION-PHASE7-WAVE1-EXECUTION-AUTHORIZATION-001`), implemented,
+independently VERIFIED (`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md`),
+and closed DONE (`DECISION-P7-003-CLOSURE-001`,
+`DECISION-P7-010-CLOSURE-001`, `DECISION-P7-008-CLOSURE-001` — the last
+under environmental exception `DECISION-P7-008-AC2-DISPOSITION-001`;
+P7-008 AC2 remains NOT PASS, carried forward to real-host
+re-verification during P7-001 certification, pre-P7-012). Phase 7 Wave 1
+is CLOSED. Wave 2 tasks P7-001, P7-006, P7-007 are READY
+(`DECISION-PHASE7-WAVE2-READY-PROMOTION-001`) and Wave 2 execution is
+AUTHORIZED (`DECISION-PHASE7-WAVE2-EXECUTION-AUTHORIZATION-001`;
+readiness confirmed, no blocking finding): P7-001/P7-006/P7-007 may
+move READY → IN_PROGRESS when work begins, strictly within adopted
+contracts. Final state: `PHASE 7 WAVE 2 — AUTHORIZED FOR EXECUTION`.
+Wave 2 was subsequently implemented, independently VERIFIED
+(`reviews/PHASE7-WAVE2-INDEPENDENT-REVIEW.md`; no BLOCKER/HIGH), and
+closed DONE (`DECISION-P7-001-CLOSURE-001` under environmental
+exception `DECISION-P7-001-AC8-DISPOSITION-001` — AC8 NOT PASS, carried
+forward pre-P7-012 — plus `DECISION-P7-006-CLOSURE-001` and
+`DECISION-P7-007-CLOSURE-001`). TD-008 reprioritized
+(`DECISION-TD-008-REPRIORITIZATION-001`: OPEN, MEDIUM, pre-P7-012
+prerequisite). Phase 7 Wave 2 is CLOSED.
+Wave 3A tasks P7-002 and P7-004 are READY
+(`DECISION-PHASE7-WAVE3A-READY-PROMOTION-001`, 2026-09-26; reconciled
+against final Wave 2 DONE interfaces, no stale assumption, no
+BLOCKER/HIGH; TD-008 preserved OPEN/MEDIUM pre-P7-012, non-blocking).
+Wave 3A execution is AUTHORIZED
+(`DECISION-PHASE7-WAVE3A-EXECUTION-AUTHORIZATION-001`, 2026-09-26;
+readiness confirmed, no blocking finding): P7-002/P7-004 may move
+READY → IN_PROGRESS when work begins, strictly within adopted
+contracts, shape PARALLEL-SAFE WITH FILE-OWNERSHIP SEQUENCING.
+Final state: `PHASE 7 WAVE 3A — AUTHORIZED FOR EXECUTION`.
+No later Wave 3 scope authorized.
+Wave 3A was subsequently implemented, independently VERIFIED
+(`reviews/PHASE7-WAVE3A-INDEPENDENT-REVIEW.md`; no BLOCKER/HIGH), and
+closed DONE (`DECISION-P7-002-CLOSURE-001` under environmental
+exception `DECISION-P7-002-PG-ENV-DISPOSITION-001` — AC1/AC2/AC5/AC6
+pg-halves NOT PASS, carried forward pre-P7-012, consumed by the P7-007
+drill + P7-009 final run — plus `DECISION-P7-004-CLOSURE-001`).
+Phase 7 Wave 3A is CLOSED.
+P7-011 is READY (`DECISION-P7-011-READY-PROMOTION-001`, 2026-09-26;
+reconciled §§6.10/8.4/10; TD-007 stays OPEN); execution AUTHORIZED
+(`DECISION-P7-011-EXECUTION-AUTHORIZATION-001`, readiness
+`READY_CONFIRMED`): P7-011 may move READY → IN_PROGRESS when work
+begins, strictly within its adopted contract. TD-007 stays OPEN
+during execution. P7-011 was subsequently implemented, independently
+reviewed CHANGES_REQUESTED (cycle 1, two MEDIUMs), corrected,
+re-reviewed VERIFIED, and closed DONE (`DECISION-P7-011-CLOSURE-001`,
+2026-09-26; new LOW carried as TD-014 OPEN, pre-P7-012 follow-up).
+TD-007 stays OPEN (evidence available; closure at G-09).
+P7-009 is READY (`DECISION-P7-009-READY-PROMOTION-001`, 2026-09-26;
+prerequisites satisfied, no hidden dependency, target rule explicit);
+execution NOT AUTHORIZED. P7-007 drill
+deferred; P7-012 FINAL_GATE_ONLY.
+All other Phase 7 work (P7-009, P7-011, P7-012 and any
+later wave) remains unauthorized unless separately approved. Phase 6 is
+CLOSED; Phase 7 entry
 requires its own HPO entry review and authorization (D7-01..D7-08, Phase 7
 execution authorization). P7-012 remains FINAL_GATE_ONLY.
 

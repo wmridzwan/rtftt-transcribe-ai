@@ -34,5 +34,8 @@ jobs:
       - name: Setup Application
         run: composer setup
 
+      - name: Dependency audit (P7-006)
+        run: composer audit --format=plain && npm audit --omit=dev
+
       - name: Run CI Checks
         run: composer ci:check

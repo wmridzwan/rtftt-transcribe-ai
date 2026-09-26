@@ -209,3 +209,40 @@ Phase 6 CLOSED
   authorized.
 - No owner decision is made on behalf of the HPO; §F are OPEN questions.
 - Option D (ADR-013) is not lifted.
+
+## L. Reconciliation — HPO D7-01..D7-08 resolutions (2026-09-26)
+
+Historical §§A–K preserved unchanged. This planning package remains
+PLANNING ONLY — NOT AUTHORIZED FOR IMPLEMENTATION.
+
+- D7-01..D7-08 are RESOLVED via `DECISION-PHASE7-OWNER-DECISIONS-001`
+  (durable record: ADR-026 in `DECISIONS.md`): D7-01=B (self-hosted
+  PostgreSQL), D7-02=A (Redis + systemd/supervisord, no Horizon), D7-03=A
+  (local private storage; object storage deferred, not rejected),
+  D7-04=A (self-hosted ClamAV), D7-05=A (Chromium-only), D7-06=modified A
+  (30-day retention auto-purge; owner-policy portion of TD-007 resolved,
+  implementation open), D7-07=A (daily + drill, no strict RPO/RTO),
+  D7-08=A (single-admin low-concurrency; measurable P7-009 envelope still
+  owed).
+- §F planning questions are superseded by the resolutions above for
+  scoping purposes; the original option text is retained as history.
+- TD-003/004/005/007 owner-policy direction is set (→ D7-02 / D7-02 +
+  Redis topology / D7-05 / D7-06); implementation stays OPEN in
+  `docs/TECHNICAL_DEBT_REGISTER.md`.
+- No task file is created by this reconciliation; no task is promoted to
+  READY; no code, schema, infrastructure, or deployment change is
+  authorized. Scope-contract adoption, Wave 1 contracts, and execution
+  authorization remain separate HPO acts.
+
+## M. Reconciliation — Scope contract adopted (2026-09-26)
+
+Historical §§A–L preserved unchanged.
+
+- The HPO adopted the Phase 7 scope contract
+  (`DECISION-PHASE7-SCOPE-ADOPTION-001`): `PHASE7-SCOPE-CONTRACT.md`
+  (Status: ADOPTED — NOT AUTHORIZED FOR IMPLEMENTATION).
+- Scope authority moves from this planning package to the adopted
+  contract; this file is retained as history.
+- Adoption grants no implementation authorization. Still outstanding:
+  Wave 1 contracts (P7-003, P7-008, P7-010) + per-task READY promotion,
+  and a separate explicit HPO execution authorization.

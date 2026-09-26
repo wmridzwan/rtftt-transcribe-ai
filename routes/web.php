@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CspReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemoTranscriptionController;
 use App\Http\Controllers\FolderController;
@@ -17,6 +18,12 @@ use App\Livewire\Media\Show as MediaShow;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
+
+// P7-006: CSP violation reports. Public (reports carry no session),
+// throttled against log flooding, CSRF-exempt (cross-context posts).
+Route::post('/csp-report', [CspReportController::class, 'store'])
+    ->middleware('throttle:csp-report')
+    ->name('csp.report');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -37,6 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/transcriptions/{transcription}/revisions/merge', [TranscriptRevisionController::class, 'merge'])->name('transcriptions.revisions.merge');
     Route::post('/transcriptions/{transcription}/revisions/undo', [TranscriptRevisionController::class, 'undo'])->name('transcriptions.revisions.undo');
     Route::post('/transcriptions/{transcription}/revisions/redo', [TranscriptRevisionController::class, 'redo'])->name('transcriptions.revisions.redo');
+    // P6-008 explicit historical revision activation (CAS pointer move only).
+    Route::post('/transcriptions/{transcription}/revisions/activate', [TranscriptRevisionController::class, 'activate'])->name('transcriptions.revisions.activate');
 
     Route::get('/transcriptions/{transcription}/export/txt', [TranscriptionExportController::class, 'exportTxt'])->name('transcriptions.export.txt');
     Route::get('/transcriptions/{transcription}/export/srt', [TranscriptionExportController::class, 'exportSrt'])->name('transcriptions.export.srt');
@@ -45,7 +54,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/media', [MediaController::class, 'index'])->name('media.index');
     Route::get('/media/upload', [MediaUploadController::class, 'create'])->name('media.upload');
-    Route::post('/media/upload', [MediaUploadController::class, 'store'])->name('media.upload.store');
+    Route::post('/media/upload', [MediaUploadController::class, 'store'])
+        ->middleware('throttle:upload-initiate')
+        ->name('media.upload.store');
     Route::get('/media/{mediaFile}', MediaShow::class)->name('media.show');
     Route::patch('/media/{mediaFile}/rename', [MediaActionController::class, 'rename'])->name('media.rename');
     Route::delete('/media/{mediaFile}', [MediaActionController::class, 'destroy'])->name('media.destroy');

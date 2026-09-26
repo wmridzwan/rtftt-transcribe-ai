@@ -77,6 +77,36 @@ async function waitForTimeAtLeast(page, time) {
     }, time, { timeout: 40000 });
 }
 
+// P7-010 (TD-005): deterministic playback-start. The historical V4-08/V4-09
+// flake (`currentTime === 0` after play) raced media buffering: play() was
+// issued at readyState >= 1 (metadata only) followed by a fixed 1500ms
+// sleep, so an under-buffered player had not advanced when sampled. This
+// helper instead (1) waits for readyState >= 2 (current data available),
+// (2) awaits the play() promise so a rejection fails loudly with its
+// reason instead of timing out opaquely, and (3) polls currentTime > 0
+// with an explicit budget. Gate sensitivity is preserved — and
+// strengthened: currentTime > 0 must be observed, never assumed.
+async function waitForPlaybackStarted(page, budgetMs = 15000) {
+    await page.waitForFunction(() => {
+        const p = document.querySelector('[data-media-player]');
+        return p && p.readyState >= 2;
+    }, null, { timeout: 30000 });
+    const playOutcome = await page.evaluate(async () => {
+        const p = document.querySelector('[data-media-player]');
+        try {
+            await p.play();
+            return { played: true };
+        } catch (error) {
+            return { played: false, reason: String(error && error.message ? error.message : error) };
+        }
+    });
+    expect(playOutcome.played, `play() rejected: ${playOutcome.reason || 'unknown'}`).toBe(true);
+    await page.waitForFunction(() => {
+        const p = document.querySelector('[data-media-player]');
+        return p && !p.paused && p.currentTime > 0;
+    }, null, { timeout: budgetMs });
+}
+
 async function countLabel(page) {
     return page.locator('input[type="search"] + span').innerText();
 }
@@ -116,8 +146,7 @@ test('V4-08 real audio playback via authorized stream', async ({ page }) => {
     expect(results.audio.src).not.toContain('storage');
     expect(results.audio.duration).toBeGreaterThan(20);
 
-    await player.evaluate((el) => el.play());
-    await page.waitForTimeout(1500);
+    await waitForPlaybackStarted(page);
     results.audio.currentTimeAfterPlay = await player.evaluate((el) => el.currentTime);
     expect(results.audio.currentTimeAfterPlay).toBeGreaterThan(0);
     await player.evaluate((el) => el.pause());
@@ -136,8 +165,7 @@ test('V4-09 real video playback and interactive video seek/active', async ({ pag
     expect(results.video.src).toContain('/stream');
     expect(results.video.duration).toBeGreaterThan(20);
 
-    await player.evaluate((el) => el.play());
-    await page.waitForTimeout(1500);
+    await waitForPlaybackStarted(page);
     results.video.currentTimeAfterPlay = await player.evaluate((el) => el.currentTime);
     expect(results.video.currentTimeAfterPlay).toBeGreaterThan(0);
     await player.evaluate((el) => el.pause());
@@ -208,7 +236,12 @@ test('V4-13 multilingual display for ms/en/zh/ta/und', async ({ page }) => {
         expect(results.multilingual.labels).toContain(language);
     }
     for (const text of ['Segmen kedua', '第三段', 'நான்காம்', 'Undetermined text']) {
-        await expect(page.getByText(text, { exact: false }).first()).toBeVisible();
+        // P7-010: scope to the visible transcript rows. The P6-007
+        // comparison surface renders the same segment text in a hidden
+        // table cell earlier in the DOM, so an unscoped `.first()` matches
+        // the hidden cell (pre-existing P6-004 INFO carry-forward; spec
+        // bug, not a product defect — no application change here).
+        await expect(page.locator('[data-segment-row]', { hasText: text }).first()).toBeVisible();
     }
 });
 

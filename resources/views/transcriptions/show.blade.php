@@ -3,7 +3,7 @@
         $canExport = $transcription->status === \App\Enums\TranscriptionStatus::Completed;
     @endphp
 
-    <div class="flex h-full w-full flex-1 flex-col gap-6" x-data="{ activeTab: 'transcript', transcriptView: 'normal', showRenameModal: {{ request()->boolean('rename') ? 'true' : 'false' }} }">
+    <div class="flex h-full w-full flex-1 flex-col gap-6" x-data="{ activeTab: 'transcript', transcriptView: 'normal', showRenameModal: {{ request()->boolean('rename') ? 'true' : 'false' }} }" x-init="$nextTick(() => { if (showRenameModal) { $dispatch('modal-show', { name: 'rename-transcription' }) } })">
         <div class="flex items-center gap-4">
             <flux:button href="{{ route('transcriptions.index') }}" icon="arrow-left" variant="subtle" size="sm" wire:navigate>All Transcriptions</flux:button>
             <x-page-header :title="$transcription->title" :description="'Transcription details and transcript'" />
@@ -35,9 +35,11 @@
                     </flux:button>
                 @endif
 
-                <flux:button icon="pencil-square" variant="subtle" size="sm" x-on:click="showRenameModal = true">
-                    Rename
-                </flux:button>
+                <flux:modal.trigger name="rename-transcription">
+                    <flux:button icon="pencil-square" variant="subtle" size="sm" x-data="" x-on:click.prevent="$dispatch('open-modal', 'rename-transcription')">
+                        Rename
+                    </flux:button>
+                </flux:modal.trigger>
 
                 <form method="POST" action="{{ route('transcriptions.destroy', $transcription) }}" class="inline" x-on:submit.prevent="if (confirm('Are you sure you want to delete this transcription? This action cannot be undone.')) { $el.submit(); }">
                     @csrf
@@ -103,6 +105,22 @@
                                 </div>
                             @endif
 
+                            {{-- P7-011: purged-source disclosure. Tombstoned rows never
+                                render a player (the bytes are permanently gone under
+                                the 30-day retention policy, not temporarily missing);
+                                transcript, history, and text exports below remain
+                                fully available. --}}
+                            @if (($mediaPurged ?? false) === true)
+                                <div
+                                    data-purged-source
+                                    role="note"
+                                    class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100"
+                                >
+                                    <p class="font-semibold">Source media purged under the 30-day retention policy</p>
+                                    <p class="mt-1">The original recording was permanently deleted after 30 days. This is not a temporary media failure. Your transcript, revision history, translations, and text exports remain available below.</p>
+                                </div>
+                            @endif
+
                             @if ($displaySegments === [])
                                 <x-empty-state
                                     title="No transcript segments"
@@ -113,6 +131,7 @@
                                 @include('transcriptions.partials.source-translation-comparison')
                                 <div x-data="transcriptEditing({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })" x-show="transcriptView === 'normal'" x-on:p6-timing-enter.window="forceExit()" x-on:p6-struct-enter.window="forceExit()">
                                     @include('transcriptions.partials.revision-toolbar')
+                                    @include('transcriptions.partials.revision-history')
                                     <div
                                         x-data="transcriptStructural({ baseRevisionId: @js($activeRevisionId), canEdit: @js($canEdit) })"
                                         x-on:p6-text-enter.window="forceExit()"
@@ -399,7 +418,17 @@
         </div>
     </div>
 
-    <flux:modal name="rename-transcription" :show="$errors->isNotEmpty()" x-data="{ open: false }" x-on:open-modal.window="if ($event.detail === 'rename-transcription') { open = true }" x-bind:show="open || showRenameModal" x-effect="showRenameModal = open" focusable class="max-w-lg">
+    {{-- P7-010 (TD-013): visibility is owned natively by Flux (`name` +
+        `:show` + `flux:modal.trigger`/`open-modal`), following the
+        delete-user-form convention. A previous revision drove visibility
+        with custom Alpine (`showRenameModal` read/written across scopes),
+        which throws `ReferenceError: showRenameModal is not defined` once
+        Flux teleports modal content outside the root scope and fights
+        Flux's own display control (modal stayed hidden). The root-scope
+        `showRenameModal` server marker above is retained only for the
+        `?rename=1` assertion in TranscriptionManagementTest; the modal no
+        longer depends on it. --}}
+    <flux:modal name="rename-transcription" :show="$errors->isNotEmpty() || request()->boolean('rename')" focusable class="max-w-lg">
         <form method="POST" action="{{ route('transcriptions.rename', $transcription) }}" class="space-y-6">
             @csrf
             @method('PATCH')
@@ -418,7 +447,7 @@
 
             <div class="flex justify-end space-x-2 rtl:space-x-reverse">
                 <flux:modal.close>
-                    <flux:button variant="ghost" x-on:click="showRenameModal = false">Cancel</flux:button>
+                    <flux:button variant="ghost">Cancel</flux:button>
                 </flux:modal.close>
 
                 <flux:button type="submit" variant="primary">Rename</flux:button>

@@ -297,6 +297,45 @@ class TranscriptRevisionController extends Controller
         return $this->noticeResponse($transcription, 'Redo applied.');
     }
 
+    /**
+     * Explicit historical revision activation (P6-008): move the active
+     * pointer onto any eligible persisted revision of the same transcription
+     * through the CAS-fenced service operation. No revision content is
+     * created, appended, or rewritten; only the active pointer moves.
+     *
+     * A stale expected base is the canonical conflict; an unknown or
+     * cross-transcription target is a domain validation error. Both leave
+     * persistence unchanged. Activating the already-active revision is a
+     * no-op success.
+     */
+    public function activate(Request $request, Transcription $transcription, RevisionService $revisions): RedirectResponse
+    {
+        $this->authorize('update', $transcription);
+
+        $validated = $request->validate([
+            'target' => ['required', 'string'],
+            'expected_base' => ['nullable', 'string'],
+        ]);
+
+        try {
+            $moved = $revisions->activateHistorical(
+                $request->user(),
+                $transcription,
+                $validated['target'],
+                $this->normalizeRevisionId($validated['expected_base'] ?? null),
+            );
+        } catch (RevisionConflictException) {
+            return $this->historyConflictResponse($transcription);
+        } catch (InvalidArgumentException $exception) {
+            return $this->historyErrorResponse($transcription, $exception->getMessage());
+        }
+
+        return $this->historyNoticeResponse(
+            $transcription,
+            $moved ? 'Historical revision activated.' : 'That revision is already the active revision. Nothing changed.'
+        );
+    }
+
     private function normalizeRevisionId(?string $revisionId): ?string
     {
         return $revisionId === null || $revisionId === '' ? null : $revisionId;
@@ -354,6 +393,24 @@ class TranscriptRevisionController extends Controller
     private function structuralNoticeResponse(Transcription $transcription, string $message): RedirectResponse
     {
         return $this->redirectToWorkspace($transcription)->with('structural_notice', $message);
+    }
+
+    private function historyConflictResponse(Transcription $transcription): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with(
+            'history_conflict',
+            'This transcript changed since you viewed the revision history. The active revision was not changed and no merge was attempted. Reload the history and try again.',
+        );
+    }
+
+    private function historyErrorResponse(Transcription $transcription, string $message): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with('history_error', $message);
+    }
+
+    private function historyNoticeResponse(Transcription $transcription, string $message): RedirectResponse
+    {
+        return $this->redirectToWorkspace($transcription)->with('history_notice', $message);
     }
 
     private function redirectToWorkspace(Transcription $transcription): RedirectResponse

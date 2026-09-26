@@ -2,6 +2,7 @@
 
 namespace App\Translation;
 
+use App\Queue\QueueDriverPolicy;
 use LogicException;
 
 /**
@@ -85,9 +86,17 @@ final class TranslationQueueConfig
             return null;
         }
 
+        // P7-003 closes the historical sync/null exemption: drivers without
+        // retry_after silently void the provider < job < retry_after
+        // invariant, so they are prohibited for this queue outside tests.
+        $prohibited = QueueDriverPolicy::prohibitedDriverViolation($connection, 'Translation');
+
+        if ($prohibited !== null) {
+            return $prohibited;
+        }
+
         $retryAfter = self::connectionRetryAfterSeconds($connection);
 
-        // Drivers without retry_after (sync/null) are exempt.
         if ($retryAfter === null) {
             return null;
         }

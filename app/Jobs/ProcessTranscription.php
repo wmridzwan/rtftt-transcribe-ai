@@ -15,6 +15,7 @@ use App\Transcription\TranscriptionInvocation;
 use App\Transcription\TranscriptionLifecycle;
 use App\Transcription\TranscriptionMedia;
 use App\Transcription\TranscriptionProvider;
+use App\Transcription\TranscriptionQueueConfig;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -45,6 +46,13 @@ class ProcessTranscription implements ShouldQueue
     public int $tries = 1;
 
     /**
+     * Per-job worker timeout; safely below the queue connection retry_after
+     * so a running transcription is never re-delivered mid-execution
+     * (P7-003; mirrors ProcessTranslation).
+     */
+    public int $timeout;
+
+    /**
      * Best-effort attempt ordinal, computed once after the claim so logging
      * paths do not repeat the lookup (P7-005 corrective M-1).
      */
@@ -58,6 +66,8 @@ class ProcessTranscription implements ShouldQueue
         if ($transcriptionId <= 0 || $processingAttemptId <= 0) {
             throw new InvalidArgumentException('Transcription and processing attempt identifiers must be positive integers.');
         }
+
+        $this->timeout = TranscriptionQueueConfig::jobTimeoutSeconds();
     }
 
     public function handle(

@@ -740,3 +740,318 @@ sections are preserved unchanged.
 - Phase 5 translation rows and translation segments were not rewritten or remapped.
 - P6-002/P6-004/P6-007 record-completeness notes are retained; no artifact was
   fabricated.
+
+## U. Reconciliation — HPO D7-01..D7-08 resolutions (2026-09-26)
+
+Supersedes the "current eligibility" decision-state lines above; all
+historical sections are preserved unchanged. Governance/state recording
+only; authorizes no application, schema, test, migration, worker, or
+configuration change.
+
+- **D7-01..D7-08 = RESOLVED** (`DECISION-PHASE7-OWNER-DECISIONS-001`;
+  durable record ADR-026): D7-01=B, D7-02=A, D7-03=A (object storage
+  deferred, not rejected), D7-04=A, D7-05=A, D7-06=modified A (30-day
+  retention), D7-07=A, D7-08=A. Owner-policy only — no implementation
+  authorization.
+- **§D prerequisite materially advanced (policy level):** P7-002
+  (D7-01✓), P7-003 full scope (D7-02✓), P7-004 (D7-03✓), P7-006
+  (D7-04✓), P7-010 full scope (D7-05✓), P7-011 (D7-06✓, still also gated
+  on P7-004 VERIFIED), P7-007 (D7-07✓), P7-009 final targets (D7-08✓).
+  Classification letters (MUST_WAIT / CONDITIONAL / EARLY_START_ELIGIBLE /
+  FINAL_GATE_ONLY) are unchanged; policy resolution does not promote any
+  task to READY.
+- **§G HPO decisions for D7-* are satisfied;** remaining HPO acts before
+  any implementation: ADR publication (done — ADR-026), TD-003/004/005/007
+  register reconciliation (done), Phase 7 scope-contract adoption, Wave 1
+  contracts (P7-003, P7-008, P7-010) + explicit per-task READY promotion,
+  no entry-blocking BLOCKER/HIGH, and a separate explicit HPO execution
+  authorization (may be scoped, e.g. Wave 1 only).
+- Phase 7 remains NOT ELIGIBLE / NOT AUTHORIZED FOR EXECUTION. Only P7-005
+  exists as an authored task file (DONE); no other P7 task file exists and
+  none is promoted by this reconciliation.
+
+## V. Reconciliation — Scope contract adopted (2026-09-26)
+
+Supersedes the scope-adoption state lines above; all historical sections
+are preserved unchanged. Governance/state recording only.
+
+- **Scope contract = ADOPTED** (`DECISION-PHASE7-SCOPE-ADOPTION-001`;
+  `PHASE7-SCOPE-CONTRACT.md`, NOT AUTHORIZED FOR IMPLEMENTATION).
+  Entry-gate criterion 5 is satisfied.
+- Classifications in §D are unchanged. Still outstanding: Wave 1 contracts
+  (P7-003, P7-008, P7-010) + explicit per-task READY promotion
+  (criterion 7), and a separate explicit HPO execution authorization
+  (criterion 9, may be scoped e.g. Wave 1 only).
+- Phase 7 remains NOT ELIGIBLE / NOT AUTHORIZED FOR EXECUTION. No task is
+  created, promoted, or authorized by this reconciliation.
+
+## W. Reconciliation — Wave 1 contracts authored (2026-09-26)
+
+Supersedes the Wave 1 task-state lines above; all historical sections are
+preserved unchanged. Contract authoring only; no implementation, no
+promotion, no authorization.
+
+- **P7-003 = CONTRACT_AUTHORED** (`tasks/P7-003-queue-worker-supervision-recovery.md`):
+  supervised Redis topology per D7-02/A, transcription guard, `sync`
+  prohibition, supervision spec, stale-recovery schedule, failed-job
+  visibility. READY-eligible; awaiting explicit HPO READY promotion.
+- **P7-008 = CONTRACT_AUTHORED** (`tasks/P7-008-deployment-migration-safety-rollback.md`):
+  single-node deployment, supervision installation per the P7-003 spec
+  (revision-pinned), env/config safety, migration-safety + rollback,
+  runbook. READY-eligible; awaiting explicit HPO READY promotion.
+- **P7-010 = CONTRACT_AUTHORED** (`tasks/P7-010-browser-support-matrix-flake-elimination.md`):
+  Chromium-only gate per D7-05/A, TD-005 elimination inside Chromium,
+  TD-006 evidence, TD-013 fix, preserved non-Chromium history.
+  READY-eligible; awaiting explicit HPO READY promotion.
+- **Wave 1 execution shape unchanged** (`P7-003 + P7-008 + P7-010`, no
+  subdivision): P7-010 is independent; P7-003/P7-008 share only the
+  supervision-spec interface (P7-003 specifies, P7-008 installs,
+  revision-pinned) plus `.env.example`/runbook file coordination
+  (P7-003 owns queue keys; P7-008 owns the deployment matrix and rebases).
+  Finish-order preference (not a start gate): P7-008's supervised-restart
+  acceptance test should consume the final P7-003 spec.
+- Phase 7 remains NOT ELIGIBLE / NOT AUTHORIZED FOR EXECUTION. No task is
+  promoted by this reconciliation; READY promotion and execution
+  authorization remain separate HPO acts.
+
+## X. Reconciliation — Wave 1 READY promotion (2026-09-26)
+
+Supersedes the Wave 1 task-state lines above; all historical sections are
+preserved unchanged. State recording only; no implementation authorized.
+
+- **P7-003 = READY**, **P7-008 = READY**, **P7-010 = READY** (HPO promotion
+  `DECISION-PHASE7-WAVE1-READY-PROMOTION-001`; BACKLOG histories preserved
+  in each task file).
+- Entry-gate criterion 7 is satisfied. Criterion 9 (explicit execution
+  authorization) remains outstanding.
+- Wave 1 remains `P7-003 + P7-008 + P7-010`; P7-008 supervised-restart
+  acceptance consumes the final P7-003 spec (finish-order preference).
+- Phase 7 remains NOT AUTHORIZED FOR EXECUTION. `READY != EXECUTION
+  AUTHORIZATION.`
+
+## Y. Reconciliation — Wave 1 execution authorization (2026-09-26)
+
+Supersedes the authorization-state lines above; all historical sections
+are preserved unchanged.
+
+- **Wave 1 execution = AUTHORIZED** (HPO
+  `DECISION-PHASE7-WAVE1-EXECUTION-AUTHORIZATION-001`): P7-003, P7-008,
+  P7-010 may transition READY → IN_PROGRESS when actual work begins,
+  scoped strictly to their adopted contracts, with the recorded
+  parallel/finish-order shape and debt/prohibition boundaries.
+- Entry-gate criterion 9 satisfied for Wave 1 scope. No later Phase 7
+  wave authorized. Independent review required per task before any later
+  wave.
+- Final authorized state: `PHASE 7 WAVE 1 — AUTHORIZED FOR EXECUTION`.
+
+## Z. Reconciliation — Wave 1 closure (2026-09-26)
+
+Supersedes the Wave 1 task-state lines above; all historical sections are
+preserved unchanged. State recording only; no implementation, no Wave 2
+authorization.
+
+- **P7-003 = DONE** (`DECISION-P7-003-CLOSURE-001` on independent VERIFIED;
+  LOW-1 stray file removed and recorded).
+- **P7-010 = DONE** (`DECISION-P7-010-CLOSURE-001` on independent VERIFIED).
+- **P7-008 = DONE** (`DECISION-P7-008-CLOSURE-001` under environmental
+  exception `DECISION-P7-008-AC2-DISPOSITION-001`; AC2 explicitly NOT PASS).
+- Carry-forward (non-blocking, pre-P7-012): real-host reboot-cycle
+  verification (P7-008 AC2) + real-host SIGTERM-drain re-confirmation
+  (P7-003 AC8) during P7-001 environment certification.
+- Final state: `PHASE 7 WAVE 1 = CLOSED.` No later Phase 7 wave is
+  authorized; Wave 2 contracts remain preparation artifacts.
+
+## AA. Reconciliation — Wave 2 READY promotion (2026-09-26)
+
+Supersedes the Wave 2 task-state lines above; all historical sections
+are preserved unchanged. State recording + READY promotion only; no
+implementation authorized.
+
+- **P7-001 = READY** (`DECISION-PHASE7-WAVE2-READY-PROMOTION-001`).
+  Reconciled against final Wave 1 DONE interfaces (guard extension
+  point `violations()`, verify sub-check composition, queue-key
+  ownership) with the binding AC2 carry-forward scoped in-contract
+  (§§6.7/9.8/AC8: P7-008 AC2 reboot-cycle + P7-003 AC8 SIGTERM-drain
+  re-confirmation on the Linux target, pre-P7-012).
+- **P7-006 = READY** (same decision). Reconfirmed NO_WAVE1_DEPENDENCY;
+  no semantic reconciliation required; D7-04 scope and Chromium-only
+  boundary intact.
+- **P7-007-foundation = READY** (same decision). Hook wording verified
+  verbatim against the final runbook; foundation-only boundary, Wave 3
+  drill deferral (P7-002 DONE prerequisite), and no-G-08-claim intact;
+  AC2 not treated as PASS.
+- Wave 2 execution shape reconfirmed: `P7-001 + P7-006 + P7-007`
+  (parallel-safe with file-ownership sequencing on the P7-008-owned
+  guard/runbook surfaces; finish-order preference P7-001 before
+  P7-007). No new Wave 1-derived dependency discovered.
+- Final state: `PHASE 7 WAVE 2 TASKS READY — EXECUTION NOT
+  AUTHORIZED.` No task may move to IN_PROGRESS without a separate
+  explicit HPO Wave 2 execution authorization.
+
+## AB. Reconciliation — Wave 2 execution authorization (2026-09-26)
+
+Supersedes the authorization-state lines above; all historical
+sections are preserved unchanged.
+
+- **Wave 2 execution = AUTHORIZED** (HPO
+  `DECISION-PHASE7-WAVE2-EXECUTION-AUTHORIZATION-001`): P7-001, P7-006,
+  P7-007 may transition READY → IN_PROGRESS when actual work begins,
+  scoped strictly to their adopted contracts, with the recorded
+  parallel/file-ownership shape and task/debt/prohibition boundaries.
+- Readiness basis: independent `WAVE 2 READY FOR HPO EXECUTION
+  AUTHORIZATION` verdict; no BLOCKER/HIGH; no unauthorized
+  implementation begun.
+- No later Phase 7 wave authorized. Independent review required per
+  task before any Wave 3 authorization.
+- Final authorized state: `PHASE 7 WAVE 2 — AUTHORIZED FOR
+  EXECUTION`.
+
+## AC. Reconciliation — Wave 2 closure (2026-09-26)
+
+Supersedes the Wave 2 task-state lines above; all historical sections
+are preserved unchanged. State recording only; no implementation, no
+Wave 3 authorization.
+
+- **P7-001 = DONE** (`DECISION-P7-001-CLOSURE-001` on independent
+  VERIFIED, under environmental exception
+  `DECISION-P7-001-AC8-DISPOSITION-001`; AC8 NOT PASS, carried forward
+  pre-P7-012; F1 corrected, F2 noted).
+- **P7-006 = DONE** (`DECISION-P7-006-CLOSURE-001` on independent
+  VERIFIED; F4 narrative accepted as sufficient, preserved as gap;
+  F5 reconciled with evidence; AC4 target-only).
+- **P7-007 = DONE** (`DECISION-P7-007-CLOSURE-001` on independent
+  VERIFIED; F6 corrected in-report; drill deferred, G-08 unclaimed).
+- **TD-008 reprioritized** (`DECISION-TD-008-REPRIORITIZATION-001`):
+  OPEN, MEDIUM, pre-P7-012 prerequisite; unattributed to Wave 2.
+- Final state: `PHASE 7 WAVE 2 = CLOSED.` No Wave 3 task promoted or
+  authorized; Wave 3 preparation remains planning-only.
+
+## AD. Reconciliation — Wave 3A READY promotion (2026-09-26)
+
+Supersedes the Wave 3 task-state lines above; all historical sections
+are preserved unchanged. State recording + READY promotion only; no
+implementation authorized.
+
+- **P7-002 = READY** (`DECISION-PHASE7-WAVE3A-READY-PROMOTION-001`).
+  Reconciled against final Wave 2 DONE interfaces (P7-001 registry /
+  `violations()` / record-target-evidence; P7-007 dormant-pgsql +
+  pre-migrate goldens; P7-008 inventory/runbook hooks). D7-01/B
+  binding; drill downstream; no stale assumption.
+- **P7-004 = READY** (same decision). Reconciled against final Wave 2
+  DONE interfaces (P7-001 capacity mechanism; P7-006
+  `gateMalwareScan`/quarantine; P7-007 manifest semantics). D7-03/A
+  binding; object storage absent; TD-011 intact; no storage migration
+  beyond local scope.
+- **P7-009 / P7-011 = BACKLOG** (internal gates preserved: P7-011
+  requires P7-004 VERIFIED; P7-009 final run requires P7-002 DONE +
+  P7-004 DONE). **P7-007 drill = DEFERRED** (P7-002 DONE + separate
+  authorization). **P7-012 = FINAL_GATE_ONLY.**
+- Parallelism: P7-002 ∥ P7-004 = PARALLEL-SAFE WITH FILE-OWNERSHIP
+  SEQUENCING (DeploymentVerify / runbook / `.env.example` append-only,
+  distinct blocks; registry via P7-001 extension point).
+- TD-008 preserved OPEN/MEDIUM pre-P7-012, non-blocking for Wave 3A.
+- Final state: `PHASE 7 WAVE 3A TASKS READY — EXECUTION NOT
+  AUTHORIZED.` No task may move to IN_PROGRESS without a separate
+  explicit HPO Wave 3A execution authorization.
+
+## AE. Reconciliation — Wave 3A execution authorization (2026-09-26)
+
+Supersedes the authorization-state lines above; all historical
+sections are preserved unchanged.
+
+- **Wave 3A execution = AUTHORIZED** (HPO
+  `DECISION-PHASE7-WAVE3A-EXECUTION-AUTHORIZATION-001`): P7-002 and
+  P7-004 may transition READY → IN_PROGRESS when actual work begins,
+  scoped strictly to their adopted contracts, with the recorded
+  parallel/file-ownership shape and task/debt/prohibition boundaries.
+- Readiness basis: independent `WAVE 3A READY FOR HPO EXECUTION
+  AUTHORIZATION` verdict; no BLOCKER/HIGH/MEDIUM/LOW; no unauthorized
+  implementation begun.
+- No later Wave 3 scope authorized (P7-009/P7-011 BACKLOG; drill
+  deferred; P7-012 FINAL_GATE_ONLY). Independent review required per
+  task before any later authorization.
+- Final authorized state: `PHASE 7 WAVE 3A — AUTHORIZED FOR
+  EXECUTION`.
+
+## AF. Reconciliation — Wave 3A closure (2026-09-26)
+
+Supersedes the Wave 3A task-state lines above; all historical sections
+are preserved unchanged. State recording only; no implementation, no
+Wave 3B authorization.
+
+- **P7-002 = DONE** (`DECISION-P7-002-CLOSURE-001` on independent
+  VERIFIED, under environmental exception
+  `DECISION-P7-002-PG-ENV-DISPOSITION-001`; AC1/AC2/AC5/AC6 pg-halves
+  NOT PASS, carried forward pre-P7-012).
+- **P7-004 = DONE** (`DECISION-P7-004-CLOSURE-001` on independent
+  VERIFIED; no blocked AC; D7-03 binding preserved).
+- **TD-008 observation**: independent review observed `LogContextTest`
+  flaking in 2 of 4 runs (untouched by Wave 3A; no regression
+  signature). TD-008 stays OPEN/MEDIUM/pre-P7-012; observation noted,
+  disposition unchanged.
+- **LOW governance note closed**: `CURRENT_STATE.md` updated to the
+  Wave 3A closure state as the review required.
+- Final state: `PHASE 7 WAVE 3A = CLOSED.` P7-009/P7-011 remain
+  BACKLOG under their internal gates (P7-011's P7-004-VERIFIED
+  dependency now satisfied; still needs reconciliation/promotion/
+  readiness/authorization); P7-007 drill deferred (P7-002 DONE
+  dependency now satisfied; separate authorization still required);
+  P7-012 FINAL_GATE_ONLY.
+
+## AG. Reconciliation — P7-011 READY promotion (2026-09-26)
+
+Supersedes the P7-011 task-state lines above; all historical sections
+are preserved unchanged. State recording + READY promotion only; no
+implementation authorized.
+
+- **P7-011 = READY** (`DECISION-P7-011-READY-PROMOTION-001`).
+  Reconciled against final DONE state: P7-004 topology/artifact truth
+  (§6.10 clock table grounded on it), P7-002 datastore posture
+  (retention works on either driver; no pg dependency), P7-007
+  manifest/generation semantics (respected, never redefined), P6
+  frozen invariants (physical-vs-history boundary §8.4), scheduler
+  conventions (`daily()->withoutOverlapping()` precedent).
+- Clock deterministic: `transcriptions.completed_at` + 30d;
+  never-completed excluded; staging 24h (ADR-009); quarantine,
+  backups, and history rows excluded (D7-06 + D7-04 coherent).
+- P7-009/TD-008/drill are not P7-011 dependencies (verified).
+  TD-007 stays OPEN (implementation owned here).
+- Final state: `P7-011 READY — EXECUTION NOT AUTHORIZED.` P7-009
+  BACKLOG; drill deferred; P7-012 FINAL_GATE_ONLY.
+
+## AH. Reconciliation — P7-011 closure (2026-09-26)
+
+Supersedes the P7-011 task-state lines above; all historical sections
+are preserved unchanged. State recording only; no implementation, no
+later-wave authorization.
+
+- **P7-011 = DONE** (`DECISION-P7-011-CLOSURE-001` on independent
+  VERIFIED `reviews/P7-011-INDEPENDENT-REVIEW-CYCLE2.md`; both
+  cycle-1 MEDIUMs resolved; no BLOCKER/HIGH/MEDIUM).
+- **TD-007 stays OPEN** (implementation evidence available; closure
+  deferred to authorized G-09 consumption).
+- **New TD-014** (OPEN/LOW, pre-P7-012 follow-up): retention
+  staging-claim crash-recovery gap (kill between claim and release
+  strands `held_by=cleanup`; no reclaim unlike `CleanupStaging`).
+- Remaining Phase 7: P7-009 BACKLOG (contract exists; needs
+  reconciliation → READY → readiness → execution authorization);
+  P7-007 drill deferred (P7-002 DONE satisfied; separate HPO drill
+  authorization required); TD-008 hygiene task (no task exists);
+  P7-012 FINAL_GATE_ONLY.
+
+## AI. Reconciliation — P7-009 READY promotion (2026-09-26)
+
+Supersedes the P7-009 task-state lines above; all historical sections
+are preserved unchanged. State recording + READY promotion only; no
+implementation or execution authorized.
+
+- **P7-009 = READY** (`DECISION-P7-009-READY-PROMOTION-001`).
+  Prerequisites satisfied (P7-002 DONE + P7-004 DONE); no hidden
+  dependency on the P7-007 drill, TD-008, TD-014, or P7-012;
+  target-environment rule explicit (production-shaped stack only;
+  dev-box substitute-labeled; premature runs prohibited);
+  measure-and-report semantics need no new thresholds (P7-012
+  decides); AC1–AC8 objectively reproducible.
+- TD-001/TD-002 stay OPEN (evidence supplied here; closure at P7-012).
+- Final state: `P7-009 READY — EXECUTION NOT AUTHORIZED.` Drill
+  deferred; P7-012 FINAL_GATE_ONLY.

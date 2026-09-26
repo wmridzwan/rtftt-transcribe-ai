@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Editing\RevisionSegmentData;
+use App\Editing\RevisionService;
 use App\Enums\TranscriptionStatus;
 use App\Models\Transcription;
 use App\TranscriptExperience\SegmentTimestamp;
@@ -12,7 +14,43 @@ use PhpOffice\PhpWord\PhpWord;
 
 class TranscriptionExportController extends Controller
 {
-    public function exportTxt(Transcription $transcription): Response
+    /**
+     * Resolve the ordered export rows for a transcription (P6-010 revision
+     * awareness, frozen P6-001 §9).
+     *
+     * When a valid active revision exists it is the sole source of truth
+     * (ordered by revision `position`, mirroring the workspace projection in
+     * `TranscriptionController::displaySegments()`); otherwise the immutable
+     * machine source is used unchanged. The machine rows are never mutated.
+     *
+     * @return list<array{text: string, start: float, end: float}>
+     */
+    private function exportRows(Transcription $transcription, RevisionService $revisions): array
+    {
+        $active = $revisions->active(request()->user(), $transcription);
+
+        if ($active !== null && ! $active->isEmpty()) {
+            return array_map(static fn (RevisionSegmentData $segment): array => [
+                'text' => $segment->text,
+                'start' => $segment->startSeconds,
+                'end' => $segment->endSeconds,
+            ], $active->orderedSegments());
+        }
+
+        $rows = [];
+
+        foreach ($transcription->segments()->orderBy('segment_index')->get() as $segment) {
+            $rows[] = [
+                'text' => $segment->text,
+                'start' => (float) $segment->start_seconds,
+                'end' => (float) $segment->end_seconds,
+            ];
+        }
+
+        return $rows;
+    }
+
+    public function exportTxt(Transcription $transcription, RevisionService $revisions): Response
     {
         $this->authorize('view', $transcription);
 
@@ -20,13 +58,13 @@ class TranscriptionExportController extends Controller
             abort(403, 'Only completed transcriptions can be exported.');
         }
 
-        $segments = $transcription->segments()->orderBy('segment_index')->get();
+        $rows = $this->exportRows($transcription, $revisions);
         $text = $transcription->title."\n\n";
 
-        if ($segments->isEmpty()) {
+        if ($rows === []) {
             $text .= $transcription->full_text ?? '';
         } else {
-            $text .= $segments->pluck('text')->implode("\n\n");
+            $text .= implode("\n\n", array_column($rows, 'text'));
         }
 
         $filename = Str::slug($transcription->title).'.txt';
@@ -37,7 +75,7 @@ class TranscriptionExportController extends Controller
         ]);
     }
 
-    public function exportSrt(Transcription $transcription): Response
+    public function exportSrt(Transcription $transcription, RevisionService $revisions): Response
     {
         $this->authorize('view', $transcription);
 
@@ -45,14 +83,14 @@ class TranscriptionExportController extends Controller
             abort(403, 'Only completed transcriptions can be exported.');
         }
 
-        $segments = $transcription->segments()->orderBy('segment_index')->get();
+        $rows = $this->exportRows($transcription, $revisions);
         $srt = '';
 
-        foreach ($segments as $index => $segment) {
+        foreach ($rows as $index => $row) {
             $number = $index + 1;
-            $start = SegmentTimestamp::fromSeconds($segment->start_seconds)->srt();
-            $end = SegmentTimestamp::fromSeconds($segment->end_seconds)->srt();
-            $srt .= "{$number}\n{$start} --> {$end}\n{$segment->text}\n\n";
+            $start = SegmentTimestamp::fromSeconds($row['start'])->srt();
+            $end = SegmentTimestamp::fromSeconds($row['end'])->srt();
+            $srt .= "{$number}\n{$start} --> {$end}\n{$row['text']}\n\n";
         }
 
         $filename = Str::slug($transcription->title).'.srt';
@@ -63,7 +101,7 @@ class TranscriptionExportController extends Controller
         ]);
     }
 
-    public function exportVtt(Transcription $transcription): Response
+    public function exportVtt(Transcription $transcription, RevisionService $revisions): Response
     {
         $this->authorize('view', $transcription);
 
@@ -71,13 +109,13 @@ class TranscriptionExportController extends Controller
             abort(403, 'Only completed transcriptions can be exported.');
         }
 
-        $segments = $transcription->segments()->orderBy('segment_index')->get();
+        $rows = $this->exportRows($transcription, $revisions);
         $vtt = "WEBVTT\n\n";
 
-        foreach ($segments as $segment) {
-            $start = SegmentTimestamp::fromSeconds($segment->start_seconds)->vtt();
-            $end = SegmentTimestamp::fromSeconds($segment->end_seconds)->vtt();
-            $vtt .= "{$start} --> {$end}\n{$segment->text}\n\n";
+        foreach ($rows as $row) {
+            $start = SegmentTimestamp::fromSeconds($row['start'])->vtt();
+            $end = SegmentTimestamp::fromSeconds($row['end'])->vtt();
+            $vtt .= "{$start} --> {$end}\n{$row['text']}\n\n";
         }
 
         $filename = Str::slug($transcription->title).'.vtt';
@@ -88,7 +126,7 @@ class TranscriptionExportController extends Controller
         ]);
     }
 
-    public function exportDocx(Transcription $transcription): Response
+    public function exportDocx(Transcription $transcription, RevisionService $revisions): Response
     {
         $this->authorize('view', $transcription);
 
@@ -101,13 +139,13 @@ class TranscriptionExportController extends Controller
 
         $section->addTitle($transcription->title, 1);
 
-        $segments = $transcription->segments()->orderBy('segment_index')->get();
+        $rows = $this->exportRows($transcription, $revisions);
 
-        if ($segments->isEmpty()) {
+        if ($rows === []) {
             $section->addText($transcription->full_text ?? '');
         } else {
-            foreach ($segments as $segment) {
-                $section->addText($segment->text);
+            foreach ($rows as $row) {
+                $section->addText($row['text']);
                 $section->addText('');
             }
         }

@@ -202,9 +202,70 @@ Eligibility:
 ### Phase 7 — Production Hardening
 NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023;
 `PHASE5-7-EXECUTION-CLASSIFICATION.md`). Only P7-005 (Observability Foundation)
-was authorized early and is DONE (`DECISION-P7-005-CLOSURE-001`); all other P7
-work remains unauthorized. Cannot close before Phase 6; P7-012 remains
-FINAL_GATE_ONLY.
+was authorized early and is DONE (`DECISION-P7-005-CLOSURE-001`); Wave 1
+(P7-003, P7-008, P7-010) was subsequently execution-authorized, implemented,
+independently VERIFIED, and closed DONE (Wave 1 CLOSED; P7-008 AC2 carried
+forward, NOT PASS). Wave 2 (P7-001, P7-006, P7-007) is READY, execution NOT
+AUTHORIZED. All later P7 work remains unauthorized unless separately approved.
+Cannot close before Phase 6; P7-012 remains FINAL_GATE_ONLY.
+
+Phase 7 entry progress (2026-09-26; no execution authorization): D7-01..D7-08
+RESOLVED (ADR-026, `DECISION-PHASE7-OWNER-DECISIONS-001`); scope contract
+ADOPTED (`PHASE7-SCOPE-CONTRACT.md`, `DECISION-PHASE7-SCOPE-ADOPTION-001`);
+Wave 1 contracts authored and promoted READY — P7-003, P7-008, P7-010
+(`DECISION-PHASE7-WAVE1-READY-PROMOTION-001`). READY != EXECUTION
+AUTHORIZATION; no implementation may begin before a separate explicit HPO
+Wave 1 execution authorization.
+
+Wave 1 execution authorized 2026-09-26
+(`DECISION-PHASE7-WAVE1-EXECUTION-AUTHORIZATION-001`; readiness confirmed,
+no blocking finding): P7-003/P7-008/P7-010 may move READY → IN_PROGRESS
+when work begins, strictly within adopted contracts. Final state:
+`PHASE 7 WAVE 1 — AUTHORIZED FOR EXECUTION`. No later wave authorized.
+
+Wave 1 closed 2026-09-26 (`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md`:
+P7-003/P7-010 VERIFIED; P7-008 VERIFIED with environmental AC2 gap, no
+defect; closures `DECISION-P7-003-CLOSURE-001`,
+`DECISION-P7-010-CLOSURE-001`, `DECISION-P7-008-CLOSURE-001` under Option A
+exception `DECISION-P7-008-AC2-DISPOSITION-001`; AC2 NOT PASS, carried
+forward to P7-001 certification pre-P7-012). Final state:
+`PHASE 7 WAVE 1 = CLOSED.` Wave 2 execution not authorized; Wave 2 contracts
+promoted READY (see Wave 2 READY paragraph below).
+
+Wave 2 READY promotion 2026-09-26
+(`DECISION-PHASE7-WAVE2-READY-PROMOTION-001`): P7-001 reconciled
+against final Wave 1 DONE interfaces (incl. binding AC2/AC8 real-host
+carry-forward pre-P7-012); P7-006 reconfirmed, no semantic
+reconciliation; P7-007 hooks verified verbatim, foundation-only, drill
+deferred to Wave 3. P7-001/P7-006/P7-007 = READY. Final state:
+`PHASE 7 WAVE 2 TASKS READY — EXECUTION NOT AUTHORIZED.` No
+implementation authorized.
+
+Wave 2 execution authorized 2026-09-26
+(`DECISION-PHASE7-WAVE2-EXECUTION-AUTHORIZATION-001`; readiness confirmed,
+no BLOCKER/HIGH): P7-001/P7-006/P7-007 may move READY → IN_PROGRESS
+when work begins, strictly within adopted contracts. Final state:
+`PHASE 7 WAVE 2 — AUTHORIZED FOR EXECUTION`. No later wave authorized.
+
+Wave 2 closed 2026-09-26 (`reviews/PHASE7-WAVE2-INDEPENDENT-REVIEW.md`:
+all three VERIFIED, no BLOCKER/HIGH; closures `DECISION-P7-001-CLOSURE-001`
+(under Option A exception `DECISION-P7-001-AC8-DISPOSITION-001`; AC8 NOT
+PASS, carried forward pre-P7-012), `DECISION-P7-006-CLOSURE-001`,
+`DECISION-P7-007-CLOSURE-001`; TD-008 reprioritized
+`DECISION-TD-008-REPRIORITIZATION-001`). Final state:
+`PHASE 7 WAVE 2 = CLOSED.` Wave 3 not authorized.
+
+Wave 3A closed 2026-09-26 (`reviews/PHASE7-WAVE3A-INDEPENDENT-REVIEW.md`:
+P7-002/P7-004 VERIFIED, no BLOCKER/HIGH; closures
+`DECISION-P7-002-CLOSURE-001` (under Option A exception
+`DECISION-P7-002-PG-ENV-DISPOSITION-001`; AC1/AC2/AC5/AC6 pg-halves NOT
+PASS, carried forward pre-P7-012) and `DECISION-P7-004-CLOSURE-001`;
+TD-008 stays OPEN/MEDIUM/pre-P7-012). Final state:
+`PHASE 7 WAVE 3A = CLOSED.` P7-009 READY (execution NOT AUTHORIZED;
+`DECISION-P7-009-READY-PROMOTION-001`); P7-011 READY with execution
+AUTHORIZED (`DECISION-P7-011-EXECUTION-AUTHORIZATION-001`); P7-007 drill
+deferred; P7-012 FINAL_GATE_ONLY. P7-011 subsequently closed DONE
+(`DECISION-P7-011-CLOSURE-001`, 2026-09-26; TD-007 OPEN, TD-014 OPEN).
 
 The earlier Phase 4/5/6/7 decomposition is historical and was reconciled by
 ADR-019.

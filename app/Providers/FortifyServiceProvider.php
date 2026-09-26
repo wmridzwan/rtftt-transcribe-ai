@@ -7,7 +7,6 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -51,18 +50,16 @@ class FortifyServiceProvider extends ServiceProvider
 
     /**
      * Configure rate limiting.
+     *
+     * The `login` limiter lives in AppServiceProvider (P7-006,
+     * config-driven thresholds in `security.throttles`); it is
+     * intentionally not duplicated here so document/tested limits have
+     * exactly one owner.
      */
     private function configureRateLimiting(): void
     {
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
-
-        RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
-
-            return Limit::perMinute(5)->by($throttleKey);
-        });
-
     }
 }

@@ -16,3 +16,35 @@ Artisan::command('inspire', function () {
 Schedule::command('translation:recover-stale-attempts')
     ->everyMinute()
     ->withoutOverlapping();
+
+/*
+ * P7-003: recover demonstrably stale `running` transcription attempts.
+ * Claim-fenced, so it can never fail a newer attempt. Mirrors the
+ * translation schedule: every minute (far above the job timeout plus the
+ * 60-second stale margin, so a legitimately long inference is never
+ * mistaken for stale) with overlap protection.
+ */
+Schedule::command('transcription:recover-stale-attempts')
+    ->everyMinute()
+    ->withoutOverlapping();
+
+/*
+ * P7-006: daily ClamAV health (reachability + signature freshness) so
+ * missed signature updates alert through the runbook path. Informational
+ * when the scanner is disabled; never blocks unrelated schedules.
+ */
+Schedule::command('clamav:health')->daily()->withoutOverlapping();
+
+/*
+ * P7-007: daily backup set (SQLite-era) with per-run integrity
+ * verification. The driver is explicit; pgsql stays dormant until
+ * P7-002. Missed runs surface via the deployment:verify stale check.
+ */
+Schedule::command('backup:run', ['--driver' => 'sqlite'])->daily()->withoutOverlapping();
+
+/*
+ * P7-011: daily retention purge (D7-06, 30-day clock + 24h staging rule).
+ * Idempotent and re-entry safe; withoutOverlapping fences scheduler
+ * re-entry while per-object claims keep the operation itself safe.
+ */
+Schedule::command('retention:purge')->daily()->withoutOverlapping();

@@ -35,6 +35,10 @@ use LogicException;
  * @property int|null $sample_rate
  * @property int|null $channels
  * @property MediaStatus $status
+ * @property string|null $scan_verdict
+ * @property string|null $scan_engine
+ * @property string|null $scan_signature_date
+ * @property Carbon|null $scanned_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -61,6 +65,11 @@ class MediaFile extends Model
         'sample_rate',
         'channels',
         'status',
+        'scan_verdict',
+        'scan_engine',
+        'scan_signature_date',
+        'scanned_at',
+        'purged_at',
     ];
 
     protected function casts(): array
@@ -73,6 +82,8 @@ class MediaFile extends Model
             'sample_rate' => 'integer',
             'channels' => 'integer',
             'status' => MediaStatus::class,
+            'scanned_at' => 'datetime',
+            'purged_at' => 'datetime',
         ];
     }
 
@@ -130,9 +141,19 @@ class MediaFile extends Model
         return $this;
     }
 
+    /**
+     * Whether servable bytes exist for this row.
+     *
+     * A tombstoned (P7-011 purged) row never has servable bytes even if
+     * an object happens to be present: the stream/download endpoints
+     * answer 410 for purged sources unconditionally, so reporting
+     * "available" would render players against a gone endpoint.
+     */
     public function hasPhysicalFile(): bool
     {
-        return ! empty($this->storage_path) && self::storage()->exists($this->storage_path);
+        return $this->purged_at === null
+            && ! empty($this->storage_path)
+            && self::storage()->exists($this->storage_path);
     }
 
     /**
