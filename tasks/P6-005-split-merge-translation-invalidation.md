@@ -2,7 +2,12 @@
 
 ## Status
 
-IMPLEMENTED_PENDING_REVIEW (2026-09-24).
+DONE — closed by the Human Product Owner on 2026-09-25
+(`DECISION-P6-005-CLOSURE-001`) on the basis of the fresh independent review
+VERIFIED verdict (`reviews/P6-005-INDEPENDENT-REVIEW.md`; no BLOCKER/MAJOR;
+all 14 acceptance criteria PASS; MINOR-1/OPTIONAL-1 non-blocking, preserved in
+the review artifact). Previous status `IMPLEMENTED_PENDING_REVIEW`
+(2026-09-24) → `VERIFIED` (2026-09-25 review) → `DONE` (HPO closure).
 
 Promoted to READY by the Human Product Owner under
 `DECISION-P6-005-READY-001`, then implemented. The five surfaced owner decisions
@@ -15,9 +20,11 @@ are DECIDED and this canonical contract is reconciled to incorporate all of them
 - `DECISION-P6-005-STALENESS-LIFECYCLE-001` (persisted staleness lifecycle);
 - `DECISION-P6-005-SCHEMA-001` (minimum additive schema).
 
-P6-005 is now `IMPLEMENTED_PENDING_REVIEW`; it is **not** self-verified and
-**not** DONE. A fresh independent review (Claude Code) is required. Pre-review
-artifact: `reviews/pre-review/P6-005-pre-review.md`; browser evidence:
+P6-005 was `IMPLEMENTED_PENDING_REVIEW` (not self-verified, not DONE) pending
+the fresh independent review (Claude Code). That review is complete
+(`reviews/P6-005-INDEPENDENT-REVIEW.md`, VERIFIED, 2026-09-25) and the HPO has
+closed P6-005 DONE (`DECISION-P6-005-CLOSURE-001`). Pre-review artifact:
+`reviews/pre-review/P6-005-pre-review.md`; browser evidence:
 `verification/p6-005/P6-005-BROWSER-VERIFICATION-EVIDENCE.md`; batch report:
 `PHASE6-P6-005-IMPLEMENTATION-BATCH-REPORT.md`.
 

@@ -1,0 +1,495 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-c",
+      "verification/playwright.p6-009-rerun-01.config.js"
+    ],
+    "configFile": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\playwright.p6-009-rerun-01.config.js",
+    "rootDir": "C:/Users/Admin/Herd/rtftt-transcribe-ai/verification/p6-009-rerun-01",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\p6-009-rerun-01-auth.setup.js",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Admin/Herd/rtftt-transcribe-ai/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Admin/Herd/rtftt-transcribe-ai/verification/p6-009-rerun-01",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Admin\\Herd\\rtftt-transcribe-ai\\verification\\p6-009-rerun-01\\p6-009-rerun-01-browser-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "final-gate-rerun.spec.js",
+      "file": "final-gate-rerun.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "P6-009-RERUN-01: the workspace presents the active revision with history and comparison hooks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8758,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:31.447Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-7e6da2fcbf442513f69c",
+          "file": "final-gate-rerun.spec.js",
+          "line": 22,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-02: machine source is authoritative before any revision exists",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 576,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:40.342Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-07d961f330e029ea9c01",
+          "file": "final-gate-rerun.spec.js",
+          "line": 33,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-03: undo moves the active pointer to the strict ancestor through the product path",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1018,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:40.935Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-1cdd6ed0965429badeed",
+          "file": "final-gate-rerun.spec.js",
+          "line": 42,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-04: redo follows the unique child through the product path",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1037,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:41.966Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-e972f6a39e0d9c4b7346",
+          "file": "final-gate-rerun.spec.js",
+          "line": 59,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-05: a sibling-branch revision is activatable beyond undo reach",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 987,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:43.015Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-e01e4dd7da93b9b4176b",
+          "file": "final-gate-rerun.spec.js",
+          "line": 75,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-06: activation survives a reload (durable active pointer)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1289,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:44.015Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-2b94409059e222cadbdb",
+          "file": "final-gate-rerun.spec.js",
+          "line": 94,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-07: a stale activation base fails closed as a visible conflict with no pointer move",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 986,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:45.316Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-53bc8c6388e53581900f",
+          "file": "final-gate-rerun.spec.js",
+          "line": 109,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-08: persisted staleness-cause markers match the P6-005 record exactly",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 769,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:46.315Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-e70501136f080b8f6a34",
+          "file": "final-gate-rerun.spec.js",
+          "line": 126,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-09: comparison represents structural incompatibility truthfully without false claims",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 684,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:47.099Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-f61f9cf27717035b6cb3",
+          "file": "final-gate-rerun.spec.js",
+          "line": 135,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-10: no-translation comparison state makes no chronology claim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 695,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:47.795Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-71534d4df9f29940b4b2",
+          "file": "final-gate-rerun.spec.js",
+          "line": 150,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-11: completed-transcript exports carry the active revision, not the machine source",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2913,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:48.503Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-0724e551a1c774d76a8e",
+          "file": "final-gate-rerun.spec.js",
+          "line": 160,
+          "column": 1
+        },
+        {
+          "title": "P6-009-RERUN-12: a non-owner cannot view the integrated workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 392,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-25T01:08:51.430Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "039ee8ef27be0a6479d8-88632456a248f6f6ad49",
+          "file": "final-gate-rerun.spec.js",
+          "line": 192,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-25T01:08:18.357Z",
+    "duration": 33587.666999999994,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

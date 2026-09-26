@@ -1,0 +1,33 @@
+{
+    "baseUrl": "http://127.0.0.1:8128",
+    "email": "p6-008@example.test",
+    "intruderEmail": "p6-008-intruder@example.test",
+    "password": "password",
+    "machineTexts": [
+        "Machine first",
+        "Machine kedua",
+        "\u673a\u5668\u7b2c\u4e09"
+    ],
+    "editedTexts": [
+        "Edited revision first",
+        "Edited revision kedua",
+        "\u5df2\u7f16\u8f91\u7b2c\u4e09"
+    ],
+    "branchedTexts": [
+        "Branch revision first",
+        "Branch revision kedua",
+        "\u5206\u652f\u7b2c\u4e09"
+    ],
+    "plain": {
+        "transcriptionId": 1
+    },
+    "linear": {
+        "transcriptionId": 2
+    },
+    "branched": {
+        "transcriptionId": 3
+    },
+    "stale": {
+        "transcriptionId": 4
+    }
+}

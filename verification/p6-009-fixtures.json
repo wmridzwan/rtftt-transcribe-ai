@@ -1,0 +1,36 @@
+{
+    "baseUrl": "http://127.0.0.1:8129",
+    "email": "p6-009@example.test",
+    "intruderEmail": "p6-009-intruder@example.test",
+    "password": "password",
+    "machineTexts": [
+        "Machine first",
+        "Machine kedua",
+        "机器第三"
+    ],
+    "editedTexts": [
+        "Edited revision first",
+        "Edited revision kedua",
+        "已编辑第三"
+    ],
+    "branchedTexts": [
+        "Branch revision first",
+        "Branch revision kedua",
+        "分支第三"
+    ],
+    "plain": {
+        "transcriptionId": 1
+    },
+    "linear": {
+        "transcriptionId": 2
+    },
+    "branched": {
+        "transcriptionId": 3
+    },
+    "branched2": {
+        "transcriptionId": 4
+    },
+    "stale": {
+        "transcriptionId": 5
+    }
+}
