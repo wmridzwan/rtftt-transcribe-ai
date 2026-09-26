@@ -11,12 +11,13 @@ use Illuminate\Console\Command;
  * Daily backup run (P7-007 foundation, D7-07).
  *
  * `--driver` is required and explicit (no silent inference in
- * production): `sqlite` executes the SQLite-era mechanism;
- * `pgsql` refuses with the P7-002 activation message. Exit 0 on a
+ * production): `sqlite` snapshots the file store; `pgsql` runs
+ * `pg_dump -Fc` with role credentials via PGPASSWORD env (fails
+ * loudly when tooling/connection is missing). Exit 0 on a
  * manifest-valid set with passing integrity; exit 1 otherwise. Failed
  * runs quarantine the partial set and never present it as valid.
  */
-#[Signature('backup:run {--driver= : Backup driver: sqlite (executes) or pgsql (dormant until P7-002)}')]
+#[Signature('backup:run {--driver= : Backup driver: sqlite or pgsql (pg_dump custom format)}')]
 #[Description('Run the daily backup set with integrity verification (P7-007).')]
 class BackupRun extends Command
 {
@@ -25,7 +26,7 @@ class BackupRun extends Command
         $driver = (string) $this->option('driver');
 
         if ($driver === '') {
-            $this->error('Backup driver is required: --driver=sqlite (or --driver=pgsql, dormant until P7-002).');
+            $this->error('Backup driver is required: --driver=sqlite or --driver=pgsql.');
 
             return self::FAILURE;
         }

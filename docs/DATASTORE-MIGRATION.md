@@ -69,3 +69,39 @@ Live pg rehearsal/rollback require the production-version PostgreSQL
 target host, unavailable in CI/dev (recorded BLOCKED-ENVIRONMENT in
 the builder report). The procedure above is executed there before
 P7-012 (G-02); nothing here substitutes the gate run.
+
+## 6. Isolated local-PG verification runbook (HIGH-D prepared path)
+
+For the first host with a real PostgreSQL server (Linux target, or
+a dev box with user-space binaries): disposable database only, never
+production/customer data.
+
+1. Record `SELECT version();`, host/port, role, app commit hash.
+2. `CREATE DATABASE rtftt_pg_verify OWNER <role>;` (drop it at the end).
+3. Point a shell at it (`DB_CONNECTION=pgsql DB_HOST=… DB_PORT=…
+   DB_DATABASE=rtftt_pg_verify DB_USERNAME=… DB_PASSWORD=…` —
+   secrets in env only, never in retained logs):
+   - AC1: `php artisan migrate --database=pgsql` clean; full Pest
+     suite with `DB_CONNECTION=pgsql` green (record counts).
+   - AC2: migration-rehearsal reconciliation per §1 steps 2–5
+     (pre-migrate hook exit 0, data load, `reconcile('pgsql')`
+     zero violations vs sqlite baseline).
+   - AC5: Phase 6 revision/export regression files green on pgsql
+     (`tests/Feature/Editing`, `TranscriptRevisionAwareExportTest`).
+   - AC6: two-process claim-fencing suites green on pgsql
+     (transcription/translation/revision claim + retry race tests;
+     race workers use `RaceConnectionPolicy` — no PRAGMA on pgsql).
+   - Partial indexes: `\d processing_jobs` /
+     `\d translations` show the two `*_active_*_unique` partial
+     unique indexes from migration `2026_09_26_130000`.
+   - Locking: concurrent duplicate-claim attempts collapse to one
+     winner (AC6 evidence covers this; record the sentinel JSON).
+4. PG backup E2E (BLOCKER-B live proof): seed representative rows,
+   `backup:run --driver=pgsql` exit 0, `database.dump` present with
+   `PGDMP` magic, manifest `driver: pgsql`, `verifySet` ok;
+   corrupt one byte → verify fails; prune keeps generations +
+   last-good.
+5. Cleanup: `DROP DATABASE rtftt_pg_verify;` remove sets created
+   under the disposable target. Retain version/config (no
+   secrets)/commands/results in the verification log; do NOT claim
+   the P7-007 drill (separately HPO-authorized, G-08).

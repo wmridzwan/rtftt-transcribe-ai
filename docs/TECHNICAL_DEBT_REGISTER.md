@@ -371,8 +371,10 @@ no duplicate ownership, P7-005 status unchanged, P7-005 not reviewed here.
   block Wave 2 closure — no failure attributed to any Wave 2 diff).
   Severity: MEDIUM.
 - Recommended owner: dedicated suite-hygiene remediation task landing
-  before the P7-012 terminal gate (scoping in Wave 3/4 planning; no
-  task exists — do not invent one here).
+  before the P7-012 terminal gate — contract authored as
+  `tasks/TD-008-suite-hygiene-remediation.md` (pre-Linux remediation
+  batch; BACKLOG, implementation NOT authorized — requires explicit
+  HPO READY promotion).
 - Dependency: none (gates P7-012 confidence).
 - Legal next action: `DECISION-TD-008-REPRIORITIZATION-001`
   (`TD-008 — REPRIORITIZATION REQUIRED`, 2026-09-26).
@@ -525,9 +527,10 @@ no duplicate ownership, P7-005 status unchanged, P7-005 not reviewed here.
   no data loss, no false success, no security impact (file bytes
   remain; claim row remains auditable).
 - Production blocker: NO (pre-P7-012 follow-up). Severity: LOW.
-- Recommended owner: P7-011 follow-up task or TD-008-style hygiene
-  scope landing before the P7-012 terminal gate (no task exists — do
-  not invent one here).
+- Recommended owner: P7-011 follow-up — contract authored as
+  `tasks/TD-014-retention-claim-recovery.md` (pre-Linux remediation
+  batch; BACKLOG, implementation NOT authorized — requires explicit
+  HPO READY promotion).
 - Dependency: none (gates G-09 confidence, not P7-011 DONE).
 - Legal next action: HPO scopes the follow-up during Wave 3B/4
   planning; P7-011 closure is not blocked.

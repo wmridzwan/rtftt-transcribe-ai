@@ -13,6 +13,7 @@ use Tests\TestCase;
 */
 
 require_once __DIR__.'/Support/translation-helpers.php';
+require_once __DIR__.'/Support/backup-helpers.php';
 
 /*
 |--------------------------------------------------------------------------

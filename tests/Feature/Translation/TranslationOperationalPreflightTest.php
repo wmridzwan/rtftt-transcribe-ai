@@ -1,5 +1,6 @@
 <?php
 
+use App\Testing\RaceConnectionPolicy;
 use App\Translation\TranslationQueueConfig;
 use Illuminate\Support\Facades\DB;
 
@@ -79,10 +80,23 @@ it('ships default database and redis retry_after at or above the requirement', f
         ->and((int) config('queue.connections.redis.retry_after'))->toBeGreaterThanOrEqual($required);
 });
 
-it('configures a positive sqlite busy_timeout independent of local config', function (): void {
-    $busyTimeout = (int) DB::connection()->getPdo()->query('PRAGMA busy_timeout')->fetchColumn();
+it('configures driver-appropriate lock-wait behavior for race harnesses', function (): void {
+    // SQLite racers wait on the file write lock; PostgreSQL uses MVCC
+    // row locks and must never receive a SQLite PRAGMA (it throws
+    // there). The mapping is the contract; the statement itself is
+    // applied inside each race worker via RaceConnectionPolicy.
+    $driver = DB::getDriverName();
 
-    expect($busyTimeout)->toBeGreaterThan(0);
+    if ($driver === 'sqlite') {
+        RaceConnectionPolicy::applyLockWait(10000);
+        $busyTimeout = (int) DB::connection()->getPdo()->query('PRAGMA busy_timeout')->fetchColumn();
+
+        expect($busyTimeout)->toBe(10000);
+
+        return;
+    }
+
+    expect(RaceConnectionPolicy::lockWaitStatement($driver, 10000))->toBeNull();
 });
 
 it('schedules stale-attempt recovery without overlap', function (): void {

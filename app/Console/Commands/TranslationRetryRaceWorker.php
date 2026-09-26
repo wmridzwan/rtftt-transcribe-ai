@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use App\Actions\TranslationRetry;
 use App\Jobs\ProcessTranslation;
 use App\Models\Translation;
+use App\Testing\RaceConnectionPolicy;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Testing\Fakes\QueueFake;
 use Throwable;
@@ -83,7 +83,7 @@ class TranslationRetryRaceWorker extends Command
         }
 
         try {
-            DB::statement('PRAGMA busy_timeout = 10000');
+            RaceConnectionPolicy::applyLockWait(10000);
 
             Queue::fake();
 

@@ -124,6 +124,7 @@ final class ProductionEnvRegistry
             // --- P7-007 backup keys (owner P7-007; shapes authoritative here) ---
             'RTFTT_BACKUP_TARGET' => ['requirement' => self::ADVISORY, 'shape' => 'path', 'owner' => 'P7-007', 'description' => 'Backup set target directory.'],
             'RTFTT_BACKUP_GENERATIONS' => ['requirement' => self::ADVISORY, 'shape' => 'bytes', 'owner' => 'P7-007', 'description' => 'Retained backup generations.'],
+            'RTFTT_PG_DUMP_PATH' => ['requirement' => self::ADVISORY, 'shape' => 'path', 'owner' => 'P7-007', 'description' => 'pg_dump binary for --driver=pgsql (PATH default; absolute path recommended on production).'],
         ];
     }
 

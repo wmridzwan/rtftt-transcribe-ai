@@ -165,7 +165,7 @@ certification (`RedisPosture::captureVersion`) and recorded redacted.
 
 Secrets: no secret in the repo, logs, or retained evidence; rotation =
 rotate at the source, update the host env, restart workers drained
-(per P7-003 §6), re-run `deployment:verify --strict`.
+(per P7-003 ï¿½6), re-run `deployment:verify --strict`.
 
 Real-host carry-forward (binding, pre-P7-012): on the Linux target,
 execute the AC2 reboot-cycle verification (units enabled at boot,
@@ -173,7 +173,7 @@ workers resume, scheduler timer active) and the AC8 SIGTERM-drain
 re-confirmation against a real supervised worker; record both via
 `deployment:record-target-evidence`. AC2 stays NOT PASS until that
 evidence exists. A FAIL routes through governance to the originating
-task — P7-001 never silently fixes Wave 1 code.
+task ï¿½ P7-001 never silently fixes Wave 1 code.
 
 ## 12. P7-006 security operations (by reference)
 
@@ -187,8 +187,10 @@ permissions, signature-age monitoring via scheduled `clamav:health`.
 ## 13. P7-007 backup hooks (by reference)
 
 Mechanism owned by P7-007: `docs/BACKUP-RESTORE-PROCEDURES.md`
-(daily `backup:run --driver=sqlite`, integrity verification,
-pruning, disaster ordering, dormant pg path, retention interaction).
+(daily `backup:run` with the driver resolved from
+`database.default` â€” sqlite pre-cutover, `pg_dump -Fc` post-cutover;
+integrity verification, pruning, disaster ordering, retention
+interaction).
 This runbook references it; procedure text lives once. "Backup before
 migrate" invokes `backup:pre-migrate` (exit 0 = proceed, exit 1 =
 stop). The executed restore drill stays deferred to Wave 3

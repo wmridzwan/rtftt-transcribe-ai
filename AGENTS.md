@@ -197,7 +197,8 @@ readiness confirmed, no blocking finding): P7-002/P7-004 may move
 READY → IN_PROGRESS when work begins, strictly within adopted
 contracts, shape PARALLEL-SAFE WITH FILE-OWNERSHIP SEQUENCING.
 Final state: `PHASE 7 WAVE 3A — AUTHORIZED FOR EXECUTION`.
-No later Wave 3 scope authorized.
+No later Wave 3 scope authorized at that point (P7-011 and P7-009
+Phase A were authorized separately afterwards).
 Wave 3A was subsequently implemented, independently VERIFIED
 (`reviews/PHASE7-WAVE3A-INDEPENDENT-REVIEW.md`; no BLOCKER/HIGH), and
 closed DONE (`DECISION-P7-002-CLOSURE-001` under environmental
@@ -215,12 +216,16 @@ reviewed CHANGES_REQUESTED (cycle 1, two MEDIUMs), corrected,
 re-reviewed VERIFIED, and closed DONE (`DECISION-P7-011-CLOSURE-001`,
 2026-09-26; new LOW carried as TD-014 OPEN, pre-P7-012 follow-up).
 TD-007 stays OPEN (evidence available; closure at G-09).
-P7-009 is READY (`DECISION-P7-009-READY-PROMOTION-001`, 2026-09-26;
-prerequisites satisfied, no hidden dependency, target rule explicit);
-execution NOT AUTHORIZED. P7-007 drill
-deferred; P7-012 FINAL_GATE_ONLY.
-All other Phase 7 work (P7-009, P7-011, P7-012 and any
-later wave) remains unauthorized unless separately approved. Phase 6 is
+P7-009 is IN_PROGRESS — Phase A (harness + rehearsal on substitute
+infrastructure) authorized and executed
+(`DECISION-P7-009-PHASE-A-EXECUTION-AUTHORIZATION-001`, 2026-09-26;
+task stays IN_PROGRESS after Phase A); Phase B (production-shaped
+capacity run) is NOT AUTHORIZED and requires `TARGET_HOST_READY` plus
+explicit HPO authorization. P7-007 drill
+deferred (P7-002 DONE dependency satisfied; separate HPO drill
+authorization still required); P7-012 FINAL_GATE_ONLY.
+P7-012 and any later wave beyond the executed Wave 3A/P7-011/P7-009-A
+scope remain unauthorized unless separately approved. Phase 6 is
 CLOSED; Phase 7 entry
 requires its own HPO entry review and authorization (D7-01..D7-08, Phase 7
 execution authorization). P7-012 remains FINAL_GATE_ONLY.

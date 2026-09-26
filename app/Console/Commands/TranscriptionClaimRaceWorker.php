@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\Jobs\ProcessTranscription;
 use App\Models\ProcessingJob;
+use App\Testing\RaceConnectionPolicy;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use ReflectionMethod;
 use Throwable;
 
@@ -83,9 +83,11 @@ class TranscriptionClaimRaceWorker extends Command
 
         try {
             // Wait rather than error if the other connection briefly holds the
-            // SQLite write lock; the guarded UPDATE then observes the committed
-            // state.
-            DB::statement('PRAGMA busy_timeout = 10000');
+            // write lock; the guarded UPDATE then observes the committed
+            // state. Driver-aware: SQLite waits via PRAGMA busy_timeout;
+            // PostgreSQL needs no setup (MVCC row locks) and must never
+            // receive a SQLite PRAGMA (it throws there).
+            RaceConnectionPolicy::applyLockWait(10000);
 
             $attempt = ProcessingJob::query()->findOrFail($attemptId);
 

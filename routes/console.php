@@ -36,11 +36,14 @@ Schedule::command('transcription:recover-stale-attempts')
 Schedule::command('clamav:health')->daily()->withoutOverlapping();
 
 /*
- * P7-007: daily backup set (SQLite-era) with per-run integrity
- * verification. The driver is explicit; pgsql stays dormant until
- * P7-002. Missed runs surface via the deployment:verify stale check.
+ * P7-007: daily backup set with per-run integrity verification, backing
+ * up the configured default datastore (sqlite pre-cutover, pgsql
+ * post-cutover via pg_dump). The driver resolves from database.default
+ * at schedule registration so cutover needs no schedule edit; explicit
+ * --driver stays required at the command layer. Missed runs surface
+ * via the deployment:verify stale check.
  */
-Schedule::command('backup:run', ['--driver' => 'sqlite'])->daily()->withoutOverlapping();
+Schedule::command('backup:run', ['--driver' => config('database.default') === 'pgsql' ? 'pgsql' : 'sqlite'])->daily()->withoutOverlapping();
 
 /*
  * P7-011: daily retention purge (D7-06, 30-day clock + 24h staging rule).

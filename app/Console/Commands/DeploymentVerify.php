@@ -241,7 +241,7 @@ class DeploymentVerify extends Command
         if ($manifest === null) {
             $this->warn('Backups: no backup sets present');
 
-            return $this->productionOnlyFail('Backups: schedule `backup:run --driver=sqlite` daily.');
+            return $this->productionOnlyFail(sprintf('Backups: schedule `backup:run --driver=%s` daily.', $this->backupDriver()));
         }
 
         $status = $manifest['status'] ?? BackupManager::STATUS_FAILED;
@@ -267,10 +267,15 @@ class DeploymentVerify extends Command
         if ($ageHours !== null && $ageHours > $staleAfter) {
             $this->warn(sprintf('Backups: latest set is stale (>%dh); the daily run may have missed.', $staleAfter));
 
-            return $this->productionOnlyFail('Backups: re-run `backup:run --driver=sqlite`.');
+            return $this->productionOnlyFail(sprintf('Backups: re-run `backup:run --driver=%s`.', $this->backupDriver()));
         }
 
         return false;
+    }
+
+    private function backupDriver(): string
+    {
+        return (string) config('database.default', 'sqlite') === 'pgsql' ? 'pgsql' : 'sqlite';
     }
 
     private function productionOnlyFail(string $advice): bool

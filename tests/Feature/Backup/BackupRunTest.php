@@ -4,69 +4,12 @@ use App\Backup\BackupManager;
 use Illuminate\Support\Facades\Storage;
 
 /*
- * P7-007: backup foundation. Temp-file sqlite sources keep the suite
- * independent of the :memory: test database; RefreshDatabase state is
- * never touched (the manager uses raw PDO + files, never the Laravel
- * connection). All temp artifacts are removed in finally blocks.
+ * P7-007: backup foundation. Shared temp-file helpers
+ * (backupTempDb/backupTempTarget/removeDirectoryTree/
+ * withBackupIsolation) live in tests/Support/backup-helpers.php,
+ * loaded once from tests/Pest.php so every backup file runs in
+ * isolation.
  */
-
-function backupTempDb(): string
-{
-    $path = tempnam(sys_get_temp_dir(), 'p7007-db-').'.sqlite';
-    $pdo = new PDO('sqlite:'.$path, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    $pdo->exec('CREATE TABLE migrations (migration VARCHAR(255), batch INT)');
-    $pdo->exec("INSERT INTO migrations VALUES ('2026_01_01_000001_probe.php', 1)");
-    unset($pdo);
-
-    return $path;
-}
-
-function backupTempTarget(): string
-{
-    $dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'p7007-target-'.uniqid();
-    mkdir($dir, 0750, true);
-
-    return $dir;
-}
-
-function removeDirectoryTree(string $path): void
-{
-    if (! is_dir($path)) {
-        return;
-    }
-
-    $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::CHILD_FIRST
-    );
-
-    foreach ($iterator as $file) {
-        $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
-    }
-
-    rmdir($path);
-}
-
-/**
- * Point the manager at an isolated sqlite file + target for one test.
- * Restores config afterwards; never purges the Laravel connection
- * (the manager does not use it).
- */
-function withBackupIsolation(string $db, string $target, callable $test): void
-{
-    $originalDb = config('database.connections.sqlite.database');
-    $originalTarget = config('backup.target');
-
-    config()->set('database.connections.sqlite.database', $db);
-    config()->set('backup.target', $target);
-
-    try {
-        $test();
-    } finally {
-        config()->set('database.connections.sqlite.database', $originalDb);
-        config()->set('backup.target', $originalTarget);
-    }
-}
 
 it('produces a manifest-valid set with passing integrity', function (): void {
     Storage::fake('local');
@@ -130,15 +73,26 @@ it('refuses non-file sources instead of backing up nothing', function (): void {
     }
 });
 
-it('refuses unknown drivers and the dormant pgsql path', function (): void {
+it('refuses unknown drivers and fails pgsql loudly without tooling', function (): void {
     $manager = BackupManager::forMediaDisk();
 
     expect($manager->run('tapeworm')['ok'])->toBeFalse();
 
-    $pgsql = $manager->run('pgsql');
+    // No pg_dump on the dev/test host: the pgsql path must fail loudly
+    // on missing tooling (never silently fall back to SQLite, never the
+    // old dormant refusal).
+    $original = config('backup.pg_dump');
+    config()->set('backup.pg_dump', 'rtftt-nonexistent-pg-dump-binary');
+
+    try {
+        $pgsql = $manager->run('pgsql');
+    } finally {
+        config()->set('backup.pg_dump', $original);
+    }
 
     expect($pgsql['ok'])->toBeFalse()
-        ->and(implode(' ', $pgsql['errors']))->toContain('requires P7-002');
+        ->and($pgsql['set'])->toBeNull()
+        ->and(implode(' ', $pgsql['errors']))->toContain('pg_dump');
 });
 
 it('requires an explicit driver on the command', function (): void {

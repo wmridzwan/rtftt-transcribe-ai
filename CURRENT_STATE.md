@@ -1,6 +1,6 @@
 # RTFTT Transcribe AI — Current State
 
-Last Updated: 2026-09-24
+Last Updated: 2026-09-27
 
 ## Current Branch
 
@@ -851,10 +851,11 @@ P7-007 drill + P7-009 final run) plus `DECISION-P7-004-CLOSURE-001`;
 zero-byte streaming defect fixed explicitly; TD-011 evidenced for
 G-05). Independent review observed `LogContextTest` flaking in 2 of 4
 runs (untouched by Wave 3A; TD-008 stays OPEN/MEDIUM/pre-P7-012).
-Final state: `PHASE 7 WAVE 3A = CLOSED.` P7-009 is READY
-(`DECISION-P7-009-READY-PROMOTION-001`, 2026-09-26; prerequisites
-satisfied, no hidden dependency, target rule explicit) with execution
-NOT AUTHORIZED; P7-011 READY (`DECISION-P7-011-READY-PROMOTION-001`;
+Final state: `PHASE 7 WAVE 3A = CLOSED.` P7-009 is IN_PROGRESS
+(Phase A harness + rehearsal executed 2026-09-26 under
+`DECISION-P7-009-PHASE-A-EXECUTION-AUTHORIZATION-001`; Phase B NOT
+AUTHORIZED, requires `TARGET_HOST_READY` + explicit HPO
+authorization); P7-011 READY (`DECISION-P7-011-READY-PROMOTION-001`;
 P7-004-VERIFIED dependency satisfied) with execution AUTHORIZED
 (`DECISION-P7-011-EXECUTION-AUTHORIZATION-001`, readiness
 `READY_CONFIRMED`); P7-007 drill deferred (P7-002 DONE dependency now
@@ -866,6 +867,53 @@ re-reviewed VERIFIED
 (`DECISION-P7-011-CLOSURE-001`, 2026-09-26; TD-007 stays OPEN with
 implementation evidence; new LOW carried as TD-014 OPEN, pre-P7-012
 follow-up).
+
+## Pre-Linux remediation batch (2026-09-27)
+
+Executed on the dev environment under the `PRE_LINUX_CHANGES_REQUIRED`
+audit; narrow scope only (no P7-009 Phase B, no P7-007 drill, no
+P7-012, no feature work).
+
+- BLOCKER-A (uncommitted Phase 7 record): working tree classified
+  (157 dirty paths; P6-006/P7-005 already committed via `c9b0d8f`;
+  `.env`/generated files correctly ignored; one unrelated
+  boost-tooling churn on CLAUDE.md/AGENTS.md reverted) and committed
+  as `bdb2a02` (P6-008/009/010 gate), `df14606` (Phase 7 Waves
+  1–3A + P7-011 + P7-009 Phase A), `4fdffd1` (governance +
+  integration). Tree clean at handoff.
+- BLOCKER-B (pgsql backup refusal): `BackupManager` now executes
+  `pg_dump -Fc` for `--driver=pgsql` (PGPASSWORD env only, loud
+  failure on missing tooling/connection, same
+  set/manifest/verify/prune/last-good discipline; magic-header +
+  sha256 verification without a live server). `backup:pre-migrate`
+  and the daily schedule resolve the driver from
+  `database.default`; `deployment:verify` advice is driver-aware.
+  Covered by `tests/Feature/Backup/BackupPgsqlTest.php` (8 tests);
+  sqlite path unregressed. Live pg_dump execution stays a
+  Linux-target item (HIGH-D runbook: `docs/DATASTORE-MIGRATION.md`
+  §6).
+- HIGH-C (PRAGMA throw sites): new `App\Testing\RaceConnectionPolicy`
+  (sqlite keeps exact PRAGMA behavior; pgsql/others get no
+  statement); all six `*RaceWorker` harnesses converted; preflight
+  test driver-guarded; `tests/Unit/RaceConnectionPolicyTest.php`
+  added. Race semantics unchanged (no weakening, no new skips).
+- HIGH-D (local PG execution): BLOCKED-ENVIRONMENT recorded — no
+  server binaries/Docker on this box, no admin for service install,
+  EDB CDN unreachable, pip mirror lacks a user-space postgres
+  (`pgserver` not found; `six` resolved cache-only). PHP already
+  ships `pdo_pgsql`. AC1/AC2/AC5/AC6 stay NOT PASS; original
+  P7-002 disposition history preserved, not rewritten. Prepared
+  isolated-run path in `docs/DATASTORE-MIGRATION.md` §6.
+- HIGH-E/MEDIUM-F: owning contracts authored —
+  `tasks/TD-008-suite-hygiene-remediation.md` and
+  `tasks/TD-014-retention-claim-recovery.md` (both BACKLOG;
+  implementation NOT authorized); debt register owner lines updated.
+- Secondary: `composer.json` pins `ext-pdo_pgsql`/`ext-pdo_sqlite`/
+  `ext-redis` (transitive deps already loud at install; lock
+  refreshed); CI `setup-php` extensions pinned;
+  `RTFTT_PG_DUMP_PATH` added to `.env.example` + `ProductionEnvRegistry`
+  (P7-007); AGENTS.md/CURRENT_STATE.md P7-009-Phase-A drift fixed
+  (summaries only, history preserved).
 
 ## P7-011 independent review cycle 1 (2026-09-26)
 

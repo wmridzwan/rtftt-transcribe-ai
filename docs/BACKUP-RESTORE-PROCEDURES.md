@@ -8,14 +8,21 @@ runbook references it (never a forked copy).
 
 ## 1. Daily operation
 
-`backup:run --driver=sqlite` (scheduled daily, `withoutOverlapping`):
-snapshots the SQLite store after a quiesce probe, mirrors the media
-tree (quarantine excluded), writes `manifest.json` (timestamp, driver,
-tool version, database sha256, media manifest + root, migration
-inventory pin), then runs scratch-restore integrity verification
-(manifest chain + inventory pin + database-copy open + migrations
-table). Exit 0 = manifest-valid set; exit 1 = quarantined partial
-set, never presented as valid.
+`backup:run --driver=sqlite|pgsql` (scheduled daily,
+`withoutOverlapping`; the schedule and `backup:pre-migrate` resolve
+the driver from `database.default`, so cutover needs no schedule
+edit): sqlite snapshots the file store after a quiesce probe; pgsql
+runs `pg_dump -Fc` with role credentials via `PGPASSWORD` process
+env only (binary from `RTFTT_PG_DUMP_PATH`, default `pg_dump`;
+missing tooling/connection fails loudly, never half-executes).
+Both mirror the media tree (quarantine excluded), write
+`manifest.json` (timestamp, driver, tool version, database sha256,
+media manifest + root, migration inventory pin), then run
+scratch-restore integrity verification (manifest chain + inventory
+pin + driver-appropriate database proof: sqlite opens read-only with
+a migrations table; pgsql proves the `PGDMP` custom-format magic +
+sha256 without a live server). Exit 0 = manifest-valid set; exit 1
+= quarantined partial set, never presented as valid.
 
 ## 2. Pre-migration hook
 
@@ -41,13 +48,18 @@ Datastore → media → verify (`verifySet` semantics) → supervise
 (all-or-nothing per set). Restore invocation is access-controlled
 (single-admin operator) and audit-logged.
 
-## 5. PostgreSQL-native path (dormant until P7-002)
+## 5. PostgreSQL-native path (implemented, pre-Linux remediation BLOCKER-B)
 
-`backup:run --driver=pgsql` refuses with the P7-002 activation
-message (test-asserted, permanent until P7-002). Post-migration shape:
-`pg_dump` with role-based credentials (never in repo/logs), restore
-via `pg_restore`/`psql`, same manifest discipline. PITR/RPO
-tightening (D7-07 options B/C) is deferred, not precluded.
+`backup:run --driver=pgsql` executes `pg_dump -Fc` into the set
+(`database.dump`, manifest `format: pgdump-custom`,
+`tool: pg_dump/<version>`) under the same generation/manifest/
+verify/prune/last-good discipline as sqlite. Credentials are
+role-based, passed only via `PGPASSWORD` (never in repo/logs/
+manifests/retained evidence — redaction-tested). Restore via
+`pg_restore`/`psql`. PITR/RPO tightening (D7-07 options B/C) is
+deferred, not precluded. Live pg_dump execution against a real
+server is recorded for Linux-target verification; the P7-007 final
+restore drill remains separately authorized (G-08 unclaimed).
 
 ## 6. Retention-of-backups vs D7-06 purge
 

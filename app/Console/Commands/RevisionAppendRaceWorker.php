@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use App\Editing\RevisionConflictException;
 use App\Editing\RevisionFactory;
 use App\Editing\RevisionRepository;
+use App\Testing\RaceConnectionPolicy;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Throwable;
 
 /**
@@ -73,7 +73,7 @@ class RevisionAppendRaceWorker extends Command
         }
 
         try {
-            DB::statement('PRAGMA busy_timeout = 15000');
+            RaceConnectionPolicy::applyLockWait(15000);
 
             $repository = app(RevisionRepository::class);
             $factory = new RevisionFactory;

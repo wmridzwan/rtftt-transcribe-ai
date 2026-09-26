@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\Actions\TranscriptionRetry;
 use App\Models\Transcription;
+use App\Testing\RaceConnectionPolicy;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Throwable;
 
 /**
@@ -84,7 +84,7 @@ class TranscriptionRetryRaceWorker extends Command
             // Wait rather than error if the other connection briefly holds the
             // SQLite write lock; the guarded CAS then observes the committed
             // state.
-            DB::statement('PRAGMA busy_timeout = 10000');
+            RaceConnectionPolicy::applyLockWait(10000);
 
             $transcription = Transcription::query()->findOrFail($transcriptionId);
 
