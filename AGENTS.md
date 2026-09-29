@@ -255,6 +255,24 @@ Phase 3 boundary (ADR-017):
 - Automatic domain retry, Horizon, or provider-abstraction redesign
 - AI features, billing, public registration
 
+**ProcessingProvider track** (ADR-027; `DECISION-PROCESSING-PROVIDER-OPTION1-001`):
+Server-first + pinned direct overflow; separate `TranscriptionProvider` /
+`TranslationProvider`; self-hosted faster-whisper `large-v3` + NLLB
+canonical; CPU-only, GPU not required; no silent fallback; no Wave-1
+Auto/client; external translation deferred. PP-T1 = DONE
+(`DECISION-PP-T1-CLOSURE-001`, 2026-09-27). PP-T2 = DONE
+(`DECISION-PP-T2-CLOSURE-001`, 2026-09-27; independently VERIFIED
+corrective cycle 1, no BLOCKER/HIGH). PP-T3 = DONE (`DECISION-PP-T3-CLOSURE-001`, 2026-09-28; independently VERIFIED,
+AC1–AC10 PASS, no BLOCKER/HIGH/MEDIUM). PP-T4 = DONE
+(`DECISION-PP-T4-CLOSURE-001`, 2026-09-28; independently VERIFIED
+corrective cycle 1, AC1–AC12 PASS, no BLOCKER/HIGH/MEDIUM).
+PP-T5 = DONE (`DECISION-PP-T5-CLOSURE-001`, 2026-09-28; independently VERIFIED,
+AC1–AC10 PASS, no BLOCKER/HIGH/MEDIUM; corrective cycle 1 resolved one LOW).
+PP-T6 = DONE (`DECISION-PP-T6-CLOSURE-001`, 2026-09-28; independently VERIFIED,
+AC1–AC8 PASS, no BLOCKER/HIGH/MEDIUM; one LOW test-only corrective cycle).
+Processing Provider track = CLOSED (final gate passed). Canonical contracts:
+`tasks/PP-T*.md`; discovery/planning: `discovery/processing-provider/`.
+
 **Preserve these frameworks**: Laravel, Livewire, Blade, Flux UI, Tailwind, Fortify, Pest
 
 ## Testing Patterns

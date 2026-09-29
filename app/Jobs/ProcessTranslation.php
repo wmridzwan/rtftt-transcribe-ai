@@ -137,6 +137,7 @@ class ProcessTranslation implements ShouldQueue
 
         Log::info('Translation provider invocation started.', LogContext::forTranslation($translation, $this->correlationContext([
             'request_id' => $invocation->requestId,
+            'provider_class' => $provider::class,
         ])));
 
         $startedAt = microtime(true);

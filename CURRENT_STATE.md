@@ -935,3 +935,160 @@ TD-007 stays OPEN. P7-011 state: `REVIEW -> CHANGES_REQUESTED`. Next legal
 action: OpenCode (unchanged implementation owner) fixes both findings under
 this task and resubmits for cycle-2 independent review; no VERIFIED/DONE
 transition is authorized yet.
+
+## ProcessingProvider track (2026-09-27)
+
+Additive post-Phase-7 architecture track (ADR-027;
+`DECISION-PROCESSING-PROVIDER-OPTION1-001`): Server-first + pinned
+direct overflow; separate `TranscriptionProvider` / `TranslationProvider`;
+self-hosted faster-whisper `large-v3` + NLLB canonical; CPU-only, GPU not
+required; no silent fallback; no Wave-1 Auto/client; external translation
+deferred. Discovery complete (`discovery/processing-provider/`); planning
+complete (`ARCHITECTURE-PLAN-OPTION1.md`); contracts authored
+(`tasks/PP-T1-*` … `tasks/PP-T6-*`).
+
+PP-T1 (provider contracts + self-hosted adapters) = DONE
+(`DECISION-PP-T1-CLOSURE-001`; independently VERIFIED, no BLOCKER/HIGH;
+`reviews/PP-T1-INDEPENDENT-REVIEW.md`). PP-T2 (deterministic resolution +
+config) = DONE (`DECISION-PP-T2-CLOSURE-001`, 2026-09-27; corrective
+cycle 1 independently VERIFIED, no BLOCKER/HIGH; kill-switch
+`DECISION-PP-T2-KILL-SWITCH-001` + config naming
+`DECISION-PP-T2-CONFIG-NAMING-001` decided and implemented).
+Carried-forward non-blocking notes: (a) the implementation-round
+review that first raised the HIGH/MEDIUM exists only as PP-T2 task-file
+prose with no durable `reviews/` artifact — the corrective re-review
+(`reviews/PP-T2-CORRECTIVE-CYCLE1-RE-REVIEW.md`) independently
+reconstructed the substance and stands as their durable record;
+(b) pre-existing order-dependent `LogContextTest` flake (also
+PP-T1-REV-03), unrelated, passes in isolation/rerun — separate ticket
+only if it recurs, outside PP scope.
+PP-T3–PP-T6 = BACKLOG. Phase 1–7 contracts frozen; this track does not
+reopen them and does not alter P7-009 Phase B / drill / P7-012 rules.
+
+PP-T3 Step 1 completed 2026-09-28 (governance/readiness only, no
+implementation): readiness review `reviews/PP-T3-READINESS-REVIEW.md`
+(`NOT_READY`; 0 BLOCKER, 3 HIGH, 10 MEDIUM, 3 LOW, 1 INFO); reconciliation
+`DECISION-PP-T3-CONTRACT-RECONCILIATION-001` (single reference adapter, scalar
+ctor, no new global keys, §9 error table, ADR-018-consistent retry, log
+checklist, T3/T5 split; no new ADR); fresh confirmation
+`reviews/PP-T3-READINESS-CONFIRMATION.md` (`READY-ELIGIBLE`); promotion
+`DECISION-PP-T3-READY-PROMOTION-001` (BACKLOG → READY); execution authorization
+`DECISION-PP-T3-EXECUTION-AUTHORIZATION-001`. Final state:
+`PP-T3 = READY — EXECUTION AUTHORIZED` (Step 2 not started). PP-T4 stays
+DEFERRED; PP-T5/PP-T6 stay BACKLOG / NOT AUTHORIZED. No runtime/
+implementation files changed in Step 1.
+
+PP-T3 Step 2 closed DONE 2026-09-28 (`DECISION-PP-T3-CLOSURE-001`;
+independently VERIFIED `reviews/PP-T3-INDEPENDENT-REVIEW.md`, AC1–AC10 PASS,
+no BLOCKER/HIGH/MEDIUM; LOW/INFO notes PP-T3-REV-01..04 non-blocking):
+reference adapter + transport seam + shaped DTOs behind the frozen T1
+interface, fixture fake, 23 focused tests; full suite 1173 (1168 passed,
+5 pre-existing skips, 0 failures on fresh rerun — one unrelated
+second-boundary flake in `RevisionHistoryActivationTest` on first run,
+passes in isolation/rerun); Pint clean; PHPStan 0 errors. No migration,
+queue/lifecycle/translation/fallback change; frozen interfaces untouched.
+Final lifecycle: `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`. PP-T4
+stays DEFERRED; PP-T5/PP-T6 stay BACKLOG / NOT AUTHORIZED.
+
+PP-T4 Step 1 completed 2026-09-28 (governance/readiness only, no
+implementation): deferment release `DECISION-PP-T4-DEFERMENT-RELEASE-001`
+(ADR-027 Wave-1 deferment released for readiness — T1/T2/T3 DONE exceed
+stable, Step-1 HPO prompt as later wave authorization for governance,
+vendor-selection clause narrowed to vendor-neutral reference per T3 H-1
+precedent, vendor selection stays deferred); readiness review
+`reviews/PP-T4-READINESS-REVIEW.md` (`NOT_READY`; 0 BLOCKER, 3 HIGH,
+10 MEDIUM, 3 LOW, 1 INFO); reconciliation
+`DECISION-PP-T4-CONTRACT-RECONCILIATION-001` (single fixture-shaped
+reference adapter, scalar ctor + named transport seam, no new global keys,
+scoped `external_reference` fixture selection with fail-closed preserved,
+§9 error table, frozen validator/writer enforcement with single-shot 1:1,
+manual-only retry + token fencing + reused requestId, 300s ceiling,
+adapter-internal segment/char ceilings, log checklist, kill-switch AC,
+source/target language rules, T4-enforces/T5-owns split, additive
+staleness + F-001 gate; no new ADR); fresh confirmation
+`reviews/PP-T4-READINESS-CONFIRMATION.md` (`READY-ELIGIBLE`); promotion
+`DECISION-PP-T4-READY-PROMOTION-001` (BACKLOG → READY); execution
+authorization `DECISION-PP-T4-EXECUTION-AUTHORIZATION-001`. Final state:
+`PP-T4 = READY — EXECUTION AUTHORIZED` (Step 2 not started). PP-T5/PP-T6
+stay BACKLOG / NOT AUTHORIZED. No runtime/implementation files changed in
+Step 1.
+
+PP-T4 Step 2 closed DONE 2026-09-28 (`DECISION-PP-T4-CLOSURE-001`;
+corrective cycle 1 independently VERIFIED
+`reviews/PP-T4-CORRECTIVE-CYCLE1-RE-REVIEW.md`, AC1–AC12 PASS, no
+BLOCKER/HIGH/MEDIUM; INFO notes PP-T4-REV-02/03 non-blocking): reference
+adapter + transport seam + shaped DTOs/enum behind the frozen T1
+interface, scoped `external_reference` fixture selection with fail-closed
+preserved, fixture fake, 41 focused tests; full suite 1213 (1208 passed,
+5 pre-existing skips, 0 failures on clean first run — one unrelated
+order-dependent flake in `RevisionHistoryActivationTest` on the Revision
+filter first run, passes in isolation/rerun); Pint clean; PHPStan
+0 errors. Cycle-1 review finding PP-T4-REV-01 (MEDIUM, unlogged
+validator-rejection audit) corrected via log-then-rethrow + regression
+test. No migration, queue/lifecycle/transcription/fallback/vendor change;
+frozen interfaces untouched. Final lifecycle:
+`READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`. PP-T5/PP-T6 stay
+BACKLOG / NOT AUTHORIZED.
+
+PP-T5 Step 1 completed 2026-09-28 (governance/readiness only, no
+implementation): readiness review `reviews/PP-T5-READINESS-REVIEW.md`
+(`NOT_READY`; 0 BLOCKER, 4 HIGH, 7 MEDIUM, 2 LOW, 1 INFO — all
+contract-precision gaps plus one stale-scope gap: the 89-line draft
+predates PP-T4 DONE and governs transcription only); reconciliation
+`DECISION-PP-T5-CONTRACT-RECONCILIATION-001` (dual-domain scope covering
+both T3 transcription and T4 translation reference adapters; log-emission
+alerts with scoped 5-alert set, no quota alert, no third-party platform;
+zero new global config keys and zero new enforcement code; existing
+ceilings verified with no new rejection paths; pinned kill-switch AC,
+egress-attribution fields, executable runbook sections + clean state,
+informational-only spend, frozen identity reuse, dual-domain secrets +
+rotation, degraded-mode split; no new ADR); fresh confirmation
+`reviews/PP-T5-READINESS-CONFIRMATION.md` (`READY-ELIGIBLE`); promotion
+`DECISION-PP-T5-READY-PROMOTION-001` (BACKLOG → READY); execution
+authorization `DECISION-PP-T5-EXECUTION-AUTHORIZATION-001`. Final state:
+`PP-T5 = READY — EXECUTION AUTHORIZED` (Step 2 not started). PP-T6 stays
+BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY. No runtime/implementation
+files changed in Step 1.
+
+PP-T5 Step 2 closed DONE 2026-09-28 (`DECISION-PP-T5-CLOSURE-001`;
+independently VERIFIED `reviews/PP-T5-INDEPENDENT-REVIEW.md`, AC1–AC10 PASS,
+no BLOCKER/HIGH/MEDIUM; corrective cycle 1 resolved one LOW
+(PP-T5-REV-01, unused test-side alert-key map) with an AC7 traceability
+test): 5 focused test files (39 tests, 244 assertions) + executable runbook
+`verification/pp-t5/PP-T5-OPERATIONAL-RUNBOOK.md` (19 sections); zero PP-T5
+runtime files under `app/`/`config/`/`database`/worker; full suite 1252
+(1247 passed, 5 pre-existing skips, 0 failures on clean runs — two runs hit
+the known pre-existing order-dependent `LogContextTest` flake, passes in
+isolation/rerun; baseline without PP-T5 shows the identical 4 warnings);
+Pint clean; PHPStan 0 errors. No resolver/adapter/queue/lifecycle/schema/
+vendor/delivery-platform/spend change; frozen interfaces untouched. Final
+lifecycle: `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`. PP-T6 stays
+BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY.
+
+PP-T6 Step 1 completed 2026-09-28 (governance/readiness only, no
+implementation, no gate execution): readiness review
+`reviews/PP-T6-READINESS-REVIEW.md` (`READY-ELIGIBLE`; no unresolved
+BLOCKER/HIGH/MEDIUM) after inline reconciliation (stale T4-exclusion in
+§§4/14/19 corrected — chain T1 → T2 → T3 → T4 → T5 → T6 with T4 evidence
+mandatory per `DECISION-PP-T4-DEFERMENT-RELEASE-001` +
+`DECISION-PP-T4-CLOSURE-001`; §13 ACs assigned AC1–AC8 with per-assert pass
+rules and dual-domain AC6; §14 mandatory T1–T5 suite/command list; §17
+rollback-rehearsal clarification; §18 frozen-scope consolidation; no scope
+or ADR change, no closed contract reopened). Execution authorization
+`DECISION-PP-T6-EXECUTION-AUTHORIZATION-001`. Final state:
+`PP-T6 = READY — EXECUTION AUTHORIZED` (Step 2 not started; gate NOT
+executed; not VERIFIED/DONE).
+
+PP-T6 Step 2 closed DONE 2026-09-28 (`DECISION-PP-T6-CLOSURE-001`;
+independently VERIFIED `reviews/PP-T6-INDEPENDENT-REVIEW.md`, AC1–AC8 PASS,
+no BLOCKER/HIGH/MEDIUM; one LOW test-only corrective cycle PP-T6-REV-01
+resolved in-cycle and re-verified): focused 155/155 independently
+reproduced; full suite 1253 (1248 passed, 5 pre-existing skips, 0 failures
+on clean runs — one preserved A-01 `LogContextTest` batch strike, 6/6 in
+isolation, classified pre-existing); Pint clean; PHPStan 0 errors; browser
+N/A justified (no UI-affecting change). Runtime diff clean (one test file +
+governance/verification only; zero `app/`/`config/`/`database`/worker
+change). Evidence: `verification/pp-t6/PP-T6-FINAL-GATE-EVIDENCE.md`. Final
+lifecycle: `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`. Processing
+Provider track = CLOSED (final gate passed). Closure authorizes no
+post-PP-T6 work.

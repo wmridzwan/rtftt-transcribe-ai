@@ -167,6 +167,7 @@ class ProcessTranscription implements ShouldQueue
             'processing_attempt_id' => $attempt->getKey(),
             'attempt_number' => $this->attemptNumber,
             'request_id' => $invocation->requestId,
+            'provider_class' => $provider::class,
         ])));
 
         $startedAt = microtime(true);

@@ -9,6 +9,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Provider selection (PP-T2)
+    |--------------------------------------------------------------------------
+    |
+    | Decided: DECISION-PP-T2-CONFIG-NAMING-001. Deterministic selection key
+    | read by TranscriptionProviderResolver on every interface resolution.
+    | 'self_hosted' (default) preserves pre-PP-T2 behavior. 'external_<name>'
+    | resolves via the transcription.providers.<name> container binding
+    | (fixtures/test doubles in PP-T2; real adapters only via later tasks).
+    |
+    */
+
+    'provider_selection' => env('RTFTT_TRANSCRIPTION_PROVIDER_SELECTION', 'self_hosted'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Canonical model
     |--------------------------------------------------------------------------
     |

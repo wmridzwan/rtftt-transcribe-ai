@@ -12,8 +12,8 @@ use App\Editing\TranslationStalenessWriter;
 use App\Models\MediaFile;
 use App\Security\SecurityAuditLog;
 use App\Transcription\TranscriptionQueueConfig;
-use App\Translation\HttpTranslationProvider;
 use App\Translation\TranslationProvider;
+use App\Translation\TranslationProviderResolver;
 use App\Translation\TranslationQueueConfig;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Failed;
@@ -40,15 +40,10 @@ class AppServiceProvider extends ServiceProvider
         // the container cannot auto-wire.
         $this->app->bind(BackupManager::class, fn (): BackupManager => BackupManager::forMediaDisk());
 
-        $this->app->singleton(TranslationProvider::class, function () {
-            return new HttpTranslationProvider(
-                workerBaseUrl: (string) config('translation.worker_url', 'http://localhost:8000'),
-                bearerToken: (string) config('translation.worker_token', ''),
-                providerName: (string) config('translation.provider', 'self-hosted'),
-                model: (string) config('translation.model', 'self-hosted-default'),
-                contractVersion: (string) config('translation.contract_version', '1.0'),
-            );
-        });
+        // PP-T2: sole resolver call site. Re-evaluated on every interface
+        // resolution (bind, not singleton) so selection and kill-switch
+        // changes apply without redeploying code.
+        $this->app->bind(TranslationProvider::class, fn () => (new TranslationProviderResolver)->resolve());
     }
 
     /**
@@ -59,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
         MediaFile::assertPrivateStorageDisk();
         TranslationQueueConfig::assertConsistent();
         TranscriptionQueueConfig::assertConsistent();
+        TranslationProviderResolver::validateSelection();
         ProductionConfigGuard::assertValid();
         ProductionPostureChecks::assertValid();
         $this->configureRateLimiters();

@@ -3305,3 +3305,65 @@ Reference:
 `DECISION_QUEUE.md`
 (`DECISION-P7-009-PHASE-A-EXECUTION-AUTHORIZATION-001`);
 task file (`tasks/P7-009-*` Status history).
+
+## ADR-027 — ProcessingProvider Initial Architecture Direction (Option 1)
+
+Date: 2026-09-27
+
+Status: ACCEPTED — Human Product Owner
+(`DECISION-PROCESSING-PROVIDER-OPTION1-001`).
+
+Decision:
+
+Option 1 — Server-first + pinned direct external-provider capability —
+is the approved initial ProcessingProvider architecture direction.
+
+Approved architecture:
+
+- Server platform: Linux / Ubuntu.
+- Server compute baseline: CPU-only; GPU not required.
+- Separate `TranscriptionProvider` and `TranslationProvider` contracts
+  (no generic provider interface).
+- Existing self-hosted faster-whisper `large-v3` preserved as the
+  canonical transcription implementation.
+- Existing self-hosted NLLB-200-distilled-600M preserved as the
+  canonical translation implementation.
+- External providers are additive only and must normalize into existing
+  RTFTT domain structures without leaking vendor shapes.
+- Provider selection is deterministic and explicit; providers never call
+  each other.
+- No silent cloud fallback in either direction.
+- No Auto mode in Wave 1; no ClientDeviceProvider in Wave 1.
+- External translation deferred from Wave 1 (translation stays
+  self-hosted NLLB).
+- Chunk identity is execution-only and must not become
+  transcription segment/domain identity.
+- Per-chunk audit is logs-only initially; a durable chunk-audit table
+  may be reconsidered only if later verification proves logs
+  insufficient (with explicit HPO authorization, never silently).
+- Vendor selection deferred until after the provider
+  abstraction/config foundation exists.
+- Phase 1–7 historical contracts remain frozen; no DONE task is
+  reopened by this direction.
+
+This ADR newly records the direction decided during discovery/planning;
+it does not rewrite history to imply earlier durability. Discovery
+verdict `DISCOVERY_COMPLETE — OWNER_ARCHITECTURE_DECISION_REQUIRED`
+is the basis; this ADR is the durable governance record the PP-T1
+contract review required.
+
+Phase consequence:
+
+This ADR authorizes detailed architecture planning and PP-T1–PP-T6
+contract authoring only. It authorizes no production implementation,
+provider code, migrations, vendor calls, spike execution, model-default
+changes, or Phase 1–7 contract modification. PP-T1 READY promotion is
+a separate decision (`DECISION-PP-T1-READY-PROMOTION-001`).
+
+Reference:
+
+`DECISION_QUEUE.md` (`DECISION-PROCESSING-PROVIDER-OPTION1-001`,
+`DECISION-PP-T1-READY-PROMOTION-001`);
+`discovery/processing-provider/DISCOVERY-FINAL-REPORT.md` (options);
+`discovery/processing-provider/ARCHITECTURE-PLAN-OPTION1.md`;
+task files (`tasks/PP-T1-*` through `tasks/PP-T6-*`).

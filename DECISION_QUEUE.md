@@ -6257,3 +6257,1654 @@ Blocks: none (authorization, not a block).
 Does Not Block: P7-009 Phase A implementation + rehearsal; closed records.
 
 Durable record: `DECISIONS.md` (P7-009 Phase A Execution Authorization).
+
+### DECISION-PROCESSING-PROVIDER-OPTION1-001 — Approve Option 1 initial ProcessingProvider architecture
+
+Decision ID: DECISION-PROCESSING-PROVIDER-OPTION1-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Architecture
+
+Originating Scope: ProcessingProvider / Client-side Processing extension
+(discovery verdict `DISCOVERY_COMPLETE —
+OWNER_ARCHITECTURE_DECISION_REQUIRED`)
+
+Raised By: PP-T1 independent contract review (HIGH governance finding:
+Option 1 direction referenced but not yet durable)
+
+Priority: HIGH
+
+Question:
+
+Is Option 1 — Server-first + pinned direct external-provider capability —
+approved as the initial ProcessingProvider architecture direction?
+
+Options:
+
+1. Approve Option 1 with separate TranscriptionProvider /
+   TranslationProvider contracts, self-hosted canonicals, deterministic
+   selection, no silent fallback, no Wave-1 Auto/client, deferred
+   external translation, execution-only chunk identity, logs-only
+   per-chunk audit (recommended).
+2. Approve a different option (2 or 3).
+3. Do not approve yet.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-27 — Option 1. Linux / Ubuntu; CPU-only server;
+GPU not required; separate provider contracts; faster-whisper `large-v3`
+and NLLB-200-distilled-600M preserved; externals additive;
+deterministic selection; no silent fallback; no Wave-1 Auto or
+ClientDeviceProvider; external translation deferred; chunk identity
+execution-only; per-chunk audit logs-only initially; vendor selection
+deferred; Phase 1–7 contracts frozen. This decision newly persists the
+direction; history is not rewritten to imply earlier durability.
+
+Authorizes detailed architecture planning and PP-T1–PP-T6 contract
+authoring only. No implementation, provider code, migrations, vendor
+calls, spikes, or model-default changes.
+
+Blocks:
+
+- PP-T1 READY promotion (prerequisite; resolved by this decision).
+
+Does Not Block:
+
+- Closed Phase 1–7 records; P7-009 Phase A; unrelated runnable work.
+
+Durable record: `DECISIONS.md` (ADR-027).
+
+### DECISION-PP-T1-READY-PROMOTION-001 — Promote PP-T1 to READY
+
+Decision ID: DECISION-PP-T1-READY-PROMOTION-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Task Authorization
+
+Originating Task: PP-T1 (Provider Contracts & Existing Adapter Migration)
+
+Raised By: Human Product Owner (PP-T1 contract reconciliation, 2026-09-27)
+
+Priority: HIGH
+
+Question:
+
+Is the reconciled PP-T1 contract complete and eligible for READY
+promotion, with execution still withheld?
+
+Options:
+
+1. Promote PP-T1 `BACKLOG → READY`, execution not authorized
+   (recommended).
+2. Return for further reconciliation.
+3. Do not promote.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-27 — Option 1. Preconditions verified:
+ADR-027 persisted; both MEDIUM wording findings reconciled
+(observable-behavior parity rule; behavioral AC4); no new
+BLOCKER/HIGH; abstraction shape and dependency graph unchanged; no
+T2/T3/T5, schema, vendor, client, or routing dependency introduced.
+
+Transition applied: PP-T1: `BACKLOG → READY`. Final state:
+`PP-T1 = READY — EXECUTION NOT AUTHORIZED`.
+
+Authorizes no implementation of PP-T1–PP-T6, no vendor calls, no model
+changes, no migrations, no client work, no spike execution. T2–T6
+remain BACKLOG. Implementation requires separate readiness
+confirmation + HPO execution authorization.
+
+Blocks: none (authorization, not a block).
+
+Does Not Block: T2–T6 contract work (remain BACKLOG); closed records.
+
+Durable record: `DECISIONS.md` (ADR-027 reference);
+task file (`tasks/PP-T1-*` Status + reconciliation record).
+
+### DECISION-PP-T1-EXECUTION-AUTHORIZATION-001 — Authorize PP-T1 implementation
+
+Decision ID: DECISION-PP-T1-EXECUTION-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Task Authorization / Execution Authorization
+
+Originating Task: PP-T1 (Provider Contracts & Existing Adapter Migration)
+
+Raised By: Human Product Owner (PP-T1 readiness confirmation,
+`READY_CONFIRMED`, 2026-09-27)
+
+Priority: HIGH
+
+Question:
+
+May PP-T1 be implemented per its reconciled contract, promoting
+`READY → IN_PROGRESS`, with PP-T2–PP-T6 remaining unauthorized?
+
+Options:
+
+1. Authorize PP-T1 implementation only (recommended).
+2. Return for further work.
+3. Do not authorize.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-27 — Option 1. Readiness confirmed
+(`READY_CONFIRMED`; 0 BLOCKER/HIGH/MEDIUM; no unresolved owner
+decision; no T2+ dependency; no migration; no live-vendor need).
+
+Transition applied: PP-T1: `READY → IN_PROGRESS` on work start.
+
+Scope: T1 abstraction + parity migration only (provider contracts,
+self-hosted adapters, container bindings, interface-bound
+orchestration, parity/binding tests, mechanical doc updates).
+Absolute behavior parity required (exact equality where
+deterministic). Non-scope: externals, resolver/routing, chunking,
+audit redesign, schema, clients, Auto, spikes, model changes.
+
+PP-T2–PP-T6 remain BACKLOG / NOT AUTHORIZED. Implementation must stop
+and escalate if schema, vendor, routing, or T2+ work appears
+necessary. Implementer must not mark own work VERIFIED or DONE;
+independent review required before any VERIFIED claim.
+
+Blocks: none (authorization, not a block).
+
+Does Not Block: closed Phase 1–7 records; P7-009 Phase A; T2–T6
+contract work (remain BACKLOG).
+
+Durable record: task file (`tasks/PP-T1-*` Status history).
+
+### DECISION-PP-T1-CLOSURE-001 — Close PP-T1 (Provider Contracts & Existing Adapter Migration)
+
+Decision ID: DECISION-PP-T1-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Task Closure
+
+Originating Task: PP-T1
+
+Raised By: Human Product Owner (closure round, 2026-09-27)
+
+Priority: HIGH
+
+Question:
+
+Is the independently VERIFIED PP-T1 eligible for closure as DONE under
+the State-to-Action Contract?
+
+Options:
+
+1. Close PP-T1: transition VERIFIED → DONE.
+2. Do not close yet (return for further work).
+3. Close only part of the task.
+
+Resolution:
+
+HPO-CLOSED on 2026-09-27 based on
+`reviews/PP-T1-INDEPENDENT-REVIEW.md`:
+
+- PP-T1 was execution-authorized
+  (`DECISION-PP-T1-EXECUTION-AUTHORIZATION-001`); implementation
+  completed within PP-T1 scope (2 adapters + 2 binding swaps + 2 parity
+  suites; `Http*Provider` parents unmodified; no resolver, routing,
+  external, chunking, schema, or client work).
+- Independent review returned `PP-T1 = VERIFIED`: all 8 acceptance
+  criteria PASS on independently reproduced evidence (new suites 10/10;
+  full suite 1108/1103/5 skips/0 failures; Pint clean; PHPStan 0
+  errors); forbidden-scope audit clean.
+- No BLOCKER or HIGH finding remains. Disposition of the three
+  non-blocking observations:
+  - PP-T1-REV-01 (LOW): thinner translation failure-path coverage from
+    pre-existing domain-model asymmetry — accepted as non-blocking,
+    closed with PP-T1; may be strengthened in a future task only if
+    TranslationException gains a retryable accessor (no new task
+    created).
+  - PP-T1-REV-02 (INFO): redundant `implements` declaration — harmless
+    intent-signaling; accepted, no action.
+  - PP-T1-REV-03 (INFO): `LogContextTest` flake did not reproduce in
+    review; unrelated subsystem — accepted, no action; separate ticket
+    only if it recurs, outside PP scope.
+- HPO accepts PP-T1. Canonical transition applied:
+  `PP-T1: VERIFIED → DONE`. Lifecycle history preserved:
+  `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`.
+
+PP-T2–PP-T6 remain `BACKLOG` / NOT AUTHORIZED. Closure of PP-T1 does
+not authorize execution, promotion, or implementation of PP-T2 or any
+later work. No implementation, test, migration, or production change
+is authorized by this closure.
+
+Blocks: none.
+
+Does Not Block: T2–T6 contract work (remain BACKLOG); closed Phase
+1–7 records; P7-009 Phase A.
+
+Durable record: task file (`tasks/PP-T1-*` Status history).
+
+### DECISION-PP-T2-KILL-SWITCH-001 — PP-T2 kill-switch mechanism (env flag + documented refresh)
+
+Decision ID: DECISION-PP-T2-KILL-SWITCH-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Architecture
+
+Originating Task: PP-T2 (readiness Finding H-2 / AC6,
+`reviews/PP-T2-READINESS-REVIEW.md` §J Decision 1)
+
+Raised By: PP-T2 readiness review (option set §J); decided by Human
+Product Owner
+
+Priority: HIGH
+
+Question:
+
+What concrete mechanism implements PP-T2's deployment-free kill switch
+forcing both domains to self-hosted?
+
+Options (per readiness review §J):
+
+1. Env-var flag + documented cache-refresh procedure (recommended).
+2. Cache/database-backed runtime flag.
+3. Config-only flag now, zero-refresh guarantees deferred to T5.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-27 — Option 1.
+
+Canonical contract:
+
+- Config path: `processing.external_kill_switch`; env
+  `RTFTT_PROCESSING_EXTERNAL_KILL_SWITCH`; type boolean-ish
+  (`true`/`1`/`false`/`0`, actual booleans accepted); default `false`.
+- Enabled (`true`/`1`): both resolvers return the self-hosted adapters
+  regardless of selection keys; an engagement event is logged (no
+  secrets, no media).
+- Disabled (`false`/missing → default): resolvers honor the selection
+  keys.
+- Invalid value: fail closed — treated as engaged (force self-hosted)
+  with a warning logged naming the invalid value (never a secret).
+- Evaluation boundary: on every interface resolution (each
+  `app(TranscriptionProvider::class)` /
+  `app(TranslationProvider::class)` resolution re-reads current config);
+  never cached across resolutions in a way that defeats the switch.
+- Refresh: after changing the env value the operator runs the
+  documented refresh (`php artisan config:clear`, or `config:cache`
+  where caching is used); long-lived queue workers pick it up on
+  restart/recycle per normal Laravel semantics. "Deployment-free" means
+  no code deploy or release — running the documented Artisan refresh is
+  operations, explicitly permitted.
+- Observable failure behavior: engagement is silent-success
+  (self-hosted serves); invalid value degrades to self-hosted with a
+  warning, never a boot crash during an incident.
+- Testing (PP-T2 must prove): disabled → selection honored; enabled →
+  self-hosted for both domains after refresh; invalid → forced
+  self-hosted + warning logged; no secret in any record.
+
+Rejected: Option 2 (new persistence mechanism T2/T5 never requested
+approval for; larger surface); Option 3 (defers a real,
+currently-testable question and weakens AC6).
+
+Does NOT authorize: PP-T2 implementation; resolver code; T5's
+procedural/runbook/alerting layer (T5 owns operations around this same
+mechanism); zero-refresh upgrades (future T5 decision, if ever);
+database-backed flags or new migrations.
+
+Blocks: none (decision, not a block — unblocks PP-T2 AC6 testability).
+
+Does Not Block: T3–T6 contracts (remain BACKLOG); closed records.
+
+Durable record: `tasks/PP-T2-*` §§6/13/19 (reconciled 2026-09-27).
+
+### DECISION-PP-T2-CONFIG-NAMING-001 — PP-T2 provider-selection config namespace
+
+Decision ID: DECISION-PP-T2-CONFIG-NAMING-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Architecture
+
+Originating Task: PP-T2 (readiness Finding M-3,
+`reviews/PP-T2-READINESS-REVIEW.md` §J Decision 2)
+
+Raised By: PP-T2 readiness review (option set §J); decided by Human
+Product Owner
+
+Priority: HIGH
+
+Question:
+
+How does the new provider-selection config key relate to the existing
+`translation.provider` identity-label key?
+
+Options (per readiness review §J):
+
+1. Distinctly-named new selection keys (recommended).
+2. Repurpose `translation.provider` as the selection key.
+3. Defer naming to the implementer.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-27 — Option 1.
+
+Canonical key names:
+
+- `transcription.provider_selection` ← env
+  `RTFTT_TRANSCRIPTION_PROVIDER_SELECTION`, default `'self_hosted'`.
+- `translation.provider_selection` ← env
+  `RTFTT_TRANSLATION_PROVIDER_SELECTION`, default `'self_hosted'`.
+- Allowed selection values: `'self_hosted'` always; transcription
+  additionally accepts `'external_<name>'` only when a binding under
+  that name exists (fixture/test double in T2; real adapter only via a
+  later authorized task). Translation accepts only `'self_hosted'` in
+  Wave 1 — any other value is a validation failure (unchanged T2 rule).
+- Existing `translation.provider` (env `RTFTT_TRANSLATION_PROVIDER`,
+  default `'self-hosted'`) is UNCHANGED as the provider identity label
+  used for logging/persisted identity; it never drives class selection.
+  The reconciled PP-T2 contract states both keys' purposes side by
+  side; a code comment at each key must cross-reference the other.
+
+Rejected: Option 2 (defers a real collision into a future wave, forcing
+a disruptive rename against live data when T4 un-defers); Option 3
+(contradicts this repo's pin-before-implement governance for
+config naming).
+
+Does NOT authorize: PP-T2 implementation; any change to the existing
+identity-label key's meaning; external names beyond opaque
+`external_<name>` placeholders.
+
+Blocks: none (decision, not a block).
+
+Does Not Block: T3–T6 contracts (remain BACKLOG); closed records.
+
+Durable record: `tasks/PP-T2-*` §§6/13/19 (reconciled 2026-09-27).
+
+### DECISION-PP-T2-READY-PROMOTION-001 — Promote PP-T2 to READY (execution not authorized)
+
+Decision ID: DECISION-PP-T2-READY-PROMOTION-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Task Authorization / READY Promotion
+
+Originating Task: PP-T2 (Deterministic Provider Resolution & Configuration)
+
+Raised By: Human Product Owner (promotion round, 2026-09-27)
+
+Priority: HIGH
+
+Question:
+
+Is reconciled PP-T2 eligible for promotion from BACKLOG to READY,
+with execution explicitly withheld?
+
+Options:
+
+1. Promote PP-T2 `BACKLOG → READY — EXECUTION NOT AUTHORIZED`
+   (recommended).
+2. Return for further readiness work.
+3. Do not promote.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-27 — Option 1. Preconditions independently
+confirmed: PP-T1 DONE (`DECISION-PP-T1-CLOSURE-001`); readiness review
+`NOT_READY` with 2 HIGH + 3 MEDIUM blockers; reconciliation decided
+both HPO decisions (`DECISION-PP-T2-KILL-SWITCH-001`,
+`DECISION-PP-T2-CONFIG-NAMING-001`) and pinned binding shape,
+request identity, config namespace, and T2/T5 split in-contract;
+fresh confirmation returned `PP-T2 = READY-ELIGIBLE`
+(`reviews/PP-T2-READINESS-CONFIRMATION.md`) with all 8 ACs
+PASS-testable, no unresolved HPO decision, no new blocking finding,
+architecture compatible, and no implementation started.
+
+Transition applied:
+
+```text
+PP-T2:
+BACKLOG
+→ READY — EXECUTION NOT AUTHORIZED
+```
+
+Promotion is contract-readiness only. It does NOT authorize PP-T2
+implementation, tests, config changes, resolver code, or any runtime
+behavior change. A separate explicit HPO execution authorization is
+required before any PP-T2 code/test/config implementation.
+PP-T3–PP-T6 remain BACKLOG (PP-T4 DEFERRED) and unaffected.
+
+Blocks: none (promotion, not a block).
+
+Does Not Block: T3–T6 contracts (remain BACKLOG); closed Phase 1–7
+records; P7-009 Phase A.
+
+Durable record: task file (`tasks/PP-T2-*` Status history).
+
+### DECISION-PP-T2-EXECUTION-AUTHORIZATION-001 — Authorize PP-T2 implementation
+
+Decision ID: DECISION-PP-T2-EXECUTION-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Task Authorization / Execution Authorization
+
+Originating Task: PP-T2 (Deterministic Provider Resolution & Configuration)
+
+Raised By: Human Product Owner (authorization round, 2026-09-27)
+
+Priority: HIGH
+
+Question:
+
+May PP-T2 be implemented per its reconciled contract, given READY
+promotion and READY-ELIGIBLE confirmation?
+
+Options:
+
+1. Authorize PP-T2 implementation only (recommended).
+2. Return for further readiness work.
+3. Do not authorize.
+
+Resolution:
+
+HPO-DECIDED on 2026-09-27 — Option 1. Preconditions independently
+confirmed: PP-T2 was READY before authorization
+(`DECISION-PP-T2-READY-PROMOTION-001`); readiness evidence
+(`reviews/PP-T2-READINESS-REVIEW.md` → reconciliation →
+`reviews/PP-T2-READINESS-CONFIRMATION.md` = `READY-ELIGIBLE`, AC1–AC8
+PASS-testable, no unresolved decision, no new blocking finding);
+governing decisions authoritative (`DECISION-PP-T2-KILL-SWITCH-001`,
+`DECISION-PP-T2-CONFIG-NAMING-001`, ADR-027,
+`DECISION-PROCESSING-PROVIDER-OPTION1-001`); no implementation
+pre-started; T3–T6 unauthorized.
+
+HPO approval to begin implementation is granted for PP-T2 ONLY.
+
+Permitted implementation scope (canonical PP-T2 contract only):
+provider-selection resolver implementation
+(`TranscriptionProviderResolver`, `TranslationProviderResolver`);
+canonical selection config (`transcription.provider_selection`,
+`translation.provider_selection`) + kill-switch config
+(`processing.external_kill_switch`) with exact decided names, values,
+and defaults; ServiceProvider integration (resolver invoked only from
+`*ServiceProvider::register()`, re-evaluated every resolution);
+kill-switch behavior exactly as decided; existing `requestId`
+preservation (no second identity); logging/observability explicitly
+required by PP-T2 (identity fields, no secrets); tests for AC1–AC8;
+related config comments/examples required by contract.
+
+Frozen contracts that must remain unchanged: both provider interfaces
+and their signatures; PP-T1 self-hosted adapters; Phase 3
+transcription contracts; Phase 5 translation contracts; Phase 6
+revision/staleness contracts; existing invocation identity semantics;
+queue/timeout invariants; no schema change.
+
+Builder obligations: begin only under this authorization; stay inside
+the contract; satisfy AC1–AC8; preserve frozen interfaces and existing
+`requestId`; implement decided names/semantics exactly; no
+request/payload-dependent routing; run focused tests, full regression
+suite, Pint, PHPStan; produce a builder report; transition only to
+REVIEW (never self-verify; never DONE).
+
+Independent review required before any VERIFIED claim, then HPO
+closure before DONE:
+
+```text
+implementation
+→ builder verification
+→ REVIEW
+→ independent review
+→ VERIFIED
+→ HPO closure
+→ DONE
+```
+
+Later-task protection: PP-T3–PP-T6 remain BACKLOG (PP-T4 DEFERRED);
+this decision authorizes no hosted/external implementation, fallback
+chains, chunking, audit expansion, queue/schema/lifecycle redesign,
+staleness/revision changes, interface changes, or unrelated
+cleanup/refactors.
+
+Blocks: none (authorization, not a block).
+
+Does Not Block: T3–T6 contracts (remain BACKLOG); closed Phase 1–7
+records; P7-009 Phase A.
+
+Durable record: task file (`tasks/PP-T2-*` Status history).
+
+### DECISION-PP-T2-CLOSURE-001 — Close PP-T2 (Deterministic Provider Resolution & Configuration)
+
+Decision ID: DECISION-PP-T2-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-27
+
+Type: Task Closure
+
+Originating Task: PP-T2
+
+Raised By: Human Product Owner (closure round, 2026-09-27)
+
+Priority: HIGH
+
+Question:
+
+Is the independently VERIFIED PP-T2 eligible for closure as DONE under
+the State-to-Action Contract?
+
+Options:
+
+1. Close PP-T2: transition VERIFIED → DONE.
+2. Do not close yet (return for further work).
+3. Close only part of the task.
+
+Resolution:
+
+HPO-CLOSED on 2026-09-27 based on
+`reviews/PP-T2-CORRECTIVE-CYCLE1-RE-REVIEW.md`:
+
+- PP-T2 was execution-authorized
+  (`DECISION-PP-T2-EXECUTION-AUTHORIZATION-001`); implementation
+  completed within PP-T2 scope (2 resolvers + 2 exceptions + 3
+  canonical config keys + ServiceProvider integration + PP-T2-required
+  logging; frozen interfaces and invocation identity untouched; no
+  T3–T6, schema, queue/lifecycle, chunking, fallback, ranking,
+  staleness, or unrelated changes).
+- Corrective cycle 1 resolved the round-1 HIGH (request_id
+  correlation: optional log-context-only `?string $requestId` +
+  `provider_class` on the existing request-scoped job lines) and
+  MEDIUM (warning logged on every fail-closed rejection path).
+- Independent re-review returned `PP-T2 (corrective cycle 1) =
+  VERIFIED`: AC1–AC8 PASS on independently reproduced evidence
+  (focused 42/42, 85 assertions; full suite 1150/1145/5 skips/0
+  failures; Pint clean; PHPStan 0 errors); scope audit clean.
+- No BLOCKER or HIGH finding remains. Non-blocking disposition:
+  - M-1 (MEDIUM, governance-process): the implementation-round review
+    exists only as task-file prose, with no durable `reviews/`
+    artifact. Accepted as non-blocking process debt: this re-review
+    independently reconstructed and verified the original findings'
+    substance, and stands as their durable record; the gap is noted in
+    CURRENT_STATE.md. No follow-up task created (the action is
+    documentation, performed inline).
+  - L-1 (LOW): pre-existing order-dependent `LogContextTest` flake,
+    unrelated subsystem, passes in isolation/rerun (also recorded as
+    PP-T1-REV-03). No action; separate ticket only if it recurs,
+    outside PP scope.
+- HPO accepts PP-T2. Canonical transition applied:
+  `PP-T2: VERIFIED → DONE`. Lifecycle history preserved:
+  `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`.
+
+PP-T3–PP-T6 remain `BACKLOG` (PP-T4 DEFERRED) / NOT AUTHORIZED.
+Closure of PP-T2 does not authorize execution, promotion, or
+implementation of PP-T3 or any later work. No implementation, test,
+migration, or production change is authorized by this closure.
+
+Blocks: none.
+
+Does Not Block: T3–T6 contracts (remain BACKLOG); closed Phase 1–7
+records; P7-009 Phase A.
+
+Durable record: task file (`tasks/PP-T2-*` Status history).
+
+### DECISION-PP-T3-CONTRACT-RECONCILIATION-001 — Reconcile PP-T3 contract to implementation-ready
+
+Decision ID: DECISION-PP-T3-CONTRACT-RECONCILIATION-001
+
+Status: DECIDED — HPO Step-1 governance 2026-09-28
+(`PP-T3 — Step 1: Prepare & Authorize` prompt authority; non-controversial
+canonical options only, no vendor/schema/architecture choice).
+
+Type: Architecture / Governance
+
+Originating Task: PP-T3 (External Transcription Adapter Foundation)
+
+Raised By: Step-1 readiness review (`reviews/PP-T3-READINESS-REVIEW.md`;
+0 BLOCKER, 3 HIGH, 10 MEDIUM, 3 LOW, 1 INFO — all contract-precision gaps).
+
+Priority: HIGH
+
+Question:
+
+Is the as-authored PP-T3 contract precise enough to build without product or
+architecture decisions during coding, and if not, which canonical options
+resolve each gap without reopening closed decisions?
+
+Options (per finding; recommended option first in each case):
+
+1. H-1: single fixture-shaped reference adapter in PP-T3; per-vendor classes
+   require a separate provider-specific addendum + HPO auth (recommended).
+   Alternative: leave "one class per future vendor" standing (rejected —
+   unbuildable with vendor selection deferred under ADR-027).
+2. H-2: scalar ctor args, no new global config keys; tests inject fixture
+   values (recommended). Alternative: decide global `external_x` config keys
+   now (rejected — premature before vendor binding; belongs to the future
+   vendor addendum).
+3. H-3: ctor-injected fixture credentials with env secrets empty; PP-T2
+   validation untouched (recommended). Alternative: relax PP-T2 fail-closed
+   for fixtures (rejected — would weaken a DONE contract).
+4. M-1..M-10/LOWs: canonical rules embedded in §§2/6/8/9/11/13/14/15/19
+   (overlap keep-earlier/drop-later + 1 ms near-dedup; manifest coverage;
+   §9 error table with `InvalidWorkerResponse` unknown-default and
+   `MediaRejected` ceiling code; attemptSeq intra-attempt only per ADR-018;
+   300s provider ceiling honored; ceiling via ctor scalar ≤500 MiB; §11 log
+   checklist; AC9 kill-switch assert; `(transcription_id, processingAttemptId,
+   chunk_index, attempt_seq)` idempotency key; T3-enforces/T5-owns split;
+   enumerated corpus; explicit no-migration) (recommended). Alternative: defer
+   to builder discretion (rejected — suppresses ambiguity by arbitrary choice).
+
+Recommendation:
+
+Option 1 in each case: every selection is the non-controversial canonical
+option most consistent with ADR-027, `ARCHITECTURE-PLAN-OPTION1.md`, PP-T1/PP-T2
+contracts, and ADR-018. No closed decision reopened; no new ADR required.
+
+Impact:
+
+PP-T3 contract is implementation-ready; builder makes no product/architecture
+choice during coding. No runtime, schema, queue, lifecycle, translation, or
+Phase 1–7 change. Vendor selection stays deferred; PP-T4 stays DEFERRED;
+PP-T5/PP-T6 stay BACKLOG.
+
+Blocks:
+
+- PP-T3 READY promotion (requires fresh confirmation after this
+  reconciliation).
+
+Does Not Block:
+
+- PP-T1/PP-T2 DONE records; Phase 1–7 closures; PP-T4–PP-T6 (remain
+  BACKLOG/DEFERRED); unrelated runnable work.
+
+Resolution:
+
+DECIDED on 2026-09-28 under Step-1 authority. Contract reconciled in
+`tasks/PP-T3-external-transcription-adapter.md` (§§2/6/8/9/10/11/13/14/15/19
+amended; §1 history records this decision). Fresh confirmation
+`reviews/PP-T3-READINESS-CONFIRMATION.md` returned `READY-ELIGIBLE` with no
+unresolved BLOCKER/HIGH/MEDIUM. Review artifacts themselves unchanged.
+
+### DECISION-PP-T3-READY-PROMOTION-001 — Promote PP-T3 to READY (execution not authorized by this record)
+
+Decision ID: DECISION-PP-T3-READY-PROMOTION-001
+
+Status: DECIDED — HPO 2026-09-28 (Step 1: Prepare & Authorize)
+
+Type: Phase Authorization / Task Authorization
+
+Originating Task: PP-T3
+
+Raised By: Step-1 readiness confirmation
+(`reviews/PP-T3-READINESS-CONFIRMATION.md`: `READY-ELIGIBLE`)
+
+Priority: HIGH
+
+Question:
+
+Is reconciled PP-T3 implementation-ready such that it may be promoted
+`BACKLOG → READY`?
+
+Options:
+
+1. Promote PP-T3 to READY (recommended).
+2. Return for further reconciliation.
+3. Do not promote.
+
+Resolution:
+
+HPO-PROMOTED on 2026-09-28. Readiness confirmed: PP-T1 DONE + PP-T2 DONE
+satisfied (no wave exception needed); all HIGH/MEDIUM reconciled
+(`DECISION-PP-T3-CONTRACT-RECONCILIATION-001`); fresh confirmation
+`READY-ELIGIBLE`; scope bounded with PP-T4–PP-T6 boundary intact; protected
+surfaces identified; no implementation begun.
+
+Transition applied:
+
+- PP-T3: BACKLOG → READY
+
+This promotion authorizes no implementation, test, migration, or runtime
+change; execution requires the separate
+`DECISION-PP-T3-EXECUTION-AUTHORIZATION-001`. PP-T4 stays DEFERRED;
+PP-T5/PP-T6 stay BACKLOG / NOT AUTHORIZED.
+
+Blocks: none.
+
+Does Not Block: PP-T4–PP-T6 (remain BACKLOG/DEFERRED); closed Phase 1–7
+records; unrelated runnable work.
+
+Durable record: task file (`tasks/PP-T3-*` §1 Status history).
+
+### DECISION-PP-T3-EXECUTION-AUTHORIZATION-001 — Authorize PP-T3 implementation
+
+Decision ID: DECISION-PP-T3-EXECUTION-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-28 (Step 1: Prepare & Authorize)
+
+Type: Phase Authorization / Task Authorization
+
+Originating Task: PP-T3 (READY via `DECISION-PP-T3-READY-PROMOTION-001`)
+
+Raised By: Human Product Owner (Step-1 authorization §J)
+
+Priority: HIGH
+
+Question:
+
+Is READY PP-T3 authorized for Step-2 execution (Build, Verify & Close)?
+
+Options:
+
+1. Authorize PP-T3 execution strictly within the reconciled contract
+   (recommended).
+2. Authorize with expanded scope.
+3. Do not authorize.
+
+Resolution:
+
+HPO-AUTHORIZED on 2026-09-28. Readiness confirmed, no blocking finding.
+PP-T3 may transition READY → IN_PROGRESS when actual work begins, scoped
+strictly to the reconciled `tasks/PP-T3-external-transcription-adapter.md`
+(AC1–AC10, §§6–14). Builder verification, independent review, corrective
+cycles (max 3, then BLOCKED), and HPO closure follow the State-to-Action
+Contract; builder claims neither VERIFIED nor DONE.
+
+Final authorized state:
+
+```text
+PP-T3 = READY — EXECUTION AUTHORIZED
+```
+
+This authorization applies to PP-T3 only. It does not authorize PP-T4, PP-T5,
+PP-T6, vendor selection, live traffic, schema/migration, queue/lifecycle
+redesign, translation changes, or unrelated work. PP-T4 stays DEFERRED;
+PP-T5/PP-T6 stay BACKLOG / NOT AUTHORIZED.
+
+Blocks: none.
+
+Does Not Block: PP-T4–PP-T6 (remain BACKLOG/DEFERRED); closed Phase 1–7
+records; unrelated runnable work.
+
+Durable record: task file (`tasks/PP-T3-*` §1 Status history).
+
+### DECISION-PP-T3-CLOSURE-001 — Close PP-T3 (External Transcription Adapter Foundation)
+
+Decision ID: DECISION-PP-T3-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-28
+
+Type: Task Closure
+
+Originating Task: PP-T3
+
+Raised By: Human Product Owner (closure round, 2026-09-28)
+
+Priority: HIGH
+
+Question:
+
+Is the independently VERIFIED PP-T3 eligible for closure as DONE under
+the State-to-Action Contract?
+
+Options:
+
+1. Close PP-T3: transition VERIFIED → DONE.
+2. Do not close yet (return for further work).
+3. Close only part of the task.
+
+Resolution:
+
+HPO-CLOSED on 2026-09-28 based on
+`reviews/PP-T3-INDEPENDENT-REVIEW.md`:
+
+- PP-T3 was execution-authorized
+  (`DECISION-PP-T3-EXECUTION-AUTHORIZATION-001`); implementation
+  completed within PP-T3 scope (1 reference adapter + transport seam +
+  3 shaped DTOs/enum behind the frozen T1 interface; fixture fake +
+  23 focused tests; no T4–T6, schema, queue/lifecycle, translation,
+  fallback, ranking, routing, or unrelated changes).
+- Independent review returned `PP-T3 = VERIFIED`: AC1–AC10 PASS on
+  independently reproduced evidence (focused 23/23, 166 assertions;
+  PP-T1/PP-T2 52/52; retry-family 90/90; full suite 1173/1168/5 skips/0
+  failures on fresh rerun; Pint clean; PHPStan 0 errors); scope audit
+  clean.
+- Full-suite first-run anomaly (one failure in Phase 6
+  `RevisionHistoryActivationTest`, timestamp off by exactly one second)
+  investigated and classified pre-existing/flaky: unrelated editing
+  subsystem, no PP-T3 code in its path, passes in isolation (12/12) and
+  on full rerun (1173/1168/5/0). Not concealed; recorded here.
+- No BLOCKER or HIGH finding remains. Non-blocking disposition:
+  - PP-T3-REV-01 (LOW): §8 ctor-wording gap for the transport seam.
+    Accepted non-blocking (seam required by §§6/14 fake-transport; no
+    scope impact; no contract churn).
+  - PP-T3-REV-02..04 (INFO): reserved `durationMs`, defensive
+    passthrough, sorted-list trim — harmless, no action.
+- HPO accepts PP-T3. Canonical transition applied:
+  `PP-T3: VERIFIED → DONE`. Lifecycle history preserved:
+  `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`.
+
+PP-T4 stays DEFERRED; PP-T5/PP-T6 stay `BACKLOG` / NOT AUTHORIZED.
+Closure of PP-T3 does not authorize execution, promotion, or
+implementation of PP-T4 or any later work. No implementation, test,
+migration, or production change beyond PP-T3 is authorized by this
+closure.
+
+Blocks: none.
+
+Does Not Block: PP-T4–PP-T6 (remain BACKLOG/DEFERRED); closed Phase 1–7
+records; PP-T1/PP-T2 DONE records.
+
+Durable record: task file (`tasks/PP-T3-*` Status history).
+
+### DECISION-PP-T4-DEFERMENT-RELEASE-001 — Release PP-T4 from Wave-1 deferment for readiness
+
+Decision ID: DECISION-PP-T4-DEFERMENT-RELEASE-001
+
+Status: DECIDED — HPO Step-1 governance 2026-09-28
+(`PP-T4 — Step 1: Prepare & Authorize` prompt authority; release for
+readiness only — Step-2 execution still requires the separate
+`DECISION-PP-T4-EXECUTION-AUTHORIZATION-001`).
+
+Type: Governance / Deferment Release
+
+Originating Task: PP-T4 (External Translation Reference Adapter)
+
+Raised By: Step-1 deferment analysis (`reviews/PP-T4-READINESS-REVIEW.md`
+§B; original reason, release condition, current evidence, disposition
+`DEFERMENT MAY BE RELEASED`).
+
+Priority: HIGH
+
+Question:
+
+Is the ADR-027 Wave-1 deferment of PP-T4 still valid, or are its release
+conditions now satisfied so PP-T4 may legally enter readiness?
+
+Options:
+
+1. Release PP-T4 from DEFERRED for readiness (recommended).
+2. Keep PP-T4 DEFERRED (rejected — the blocking condition no longer
+   holds: T1/T2-stable is exceeded by T1/T2/T3 DONE, the Step-1 HPO
+   prompt is the later wave authorization for governance, and the
+   vendor-selection clause is a stale over-constraint narrowed by
+   reconciliation, not a live product block).
+3. Release PP-T4 together with PP-T5/PP-T6 (rejected — no basis; both
+   stay BACKLOG / NOT AUTHORIZED).
+
+Resolution:
+
+DECIDED on 2026-09-28 under Step-1 authority. Original deferment basis:
+ADR-027 (`DECISION-PROCESSING-PROVIDER-OPTION1-001`) Wave-1 exclusion —
+"external translation deferred from Wave 1 (translation stays self-hosted
+NLLB)" — restated in `tasks/PP-T4-*` §§18–19 with release condition
+"later HPO wave authorization + T1/T2 stable + vendor decision".
+Evidence now met: PP-T1 DONE + PP-T2 DONE + PP-T3 DONE (stable exceeded,
+all independently VERIFIED); the Step-1 prompt constitutes the later HPO
+wave authorization for PP-T4 governance (PP-T4 only); the vendor-decision
+clause is narrowed by `DECISION-PP-T4-CONTRACT-RECONCILIATION-001` (H-1)
+to vendor-neutral reference scope with vendor selection staying deferred
+(T3 H-1 precedent) — no product decision invented, no closed decision
+reopened.
+
+Transition applied:
+
+- PP-T4: `BACKLOG — DEFERRED FROM WAVE 1` → readiness-eligible
+  (promotion to READY still requires the fresh confirmation +
+  `DECISION-PP-T4-READY-PROMOTION-001`).
+
+This release authorizes readiness work only. It authorizes no
+implementation, test, migration, vendor work, or runtime change.
+PP-T5/PP-T6 remain BACKLOG / NOT AUTHORIZED; their scope is not
+released by this decision.
+
+Blocks:
+
+- PP-T4 READY promotion (requires fresh confirmation after contract
+  reconciliation).
+
+Does Not Block:
+
+- PP-T1/PP-T2/PP-T3 DONE records; Phase 1–7 closures; PP-T5/PP-T6
+  (remain BACKLOG / NOT AUTHORIZED); unrelated runnable work.
+
+Durable record: task file (`tasks/PP-T4-*` §1 Step-1 history).
+
+### DECISION-PP-T4-CONTRACT-RECONCILIATION-001 — Reconcile PP-T4 contract to implementation-ready
+
+Decision ID: DECISION-PP-T4-CONTRACT-RECONCILIATION-001
+
+Status: DECIDED — HPO Step-1 governance 2026-09-28
+(`PP-T4 — Step 1: Prepare & Authorize` prompt authority; non-controversial
+canonical options only, no vendor/schema/architecture choice).
+
+Type: Architecture / Governance
+
+Originating Task: PP-T4 (External Translation Reference Adapter)
+
+Raised By: Step-1 readiness review (`reviews/PP-T4-READINESS-REVIEW.md`;
+0 BLOCKER, 3 HIGH, 10 MEDIUM, 3 LOW, 1 INFO — all contract-precision gaps).
+
+Priority: HIGH
+
+Question:
+
+Is the as-authored PP-T4 contract precise enough to build without product or
+architecture decisions during coding, and if not, which canonical options
+resolve each gap without reopening closed decisions?
+
+Options (per finding; recommended option first in each case):
+
+1. H-1: single fixture-shaped reference adapter in PP-T4; per-vendor classes
+   require a separate provider-specific addendum + HPO auth (recommended).
+   Alternative: keep the §19 "vendor decision" precondition literal
+   (rejected — unbuildable with vendor selection deferred under ADR-027;
+   T3 H-1 precedent resolves the identical tension).
+2. H-2: scalar ctor args + explicitly named `ReferenceExternalTranslationTransport`
+   dispatch seam, no new global config keys; tests inject fixture values;
+   env secrets stay empty (recommended). Alternative: decide global
+   `external_x` config keys now (rejected — premature before vendor
+   binding; belongs to the future vendor addendum).
+3. H-3: scoped `external_reference` fixture selection via the T2 resolver
+   (default stays `self_hosted`; kill-switch still forces self-hosted;
+   empty-token production construction fails closed before dispatch; all
+   other non-`self_hosted` values still rejected); general translation
+   unlocking stays forbidden without a fresh HPO decision (recommended).
+   Alternative: lift the translation lock generally (rejected — would
+   violate ADR-027 canonical self-hosted NLLB) or test the adapter only by
+   direct construction (rejected — would leave the T2 selection seam
+   unproven, breaking the T3 AC1 precedent this track requires).
+4. M-1..M-10/LOWs: canonical rules embedded in §§2/6/8/9/11/13/14/15/19
+   (§9 error table with `ProviderFailed` unknown-default per frozen
+   `failureFromCode` and `InvalidRequest` ceiling code; frozen validator +
+   writer enforcement with single-shot 1:1 and chunking explicitly N/A;
+   no-internal-retry + new-parent-attempt-only per ADR-022 with writer
+   token fencing and reused requestId; 300s provider ceiling honored;
+   ceilings via ctor scalars `maxSegments`/`maxPayloadChars`;
+   §11 log checklist; AC9 kill-switch assert; source/target language rules
+   incl `und`; T4-enforces/T5-owns split; additive-staleness rule + F-001
+   gate; enumerated corpus; explicit no-migration; versioned determinism
+   rule) (recommended). Alternative: defer to builder discretion (rejected
+   — suppresses ambiguity by arbitrary choice).
+
+Recommendation:
+
+Option 1 in each case: every selection is the non-controversial canonical
+option most consistent with ADR-027, `ARCHITECTURE-PLAN-OPTION1.md`,
+PP-T1/PP-T2 contracts, ADR-022 lifecycle/writer/staleness rules, ADR-018
+retry rules, and the PP-T3 proven pattern. No closed decision reopened;
+no new ADR required.
+
+Impact:
+
+PP-T4 contract is implementation-ready; builder makes no product/architecture
+choice during coding. The only frozen-surface change is the scoped H-3
+resolver amendment (default, kill-switch, fail-closed, identity preserved).
+No runtime, schema, queue, lifecycle, transcription, or Phase 1–7 change.
+Vendor selection stays deferred; PP-T5/PP-T6 stay BACKLOG.
+
+Blocks:
+
+- PP-T4 READY promotion (requires fresh confirmation after this
+  reconciliation).
+
+Does Not Block:
+
+- PP-T1/PP-T2/PP-T3 DONE records; Phase 1–7 closures; PP-T5/PP-T6 (remain
+  BACKLOG / NOT AUTHORIZED); unrelated runnable work.
+
+Resolution:
+
+DECIDED on 2026-09-28 under Step-1 authority. Contract reconciled in
+`tasks/PP-T4-external-translation-provider.md` (§§2/6/8/9/10/11/13/14/15/19
+amended; §1 history records this decision). Fresh confirmation
+`reviews/PP-T4-READINESS-CONFIRMATION.md` returned `READY-ELIGIBLE` with no
+unresolved BLOCKER/HIGH/MEDIUM. Review artifacts themselves unchanged.
+
+### DECISION-PP-T4-READY-PROMOTION-001 — Promote PP-T4 to READY (execution not authorized by this record)
+
+Decision ID: DECISION-PP-T4-READY-PROMOTION-001
+
+Status: DECIDED — HPO 2026-09-28 (Step 1: Prepare & Authorize)
+
+Type: Task Authorization
+
+Originating Task: PP-T4 (READY-eligible via
+`reviews/PP-T4-READINESS-CONFIRMATION.md`)
+
+Raised By: Human Product Owner (Step-1 authorization §K)
+
+Priority: HIGH
+
+Question:
+
+Is reconciled PP-T4 implementation-ready such that it may be promoted
+`BACKLOG → READY`?
+
+Options:
+
+1. Promote PP-T4 to READY (recommended).
+2. Return for further reconciliation.
+3. Do not promote.
+
+Resolution:
+
+HPO-PROMOTED on 2026-09-28. Readiness confirmed: deferment legally
+released (`DECISION-PP-T4-DEFERMENT-RELEASE-001`); PP-T1/PP-T2/PP-T3 DONE
+satisfied (no wave exception needed); all HIGH/MEDIUM reconciled
+(`DECISION-PP-T4-CONTRACT-RECONCILIATION-001`); fresh confirmation
+`READY-ELIGIBLE`; scope bounded with PP-T5/PP-T6 boundary intact;
+protected surfaces identified; no implementation begun.
+
+Transition applied:
+
+- PP-T4: BACKLOG → READY
+
+This promotion authorizes no implementation, test, migration, or runtime
+change; execution requires the separate
+`DECISION-PP-T4-EXECUTION-AUTHORIZATION-001`. PP-T5/PP-T6 stay BACKLOG /
+NOT AUTHORIZED.
+
+Blocks: none.
+
+Does Not Block: PP-T5/PP-T6 (remain BACKLOG / NOT AUTHORIZED); closed
+Phase 1–7 records; unrelated runnable work.
+
+Durable record: task file (`tasks/PP-T4-*` §1 Status history).
+
+### DECISION-PP-T4-EXECUTION-AUTHORIZATION-001 — Authorize PP-T4 implementation
+
+Decision ID: DECISION-PP-T4-EXECUTION-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-28 (Step 1: Prepare & Authorize)
+
+Type: Phase Authorization / Task Authorization
+
+Originating Task: PP-T4 (READY via `DECISION-PP-T4-READY-PROMOTION-001`)
+
+Raised By: Human Product Owner (Step-1 authorization §L)
+
+Priority: HIGH
+
+Question:
+
+Is READY PP-T4 authorized for Step-2 execution (Build, Verify & Close)?
+
+Options:
+
+1. Authorize PP-T4 execution strictly within the reconciled contract
+   (recommended).
+2. Authorize with expanded scope.
+3. Do not authorize.
+
+Resolution:
+
+HPO-AUTHORIZED on 2026-09-28. Readiness confirmed, no blocking finding.
+PP-T4 may transition READY → IN_PROGRESS when actual work begins, scoped
+strictly to the reconciled `tasks/PP-T4-external-translation-provider.md`
+(AC1–AC12, §§6–14). Builder verification, independent review, corrective
+cycles (max 3, then BLOCKED), and HPO closure follow the State-to-Action
+Contract; builder claims neither VERIFIED nor DONE.
+
+Final authorized state:
+
+```text
+PP-T4 = READY — EXECUTION AUTHORIZED
+```
+
+This authorization applies to PP-T4 only. It does not authorize PP-T5,
+PP-T6, vendor selection, general translation unlocking, live traffic,
+schema/migration, queue/lifecycle redesign, transcription changes, or
+unrelated work. PP-T5/PP-T6 stay BACKLOG / NOT AUTHORIZED.
+
+Blocks: none.
+
+Does Not Block: PP-T5/PP-T6 (remain BACKLOG / NOT AUTHORIZED); closed
+Phase 1–7 records; unrelated runnable work.
+
+Durable record: task file (`tasks/PP-T4-*` §1 Status history).
+
+### DECISION-PP-T4-CLOSURE-001 — Close PP-T4 (External Translation Reference Adapter)
+
+Decision ID: DECISION-PP-T4-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-28
+
+Type: Task Closure
+
+Originating Task: PP-T4
+
+Raised By: Human Product Owner (closure round, 2026-09-28)
+
+Priority: HIGH
+
+Question:
+
+Is the independently VERIFIED PP-T4 eligible for closure as DONE under
+the State-to-Action Contract?
+
+Options:
+
+1. Close PP-T4: transition VERIFIED → DONE.
+2. Do not close yet (return for further work).
+3. Close only part of the task.
+
+Resolution:
+
+HPO-CLOSED on 2026-09-28 based on
+`reviews/PP-T4-CORRECTIVE-CYCLE1-RE-REVIEW.md`:
+
+- PP-T4 was execution-authorized
+  (`DECISION-PP-T4-EXECUTION-AUTHORIZATION-001`); implementation
+  completed within PP-T4 scope (1 reference adapter + transport seam +
+  shaped DTOs/enum behind the frozen T1 interface; scoped
+  `external_reference` fixture selection with fail-closed preserved;
+  fixture fake + 41 focused tests; no T5/T6, schema, queue/lifecycle,
+  transcription, fallback, ranking, routing, vendor, or unrelated
+  changes).
+- Independent review returned CHANGES_REQUESTED (cycle 1) for one MEDIUM
+  (PP-T4-REV-01: validator-rejection runs left no adapter audit record);
+  corrective cycle 1 logged every terminal outcome (log-then-rethrow,
+  no mapping change) with a new regression test; re-review returned
+  `PP-T4 (corrective cycle 1) = VERIFIED`: AC1–AC12 PASS on independently
+  reproduced evidence (focused 41/41, 155 assertions; PP-T1/PP-T2/PP-T3
+  slices green; full suite 1213/1208/5 skips/0 failures on clean first
+  run; Pint clean; PHPStan 0 errors); scope audit clean.
+- Full-suite Revision-filter first-run anomaly (one failure in Phase 6
+  `RevisionHistoryActivationTest`, rendered-name assertion) investigated
+  and classified pre-existing/flaky: unrelated editing subsystem, no
+  PP-T4 code in its path, passes in isolation (12/12) and on filter
+  rerun (143/143). Not concealed; recorded here.
+- No BLOCKER or HIGH finding remains. Non-blocking disposition:
+  - PP-T4-REV-02 (INFO): §9 HTTP rows seam-inapplicable by firewall
+    design; codes pinned via kind mappings + frozen `failureFromCode`.
+    No action.
+  - PP-T4-REV-03 (INFO): nullable `failureKind` match arm defensive.
+    No action.
+- HPO accepts PP-T4. Canonical transition applied:
+  `PP-T4: VERIFIED → DONE`. Lifecycle history preserved:
+  `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`.
+
+PP-T5/PP-T6 stay `BACKLOG` / NOT AUTHORIZED. Closure of PP-T4 does not
+authorize execution, promotion, or implementation of PP-T5, PP-T6, vendor
+selection, general translation unlocking, or any later work. No
+implementation, test, migration, or production change beyond PP-T4 is
+authorized by this closure.
+
+Blocks: none.
+
+Does Not Block: PP-T5/PP-T6 (remain BACKLOG / NOT AUTHORIZED); closed
+Phase 1–7 records; PP-T1/PP-T2/PP-T3 DONE records.
+
+Durable record: task file (`tasks/PP-T4-*` Status history).
+
+### DECISION-PP-T5-CONTRACT-RECONCILIATION-001 — Reconcile PP-T5 contract to implementation-ready
+
+Decision ID: DECISION-PP-T5-CONTRACT-RECONCILIATION-001
+
+Status: DECIDED — HPO 2026-09-28
+
+Type: Architecture / Governance
+
+Originating Task: PP-T5 (Privacy, Audit, Kill-Switch & Operational Controls)
+
+Raised By: Step-1 readiness review (`reviews/PP-T5-READINESS-REVIEW.md`;
+0 BLOCKER, 4 HIGH, 7 MEDIUM, 2 LOW, 1 INFO — all contract-precision gaps
+plus one stale-scope gap: the 89-line draft predates PP-T4 DONE)
+
+Priority: HIGH
+
+Question:
+
+Is the as-authored PP-T5 contract precise enough to build without product or
+architecture invention, and what are the canonical resolutions?
+
+Options:
+
+1. Reconcile to the non-controversial canonical options below (recommended).
+2. Return for vendor/billing-platform decisions (rejected — no vendor,
+   quota source, billing policy, or delivery platform exists or is
+   required for the fixture-scoped operational gate).
+3. Release PP-T5 together with PP-T6 (rejected — no basis; PP-T6 stays
+   FINAL_GATE_ONLY).
+
+Recommendation:
+
+Option 1. Every finding resolves to the option most consistent with ADR-027,
+`ARCHITECTURE-PLAN-OPTION1.md`, PP-T1/PP-T2 DONE contracts, and the
+PP-T3/PP-T4 reconciled contracts:
+
+- H-1 (dual-domain scope): govern BOTH reference adapters (T3 transcription
+  + T4 translation); every AC/checklist dual-domain; no general translation
+  unlocking, no live traffic.
+- H-2 (alerts): structured-log emission via existing Laravel Log infra
+  (`Log::listen`-verifiable); scoped 5-alert set grounded in the T3/T4 §9
+  mapped rows (invalid selection, missing credentials, forbidden external
+  state, ceiling breach, saturation/timeout anomaly); emission vs delivery
+  (existing log infra) vs operator response (runbook) split; no quota alert
+  (no source exists); no third-party delivery platform.
+- H-3 (config): ZERO new global config keys, ZERO new enforcement code;
+  reuse all existing keys/thresholds; procedure + tests + runbook only.
+- H-4 (ceilings): verify EXISTING ceilings only (T3 `maxRequestBytes` →
+  `MediaRejected`; T4 `maxSegments`/`maxPayloadChars` → `InvalidRequest`;
+  300s provider-ceiling honoring); concurrency/timeout guidance as runbook
+  prose against the 300/330/420 invariant; AC6 narrowed; no new rejection
+  code.
+- M-1 (kill-switch AC): pin PP-T2 flag + refresh + worker recycle, both
+  domains, invalid-value fail-closed, zero-new-attempts + drain asserts.
+- M-2 (egress attribution): exact fields (`provider_key`/`config_source`/
+  `request_id`/`provider_class`) per domain + absence asserts.
+- M-3 (runbook): artifact path `verification/pp-t5/PP-T5-OPERATIONAL-RUNBOOK.md`
+  (Step 2 creates) with pinned required sections; clean state defined.
+- M-4 (spend): INFORMATIONAL ONLY — no budgets/billing/limits; future
+  spend-review trigger non-blocking.
+- M-5 (correlation): reuse invocation `requestId`; resolver arg
+  log-context-only; `httpRequestId` untouched; dual checklists mapped; no new
+  identity.
+- M-6 (secrets): dual-domain `ConfigurationError` + zero-egress asserts;
+  rotation procedure without code change; absence surfaces enumerated.
+- M-7 (degraded mode): observability failure never changes selection (PP-T2
+  fail-closed preserved, P7-005 citation).
+- L-1/L-2 resolved inline (logs-only reaffirmed with STOP + escalate;
+  PP-T6 hard boundary explicit).
+
+Impact:
+
+PP-T5 contract is implementation-ready; builder makes no product/architecture
+decision. No T1/T2/T3/T4 file or behavior changes. No new ADR (architecture
+unchanged). No vendor, quota, billing, schema, or Phase 1–7 change. PP-T6
+stays BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY.
+
+Blocks:
+
+- PP-T5 READY promotion (requires fresh confirmation after this
+  reconciliation).
+
+Does Not Block:
+
+- PP-T1/PP-T2/PP-T3/PP-T4 DONE records; Phase 1–7 closures; PP-T6 (remains
+  BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY).
+
+Resolution:
+
+HPO-DECIDED on 2026-09-28 — Option 1. Reconciliation amendments applied to
+`tasks/PP-T5-provider-operational-controls.md` (§§1/2/4/6/7/8/9/10/11/13/14/
+15/17/19/20 amended; stale transcription-only scope removed; no frozen
+surface altered). Fresh confirmation
+`reviews/PP-T5-READINESS-CONFIRMATION.md` returned `READY-ELIGIBLE` with no
+unresolved BLOCKER/HIGH/MEDIUM. Review artifacts themselves unchanged. No
+implementation, test, migration, or runtime change authorized by this
+reconciliation.
+
+### DECISION-PP-T5-READY-PROMOTION-001 — Promote PP-T5 to READY (execution not authorized by this record)
+
+Decision ID: DECISION-PP-T5-READY-PROMOTION-001
+
+Status: DECIDED — HPO 2026-09-28
+
+Type: Task Authorization
+
+Originating Task: PP-T5
+
+Raised By: Human Product Owner (PP-T5 Step-1 round, 2026-09-28)
+
+Priority: HIGH
+
+Question:
+
+Is reconciled PP-T5 implementation-ready such that it may be promoted
+`BACKLOG → READY`?
+
+Options:
+
+1. Promote PP-T5 to READY (recommended).
+2. Return for further contract reconciliation.
+3. Do not promote.
+
+Resolution:
+
+HPO-PROMOTED on 2026-09-28. Basis: reconciled contract plus
+`reviews/PP-T5-READINESS-CONFIRMATION.md` (`READY-ELIGIBLE`; all 4 HIGH and
+7 MEDIUM resolved to canonical options; scope bounded with PP-T6 boundary
+intact; protected surfaces identified; zero-new-config pinned; no
+implementation begun).
+
+Transition applied: `PP-T5: BACKLOG → READY`. This promotion authorizes no
+implementation of PP-T5 or any later work. No implementation, test,
+migration, runtime, vendor, egress, or PP-T6 change is authorized by this
+record. PP-T6 stays BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY.
+
+Blocks: none.
+
+Does Not Block: PP-T6 (remains BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY);
+closed Phase 1–7 records; PP-T1–PP-T4 DONE records.
+
+Durable record: task file (`tasks/PP-T5-*` Status history).
+
+### DECISION-PP-T5-EXECUTION-AUTHORIZATION-001 — Authorize PP-T5 implementation
+
+Decision ID: DECISION-PP-T5-EXECUTION-AUTHORIZATION-001
+
+Status: DECIDED — HPO 2026-09-28
+
+Type: Task Authorization
+
+Originating Task: PP-T5 (READY via `DECISION-PP-T5-READY-PROMOTION-001`)
+
+Raised By: Human Product Owner (PP-T5 Step-1 round, 2026-09-28)
+
+Priority: HIGH
+
+Question:
+
+Is READY PP-T5 authorized to begin Step-2 implementation strictly within its
+reconciled contract?
+
+Options:
+
+1. Authorize PP-T5 execution within the reconciled contract (recommended).
+2. Authorize a subset.
+3. Do not authorize yet.
+
+Resolution:
+
+HPO-AUTHORIZED on 2026-09-28. Readiness confirmed
+(`reviews/PP-T5-READINESS-CONFIRMATION.md`: `READY-ELIGIBLE`); no blocking
+finding; no unauthorized implementation exists; reconciled contract
+(`DECISION-PP-T5-CONTRACT-RECONCILIATION-001`) is the sole build authority.
+
+PP-T5 may transition READY → IN_PROGRESS when actual Step-2 work begins,
+scoped strictly to the reconciled contract: procedure + verification tests +
+`verification/pp-t5/PP-T5-OPERATIONAL-RUNBOOK.md` for both reference domains;
+zero new global config keys; zero new enforcement code; zero egress; empty
+env secrets; no resolver/adapter/queue/lifecycle/schema change; no vendor,
+delivery-platform, billing, or PP-T6 work. Builder moves
+`READY → IN_PROGRESS → REVIEW`; no VERIFIED/DONE claim by the builder.
+
+This authorization applies to PP-T5 only. It does not authorize PP-T6,
+vendor selection, general translation unlocking, live traffic, delivery
+platforms, spend enforcement, schema/migration, queue/lifecycle redesign,
+transcription/translation behavior changes, or any unrelated work. PP-T6
+stays BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY.
+
+Final Step-1 state: `PP-T5 = READY — EXECUTION AUTHORIZED` (Step 2 not
+started). No runtime/implementation files changed in Step 1.
+
+Blocks: none.
+
+Does Not Block: PP-T6 (remains BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY);
+closed Phase 1–7 records; PP-T1–PP-T4 DONE records.
+
+Durable record: task file (`tasks/PP-T5-*` Status history).
+
+### DECISION-PP-T5-CLOSURE-001 — Close PP-T5 (Provider Operational Controls)
+
+Decision ID: DECISION-PP-T5-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-28
+
+Type: Task Closure
+
+Originating Task: PP-T5
+
+Raised By: Human Product Owner (closure round, 2026-09-28)
+
+Priority: HIGH
+
+Question:
+
+Is the independently VERIFIED PP-T5 eligible for closure as DONE under
+the State-to-Action Contract?
+
+Options:
+
+1. Close PP-T5: transition VERIFIED → DONE.
+2. Do not close yet (return for further work).
+3. Close only part of the task.
+
+Resolution:
+
+HPO-CLOSED on 2026-09-28 based on
+`reviews/PP-T5-INDEPENDENT-REVIEW.md`:
+
+- PP-T5 was execution-authorized
+  (`DECISION-PP-T5-EXECUTION-AUTHORIZATION-001`); Step-2 completed within
+  the reconciled contract (5 focused test files, 39 tests, 244 assertions;
+  executable runbook `verification/pp-t5/PP-T5-OPERATIONAL-RUNBOOK.md` with
+  all 19 contracted sections; zero runtime files under `app/`, `config/`,
+  `database/`, or worker code; no resolver/adapter/queue/lifecycle/schema/
+  vendor/scheduler/delivery-platform/spend change; frozen interfaces
+  untouched; PP-T6 untouched).
+- Independent review returned `PP-T5 = VERIFIED`: AC1–AC10 PASS on
+  independently rerun evidence (focused 39/39; PP-T2/T3/T4 regressions
+  28/14/18/31 + 5/10 green; full suite 1252 with 1247 passed, 5
+  pre-existing skips, 0 failures on clean runs; Pint clean; PHPStan
+  0 errors); scope audit clean.
+- Corrective cycle 1 resolved the single LOW (PP-T5-REV-01: unused
+  test-side alert-key map) with an AC7 contract-traceability test;
+  re-verified with no new finding.
+- Full-suite anomalies preserved, not concealed: two of four full runs hit
+  the known pre-existing order-dependent `LogContextTest` flake (passes
+  6/6 in isolation and on rerun; PP-T5 tests perform zero DB writes);
+  baseline without PP-T5 files shows the identical 4 warnings; first-run
+  memory-limit abort resolved via the known `memory_limit=1G` workaround.
+  All environmental, all unrelated to PP-T5.
+- No BLOCKER, HIGH, or MEDIUM finding remains. Non-blocking disposition:
+  PP-T5-REV-01 (LOW) resolved in-cycle; no open debt carried.
+- HPO accepts PP-T5. Canonical transition applied:
+  `PP-T5: VERIFIED → DONE`. Lifecycle history preserved:
+  `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`.
+
+PP-T6 stays `BACKLOG` / NOT AUTHORIZED / FINAL_GATE_ONLY. Closure of PP-T5
+does not authorize execution, promotion, or implementation of PP-T6, vendor
+selection, general translation unlocking, live traffic, or any later work.
+No implementation, test, migration, or production change beyond PP-T5 is
+authorized by this closure.
+
+Blocks: none.
+
+Does Not Block: PP-T6 (remains BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY);
+closed Phase 1–7 records; PP-T1–PP-T4 DONE records.
+
+Durable record: task file (`tasks/PP-T5-*` Status history).
+
+---
+
+### DECISION-PP-T6-EXECUTION-AUTHORIZATION-001 — Authorize PP-T6 Final-Gate Execution
+
+Decision ID: DECISION-PP-T6-EXECUTION-AUTHORIZATION-001
+
+Status: DECIDED — HPO execution agent 2026-09-28 (PP-T6 Step 1)
+
+Type: Execution Authorization (FINAL_GATE_ONLY)
+
+Originating Task: PP-T6
+
+Raised By: HPO execution agent (Step-1 prepare & authorize round, 2026-09-28)
+
+Priority: HIGH
+
+Question:
+
+Is PP-T6 ready to be promoted `BACKLOG → READY — EXECUTION AUTHORIZED` for a
+later, separately instructed Step-2 final-gate execution?
+
+Options:
+
+1. Authorize PP-T6 final-gate execution strictly within the reconciled
+   contract (Step 2 runs the gate; independent review; HPO closure).
+2. Do not authorize yet (document blocking readiness issues; PP-T6 stays
+   NOT AUTHORIZED).
+3. Authorize with reduced scope (rejected: the gate's value is whole-wave
+   verification; reduction would require a new owner decision, not silent
+   narrowing).
+
+Resolution:
+
+Option 1. Step 1 completed (`reviews/PP-T6-READINESS-REVIEW.md`,
+`READY-ELIGIBLE`, no unresolved BLOCKER/HIGH/MEDIUM):
+
+- Preconditions satisfied: PP-T1–PP-T5 DONE under
+  `DECISION-PP-T1-CLOSURE-001`, `DECISION-PP-T2-CLOSURE-001`,
+  `DECISION-PP-T3-CLOSURE-001`, `DECISION-PP-T4-CLOSURE-001`,
+  `DECISION-PP-T5-CLOSURE-001`; PP-T5 durability confirmed (VERIFIED,
+  AC1–AC10 PASS; zero PP-T5 runtime files; flake A-01 preserved as
+  pre-existing/non-blocking).
+- Final-gate contract accepted: `tasks/PP-T6-*` reconciled in Step 1
+  (stale T4-exclusion corrected — chain T1 → T2 → T3 → T4 → T5 → T6;
+  AC1–AC8 with per-assert pass rules, dual-domain AC6; mandatory T1–T5
+  suite/command list; rollback-rehearsal clarification; §18 frozen-scope
+  consolidation). Governance-only; no runtime/config/schema change; no
+  closed contract reopened; no new ADR.
+- ACs confirmed testable (observable, reproducible, pass/fail).
+- Protected scope frozen (§18); failure rule is STOP + remediation with
+  history preservation (P6-009 precedent); gate never patches product code.
+- PP-T6 unexecuted: no `verification/pp-t6/`; no PP-T6 runtime in
+  `app/`/`config`; `tests/` references confined to the PP-T5 boundary audit.
+- Known anomalies A-01/A-02/A-03 carried forward INFO/non-blocking with
+  Step-2 handling; nothing reclassified without evidence.
+
+PP-T6 is promoted `BACKLOG → READY — EXECUTION AUTHORIZED`. Step 2 (execute
+final gate, independently verify, close) begins only when explicitly
+instructed and runs strictly within the reconciled contract. This
+authorization applies only to PP-T6; it authorizes no unrelated
+implementation, redesign, vendor selection, live traffic, or later work.
+PP-T6 is not VERIFIED and not DONE.
+
+Blocks: none.
+
+Does Not Block: closed Phase 1–7 records; PP-T1–PP-T5 DONE records.
+
+Durable record: task file (`tasks/PP-T6-*` Status history);
+`reviews/PP-T6-READINESS-REVIEW.md`.
+
+---
+
+### DECISION-PP-T6-CLOSURE-001 — Close PP-T6 (Final Processing Provider Gate)
+
+Decision ID: DECISION-PP-T6-CLOSURE-001
+
+Status: DECIDED — HPO 2026-09-28
+
+Type: Task Closure (FINAL_GATE_ONLY)
+
+Originating Task: PP-T6
+
+Raised By: Human Product Owner (closure round, 2026-09-28)
+
+Priority: HIGH
+
+Question:
+
+Is the independently VERIFIED PP-T6 eligible for closure as DONE under
+the State-to-Action Contract?
+
+Options:
+
+1. Close PP-T6: transition VERIFIED → DONE.
+2. Do not close yet (return for further work).
+3. Close only part of the task.
+
+Resolution:
+
+HPO-CLOSED on 2026-09-28 based on
+`reviews/PP-T6-INDEPENDENT-REVIEW.md`:
+
+- PP-T6 was execution-authorized
+  (`DECISION-PP-T6-EXECUTION-AUTHORIZATION-001`); Step-2 completed within
+  the reconciled contract (AC1–AC8 PASS on fresh evidence;
+  `verification/pp-t6/PP-T6-FINAL-GATE-EVIDENCE.md`).
+- Independent review returned `PP-T6 = VERIFIED`: AC1–AC8 PASS on
+  independently rerun evidence (focused 155/155; full suite 1253 with 1248
+  passed, 5 pre-existing skips, 0 failures on clean runs; Pint clean;
+  PHPStan 0 errors; browser N/A justified); scope audit clean.
+- Corrective cycle 1 resolved the single LOW (PP-T6-REV-01: stale
+  BACKLOG pin in the PP-T5 leakage-audit test, invalidated by PP-T6's own
+  legal lifecycle transition) with an authorization-boundary reconciliation;
+  re-verified with no new finding. PP-T5's DONE record not rewritten.
+- Anomalies preserved, not concealed: one A-01 `LogContextTest` batch
+  strike (6/6 in isolation; provider code uninvolved); A-02/A-03 quiet;
+  baseline warning class unchanged. All pre-existing, all unrelated to PP.
+- No BLOCKER, HIGH, or MEDIUM finding remains. Non-blocking disposition:
+  PP-T6-REV-01 (LOW) resolved in-cycle; A-01/A-02/A-03 carried INFO.
+- Runtime-diff audit clean: one test file (corrective cycle) +
+  governance/verification only; zero `app/`/`config/`/`database`/worker
+  change by PP-T6.
+- HPO accepts PP-T6. Canonical transition applied:
+  `PP-T6: VERIFIED → DONE`. Lifecycle history preserved:
+  `READY → IN_PROGRESS → REVIEW → VERIFIED → DONE`.
+
+Closure of PP-T6 authorizes no post-PP-T6 work, vendor selection, live
+traffic, or any later task or phase. The Processing Provider track is
+CLOSED (final gate passed). No implementation, test, migration, or
+production change beyond PP-T6 is authorized by this closure.
+
+Blocks: none.
+
+Does Not Block: closed Phase 1–7 records; PP-T1–PP-T5 DONE records.
+
+Durable record: task file (`tasks/PP-T6-*` Status history).
+
+### DECISION-REPOSITORY-DURABILITY-EXECUTION-AUTHORIZATION-001 — Authorize the durability checkpoint commit only
+
+Decision ID: DECISION-REPOSITORY-DURABILITY-EXECUTION-AUTHORIZATION-001
+
+Status: DECIDED — HPO corrective cycle (Repository Durability Reconciliation, Step 1)
+
+Type: Governance / VCS Durability Reconciliation
+
+Originating Scope: Repository Durability Reconciliation Step 1 readiness
+review (79-file D1–D7 boundary; no secrets/generated contamination; no
+unknown provenance; no unresolved BLOCKER/HIGH/MEDIUM; single atomic
+local checkpoint; push NOT AUTHORIZED)
+
+Raised By: Step-1 corrective cycle (prior readiness review passed
+technically but the authorization existed only in the run report, not in
+the canonical decision record)
+
+Priority: HIGH
+
+Question:
+
+Is the approved durability checkpoint authorized for execution as one
+atomic local commit, with no other work authorized?
+
+Options:
+
+1. Authorize the durability checkpoint commit only (approved set only).
+2. Do not authorize yet.
+
+Resolution:
+
+DECIDED — Option 1. VCS durability reconciliation only.
+
+- Approved checkpoint = the exact 79-file D1–D7 boundary from the Step-1
+  readiness report (10 modified tracked files + 69 untracked files:
+  D1 authorized PP runtime/config, D2 PP tests/support, D3 PP task
+  contracts, D4 PP reviews, D5 PP discovery/design, D6 PP verification
+  evidence, D7 PP governance/decisions/state). No file outside this
+  boundary may be included except this canonical decision-record file
+  (`DECISION_QUEUE.md`, already inside D7), whose content is advanced
+  solely by this authorized governance addition — the checkpoint
+  remains the same 79-file path set.
+- Execution may create one atomic local commit containing that
+  approved set. No other commit structure is authorized.
+- Existing PP-T1–PP-T6 work is already independently VERIFIED and
+  HPO-closed; this decision creates no new implementation authority.
+- No new product behavior is authorized. No test behavior, migration,
+  config-value semantics, or lifecycle behavior may be changed.
+- Phase 7 authority remains unchanged (P7-009 Phase B, P7-007 drill,
+  TD-008, TD-014, P7-012 all remain NOT AUTHORIZED).
+- Push is NOT authorized. History rewriting (reset/clean/rebase) is
+  NOT authorized.
+
+Explicitly NOT authorized: P7-009 Phase B; P7-007 drill; TD-008;
+TD-014; P7-012; release authorization; production deployment; vendor
+selection; live-provider traffic; `git push`; reset / clean / rebase;
+any runtime/config/test change beyond the approved checkpoint content.
+
+Blocks: none (authorization, not a block).
+
+Does Not Block: Step-2 checkpoint execution under this decision;
+closed Phase 1–7 records; PP-T1–PP-T6 DONE records.
+
+Durable record: this file (sole persistence location; no mirror
+required).

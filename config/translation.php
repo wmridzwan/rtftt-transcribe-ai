@@ -20,9 +20,37 @@ return [
     | The self-hosted name is recorded as provider identity on persisted
     | translations. A hosted adapter would require a separate ADR.
     |
+    | NOTE (PP-T2): this 'provider' key is the identity label only and never
+    | drives class selection. Selection lives in 'provider_selection' below
+    | (DECISION-PP-T2-CONFIG-NAMING-001). Do not conflate the two.
+    |
     */
 
     'provider' => env('RTFTT_TRANSLATION_PROVIDER', 'self-hosted'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Provider selection (PP-T2)
+    |--------------------------------------------------------------------------
+    |
+    | Decided: DECISION-PP-T2-CONFIG-NAMING-001. Deterministic selection key
+    | read by TranslationProviderResolver on every interface resolution.
+    | Wave 1 accepts 'self_hosted' (default; any other value is a
+    | validation failure) plus the single PP-T4 fixture value
+    | 'external_reference' (scoped DECISION-PP-T4-CONTRACT-RECONCILIATION-001:
+    | resolves only to the fixture reference adapter bound under
+    | translation.providers.external_reference; kill-switch still forces
+    | self-hosted).
+    |
+    | This key is deliberately distinct from 'provider' above: 'provider'
+    | remains the pre-existing provider identity label used for
+    | logging/persisted identity and never drives class selection, while
+    | 'provider_selection' drives it. See also the identity-label comment
+    | on 'provider' (D5-04).
+    |
+    */
+
+    'provider_selection' => env('RTFTT_TRANSLATION_PROVIDER_SELECTION', 'self_hosted'),
 
     'model' => env('RTFTT_TRANSLATION_MODEL', 'self-hosted-default'),
 
