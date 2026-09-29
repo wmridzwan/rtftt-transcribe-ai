@@ -7908,3 +7908,78 @@ closed Phase 1–7 records; PP-T1–PP-T6 DONE records.
 
 Durable record: this file (sole persistence location; no mirror
 required).
+
+### DECISION-GOVERNANCE-RECONCILIATION-EXECUTION-AUTHORIZATION-001 — Authorize governance reconciliation execution
+
+Decision ID: DECISION-GOVERNANCE-RECONCILIATION-EXECUTION-AUTHORIZATION-001
+
+Status: DECIDED — HPO (Governance Reconciliation, Step 1)
+
+Type: Governance / Documentation Reconciliation
+
+Originating Scope: Governance Reconciliation Step-1 readiness review
+(stale narratives in CURRENT_STATE.md, RTFTT-MASTER-ROADMAP.md,
+plan.md, BLOCKERS.md vs durable repository state at HEAD `7632c8b`;
+no unresolved BLOCKER/HIGH/MEDIUM affecting the reconciliation)
+
+Raised By: HPO review agent (Step-1 prepare-and-authorize run)
+
+Priority: HIGH
+
+Question:
+
+Is docs-only governance reconciliation authorized to make the four
+canonical state documents mutually consistent and current, without
+expanding any execution authority?
+
+Options:
+
+1. Authorize governance reconciliation execution (bounded, docs-only).
+2. Do not authorize yet.
+
+Resolution:
+
+DECIDED — Option 1. Scope is docs/governance reconciliation only.
+
+Approved files for edit (and only these, plus this decision-record
+file itself):
+
+- `CURRENT_STATE.md`
+- `RTFTT-MASTER-ROADMAP.md`
+- `plan.md`
+- `BLOCKERS.md`
+- `DECISION_QUEUE.md` (this authorization record only)
+
+Excluded: `app/`, `config/`, `database/`, `routes/`, `resources/`,
+`tests/`, `worker/`, migrations, and all other runtime surfaces.
+
+Permitted change classes (G1–G8): stale status corrections; stale
+metadata corrections (branch, date); historical/current
+clarification labels; roadmap synchronization; blocker/debt
+synchronization against `docs/TECHNICAL_DEBT_REGISTER.md`;
+PP-T1–PP-T6 closure synchronization; Phase 7 authority
+clarification; release/production boundary clarification. Cosmetic
+rewrites unrelated to consistency are not authorized. Closed task
+contracts, ADRs, and historical decisions must remain intact;
+history is relabelled, never rewritten.
+
+Authority boundaries (unchanged by this decision and by any
+execution under it): no lifecycle promotion; Phase 7 remains NOT
+CLOSED (P7-009 Phase B, P7-007 drill, TD-008, TD-014, P7-012 all
+remain NOT AUTHORIZED); release and production remain unauthorized
+(release-ready = NO); vendor selection and live-provider traffic
+remain unauthorized; PP closure authorizes no post-PP work.
+
+Execution must commit the authorization together with the approved
+governance reconciliation in one small atomic governance commit
+(suggested subject: `docs: reconcile canonical project governance
+state`). No push. No rebase/reset/clean. No Step-2 start under this
+Step-1 run.
+
+Blocks: none (authorization, not a block).
+
+Does Not Block: Step-2 governance execution under this decision;
+closed Phase 1–7 records; PP-T1–PP-T6 DONE records.
+
+Durable record: this file (sole persistence location; no mirror
+required).

@@ -12,9 +12,13 @@ Phase 5 — CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001). All P5 tasks DONE.
 Phase 6 — CLOSED (2026-09-25, `DECISION-PHASE6-CLOSURE-001`); P6-001..P6-010
 DONE (terminal gate P6-009 DONE via independently VERIFIED rerun
 `P6-009-RERUN-01`; `DECISION-P6-009-CLOSURE-001`); D6-08/D6-09 remain
-DEFERRED. Phase 7 = not generally authorized (Phase 6 closure grants
-entry-review eligibility only); only early-authorized P7-005 is DONE
-(`DECISION-P7-005-CLOSURE-001`).
+DEFERRED. Phase 7 = NOT CLOSED — partial hardening: Waves 1/2/3A
+CLOSED, P7-011 DONE (`DECISION-P7-011-CLOSURE-001`), P7-009
+IN_PROGRESS Phase A only (Phase B NOT AUTHORIZED;
+`DECISION-P7-009-PHASE-A-EXECUTION-AUTHORIZATION-001`); P7-007 drill
+deferred; TD-008/TD-014 BACKLOG, NOT AUTHORIZED; P7-012
+FINAL_GATE_ONLY, NOT AUTHORIZED. Processing Provider track = CLOSED
+(PP-T1..PP-T6 DONE; authorizes no post-PP work).
 
 Status:
 Phase 2 closed as COMPLETE_WITH_DEFERRED_DEBT by the Human Product Owner
@@ -146,6 +150,10 @@ report: `PHASE5-CLOSURE-REPORT.md`. Controlled-parallel execution applies
 (ADR-023).
 
 ### Phase 6 — Advanced Transcript UX
+CLOSED (2026-09-25, `DECISION-PHASE6-CLOSURE-001`); P6-001..P6-010 DONE
+(see completion record at the end of this section; the AUTHORIZED FOR
+CONTRACT AUTHORING + IMPLEMENTATION status below is the HISTORICAL
+2026-09-23 entry posture, preserved).
 AUTHORIZED FOR CONTRACT AUTHORING + IMPLEMENTATION (2026-09-23,
 `DECISION-PHASE6-AUTHORIZATION-001`; D6-01..D6-09 + DC-01 adopted via
 `DECISION-PHASE6-OWNER-DECISIONS-001`; ADR-025). No blanket READY. P6-001 = DONE
@@ -200,13 +208,20 @@ Eligibility:
 `PHASE6-7-ELIGIBILITY-MATRIX.md` §T.
 
 ### Phase 7 — Production Hardening
-NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023;
-`PHASE5-7-EXECUTION-CLASSIFICATION.md`). Only P7-005 (Observability Foundation)
+NOT CLOSED — partial hardening (reconciled 2026-09-29; prior
+"NOT GENERALLY AUTHORIZED" language below is historical). Waves 1,
+2, 3A CLOSED; P7-011 DONE; P7-009 IN_PROGRESS Phase A only (Phase B
+NOT AUTHORIZED); P7-007 drill deferred; TD-008/TD-014 BACKLOG, NOT
+AUTHORIZED; P7-012 FINAL_GATE_ONLY, NOT AUTHORIZED. Historical
+progression preserved below; tails marked superseded where
+overwritten by later decisions. P7-005 (Observability Foundation)
 was authorized early and is DONE (`DECISION-P7-005-CLOSURE-001`); Wave 1
 (P7-003, P7-008, P7-010) was subsequently execution-authorized, implemented,
 independently VERIFIED, and closed DONE (Wave 1 CLOSED; P7-008 AC2 carried
-forward, NOT PASS). Wave 2 (P7-001, P7-006, P7-007) is READY, execution NOT
-AUTHORIZED. All later P7 work remains unauthorized unless separately approved.
+forward, NOT PASS). [The following two sentences are HISTORICAL,
+superseded by Wave 2 authorization and closure below:] Wave 2 (P7-001,
+P7-006, P7-007) is READY, execution NOT AUTHORIZED. All later P7 work
+remains unauthorized unless separately approved.
 Cannot close before Phase 6; P7-012 remains FINAL_GATE_ONLY.
 
 Phase 7 entry progress (2026-09-26; no execution authorization): D7-01..D7-08
@@ -215,13 +230,16 @@ ADOPTED (`PHASE7-SCOPE-CONTRACT.md`, `DECISION-PHASE7-SCOPE-ADOPTION-001`);
 Wave 1 contracts authored and promoted READY — P7-003, P7-008, P7-010
 (`DECISION-PHASE7-WAVE1-READY-PROMOTION-001`). READY != EXECUTION
 AUTHORIZATION; no implementation may begin before a separate explicit HPO
-Wave 1 execution authorization.
+Wave 1 execution authorization. [HISTORICAL intermediate — superseded:
+Wave 1 execution authorized and Wave 1 closed DONE; see below.]
 
 Wave 1 execution authorized 2026-09-26
 (`DECISION-PHASE7-WAVE1-EXECUTION-AUTHORIZATION-001`; readiness confirmed,
 no blocking finding): P7-003/P7-008/P7-010 may move READY → IN_PROGRESS
 when work begins, strictly within adopted contracts. Final state:
 `PHASE 7 WAVE 1 — AUTHORIZED FOR EXECUTION`. No later wave authorized.
+[HISTORICAL intermediate — superseded: Wave 1 closed DONE; Waves 2/3A,
+P7-011, and P7-009 Phase A later authorized; see below.]
 
 Wave 1 closed 2026-09-26 (`reviews/PHASE7-WAVE1-INDEPENDENT-REVIEW.md`:
 P7-003/P7-010 VERIFIED; P7-008 VERIFIED with environmental AC2 gap, no
@@ -230,7 +248,9 @@ defect; closures `DECISION-P7-003-CLOSURE-001`,
 exception `DECISION-P7-008-AC2-DISPOSITION-001`; AC2 NOT PASS, carried
 forward to P7-001 certification pre-P7-012). Final state:
 `PHASE 7 WAVE 1 = CLOSED.` Wave 2 execution not authorized; Wave 2 contracts
-promoted READY (see Wave 2 READY paragraph below).
+promoted READY (see Wave 2 READY paragraph below). [HISTORICAL
+intermediate — superseded: Wave 2 execution authorized and Wave 2
+closed DONE; see below.]
 
 Wave 2 READY promotion 2026-09-26
 (`DECISION-PHASE7-WAVE2-READY-PROMOTION-001`): P7-001 reconciled
@@ -239,13 +259,16 @@ carry-forward pre-P7-012); P7-006 reconfirmed, no semantic
 reconciliation; P7-007 hooks verified verbatim, foundation-only, drill
 deferred to Wave 3. P7-001/P7-006/P7-007 = READY. Final state:
 `PHASE 7 WAVE 2 TASKS READY — EXECUTION NOT AUTHORIZED.` No
-implementation authorized.
+implementation authorized. [HISTORICAL intermediate — superseded: Wave
+2 execution authorized and Wave 2 closed DONE; see below.]
 
 Wave 2 execution authorized 2026-09-26
 (`DECISION-PHASE7-WAVE2-EXECUTION-AUTHORIZATION-001`; readiness confirmed,
 no BLOCKER/HIGH): P7-001/P7-006/P7-007 may move READY → IN_PROGRESS
 when work begins, strictly within adopted contracts. Final state:
 `PHASE 7 WAVE 2 — AUTHORIZED FOR EXECUTION`. No later wave authorized.
+[HISTORICAL intermediate — superseded: Wave 2 closed DONE; Wave 3A,
+P7-011, and P7-009 Phase A later authorized; see below.]
 
 Wave 2 closed 2026-09-26 (`reviews/PHASE7-WAVE2-INDEPENDENT-REVIEW.md`:
 all three VERIFIED, no BLOCKER/HIGH; closures `DECISION-P7-001-CLOSURE-001`
@@ -253,7 +276,9 @@ all three VERIFIED, no BLOCKER/HIGH; closures `DECISION-P7-001-CLOSURE-001`
 PASS, carried forward pre-P7-012), `DECISION-P7-006-CLOSURE-001`,
 `DECISION-P7-007-CLOSURE-001`; TD-008 reprioritized
 `DECISION-TD-008-REPRIORITIZATION-001`). Final state:
-`PHASE 7 WAVE 2 = CLOSED.` Wave 3 not authorized.
+`PHASE 7 WAVE 2 = CLOSED.` Wave 3 not authorized. [HISTORICAL
+intermediate — superseded: Wave 3A promoted, authorized, and closed
+DONE; see below.]
 
 Wave 3A closed 2026-09-26 (`reviews/PHASE7-WAVE3A-INDEPENDENT-REVIEW.md`:
 P7-002/P7-004 VERIFIED, no BLOCKER/HIGH; closures
@@ -264,7 +289,11 @@ TD-008 stays OPEN/MEDIUM/pre-P7-012). Final state:
 `PHASE 7 WAVE 3A = CLOSED.` P7-009 READY (execution NOT AUTHORIZED;
 `DECISION-P7-009-READY-PROMOTION-001`); P7-011 READY with execution
 AUTHORIZED (`DECISION-P7-011-EXECUTION-AUTHORIZATION-001`); P7-007 drill
-deferred; P7-012 FINAL_GATE_ONLY. P7-011 subsequently closed DONE
+deferred; P7-012 FINAL_GATE_ONLY. [HISTORICAL intermediate —
+superseded: P7-009 Phase A execution-authorized and executed
+(IN_PROGRESS; Phase B NOT AUTHORIZED); P7-011 closed DONE
+(`DECISION-P7-011-CLOSURE-001`, 2026-09-26; TD-007 OPEN, TD-014 OPEN).]
+P7-011 subsequently closed DONE
 (`DECISION-P7-011-CLOSURE-001`, 2026-09-26; TD-007 OPEN, TD-014 OPEN).
 
 The earlier Phase 4/5/6/7 decomposition is historical and was reconciled by
@@ -280,8 +309,9 @@ renumbered by an external product roadmap:
 3. Real Transcription Engine (ADR-017) — CLOSED (2026-09-19; Batch 1/Batch 2/Batch 3 closed)
 4. Transcript Experience baseline (ADR-019) — CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE
 5. Translation — CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001); P5-001..P5-008 DONE
-6. Advanced Transcript UX — AUTHORIZED (contract authoring + implementation; DECISION-PHASE6-AUTHORIZATION-001; no blanket READY); P6-001/P6-002/P6-003/P6-004/P6-005/P6-006/P6-007/P6-008 DONE; P6-009 = READY (FINAL_GATE_ONLY; DECISION-P6-009-READY-001, 2026-09-25; NOT EXECUTED; prerequisite satisfied); P6-001/P6-002 foundation frozen downstream input
-7. Production Hardening — not generally authorized; P7-005 early only (cannot close before Phase 6)
+6. Advanced Transcript UX — CLOSED (2026-09-25, DECISION-PHASE6-CLOSURE-001); P6-001..P6-010 DONE (P6-009 DONE via independently VERIFIED rerun `P6-009-RERUN-01`); D6-08/D6-09 DEFERRED; P6-001/P6-002 foundation frozen downstream input
+7. Production Hardening — NOT CLOSED, partial hardening: Waves 1/2/3A CLOSED; P7-011 DONE; P7-009 IN_PROGRESS Phase A only (Phase B NOT AUTHORIZED); P7-007 drill deferred; TD-008/TD-014 BACKLOG, NOT AUTHORIZED; P7-012 FINAL_GATE_ONLY, NOT AUTHORIZED
+8. Processing Provider (ADR-027) — CLOSED; PP-T1..PP-T6 DONE (final gate passed; authorizes no post-PP work)
 
 Voxora is the long-term product and brand; RTFTT remains the current
 engineering/repository identity. Product evolution beyond Phase 7 may include
@@ -310,7 +340,8 @@ reconciled under ADR-017; Phase 3 Batch 3 closed on 2026-09-19
 (DECISION-P3-BATCH3-CLOSURE-001) with P3-007 DONE and P3-008 DONE. Phase 3 =
 CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 is CLOSED
 (DECISION-PHASE4-CLOSURE-001, 2026-09-20); Phase 5 is CLOSED
-(DECISION-PHASE5-CLOSURE-001, 2026-09-23). Phase 6 is authorized for contract
-authoring + implementation (`DECISION-PHASE6-AUTHORIZATION-001`); Phase 7
-remains not generally authorized apart from early-authorized P7-005.
+(DECISION-PHASE5-CLOSURE-001, 2026-09-23). Phase 6 = CLOSED
+(2026-09-25, `DECISION-PHASE6-CLOSURE-001`); P6-001..P6-010 DONE. Phase 7
+= NOT CLOSED, partial hardening (Waves 1/2/3A CLOSED; P7-011 DONE;
+P7-009 IN_PROGRESS Phase A only, Phase B NOT AUTHORIZED).
 Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT.

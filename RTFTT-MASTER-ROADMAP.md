@@ -26,9 +26,10 @@ future product roadmap:
 | 2 | Real File Upload & Media Library | COMPLETE_WITH_DEFERRED_DEBT (closed 2026-09-17) |
 | 3 | Real Transcription Engine (ADR-017) | CLOSED (2026-09-19) — Batch 1 closed (2026-09-18); Batch 2 closed (2026-09-19); Batch 3 closed (2026-09-19, P3-007 DONE, P3-008 DONE) |
 | 4 | Transcript Experience baseline (ADR-019) | CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); P4-001..P4-006 DONE |
-| 5 | Translation | AUTHORIZED FOR IMPLEMENTATION (2026-09-21, DECISION-PHASE5-AUTHORIZATION-001; ADR-022); P5-001/P5-002 VERIFIED (HPO closure pending) |
-| 6 | Advanced Transcript UX | NOT GENERALLY AUTHORIZED; early-start allowlist only (ADR-023) |
-| 7 | Production Hardening | NOT GENERALLY AUTHORIZED; early-hardening allowlist only (ADR-023) |
+| 5 | Translation | CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001); P5-001..P5-008 DONE |
+| 6 | Advanced Transcript UX | CLOSED (2026-09-25, DECISION-PHASE6-CLOSURE-001); P6-001..P6-010 DONE; D6-08/D6-09 DEFERRED |
+| 7 | Production Hardening | NOT CLOSED — partial hardening: Waves 1/2/3A CLOSED, P7-011 DONE, P7-009 IN_PROGRESS Phase A only (Phase B NOT AUTHORIZED); P7-012 FINAL_GATE_ONLY, NOT AUTHORIZED |
+| PP | Processing Provider (ADR-027) | CLOSED; PP-T1..PP-T6 DONE (final gate passed; authorizes no post-PP work) |
 
 Phase 3 boundary amended by ADR-017 (2026-09-17): Phase 3 is the complete
 Real Transcription Engine encompassing transcription domain, provider
@@ -73,9 +74,16 @@ P4-004 defect; P4-004 was corrected and re-closed DONE
 (DECISION-P4-004-CORRECTIVE-CLOSURE-001), the finding is CLOSED, P4-006 was
 re-executed (fresh final-gate rerun PASSED), independently VERIFIED, and closed
 DONE (DECISION-P4-006-CLOSURE-001). Phase 4 = CLOSED (2026-09-20,
-DECISION-PHASE4-CLOSURE-001). Phase 5 =
-Translation; Phase 6 =
-Advanced Transcript UX and Phase 7 = Production Hardening remain reserved. The
+DECISION-PHASE4-CLOSURE-001). Phase 5 = Translation: CLOSED (2026-09-23,
+DECISION-PHASE5-CLOSURE-001); P5-001..P5-008 DONE. Phase 6 = Advanced
+Transcript UX: CLOSED (2026-09-25, DECISION-PHASE6-CLOSURE-001);
+P6-001..P6-010 DONE (P6-009 via accepted `P6-009-RERUN-01` PASS;
+D6-08/D6-09 DEFERRED). Phase 7 = Production Hardening: NOT CLOSED —
+partial hardening only (Waves 1/2/3A CLOSED; P7-011 DONE; P7-009
+IN_PROGRESS Phase A only, Phase B NOT AUTHORIZED; P7-007 drill
+deferred; TD-008/TD-014 BACKLOG, NOT AUTHORIZED; P7-012
+FINAL_GATE_ONLY, NOT AUTHORIZED). The Processing Provider track
+(ADR-027) is CLOSED (PP-T1..PP-T6 DONE). The
 earlier Phase 4/5 decomposition was absorbed into Phase 3 by ADR-017.
 
 ADR-002 establishes the high-level direction for an independently deployable

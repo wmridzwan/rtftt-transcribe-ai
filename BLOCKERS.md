@@ -44,6 +44,37 @@ terminal gate completed; Phase 6 is CLOSED (`DECISION-PHASE6-CLOSURE-001`,
 `reviews/PHASE6-CLOSURE-REVIEW.md`). D6-08/D6-09 remain DEFERRED. These remain authorization boundaries
 rather than blockers. There is no P3-010 task file, so no P3-010 blocker exists.
 
+## Current State Boundary (reconciled 2026-09-29)
+
+Product execution blockers: none (unchanged — `Open Blockers: None`
+above remains correct for product execution).
+
+Closed since the narrative above: Phase 7 Waves 1/2/3A
+(`DECISION-P7-003/010/008/001/006/007/002/004-CLOSURE-001`), P7-011
+DONE (`DECISION-P7-011-CLOSURE-001`), P7-009 Phase A executed
+(IN_PROGRESS; Phase B NOT AUTHORIZED), Processing Provider track
+CLOSED (PP-T1..PP-T6 DONE; authorizes no post-PP work).
+
+Not product blockers — tracked separately as release-readiness
+blockers, technical debt, environment-dependent carry-forwards, and
+accepted deferrals (not implementation gates):
+
+- release-readiness: P7-012 terminal gate NOT AUTHORIZED; G-01..G-13
+  pending target-host proofs (see `docs/PRODUCTION_READINESS_GATE.md`).
+- technical debt pre-P7-012: TD-008 (BACKLOG, NOT AUTHORIZED),
+  TD-014 (BACKLOG, NOT AUTHORIZED); full TD posture in
+  `docs/TECHNICAL_DEBT_REGISTER.md` (TD-009 ACCEPTED, TD-012
+  MITIGATED, remainder OPEN).
+- environment-dependent carry-forwards (pre-P7-012): P7-001 AC8 +
+  P7-008 AC2 real-host evidence; P7-002 pg-halves; P7-007 drill
+  deferred (separate authorization required).
+- accepted deferrals: ADR-013/Option D (P2-004A/P2-004A1 BLOCKED),
+  D6-08/D6-09 DEFERRED.
+
+Authorization boundaries (unchanged): P7-009 Phase B, P7-007 drill,
+TD-008, TD-014, P7-012, release, production, vendor/live-provider —
+all NOT AUTHORIZED.
+
 ## Resolved Blockers
 
 | # | Classification | Resolution | Date |

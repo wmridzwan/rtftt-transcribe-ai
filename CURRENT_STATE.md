@@ -1,12 +1,45 @@
 # RTFTT Transcribe AI — Current State
 
-Last Updated: 2026-09-27
+Last Updated: 2026-09-29
 
 ## Current Branch
 
-setup/ai-development-os
+main
 
-## Governance Reconciliation — Step A (2026-09-24)
+## Current Canonical State (reconciled 2026-09-29)
+
+Authoritative decisions: `DECISION-PHASE3-CLOSURE-001`,
+`DECISION-PHASE4-CLOSURE-001`, `DECISION-PHASE5-CLOSURE-001`,
+`DECISION-PHASE6-CLOSURE-001`, Phase 7 wave/diposition/closure
+decisions (`DECISION_QUEUE.md`), `DECISION-PP-T1..T6-CLOSURE-001`.
+`AGENTS.md` remains the canonical truth where any narrative below
+disagrees.
+
+| Scope | Canonical status |
+|---|---|
+| Phase 1 | CLOSED / ACCEPTED |
+| Phase 2 | CLOSED WITH ACCEPTED DEFERRED WORK (P2-004A/P2-004A1 BLOCKED under ADR-013/Option D) |
+| Phase 3 | CLOSED (2026-09-19); P3-001..P3-008 DONE |
+| Phase 4 | CLOSED (2026-09-20); P4-001..P4-006 DONE |
+| Phase 5 | CLOSED (2026-09-23); all P5 tasks DONE |
+| Phase 6 | CLOSED (2026-09-25, `DECISION-PHASE6-CLOSURE-001`); P6-001..P6-010 DONE; D6-08/D6-09 DEFERRED |
+| Phase 7 | NOT CLOSED — partial hardening: Wave 1 CLOSED, Wave 2 CLOSED, Wave 3A CLOSED, P7-011 DONE, P7-009 IN_PROGRESS (Phase A only) |
+| Processing Provider | CLOSED; PP-T1..PP-T6 DONE (final gate passed; authorizes no post-PP work) |
+
+Authorization boundaries (unchanged): P7-009 Phase B NOT AUTHORIZED;
+P7-007 drill requires separate authorization; TD-008/TD-014 BACKLOG,
+NOT AUTHORIZED; P7-012 FINAL_GATE_ONLY, NOT AUTHORIZED.
+
+Project posture: feature-complete WITH ACCEPTED DEFERRED
+NON-FEATURE WORK; release-ready = NO; production readiness = NOT YET
+AUTHORIZED / ENVIRONMENT-DEPENDENT.
+
+## Governance Reconciliation — Step A (2026-09-24) — HISTORICAL SNAPSHOT, SUPERSEDED
+
+The table below is the Step-A interim snapshot, preserved for history.
+It is superseded by the Current Canonical State section above (notably:
+Phase 6 is CLOSED, not AUTHORIZED; Phase 7 Waves 1/2/3A are CLOSED;
+P7-011 is DONE; P7-009 Phase A executed; PP-T1..PP-T6 are DONE).
 
 `AGENTS.md` is the canonical truth for phase/task status. Where older narrative
 below disagrees with `AGENTS.md`, `AGENTS.md` controls. The reconciled status is:
@@ -32,11 +65,14 @@ Resolved Step A checks:
   (`DECISION-PHASE5-DEBT-CARRYFORWARD-001`); P6-006/P7-005
   (`DECISION-PHASE6-7-DEBT-CARRYFORWARD-001`); P6-004
   (`DECISION-P6-004-INFO-CARRYFORWARD-001`); and deferred D6-08/D6-09.
-- Canonical debt tracking: `docs/TECHNICAL_DEBT_REGISTER.md` (TD-001..TD-007).
+- Canonical debt tracking: `docs/TECHNICAL_DEBT_REGISTER.md`
+  (TD-001..TD-014; TD-009 ACCEPTED, TD-012 MITIGATED, remainder OPEN
+  per the register — debt states unchanged by governance
+  reconciliation).
 - Production gate conditions: `docs/PRODUCTION_READINESS_GATE.md` (G-01..G-13).
 - Full reconciliation record: `docs/GOVERNANCE-RECONCILIATION-REPORT.md`.
 
-## Current Authorized Phase
+## Current Authorized Phase — HISTORICAL NARRATIVE (endpoint superseded; see Current Canonical State at top)
 
 Phase 2 — COMPLETE_WITH_DEFERRED_DEBT
 
@@ -116,7 +152,10 @@ GENERALLY AUTHORIZED; only P7-005 (Observability Foundation) was authorized earl
 (`DECISION-P6-008-CLOSURE-001`, 2026-09-25); P6-009 = READY (`DECISION-P6-009-READY-001`,
 2026-09-25; not executed) and all other Phase 7
 work were not started. Remaining Phase 6 candidate eligibility and the next batch
-recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md` §T.
+recommendation: `PHASE6-7-ELIGIBILITY-MATRIX.md` §T. [Rest of this
+section is HISTORICAL — superseded: Phase 6 CLOSED, P6-009 DONE via
+rerun, Phase 7 Waves 1/2/3A CLOSED, P7-011 DONE, PP track CLOSED; see
+Current Canonical State at top.]
 
 Phase 7 remains NOT GENERALLY AUTHORIZED (ADR-023;
 `PHASE5-7-EXECUTION-CLASSIFICATION.md`); early-hardening runs only where contracts
@@ -211,7 +250,16 @@ Option D remains in force. Phase 1 ACCEPTED (Human Product Owner, 2026-09-11).
 
 ## Baseline Verification
 
-Latest full test suite (2026-09-17, Phase 2 closure):
+Historical baselines below are preserved as snapshots. Latest
+authoritative evidence (2026-09-28, PP-T6 final gate): full suite
+1253 tests / 1248 passed / 5 pre-existing skips / 0 failures; focused
+PP suites 155/155 independently reproduced; Pint clean; PHPStan
+0 errors (run with `--memory-limit=1G`; the local PHP CLI
+`memory_limit=128M` crashes parallel workers — known A-03). Test
+success does not imply production readiness; G-01..G-13 remain gated
+by P7-012.
+
+Historical: latest full test suite (2026-09-17, Phase 2 closure):
 
 - 229 passed
 - 1 skipped
@@ -281,7 +329,18 @@ closed, P3-007 DONE; P3-008 DONE).
 
 The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_size=8M`, `max_file_uploads=20`, `max_execution_time=0`, `max_input_time=-1`, and `memory_limit=128M`. The first two limits are below the approved 500 MiB (524,288,000-byte) per-file application limit. Before P2-003, the effective PHP/web-server/Livewire receiving path must be configured for at least the 500 MiB application boundary with overhead. No host configuration was changed by this checkpoint.
 
-## Active Task
+## Active Task (current as of 2026-09-29)
+
+P7-009 = IN_PROGRESS — Phase A only (harness preparation + rehearsal
+executed 2026-09-26 under
+`DECISION-P7-009-PHASE-A-EXECUTION-AUTHORIZATION-001`; evidence in
+`verification/p7-009/`). P7-009 Phase B (production-shaped capacity
+run) = NOT AUTHORIZED (requires `TARGET_HOST_READY` + explicit HPO
+authorization). No other task is IN_PROGRESS. P7-007 drill deferred
+(separate HPO drill authorization still required); TD-008/TD-014
+BACKLOG, NOT AUTHORIZED; P7-012 FINAL_GATE_ONLY, NOT AUTHORIZED.
+
+Historical active-task trail (preserved; superseded as current state):
 
 Phase 3 Batch 1 (P3-001, P3-002, P3-003) is COMPLETE / CLOSED.
 
@@ -542,7 +601,7 @@ P2-004A/P2-004A1 remain BLOCKED and deferred under ADR-013/Option D.
 
 Previous 59-error PHPStan baseline has been repaired; full analysis now reports 0 errors. ADR-010 governance reconciliation is closed after resolving its non-blocking LOW traceability finding. P2-003 and P2-005 are DONE; P2-004A and P2-004A1 remain BLOCKED and deferred under ADR-013/Option D. P2-006 remains closure-only. P2-004A2 and P2-007 are DONE. Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT. Phase 3 Batch 1 is COMPLETE / CLOSED (P3-001/P3-002/P3-003 DONE); canonical model large-v3. Phase 3 Batch 2 is CLOSED (P3-004/P3-005/P3-006 DONE; independent review VERIFIED, P3-006 HIGH-1 resolved via Correction Cycle 1). Batch 3 is CLOSED (2026-09-19, DECISION-P3-BATCH3-CLOSURE-001); P3-007 and P3-008 are DONE (DECISION-P3-007-CLOSURE-001, DECISION-P3-008-CLOSURE-001). Phase 3 = CLOSED (2026-09-19, DECISION-PHASE3-CLOSURE-001). Phase 4 task contracts are authored; P4-001 = DONE (DECISION-P4-001-CLOSURE-001); Wave 1 CLOSED (P4-002/P4-005 = DONE); P4-004 = DONE (corrective cycle, DECISION-P4-004-CORRECTIVE-CLOSURE-001); P4-003 = DONE (DECISION-P4-003-CLOSURE-001); P4-006 = DONE (DECISION-P4-006-CLOSURE-001); Phase 4 = CLOSED (2026-09-20, DECISION-PHASE4-CLOSURE-001); Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).
 
-## Next Action — Step A (2026-09-24; P6-005 closed DONE 2026-09-25)
+## Next Action — Step A (2026-09-24; P6-005 closed DONE 2026-09-25) — HISTORICAL (superseded; see Current Canonical State at top)
 
 All authored Phase 6 tasks P6-001..P6-007 are DONE. P6-008 is DONE
 (`DECISION-P6-008-CLOSURE-001`, 2026-09-25; independently reviewed VERIFIED,
@@ -650,7 +709,7 @@ Future browser/E2E verification should cover:
 - CURRENT_STATE.md baseline test counts updated to current values (229/230, 688 assertions).
 - Stale P2-007 "in REVIEW" references corrected to DONE.
 
-## Next Action — historical trail (superseded by the Step A reconciliation above)
+## Next Action — historical trail (superseded by the Step A reconciliation above; Step A itself superseded — see Current Canonical State at top)
 
 Phase 3 Batch 3 = AUTHORIZED (2026-09-19). The HPO resolved owner decisions
 B3-01 through B3-07 and recorded them in `DECISION_QUEUE.md` and ADR-018
@@ -707,7 +766,7 @@ large-v3 (turbo = non-default/experimental). See `PHASE4-PLANNING.md`,
 `PHASE4-TASK-CONTRACT-AUDIT.md`, `DECISION_QUEUE.md`, and
 `PHASE3-BATCH3-PLANNING.md`.
 
-## Phase Authorization
+## Phase Authorization — HISTORICAL TRAIL (endpoint superseded; see Current Canonical State at top)
 
 Phase 2 is closed as COMPLETE_WITH_DEFERRED_DEBT (2026-09-17). P2-003,
 P2-005, P2-004A2, P2-007 are DONE. P2-004A/P2-004A1 are BLOCKED under
@@ -742,9 +801,11 @@ P4-001..P4-006 = DONE (P4-004 corrective cycle
 DECISION-P4-004-CORRECTIVE-CLOSURE-001; P4-006 DECISION-P4-006-CLOSURE-001;
 DECISION-P4-006-FINDING-001 CLOSED). Residual LOW/INFO debt retained
 (`reviews/PHASE4-final-closure.md`). Phase 5 = CLOSED (2026-09-23, DECISION-PHASE5-CLOSURE-001).
-See plan.md.
+[Endpoint superseded: Phase 6 CLOSED 2026-09-25, Phase 7 Waves 1/2/3A
+CLOSED, P7-011 DONE, PP track CLOSED — see Current Canonical State at
+top.]
 
-## Review status
+## Review status — HISTORICAL TRAIL (endpoint superseded; see Current Canonical State at top)
 
 P2-007 is DONE. P2-006 remains closure-only. Phase 3 Batch 1 COMPLETE /
 CLOSED. Batch 1 review history: Cycle 1/2/3/4 = CHANGES_REQUESTED;
@@ -770,7 +831,9 @@ P7-003 = READY, P7-008 = READY, P7-010 = READY
 (`DECISION-PHASE7-WAVE1-READY-PROMOTION-001`). P7-005 remains DONE. No
 other P7 task file exists. Phase 7 remains NOT AUTHORIZED FOR EXECUTION;
 READY != EXECUTION AUTHORIZATION. Next: Wave 1 readiness confirmation,
-then explicit HPO execution authorization.
+then explicit HPO execution authorization. [HISTORICAL intermediate —
+superseded: readiness confirmed, execution authorized, Wave 1 closed
+DONE; see sections below.]
 
 ## Phase 7 Wave 1 execution authorization (2026-09-26)
 
@@ -781,7 +844,9 @@ unauthorized implementation). HPO authorized Wave 1 execution
 P7-010 may transition READY → IN_PROGRESS when actual work begins, scoped
 strictly to adopted contracts. Final authorized state:
 `PHASE 7 WAVE 1 — AUTHORIZED FOR EXECUTION`. No later Phase 7 wave
-authorized. Task files remain READY until work begins.
+authorized. Task files remain READY until work begins. [HISTORICAL
+intermediate — superseded: Wave 1 closed DONE; Waves 2/3A, P7-011,
+and P7-009 Phase A later authorized; see sections below.]
 
 ## Phase 7 Wave 1 closure (2026-09-26)
 
@@ -794,7 +859,9 @@ AC2 NOT PASS).
 Carry-forward (non-blocking, pre-P7-012): real-host AC2 + P7-003 AC8
 re-confirmation during P7-001 certification. LOW-1 stray file removed
 with provenance. Final state: `PHASE 7 WAVE 1 = CLOSED.` Wave 2 not
-authorized.
+authorized. [HISTORICAL intermediate — superseded: Wave 2 was later
+promoted, execution-authorized, and closed DONE; see Wave 2 sections
+below.]
 
 ## Phase 7 Wave 2 READY promotion (2026-09-26)
 
@@ -808,7 +875,9 @@ drill deferred to Wave 3, no G-08 claim, AC2 not PASS). HPO promoted
 all three BACKLOG → READY (`DECISION-PHASE7-WAVE2-READY-PROMOTION-001`).
 Final state: `PHASE 7 WAVE 2 TASKS READY — EXECUTION NOT AUTHORIZED.`
 No implementation authorized; readiness confirmation + separate HPO
-execution authorization still required.
+execution authorization still required. [HISTORICAL intermediate —
+superseded: Wave 2 execution was authorized and Wave 2 closed DONE;
+see sections below.]
 
 ## Phase 7 Wave 2 execution authorization (2026-09-26)
 
@@ -819,7 +888,9 @@ P7-006, P7-007 may move READY → IN_PROGRESS when work begins, strictly
 within adopted contracts (`PARALLEL-SAFE WITH FILE-OWNERSHIP
 SEQUENCING`; task/debt/prohibition boundaries as decided). Final
 state: `PHASE 7 WAVE 2 — AUTHORIZED FOR EXECUTION`. No later wave
-authorized. Tasks remain READY until work begins.
+authorized. Tasks remain READY until work begins. [HISTORICAL
+intermediate — superseded: Wave 2 closed DONE; Wave 3A, P7-011, and
+P7-009 Phase A were later authorized; see sections below.]
 
 ## Phase 7 Wave 2 closure (2026-09-26)
 
@@ -833,7 +904,9 @@ no defect; no BLOCKER/HIGH). HPO closed all three DONE
 reprioritized (`DECISION-TD-008-REPRIORITIZATION-001`: OPEN, MEDIUM,
 pre-P7-012 prerequisite). Final state: `PHASE 7 WAVE 2 = CLOSED.`
 Wave 3 not authorized; carry-forwards (AC8/AC2 real-host evidence,
-F4 gap, unwritable-target test follow-up) preserved.
+F4 gap, unwritable-target test follow-up) preserved. [HISTORICAL
+intermediate — superseded: Wave 3A was later promoted, authorized,
+and closed DONE; see section below. Carry-forwards remain current.]
 
 ## Phase 7 Wave 3A closure (2026-09-26)
 
@@ -858,7 +931,8 @@ AUTHORIZED, requires `TARGET_HOST_READY` + explicit HPO
 authorization); P7-011 READY (`DECISION-P7-011-READY-PROMOTION-001`;
 P7-004-VERIFIED dependency satisfied) with execution AUTHORIZED
 (`DECISION-P7-011-EXECUTION-AUTHORIZATION-001`, readiness
-`READY_CONFIRMED`); P7-007 drill deferred (P7-002 DONE dependency now
+`READY_CONFIRMED`) [HISTORICAL intermediate — P7-011 was subsequently
+closed DONE; see below in this section]; P7-007 drill deferred (P7-002 DONE dependency now
 satisfied; separate HPO drill authorization still required); P7-012
 FINAL_GATE_ONLY. P7-011 was subsequently implemented, independently
 reviewed CHANGES_REQUESTED (cycle 1, two MEDIUMs), corrected,
@@ -934,7 +1008,10 @@ data loss, but untested and contract-deviating). No BLOCKER/HIGH finding.
 TD-007 stays OPEN. P7-011 state: `REVIEW -> CHANGES_REQUESTED`. Next legal
 action: OpenCode (unchanged implementation owner) fixes both findings under
 this task and resubmits for cycle-2 independent review; no VERIFIED/DONE
-transition is authorized yet.
+transition is authorized yet. [HISTORICAL intermediate — superseded:
+cycle-2 corrected, re-reviewed VERIFIED
+(`reviews/P7-011-INDEPENDENT-REVIEW-CYCLE2.md`), closed DONE
+(`DECISION-P7-011-CLOSURE-001`, 2026-09-26); TD-014 OPEN pre-P7-012.]
 
 ## ProcessingProvider track (2026-09-27)
 
@@ -962,7 +1039,9 @@ reconstructed the substance and stands as their durable record;
 (b) pre-existing order-dependent `LogContextTest` flake (also
 PP-T1-REV-03), unrelated, passes in isolation/rerun — separate ticket
 only if it recurs, outside PP scope.
-PP-T3–PP-T6 = BACKLOG. Phase 1–7 contracts frozen; this track does not
+PP-T3–PP-T6 = BACKLOG. [HISTORICAL intermediate — superseded: PP-T3,
+PP-T4, PP-T5, PP-T6 each closed DONE 2026-09-28; track CLOSED; see
+Step-2 records below.] Phase 1–7 contracts frozen; this track does not
 reopen them and does not alter P7-009 Phase B / drill / P7-012 rules.
 
 PP-T3 Step 1 completed 2026-09-28 (governance/readiness only, no
@@ -976,7 +1055,8 @@ checklist, T3/T5 split; no new ADR); fresh confirmation
 `DECISION-PP-T3-EXECUTION-AUTHORIZATION-001`. Final state:
 `PP-T3 = READY — EXECUTION AUTHORIZED` (Step 2 not started). PP-T4 stays
 DEFERRED; PP-T5/PP-T6 stay BACKLOG / NOT AUTHORIZED. No runtime/
-implementation files changed in Step 1.
+implementation files changed in Step 1. [HISTORICAL intermediate —
+superseded by PP-T3 Step 2 DONE below.]
 
 PP-T3 Step 2 closed DONE 2026-09-28 (`DECISION-PP-T3-CLOSURE-001`;
 independently VERIFIED `reviews/PP-T3-INDEPENDENT-REVIEW.md`, AC1–AC10 PASS,
@@ -1011,7 +1091,8 @@ staleness + F-001 gate; no new ADR); fresh confirmation
 authorization `DECISION-PP-T4-EXECUTION-AUTHORIZATION-001`. Final state:
 `PP-T4 = READY — EXECUTION AUTHORIZED` (Step 2 not started). PP-T5/PP-T6
 stay BACKLOG / NOT AUTHORIZED. No runtime/implementation files changed in
-Step 1.
+Step 1. [HISTORICAL intermediate — superseded by PP-T4 Step 2 DONE
+below.]
 
 PP-T4 Step 2 closed DONE 2026-09-28 (`DECISION-PP-T4-CLOSURE-001`;
 corrective cycle 1 independently VERIFIED
@@ -1048,7 +1129,8 @@ rotation, degraded-mode split; no new ADR); fresh confirmation
 authorization `DECISION-PP-T5-EXECUTION-AUTHORIZATION-001`. Final state:
 `PP-T5 = READY — EXECUTION AUTHORIZED` (Step 2 not started). PP-T6 stays
 BACKLOG / NOT AUTHORIZED / FINAL_GATE_ONLY. No runtime/implementation
-files changed in Step 1.
+files changed in Step 1. [HISTORICAL intermediate — superseded by PP-T5
+Step 2 DONE below.]
 
 PP-T5 Step 2 closed DONE 2026-09-28 (`DECISION-PP-T5-CLOSURE-001`;
 independently VERIFIED `reviews/PP-T5-INDEPENDENT-REVIEW.md`, AC1–AC10 PASS,
@@ -1077,7 +1159,8 @@ rollback-rehearsal clarification; §18 frozen-scope consolidation; no scope
 or ADR change, no closed contract reopened). Execution authorization
 `DECISION-PP-T6-EXECUTION-AUTHORIZATION-001`. Final state:
 `PP-T6 = READY — EXECUTION AUTHORIZED` (Step 2 not started; gate NOT
-executed; not VERIFIED/DONE).
+executed; not VERIFIED/DONE). [HISTORICAL intermediate — superseded by
+PP-T6 Step 2 DONE below.]
 
 PP-T6 Step 2 closed DONE 2026-09-28 (`DECISION-PP-T6-CLOSURE-001`;
 independently VERIFIED `reviews/PP-T6-INDEPENDENT-REVIEW.md`, AC1–AC8 PASS,
