@@ -329,4 +329,3 @@ Post-commit sequence (HPO-directed; not started by this record):
 
 Not authorized by this closure: P7-009 Phase B; P7-007 restore drill; P7-012;
 final production readiness.
-
