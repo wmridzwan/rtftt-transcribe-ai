@@ -3,10 +3,15 @@
 use App\Actions\TranscriptionResultWriter;
 use App\Enums\ProcessingStatus;
 use App\Enums\TranscriptionStatus;
+use App\Models\ProcessingJob;
+use App\Models\Transcription;
 use App\Transcription\LanguageIdentifier;
 use App\Transcription\NormalizedTranscript;
 use App\Transcription\TranscriptionException;
 use App\Transcription\TranscriptSegmentData;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\TranscriptionFixtures;
 
@@ -220,3 +225,84 @@ test('a processing attempt from a different transcription is rejected', function
 
     expect($transcription->refresh()->status)->toBe(TranscriptionStatus::Transcribing);
 });
+
+/*
+ * P7-009-CORR-01 corrective cycle 2.
+ *
+ * Production AC14 failed on PostgreSQL with `invalid input syntax for type
+ * integer: "185.832677"`. The writer reads started_at back from the database at
+ * whole-second precision but stamps completed_at with `now()` at microsecond
+ * precision, so the elapsed time is fractional; Carbon 3 returns it as a float,
+ * Laravel binds a float as a string, and an `integer` column rejects it. SQLite
+ * accepts the same value (type affinity) and the model's `integer` cast hides it
+ * on read-back, so these tests assert what reaches the driver and what is stored
+ * instead of the cast model attribute. PostgreSQL itself is not available here.
+ */
+
+/**
+ * @return array{transcription: Transcription, attempt: ProcessingJob, bindings: list<list<mixed>>}
+ */
+function p7009Cycle2Persist(string $completedAt): array
+{
+    ['transcription' => $transcription, 'attempt' => $attempt] = TranscriptionFixtures::scenario(
+        TranscriptionStatus::Transcribing,
+        ProcessingStatus::Running,
+    );
+    $transcription->forceFill(['started_at' => '2026-10-02 08:00:00'])->save();
+
+    test()->travelTo(Carbon::parse($completedAt));
+
+    $bindings = [];
+
+    DB::listen(function (QueryExecuted $query) use (&$bindings): void {
+        if (str_starts_with($query->sql, 'update') && str_contains($query->sql, 'processing_seconds')) {
+            $bindings[] = $query->bindings;
+        }
+    });
+
+    app(TranscriptionResultWriter::class)->persist($transcription, $attempt, p3004Result(), 'large-v3');
+
+    return ['transcription' => $transcription, 'attempt' => $attempt, 'bindings' => $bindings];
+}
+
+test('persists a fractional elapsed time as integer processing seconds and still completes the transcription', function () {
+    $run = p7009Cycle2Persist('2026-10-02 08:03:05.832677');
+    $transcription = $run['transcription'];
+    $attempt = $run['attempt'];
+
+    expect(now()->diffInSeconds(Carbon::parse('2026-10-02 08:00:00'), true))->toBeBetween(185.83, 185.84);
+
+    $boundValues = array_merge(...$run['bindings']);
+
+    expect($run['bindings'])->toHaveCount(2)
+        ->and($boundValues)->each->not->toBeFloat()
+        ->and($boundValues)->toContain(186);
+
+    expect(DB::table('transcriptions')->where('id', $transcription->id)->value('processing_seconds'))->toBe(186)
+        ->and(DB::table('processing_jobs')->where('id', $attempt->id)->value('processing_seconds'))->toBe(186);
+
+    $transcription->refresh();
+    $attempt->refresh();
+
+    expect($transcription->status)->toBe(TranscriptionStatus::Completed)
+        ->and($transcription->full_text)->toBe('Hello world.')
+        ->and($transcription->completed_at->toDateTimeString())->toBe('2026-10-02 08:03:05')
+        ->and($transcription->segments()->count())->toBe(1)
+        ->and($attempt->status)->toBe(ProcessingStatus::Completed)
+        ->and($attempt->progress_percentage)->toBe(100)
+        ->and($attempt->failure_code)->toBeNull();
+});
+
+test('rounds the elapsed time to the nearest whole second when persisting processing seconds', function (string $completedAt, int $expectedSeconds) {
+    $run = p7009Cycle2Persist($completedAt);
+
+    expect(DB::table('transcriptions')->where('id', $run['transcription']->id)->value('processing_seconds'))->toBe($expectedSeconds)
+        ->and(DB::table('processing_jobs')->where('id', $run['attempt']->id)->value('processing_seconds'))->toBe($expectedSeconds);
+})->with([
+    'whole seconds stay unchanged' => ['2026-10-02 08:03:05.000000', 185],
+    'a tenth of a second rounds down' => ['2026-10-02 08:03:05.100000', 185],
+    'just under half a second rounds down' => ['2026-10-02 08:03:05.499999', 185],
+    'exactly half a second rounds up' => ['2026-10-02 08:03:05.500000', 186],
+    'just under a whole second rounds up' => ['2026-10-02 08:03:05.999999', 186],
+    'a sub-second run is zero' => ['2026-10-02 08:00:00.400000', 0],
+]);

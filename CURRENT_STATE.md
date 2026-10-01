@@ -23,7 +23,7 @@ disagrees.
 | Phase 4 | CLOSED (2026-09-20); P4-001..P4-006 DONE |
 | Phase 5 | CLOSED (2026-09-23); all P5 tasks DONE |
 | Phase 6 | CLOSED (2026-09-25, `DECISION-PHASE6-CLOSURE-001`); P6-001..P6-010 DONE; D6-08/D6-09 DEFERRED |
-| Phase 7 | NOT CLOSED — partial hardening: Wave 1 CLOSED, Wave 2 CLOSED, Wave 3A CLOSED, P7-011 DONE, P7-009 IN_PROGRESS (Phase A only), P7-009-CORR-01 VERIFIED / ACCEPTED FOR CLOSURE (2026-10-02; AC14 not yet evidenced) |
+| Phase 7 | NOT CLOSED — partial hardening: Wave 1 CLOSED, Wave 2 CLOSED, Wave 3A CLOSED, P7-011 DONE, P7-009 IN_PROGRESS (Phase A only), P7-009-CORR-01 VERIFIED (Corrective Cycle 2; independent re-review verdict accepted by HPO 2026-10-02, `DECISION-P7-009-CORR-01-CYCLE2-001`; not DONE) — production AC14 NOT PASSED / AWAITING CORRECTED RELEASE VALIDATION (first target-host attempt FAILED on `processing_seconds` integer persistence; earlier VERIFIED / ACCEPTED FOR CLOSURE and the REVIEW state preserved as history) |
 | Processing Provider | CLOSED; PP-T1..PP-T6 DONE (final gate passed; authorizes no post-PP work) |
 
 Authorization boundaries (unchanged): P7-009 Phase B NOT AUTHORIZED;
@@ -331,7 +331,60 @@ The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_si
 
 ## Active Task (current as of 2026-10-02)
 
-P7-009-CORR-01 (Real Upload → Transcription Initiation Bridge) =
+**Corrective Cycle 2 — HPO reconciliation (current, 2026-10-02,
+`DECISION-P7-009-CORR-01-CYCLE2-001`):**
+
+```
+Corrective Cycle 2 technical status:  VERIFIED   (independent re-review verdict
+                                       accepted by the HPO; not DONE)
+Production AC14:                       NOT PASSED / AWAITING CORRECTED RELEASE
+                                       VALIDATION
+```
+
+Independent re-review `reviews/P7-009-CORR-01-CYCLE2-INDEPENDENT-REVIEW.md`:
+BLOCKER 0, HIGH 0, MEDIUM 0, LOW 1 (F-1), INFO F-2..F-7. `P7-009-CORR-01` is not
+DONE: `VERIFIED → DONE` is a separate HPO closure act
+(`.ai/guidelines/orchestration-policy.md`), none was given, and the binding AC14
+is not PASSED. The corrected implementation is not committed, not deployed and has
+not been exercised on production PostgreSQL; it may proceed to the next
+separately authorized release/deployment step. The new immutable release,
+deployment and AC14 rerun each remain separately authorized.
+
+Accepted semantic: `processing_seconds` stays an integer-seconds field; fractional
+elapsed duration is normalized with `(int) round($fractionalSeconds)` (185.000000
+→ 185, 185.100000 → 185, 185.499999 → 185, 185.500000 → 186, 185.832677 → 186,
+185.999999 → 186). Not a schema change. Accepted non-blocking: F-1 (LOW) `round()`
+may differ from the whole-second persisted timestamp delta by up to 1 second.
+INFO carried forward (no implementation work authorized): no local PostgreSQL
+execution; the path after the former failure point (the `processing_jobs` UPDATE
+and post-persist code) is unproven until the AC14 rerun; pre-existing retry
+timing semantic (`processing_seconds` derives from `Transcription.started_at`);
+`LogContextTest` TD-008 flake; redundant `max(0, …)`.
+
+P7-009 Phase B = NOT AUTHORIZED; P7-007 = NOT AUTHORIZED; P7-012 = FINAL_GATE_ONLY,
+NOT AUTHORIZED; `TARGET_HOST_NOT_READY` stands. The original AC14 failure and the
+PostgreSQL error are retained below.
+
+Prior state (Corrective Cycle 2 implemented, 2026-10-02; superseded by the block
+above, preserved as history): P7-009-CORR-01 = **REVIEW — CORRECTIVE
+IMPLEMENTATION COMPLETE; AWAITING INDEPENDENT RE-REVIEW.** Not VERIFIED, not
+DONE. Production AC14 (first target-host attempt) FAILED after successful real
+inference: result persistence raised PostgreSQL `invalid input syntax for type
+integer: "185.832677"` (`PERSISTENCE_FAILED`). Root cause confirmed in the
+repository: `TranscriptionResultWriter` passed Carbon 3's float
+`diffInSeconds()` to the integer `processing_seconds` columns. Corrective change
+= one expression in the writer (round to the nearest whole second; no schema
+change) plus regression tests in `TranscriptPersistenceTest`; full suite, Pint
+and PHPStan green (implementer-run; one run hit the pre-existing
+`LogContextTest` random-factory flake). No PostgreSQL run was possible locally;
+AC14 stays NOT PASS until re-executed on the target host from a new immutable
+release after independent re-review. Not committed, not deployed. P7-009
+Phase B, P7-007 and P7-012 remain NOT AUTHORIZED. Detail and the sibling-path
+audit: `tasks/P7-009-CORR-01-upload-transcription-initiation-bridge.md`
+("Corrective Cycle 2"). The text below is the prior state of this section,
+preserved as history.
+
+Prior state: P7-009-CORR-01 (Real Upload → Transcription Initiation Bridge) =
 **VERIFIED / ACCEPTED FOR CLOSURE** (HPO, 2026-10-02,
 `DECISION-P7-009-CORR-01-CLOSURE-001`). Not DONE. Authorized by
 `DECISION-P7-009-CORR-01-UPLOAD-TRANSCRIPTION-BRIDGE-001` (2026-10-01);

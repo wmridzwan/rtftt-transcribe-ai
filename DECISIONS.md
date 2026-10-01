@@ -3503,3 +3503,143 @@ release. AC14 is not marked PASS and P7-009 Phase B is not marked authorized
 by this record.
 
 Durable record: this file.
+
+## P7-009-CORR-01 Corrective Cycle 2 (Production AC14 Failure — `processing_seconds` Integer Persistence)
+
+Date: 2026-10-02
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-009-CORR-01-CYCLE2-001`).
+
+Context: the first target-host AC14 attempt for `P7-009-CORR-01`, run on the
+release deployed after `DECISION-P7-009-CORR-01-CLOSURE-001`, FAILED. Operator-
+reported evidence (not independently observed by an agent): upload PASS, Start
+Transcription PASS, queue dispatch PASS, worker claim PASS, real faster-whisper
+large-v3 inference PASS (language `ms`, p=0.91, `POST /transcribe` 200), result
+persistence FAIL — `QueryException`, `failure_code` `PERSISTENCE_FAILED`,
+PostgreSQL `invalid input syntax for type integer: "185.832677"`. This is a
+production-discovered PostgreSQL persistence defect that the Cycle 1 evidence
+(SQLite test suite, no PostgreSQL run) could not reveal; it is why a second
+corrective cycle was necessary after the Cycle 1 closure.
+
+Root cause (independently confirmed): `TranscriptionResultWriter::persist()`
+passed Carbon 3's float `diffInSeconds()` result to the integer
+`processing_seconds` columns (`transcriptions` and `processing_jobs`). Laravel
+binds a non-int value as `PDO::PARAM_STR`, so PostgreSQL received the text
+`185.832677` for an `integer` column. Eloquent's `integer` cast applies on read,
+not write, and SQLite accepts a REAL in an INTEGER-affinity column, so the
+defect was latent in the test environment.
+
+Corrective authorization: an HPO chat instruction of 2026-10-02 ("P7-009-CORR-01
+— Corrective Cycle 2"), scoped to this defect only (no migration, no dependency,
+no worker/provider/queue/orchestrator change, no VPS action, no manual
+production-database change, no commit, no deployment). It carried no decision
+ID; this entry makes it durable and assigns the ID, as was done for Cycle 1.
+
+Decision:
+
+- **Verdict accepted.** The HPO accepts the independent re-review verdict
+  `P7-009-CORR-01 Corrective Cycle 2 = VERIFIED`
+  (`reviews/P7-009-CORR-01-CYCLE2-INDEPENDENT-REVIEW.md`; fresh review context
+  that did not implement Cycle 2). Findings: BLOCKER 0, HIGH 0, MEDIUM 0, LOW 1
+  (F-1), INFO F-2..F-7. Corrective implementation: one expression in
+  `app/Actions/TranscriptionResultWriter.php` plus regression tests in
+  `tests/Feature/Transcription/TranscriptPersistenceTest.php`; no schema change.
+- **Integer-normalization semantic accepted.** `processing_seconds` remains an
+  integer-seconds field. Fractional elapsed processing duration is normalized
+  with `(int) round($fractionalSeconds)` (PHP `round()`, half away from zero,
+  then `(int)`; the pre-existing `max(0, …)` guard is retained). Canonical
+  examples:
+
+  ```
+  185.000000 → 185
+  185.100000 → 185
+  185.499999 → 185
+  185.500000 → 186
+  185.832677 → 186
+  185.999999 → 186
+  ```
+
+  This is not a schema change: the columns stay `unsignedInteger`.
+  Reasoning preserved from the HPO acceptance:
+  - no prior canonical sub-second normalization rule existed for
+    `processing_seconds`;
+  - integer storage is already established;
+  - the repository's float-to-integer duration precedent uses rounding
+    (`media_files.duration_seconds`, `duration_ms`);
+  - processing-time consumers (`formatted_processing_time`, `real_time_factor`)
+    are not sensitive to a ±1-second difference;
+  - the independent review explicitly evaluated round vs floor/truncation
+    (review §C) and approved the rule;
+  - no existing contract is contradicted.
+- **Lifecycle.** Corrective Cycle 2 technical status = **VERIFIED** (reviewer
+  verdict accepted by the HPO). `P7-009-CORR-01` is **not DONE**:
+  `VERIFIED → DONE` is a separate Human Product Owner closure act
+  (`.ai/guidelines/orchestration-policy.md`, State-to-Action Contract), this
+  instruction accepted the verdict and authorized governance reconciliation only,
+  the Cycle 1 acceptance of the same kind produced "VERIFIED / ACCEPTED FOR
+  CLOSURE" rather than DONE, and the binding acceptance criterion AC14 is NOT
+  PASSED. The record therefore leaves the task VERIFIED.
+- **Production AC14 = NOT PASSED / AWAITING CORRECTED RELEASE VALIDATION.**
+  The corrected implementation has not been deployed and has not been exercised
+  against production PostgreSQL. The PostgreSQL rejection was established from
+  source and driver-binding evidence, not by an executed PostgreSQL run (none
+  exists in the development or review environment). The corrected release still
+  requires an authorized deployment and an AC14 rerun on the target host.
+- **Boundary.** Corrective Cycle 2 implementation may proceed to the next
+  separately authorized release/deployment step.
+
+Carry-forward findings (accepted as non-blocking; none blocks release
+preparation; this record creates no follow-up task and starts none):
+
+- **F-1 — LOW.** `round()` may differ from the whole-second persisted timestamp
+  delta by up to 1 second (`started_at`/`completed_at` are stored at whole-second
+  precision; `floor` would match the stored delta exactly). Accepted by the HPO as
+  the cost of the accepted rule. Switching to floor would be a new HPO decision
+  (one-token change; the boundary dataset values would change).
+- **INFO.** F-2 governance lag (`DECISIONS.md` / `DECISION_QUEUE.md` had no
+  Cycle 2 record — resolved by this entry). F-3 the `processing_jobs` UPDATE and
+  the post-persist code after the former failure point have never run on
+  PostgreSQL for this path; by inspection all bound values are type-correct, and
+  the AC14 rerun is the evidence. F-4 test limits (SQLite only; PostgreSQL integer
+  enforcement not exercised, compensated by a bound-PHP-type assertion; the tests
+  pin `round`). F-5 pre-existing, unchanged retry timing semantic:
+  `processing_seconds` for both rows derives from `Transcription.started_at`
+  (set once, not reset by retry) rather than the attempt's own `started_at`; not a
+  Cycle 2 defect and not authorized as work. F-6 the `LogContextTest` random-
+  factory flake (TD-008, pre-existing, reproduced on the unfixed writer, OPEN per
+  `docs/TECHNICAL_DEBT_REGISTER.md`). F-7 `max(0, …)` is redundant after the
+  absolute diff (harmless pre-existing guard). INFO items are not
+  implementation work.
+- No PostgreSQL execution occurred locally; reviewer-reproduced evidence is the
+  SQLite suite (`TranscriptPersistenceTest` 16/16; `tests/Feature/Transcription`
+  169/169; full suite 1302 tests with only the documented TD-008 flake), Pint and
+  PHPStan (0 errors). Fail-before/pass-after was reproduced against the original
+  writer (6 of 16 failing).
+
+History preserved (nothing rewritten): the 2026-10-02 `VERIFIED / ACCEPTED FOR
+CLOSURE` closure (`DECISION-P7-009-CORR-01-CLOSURE-001`) and Corrective Cycle 1
+(`DECISION-P7-009-CORR-01-CYCLE1-001`) stand as recorded above; this entry
+supplements them. The closure record's statement that AC14 was "NOT YET
+EVIDENCED" is superseded in detail by the failed first target-host attempt
+recorded here. The original production failure and its error text are retained
+verbatim in this entry, the task file and `CURRENT_STATE.md`.
+
+Post-decision sequence (binding order; none started by this record): separately
+authorized commit/push of the Cycle 2 change set → new immutable corrected
+release (the existing release is not modified in place) → separately authorized
+deployment → AC14 rerun on the target host → PostgreSQL concurrency checks
+carried forward from Cycle 1
+(`reviews/P7-009-CORR-01-CYCLE1-INDEPENDENT-REVIEW.md` §14) → rerun Target-Host
+Readiness Confirmation → only `TARGET_HOST_READY` may permit a later HPO
+authorization of P7-009 Phase B.
+
+Authority boundaries (unchanged): P7-009 Phase B NOT AUTHORIZED; P7-007 restore
+drill NOT AUTHORIZED; P7-012 FINAL_GATE_ONLY, NOT AUTHORIZED. Target-host
+readiness verdict remains `TARGET_HOST_NOT_READY`.
+
+This decision does NOT authorize: any commit or push, any deployment, the AC14
+rerun, marking AC14 PASS, closing `P7-009-CORR-01` as DONE, P7-009 Phase B, the
+P7-007 restore drill, P7-012, or final production readiness.
+
+Durable record: this file and `DECISION_QUEUE.md`.

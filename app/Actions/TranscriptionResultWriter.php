@@ -86,7 +86,9 @@ class TranscriptionResultWriter
 
             $startedAt = $locked->started_at ?? now();
             $completedAt = now();
-            $processingSeconds = max(0, $completedAt->diffInSeconds($startedAt, true));
+            // Carbon 3 returns fractional seconds; the processing_seconds columns are
+            // integer, and PostgreSQL rejects a fractional value (P7-009-CORR-01).
+            $processingSeconds = max(0, (int) round($completedAt->diffInSeconds($startedAt, true)));
 
             $locked->forceFill([
                 'full_text' => $result->text,

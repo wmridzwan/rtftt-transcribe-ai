@@ -8078,3 +8078,60 @@ Blocks: none. Does Not Authorize: P7-009 Phase B; P7-007 restore drill;
 P7-012; final production readiness.
 
 Durable record: this file and `DECISIONS.md`.
+
+## P7-009-CORR-01 Corrective Cycle 2 Acceptance and Reconciliation
+
+Decision ID: DECISION-P7-009-CORR-01-CYCLE2-001
+
+Status: DECIDED — HPO 2026-10-02
+
+Type: Corrective cycle authorization (production-discovered defect), independent
+re-review verdict acceptance, and semantic-rule acceptance
+
+Originating Scope: first target-host AC14 attempt FAILED at result persistence
+(`PERSISTENCE_FAILED`; PostgreSQL `invalid input syntax for type integer:
+"185.832677"`); independent re-review verdict
+`P7-009-CORR-01 Corrective Cycle 2 = VERIFIED`
+(`reviews/P7-009-CORR-01-CYCLE2-INDEPENDENT-REVIEW.md`); BLOCKER 0 / HIGH 0 /
+MEDIUM 0 / LOW 1.
+
+Resolution:
+
+- The HPO accepts the Cycle 2 re-review verdict. Corrective Cycle 2 technical
+  status = VERIFIED. `P7-009-CORR-01` is not DONE (`VERIFIED → DONE` is a
+  separate HPO closure act; the binding AC14 is NOT PASSED).
+- `processing_seconds` remains an integer-seconds field; fractional elapsed
+  duration is normalized with `(int) round($fractionalSeconds)` (185.000000 →
+  185, 185.100000 → 185, 185.499999 → 185, 185.500000 → 186, 185.832677 → 186,
+  185.999999 → 186). Not a schema change.
+- Production AC14 = NOT PASSED / AWAITING CORRECTED RELEASE VALIDATION: the
+  corrected implementation is not deployed and has not run on production
+  PostgreSQL.
+- Corrective Cycle 2 implementation may proceed to the next separately
+  authorized release/deployment step.
+
+Carry-forward (accepted, non-blocking; recorded, not promoted to follow-up tasks,
+none started): F-1 (LOW) `round()` may differ from the whole-second persisted
+timestamp delta by up to 1 second; INFO F-2..F-7 (governance lag — resolved by
+this entry; PostgreSQL path after the former failure point unproven until AC14
+rerun; SQLite-only test limits; pre-existing retry timing semantic; `LogContextTest`
+TD-008 flake; redundant `max(0, …)`). No PostgreSQL execution occurred locally.
+Full text in `DECISIONS.md` ("P7-009-CORR-01 Corrective Cycle 2 (Production AC14
+Failure — `processing_seconds` Integer Persistence)").
+
+History preserved: the original AC14 failure and error text, the
+`DECISION-P7-009-CORR-01-CLOSURE-001` VERIFIED / ACCEPTED FOR CLOSURE record and
+Corrective Cycle 1 (`DECISION-P7-009-CORR-01-CYCLE1-001`) are retained unchanged.
+
+Post-decision sequence: separately authorized commit/push → new immutable
+corrected release (do not modify the existing release in place) → separately
+authorized deployment → AC14 rerun on the target host → PostgreSQL concurrency
+checks carried forward from Cycle 1 → rerun Target-Host Readiness Confirmation →
+only `TARGET_HOST_READY` may permit a later HPO authorization of P7-009 Phase B.
+
+Blocks: none. Does Not Authorize: any commit or push; any deployment; the AC14
+rerun; marking AC14 PASS; closing `P7-009-CORR-01` as DONE; P7-009 Phase B
+(NOT AUTHORIZED); P7-007 restore drill (NOT AUTHORIZED); P7-012 (FINAL_GATE_ONLY,
+NOT AUTHORIZED); final production readiness.
+
+Durable record: this file and `DECISIONS.md`.
