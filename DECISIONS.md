@@ -3367,3 +3367,139 @@ Reference:
 `discovery/processing-provider/DISCOVERY-FINAL-REPORT.md` (options);
 `discovery/processing-provider/ARCHITECTURE-PLAN-OPTION1.md`;
 task files (`tasks/PP-T1-*` through `tasks/PP-T6-*`).
+
+## P7-009-CORR-01 Real Upload → Transcription Initiation Bridge
+
+Date: 2026-10-01
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-009-CORR-01-UPLOAD-TRANSCRIPTION-BRIDGE-001`).
+
+Context: the 2026-09-30 target-host readiness confirmation
+(`reviews/P7-009-TARGET-HOST-READINESS-CONFIRMATION-002.md`, verdict
+`TARGET_HOST_NOT_READY`) raised HIGH finding H-1: no product path exists from
+an uploaded `MediaFile` to a real `Transcription`/`ProcessingJob`.
+
+Decision: explicit user-initiated "Start Transcription" from Media Detail
+(automatic transcription after upload and operator-only initiation rejected).
+`MediaFile != Transcription`. The server-side path authenticates, authorizes,
+validates a processable media state, creates a real `Transcription` and calls
+`TranscriptionOrchestrator::request()`; double submission must not create
+uncontrolled duplicate active work; the demo controller must not be reachable
+as a production transcription path; no schema change without returning to the
+HPO. Corrective task `P7-009-CORR-01` is authorized for contract,
+implementation, testing and independent-review preparation only; contract:
+`tasks/P7-009-CORR-01-upload-transcription-initiation-bridge.md`.
+
+Authority boundaries (unchanged): P7-009 Phase B NOT AUTHORIZED; P7-007
+restore drill NOT AUTHORIZED; P7-012 FINAL_GATE_ONLY, NOT AUTHORIZED. After
+independent verification and deployment of the corrective release, the
+Target-Host Readiness Confirmation is re-run; only `TARGET_HOST_READY` permits
+the HPO to authorize Phase B separately.
+
+Durable record: this file.
+
+## P7-009-CORR-01 Corrective Cycle 1 (F-1 / F-2)
+
+Date: 2026-10-02
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-009-CORR-01-CYCLE1-001`).
+
+Context: the first independent review of `P7-009-CORR-01`
+(`reviews/P7-009-CORR-01-INDEPENDENT-REVIEW.md`, verdict VERIFIED) recorded two
+non-blocking findings for the HPO: F-1 (MEDIUM — a Queued/Draft transcription
+whose dispatch failed after commit has no UI recovery path) and F-2 (LOW —
+`TranscriptionRetry` can reactivate an earlier Failed transcription alongside a
+Start-created one, giving two active transcriptions for one media file). F-3
+(LOW — repeated Start on an active transcription enqueues another no-op
+`ProcessTranscription` message) was accepted as non-blocking and not fixed.
+
+Decision: authorize one corrective cycle limited to F-1 and F-2, followed by a
+fresh independent re-review. Scope boundary as recorded in the task contract
+("Corrective Cycle 1 — Implementation Notes"): no migration, no dependency, no
+worker/provider/queue/orchestrator change, no commit, no deployment; the
+database-level "one active transcription per media" index (review F-6)
+remained NOT authorized.
+
+Record provenance: the original HPO text of this decision was not held in the
+repository before this entry; this entry records its scope as cited by the task
+contract, the Cycle 1 implementation notes and the Cycle 1 independent
+re-review. It was first made durable here by the closure reconciliation
+(`DECISION-P7-009-CORR-01-CLOSURE-001`).
+
+Outcome: implemented 2026-10-02 (Resume Transcription control on Media Detail
+and Transcription Detail reusing `media.transcriptions.store`; controller
+`Throwable` handling that redirects to the stranded transcription;
+`TranscriptionRetry` media-row lock plus competing-active-transcription refusal
+with atomic rollback). Independent re-review:
+`reviews/P7-009-CORR-01-CYCLE1-INDEPENDENT-REVIEW.md` — VERIFIED; F-1 CLOSED,
+F-2 CLOSED, F-3 accepted non-blocking.
+
+Authority boundaries (unchanged): P7-009 Phase B NOT AUTHORIZED; P7-007
+restore drill NOT AUTHORIZED; P7-012 FINAL_GATE_ONLY, NOT AUTHORIZED.
+
+Durable record: this file.
+
+## P7-009-CORR-01 Closure and Commit Authorization
+
+Date: 2026-10-02
+
+Status: DECIDED — Human Product Owner
+(`DECISION-P7-009-CORR-01-CLOSURE-001`).
+
+Baseline: independent re-review verdict
+`P7-009-CORR-01 Corrective Cycle 1 = VERIFIED`
+(`reviews/P7-009-CORR-01-CYCLE1-INDEPENDENT-REVIEW.md`). BLOCKER 0, HIGH 0,
+MEDIUM 0. AC1–AC13 PASS. **AC14 NOT YET EVIDENCED.** F-1 CLOSED; F-2 CLOSED;
+F-3 accepted non-blocking. Reviewer-reproduced: full suite PASS (1295 tests,
+1290 passed, 5 environment-skipped, 0 failures), Pint PASS, PHPStan PASS. The
+HPO accepts the independent review and re-review.
+
+Decision:
+
+- `P7-009-CORR-01` = **VERIFIED / ACCEPTED FOR CLOSURE**. This is not DONE
+  and is not a claim that AC14 passed.
+- The HPO authorizes the canonical corrective change set to be committed and
+  pushed: the corrective implementation, its tests, the task contract, the
+  target-host readiness confirmation that raised H-1, both independent review
+  artifacts, and the governance records. Unrelated work is excluded.
+
+Carry-forward findings (accepted as non-blocking; none blocks corrective
+closure, commit, or deployment preparation):
+
+- **RR-1 — LOW.** A stale Resume page can initiate a new transcription after
+  the previous transcription has already become terminal. Carried forward to
+  real-host / product UX verification.
+- **RR-2 — LOW.** Retry (lock order transcription row → media row) and media
+  deletion (media row → transcription row via FK cascade) can acquire locks in
+  opposite order and may deadlock under concurrent execution on PostgreSQL.
+  Carried forward to Phase 7 real-host / concurrency verification.
+- **RR-3 and later — INFO.** Retained as documented informational findings in
+  the Cycle 1 re-review (RR-3 Retry endpoint generic 500 on post-commit
+  dispatch failure; RR-4 Resume visibility vs. processable check; RR-5 Resume
+  offered for a healthy Queued attempt; RR-6 governance lag — resolved by this
+  reconciliation; RR-7 "dispatched" log precedes the push; RR-8 carried-over
+  prior-review INFO items).
+- The concurrency guarantee of the media-row-lock design is established by
+  PostgreSQL reasoning, not by an executed PostgreSQL run (none exists in the
+  review environment); it is verified on the target host (sequence below).
+
+Post-commit sequence (binding order):
+
+1. deploy a new immutable release;
+2. do not modify the existing release in place;
+3. execute AC14 on the target host;
+4. perform the PostgreSQL concurrency checks listed by the reviewer
+   (`reviews/P7-009-CORR-01-CYCLE1-INDEPENDENT-REVIEW.md` §14);
+5. rerun Target-Host Readiness Confirmation;
+6. only `TARGET_HOST_READY` may permit a later HPO authorization of P7-009
+   Phase B.
+
+This decision does NOT authorize: P7-009 Phase B; the P7-007 restore drill;
+P7-012; final production readiness. Current target-host readiness verdict
+remains `TARGET_HOST_NOT_READY` until re-confirmed after the corrective
+release. AC14 is not marked PASS and P7-009 Phase B is not marked authorized
+by this record.
+
+Durable record: this file.

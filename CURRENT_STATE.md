@@ -1,6 +1,6 @@
 # RTFTT Transcribe AI — Current State
 
-Last Updated: 2026-09-29
+Last Updated: 2026-10-02
 
 ## Current Branch
 
@@ -23,7 +23,7 @@ disagrees.
 | Phase 4 | CLOSED (2026-09-20); P4-001..P4-006 DONE |
 | Phase 5 | CLOSED (2026-09-23); all P5 tasks DONE |
 | Phase 6 | CLOSED (2026-09-25, `DECISION-PHASE6-CLOSURE-001`); P6-001..P6-010 DONE; D6-08/D6-09 DEFERRED |
-| Phase 7 | NOT CLOSED — partial hardening: Wave 1 CLOSED, Wave 2 CLOSED, Wave 3A CLOSED, P7-011 DONE, P7-009 IN_PROGRESS (Phase A only) |
+| Phase 7 | NOT CLOSED — partial hardening: Wave 1 CLOSED, Wave 2 CLOSED, Wave 3A CLOSED, P7-011 DONE, P7-009 IN_PROGRESS (Phase A only), P7-009-CORR-01 VERIFIED / ACCEPTED FOR CLOSURE (2026-10-02; AC14 not yet evidenced) |
 | Processing Provider | CLOSED; PP-T1..PP-T6 DONE (final gate passed; authorizes no post-PP work) |
 
 Authorization boundaries (unchanged): P7-009 Phase B NOT AUTHORIZED;
@@ -329,7 +329,48 @@ closed, P3-007 DONE; P3-008 DONE).
 
 The current PHP CLI configuration reports `upload_max_filesize=2M`, `post_max_size=8M`, `max_file_uploads=20`, `max_execution_time=0`, `max_input_time=-1`, and `memory_limit=128M`. The first two limits are below the approved 500 MiB (524,288,000-byte) per-file application limit. Before P2-003, the effective PHP/web-server/Livewire receiving path must be configured for at least the 500 MiB application boundary with overhead. No host configuration was changed by this checkpoint.
 
-## Active Task (current as of 2026-09-29)
+## Active Task (current as of 2026-10-02)
+
+P7-009-CORR-01 (Real Upload → Transcription Initiation Bridge) =
+**VERIFIED / ACCEPTED FOR CLOSURE** (HPO, 2026-10-02,
+`DECISION-P7-009-CORR-01-CLOSURE-001`). Not DONE. Authorized by
+`DECISION-P7-009-CORR-01-UPLOAD-TRANSCRIPTION-BRIDGE-001` (2026-10-01);
+Corrective Cycle 1 (F-1 Resume path, F-2 Retry vs. active work) authorized by
+`DECISION-P7-009-CORR-01-CYCLE1-001`; contract
+`tasks/P7-009-CORR-01-upload-transcription-initiation-bridge.md`.
+
+Evidence: independent review `reviews/P7-009-CORR-01-INDEPENDENT-REVIEW.md`
+(VERIFIED) and independent Cycle 1 re-review
+`reviews/P7-009-CORR-01-CYCLE1-INDEPENDENT-REVIEW.md` (VERIFIED): BLOCKER 0,
+HIGH 0, MEDIUM 0; AC1–AC13 PASS; **AC14 NOT YET EVIDENCED**; F-1 CLOSED; F-2
+CLOSED; F-3 accepted non-blocking; full suite, Pint and PHPStan PASS
+(reviewer-reproduced). Concurrency of the media-row-lock design is established
+by PostgreSQL reasoning, not by an executed PostgreSQL run.
+
+Carry-forward (accepted, non-blocking): RR-1 (LOW, stale Resume page can start
+a new transcription → real-host / product UX verification); RR-2 (LOW, Retry vs.
+media-deletion lock-order inversion, possible PostgreSQL deadlock → Phase 7
+real-host / concurrency verification); RR-3 and later (INFO, documented).
+
+The HPO authorized the canonical corrective change set to be committed and
+pushed. The commit/push does not deploy anything and does not authorize P7-009
+Phase B, the P7-007 restore drill, P7-012, or final production readiness.
+
+Next sequence (HPO-directed; none started): deploy a new immutable release (the
+existing release is not modified in place) → execute AC14 on the target host →
+PostgreSQL concurrency checks listed by the reviewer → re-run the Target-Host
+Readiness Confirmation → only `TARGET_HOST_READY` may permit a later HPO
+authorization of P7-009 Phase B. Target-host readiness verdict remains
+`TARGET_HOST_NOT_READY` until re-confirmed after the corrective release.
+P7-009 Phase B = NOT AUTHORIZED; P7-007 drill = NOT AUTHORIZED; P7-012 =
+FINAL_GATE_ONLY, NOT AUTHORIZED; release-ready = NO.
+
+Previous (2026-10-01) active-task text, superseded: P7-009-CORR-01 = REVIEW —
+implementation complete and awaiting independent review.
+
+Previous (2026-09-29) active-task text follows.
+
+## Active Task (2026-09-29, superseded)
 
 P7-009 = IN_PROGRESS — Phase A only (harness preparation + rehearsal
 executed 2026-09-26 under

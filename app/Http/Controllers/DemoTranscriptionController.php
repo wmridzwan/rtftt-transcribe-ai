@@ -19,6 +19,9 @@ class DemoTranscriptionController extends Controller
 {
     public function store(Request $request): RedirectResponse
     {
+        // P7-009-CORR-01: defense in depth if a route cache was built under another env.
+        abort_if(app()->environment('production'), 404);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'language' => 'nullable|string|max:10',

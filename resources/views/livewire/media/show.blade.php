@@ -1,5 +1,32 @@
 @php
     $hasPhysicalFile = $mediaFile->hasPhysicalFile();
+    $hasActiveTranscription = $mediaFile->transcriptions->contains(
+        fn ($transcription) => in_array($transcription->status, [
+            \App\Enums\TranscriptionStatus::Draft,
+            \App\Enums\TranscriptionStatus::Queued,
+            \App\Enums\TranscriptionStatus::Preparing,
+            \App\Enums\TranscriptionStatus::Transcribing,
+        ], true)
+    );
+    $canStartTranscription = $hasPhysicalFile
+        && ! $hasActiveTranscription
+        && in_array($mediaFile->status, [\App\Enums\MediaStatus::Uploaded, \App\Enums\MediaStatus::Ready], true)
+        && auth()->user()?->can('update', $mediaFile);
+    // P7-009-CORR-01 corrective cycle 1 (F-1): a Draft/Queued transcription
+    // whose queue dispatch never happened (transient queue failure after
+    // commit) has no Retry path and is hidden from Start. The same
+    // idempotent endpoint re-dispatches the existing attempt without new
+    // rows, so offer an explicit Resume control for exactly that state.
+    // Preparing/Transcribing imply worker progress and stay hidden.
+    $resumableTranscription = $mediaFile->transcriptions->first(
+        fn ($transcription) => in_array($transcription->status, [
+            \App\Enums\TranscriptionStatus::Draft,
+            \App\Enums\TranscriptionStatus::Queued,
+        ], true)
+    );
+    $canResumeTranscription = $hasPhysicalFile
+        && $resumableTranscription !== null
+        && auth()->user()?->can('update', $mediaFile);
 @endphp
 
 <div class="flex h-full w-full flex-1 flex-col gap-6">
@@ -9,6 +36,17 @@
             <x-page-header :title="$mediaFile->display_name" :description="'Media file details'" />
         </div>
         <div class="flex items-center gap-2">
+            @if ($canStartTranscription)
+                <form method="POST" action="{{ route('media.transcriptions.store', $mediaFile) }}" x-data="{ submitting: false }" x-on:submit="submitting = true">
+                    @csrf
+                    <flux:button type="submit" icon="microphone" variant="primary" size="sm" x-bind:disabled="submitting">Start Transcription</flux:button>
+                </form>
+            @elseif ($canResumeTranscription)
+                <form method="POST" action="{{ route('media.transcriptions.store', $mediaFile) }}" x-data="{ submitting: false }" x-on:submit="submitting = true">
+                    @csrf
+                    <flux:button type="submit" icon="arrow-path" variant="primary" size="sm" x-bind:disabled="submitting">Resume Transcription</flux:button>
+                </form>
+            @endif
             @if ($hasPhysicalFile)
                 <flux:button tag="a" href="{{ route('media.download', $mediaFile) }}" icon="arrow-down-tray" variant="subtle" size="sm">Download</flux:button>
             @else

@@ -403,7 +403,9 @@
                                 {{ $transcription->error_message ?? 'The transcription failed.' }}
                             </p>
 
-                            @if ($retryEligible && auth()->user()?->can('update', $transcription))
+                            @if ($retryEligible && ($retryBlocked ?? false))
+                                <p class="mt-2 text-xs text-red-600 dark:text-red-400">Another transcription is already active for this media file. Retry becomes available when it finishes.</p>
+                            @elseif ($retryEligible && auth()->user()?->can('update', $transcription))
                                 <form method="POST" action="{{ route('transcriptions.retry', $transcription) }}" class="mt-3">
                                     @csrf
                                     <flux:button type="submit" size="sm" icon="arrow-path">Retry transcription</flux:button>
@@ -411,6 +413,24 @@
                             @elseif (! $retryEligible)
                                 <p class="mt-2 text-xs text-red-600 dark:text-red-400">This failure is not retryable.</p>
                             @endif
+                        </div>
+                    @endif
+
+                    {{-- P7-009-CORR-01 corrective cycle 1 (F-1): a Draft/Queued
+                        transcription whose dispatch never reached the queue has
+                        no Retry path. Re-posting to the media initiation
+                        endpoint re-dispatches the existing attempt without
+                        creating new rows. --}}
+                    @if (($resumeEligible ?? false) && $transcription->mediaFile !== null)
+                        <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
+                            <p class="text-sm text-amber-700 dark:text-amber-300">
+                                This transcription is queued but may not have reached the worker yet. If it stays here, resume dispatch.
+                            </p>
+
+                            <form method="POST" action="{{ route('media.transcriptions.store', $transcription->mediaFile) }}" class="mt-3">
+                                @csrf
+                                <flux:button type="submit" size="sm" icon="arrow-path">Resume Transcription</flux:button>
+                            </form>
                         </div>
                     @endif
                 </div>

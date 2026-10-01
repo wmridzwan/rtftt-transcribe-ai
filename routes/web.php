@@ -6,6 +6,7 @@ use App\Http\Controllers\DemoTranscriptionController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\MediaActionController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\MediaTranscriptionController;
 use App\Http\Controllers\MediaUploadController;
 use App\Http\Controllers\ProcessingJobController;
 use App\Http\Controllers\SettingsController;
@@ -29,8 +30,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('/transcriptions', [TranscriptionController::class, 'index'])->name('transcriptions.index');
-    Route::get('/transcriptions/create', [TranscriptionController::class, 'create'])->name('transcriptions.create');
-    Route::post('/transcriptions', [DemoTranscriptionController::class, 'store'])->name('transcriptions.store');
+    // P7-009-CORR-01: the Phase 1 demo form fabricates completed transcriptions
+    // and must never be reachable in production; real transcription starts from
+    // Media Detail (media.transcriptions.store).
+    if (app()->environment('production')) {
+        Route::redirect('/transcriptions/create', '/media/upload')->name('transcriptions.create');
+    } else {
+        Route::get('/transcriptions/create', [TranscriptionController::class, 'create'])->name('transcriptions.create');
+        Route::post('/transcriptions', [DemoTranscriptionController::class, 'store'])->name('transcriptions.store');
+    }
     Route::get('/transcriptions/{transcription}', [TranscriptionController::class, 'show'])->name('transcriptions.show');
 
     Route::patch('/transcriptions/{transcription}/rename', [TranscriptionActionController::class, 'rename'])->name('transcriptions.rename');
@@ -58,6 +66,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:upload-initiate')
         ->name('media.upload.store');
     Route::get('/media/{mediaFile}', MediaShow::class)->name('media.show');
+    Route::post('/media/{mediaFile}/transcriptions', [MediaTranscriptionController::class, 'store'])->name('media.transcriptions.store');
     Route::patch('/media/{mediaFile}/rename', [MediaActionController::class, 'rename'])->name('media.rename');
     Route::delete('/media/{mediaFile}', [MediaActionController::class, 'destroy'])->name('media.destroy');
     Route::get('/media/{mediaFile}/download', [MediaActionController::class, 'download'])->name('media.download');

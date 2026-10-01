@@ -7983,3 +7983,98 @@ closed Phase 1–7 records; PP-T1–PP-T6 DONE records.
 
 Durable record: this file (sole persistence location; no mirror
 required).
+
+## P7-009-CORR-01 Upload → Transcription Initiation Bridge Authorization
+
+Decision ID: DECISION-P7-009-CORR-01-UPLOAD-TRANSCRIPTION-BRIDGE-001
+
+Status: DECIDED — HPO 2026-10-01
+
+Type: Corrective task authorization (contract + implementation + testing +
+independent-review preparation only)
+
+Originating Scope: P7-009 target-host readiness HIGH finding H-1
+(`reviews/P7-009-TARGET-HOST-READINESS-CONFIRMATION-002.md`).
+
+Resolution: explicit user-initiated Start Transcription from Media Detail
+selected; auto-transcribe and operator-only initiation rejected. Full text in
+`DECISIONS.md` ("P7-009-CORR-01 Real Upload → Transcription Initiation
+Bridge") and the task contract.
+
+Blocks: none. Does Not Authorize: P7-009 Phase B; P7-007 drill; P7-012; any
+production deployment; any schema change.
+
+Open follow-up options for the HPO (INFO, from the contract §6/§7): optional
+partial unique index "one active transcription per media" as database-level
+defense-in-depth for the lock-based idempotency (schema change; NOT
+authorized).
+
+## P7-009-CORR-01 Corrective Cycle 1 Authorization
+
+Decision ID: DECISION-P7-009-CORR-01-CYCLE1-001
+
+Status: DECIDED — HPO 2026-10-02
+
+Type: Corrective cycle authorization (F-1 and F-2 of
+`reviews/P7-009-CORR-01-INDEPENDENT-REVIEW.md` only; fresh independent
+re-review required afterwards)
+
+Resolution: one corrective cycle for F-1 (Resume path for a stranded
+Queued/Draft transcription) and F-2 (Retry must not create competing active
+work for one media file). F-3 accepted non-blocking. No migration, no
+dependency, no worker/provider/queue/orchestrator change, no commit, no
+deployment. Full text in `DECISIONS.md` ("P7-009-CORR-01 Corrective Cycle 1
+(F-1 / F-2)"); outcome: re-review VERIFIED
+(`reviews/P7-009-CORR-01-CYCLE1-INDEPENDENT-REVIEW.md`), F-1 and F-2 CLOSED.
+
+Blocks: none. Does Not Authorize: P7-009 Phase B; P7-007 drill; P7-012; any
+production deployment; any schema change.
+
+Durable record: this file and `DECISIONS.md`.
+
+## P7-009-CORR-01 Closure and Commit Authorization
+
+Decision ID: DECISION-P7-009-CORR-01-CLOSURE-001
+
+Status: DECIDED — HPO 2026-10-02
+
+Type: Task closure acceptance (VERIFIED / ACCEPTED FOR CLOSURE) and
+commit/push authorization
+
+Originating Scope: independent re-review verdict
+`P7-009-CORR-01 Corrective Cycle 1 = VERIFIED`; BLOCKER 0 / HIGH 0 / MEDIUM 0;
+AC1–AC13 PASS; AC14 NOT YET EVIDENCED.
+
+Resolution: `P7-009-CORR-01` = VERIFIED / ACCEPTED FOR CLOSURE (not DONE; AC14
+not marked PASS). The canonical corrective change set (implementation, tests,
+task contract, readiness confirmation 002, both independent review artifacts,
+governance records) is authorized to be committed and pushed. Full text,
+carry-forward findings and the post-commit sequence in `DECISIONS.md`
+("P7-009-CORR-01 Closure and Commit Authorization").
+
+Carry-forward (accepted, non-blocking; recorded as carry-forward items, not as
+READY follow-up tasks — none started):
+
+- RR-1 (LOW) — stale Resume page can start a new transcription after the prior
+  one became terminal → real-host / product UX verification.
+- RR-2 (LOW) — Retry vs. media-deletion lock-order inversion, possible
+  PostgreSQL deadlock → Phase 7 real-host / concurrency verification.
+- RR-3 and later (INFO) — retained as documented informational findings.
+
+Open for the HPO (not decided here): whether RR-1 / RR-2 are promoted to
+separate READY follow-up tasks per `.ai/guidelines/orchestration-policy.md`
+("Actionable non-blocking LOW or MEDIUM review findings become separate READY
+follow-up tasks"), or remain carry-forward items for the target-host
+verification; the optional partial-unique-index hardening (schema change)
+remains NOT authorized.
+
+Post-commit sequence: deploy a new immutable release (do not modify the
+existing release in place) → execute AC14 on the target host → PostgreSQL
+concurrency checks listed by the reviewer → rerun Target-Host Readiness
+Confirmation → only `TARGET_HOST_READY` may permit a later HPO authorization of
+P7-009 Phase B.
+
+Blocks: none. Does Not Authorize: P7-009 Phase B; P7-007 restore drill;
+P7-012; final production readiness.
+
+Durable record: this file and `DECISIONS.md`.

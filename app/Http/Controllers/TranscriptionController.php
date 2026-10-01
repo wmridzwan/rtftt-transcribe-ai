@@ -8,6 +8,7 @@ use App\Editing\RevisionSegmentData;
 use App\Editing\RevisionService;
 use App\Editing\TranscriptRevision;
 use App\Enums\MediaType;
+use App\Enums\TranscriptionStatus;
 use App\Models\Transcription;
 use App\Models\User;
 use App\TranscriptExperience\SegmentTimestamp;
@@ -58,6 +59,7 @@ class TranscriptionController extends Controller
         $transcription->load(['mediaFile', 'segments', 'processingJobs']);
 
         $retryEligible = $retry->isEligible($transcription);
+        $retryBlocked = $retryEligible && $retry->isBlockedByActiveTranscription($transcription);
 
         // P6-001 §9: when an active revision exists it is authoritative for
         // presentation; otherwise the immutable machine source is shown.
@@ -68,6 +70,17 @@ class TranscriptionController extends Controller
         $fullTranscriptText = implode("\n", array_column($displaySegments, 'text'));
 
         $mediaFile = $transcription->mediaFile;
+
+        // P7-009-CORR-01 corrective cycle 1 (F-1): a Draft/Queued
+        // transcription whose dispatch never reached the queue is stranded
+        // with no Retry path. The media initiation endpoint re-dispatches
+        // the existing attempt idempotently (no new rows), so the detail
+        // page offers the same Resume action the media page offers.
+        $resumeEligible = in_array($transcription->status, [TranscriptionStatus::Draft, TranscriptionStatus::Queued], true)
+            && $mediaFile !== null
+            && $user !== null
+            && $user->can('update', $mediaFile);
+
         $mediaAvailable = $mediaFile !== null && $mediaFile->hasPhysicalFile();
         $streamUrl = $mediaAvailable
             ? route('media.stream', ['mediaFile' => $mediaFile->uuid])
@@ -126,6 +139,8 @@ class TranscriptionController extends Controller
         return view('transcriptions.show', compact(
             'transcription',
             'retryEligible',
+            'retryBlocked',
+            'resumeEligible',
             'fullTranscriptText',
             'streamUrl',
             'mediaPurged',
